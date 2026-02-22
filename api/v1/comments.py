@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from api.deps import get_substack_client
-from client.exceptions import SubstackAPIError, SubstackAuthError
 from client.substack import SubstackClient
 from models.schemas import NoteResponse
 
@@ -17,10 +16,6 @@ async def get_comment(
     comment_id: int,
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> NoteResponse:
-    try:
-        comment = await client.get_comment_by_id(comment_id)
-    except SubstackAuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
-    except SubstackAPIError as exc:
-        raise HTTPException(status_code=502, detail=exc.message) from exc
+    """Return a single Substack comment by its ID (uses the reader comment wire format)."""
+    comment = await client.get_comment_by_id(comment_id)
     return NoteResponse.from_substack(comment)

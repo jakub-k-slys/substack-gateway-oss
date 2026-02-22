@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+import json
+import pathlib
+
 from behave import given, then, when
+
+# Shared constants used across step files
+SUBSTACK_BASE = "https://substack.com"
+SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
+
+
+def load_sample(path: str):
+    return json.loads((SAMPLES_DIR / path).read_text())
 
 
 @given('a valid bearer token "{token}" and publication URL "{pub_url}"')

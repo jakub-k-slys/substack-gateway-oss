@@ -11,11 +11,11 @@ Feature: Note by ID endpoint
     And the response field "id" is not null
     And the response field "body" is not null
 
-  Scenario: Note not found returns 502
+  Scenario: Note not found returns 404
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
     And the Substack reader comment endpoint for id 131648795 returns status 404
     When I send GET /api/v1/notes/131648795
-    Then the response status code is 502
+    Then the response status code is 404
 
   Scenario: Authentication failure returns 401
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
@@ -26,3 +26,8 @@ Feature: Note by ID endpoint
   Scenario: Missing authorization header returns 422
     When I send GET /api/v1/notes/131648795
     Then the response status code is 422
+
+  Scenario: Malformed authorization header returns 401
+    Given a malformed authorization header and publication URL "https://example.substack.com"
+    When I send GET /api/v1/notes/131648795
+    Then the response status code is 401

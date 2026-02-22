@@ -28,3 +28,8 @@ Feature: Own posts endpoint
   Scenario: Missing authorization header returns 422
     When I send GET /api/v1/me/posts
     Then the response status code is 422
+
+  Scenario: Malformed authorization header returns 401
+    Given a malformed authorization header and publication URL "https://example.substack.com"
+    When I send GET /api/v1/me/posts
+    Then the response status code is 401

@@ -35,7 +35,7 @@ class SubstackNoteUser(BaseModel):
     id: int
     name: str
     handle: str
-    photo_url: str
+    photo_url: str | None = None
 
 
 class SubstackNoteContext(BaseModel):

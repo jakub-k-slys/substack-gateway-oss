@@ -1,22 +1,13 @@
 from __future__ import annotations
 
-import json
-import pathlib
-
 import httpx
 from behave import given
 
-_SUBSTACK_BASE = "https://substack.com"
-
-_SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
-
-
-def _load_sample(path: str):
-    return json.loads((_SAMPLES_DIR / path).read_text())
+from features.steps.common import SUBSTACK_BASE, load_sample
 
 
 def _reader_comment_url(comment_id: int) -> str:
-    return f"{_SUBSTACK_BASE}/api/v1/reader/comment/{comment_id}"
+    return f"{SUBSTACK_BASE}/api/v1/reader/comment/{comment_id}"
 
 
 @given(
@@ -25,7 +16,7 @@ def _reader_comment_url(comment_id: int) -> str:
 def step_reader_comment_returns_sample(context, comment_id):
     context.respx_mock.get(_reader_comment_url(comment_id)).mock(
         return_value=httpx.Response(
-            200, json=_load_sample(f"api/v1/reader/comment/{comment_id}")
+            200, json=load_sample(f"api/v1/reader/comment/{comment_id}")
         )
     )
 

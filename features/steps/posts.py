@@ -1,22 +1,13 @@
 from __future__ import annotations
 
-import json
-import pathlib
-
 import httpx
 from behave import given
 
-_SUBSTACK_BASE = "https://substack.com"
-
-_SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
-
-
-def _load_sample(path: str):
-    return json.loads((_SAMPLES_DIR / path).read_text())
+from features.steps.common import SUBSTACK_BASE, load_sample
 
 
 def _full_post_url(post_id: int) -> str:
-    return f"{_SUBSTACK_BASE}/api/v1/posts/by-id/{post_id}"
+    return f"{SUBSTACK_BASE}/api/v1/posts/by-id/{post_id}"
 
 
 def _post_comments_url(context, post_id: int) -> str:
@@ -30,7 +21,7 @@ def _post_comments_url(context, post_id: int) -> str:
 def step_full_post_returns_sample(context, post_id):
     context.respx_mock.get(_full_post_url(post_id)).mock(
         return_value=httpx.Response(
-            200, json=_load_sample(f"api/v1/posts/by-id/{post_id}")
+            200, json=load_sample(f"api/v1/posts/by-id/{post_id}")
         )
     )
 
@@ -48,7 +39,7 @@ def step_full_post_returns_status(context, post_id, status):
 def step_post_comments_returns_sample(context, post_id):
     context.respx_mock.get(_post_comments_url(context, post_id)).mock(
         return_value=httpx.Response(
-            200, json=_load_sample(f"api/v1/post/{post_id}/comments")
+            200, json=load_sample(f"api/v1/post/{post_id}/comments")
         )
     )
 

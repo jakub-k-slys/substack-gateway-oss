@@ -7,6 +7,7 @@ from models.substack import (
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
+    SubstackNotesPage,
     SubstackPreviewPost,
     SubstackProfilePostsPage,
     SubstackPublicProfile,
@@ -65,12 +66,14 @@ class NoteResponse(BaseModel):
         return cls(
             id=comment.id if comment else 0,
             body=comment.body if comment else "",
-            likes_count=comment.reaction_count or 0 if comment else 0,
+            likes_count=comment.reaction_count
+            if (comment and comment.reaction_count is not None)
+            else 0,
             author=NoteAuthor(
                 id=user.id if user else 0,
                 name=user.name if user else "",
                 handle=user.handle if user else "",
-                avatar_url=user.photo_url if user else "",
+                avatar_url=user.photo_url or "" if user else "",
             ),
             published_at=note.context.timestamp,
         )
@@ -79,6 +82,13 @@ class NoteResponse(BaseModel):
 class NotesPageResponse(BaseModel):
     items: list[NoteResponse]
     next_cursor: str | None = None
+
+    @classmethod
+    def from_substack(cls, page: SubstackNotesPage) -> NotesPageResponse:
+        return cls(
+            items=[NoteResponse.from_substack(n) for n in page.items],
+            next_cursor=page.nextCursor,
+        )
 
 
 # ------------------------------------------------------------------
@@ -170,6 +180,10 @@ class CommentResponse(BaseModel):
 class CommentsResponse(BaseModel):
     items: list[CommentResponse]
 
+    @classmethod
+    def from_substack(cls, comments: list[SubstackComment]) -> CommentsResponse:
+        return cls(items=[CommentResponse.from_substack(c) for c in comments])
+
 
 # ------------------------------------------------------------------
 # Following
@@ -188,8 +202,6 @@ class FollowingUserResponse(BaseModel):
 class FollowingResponse(BaseModel):
     items: list[FollowingUserResponse]
 
-
-class ErrorResponse(BaseModel):
-    error: str
-    message: str
-    status: int
+    @classmethod
+    def from_substack(cls, users: list[SubstackFollowingUser]) -> FollowingResponse:
+        return cls(items=[FollowingUserResponse.from_substack(u) for u in users])

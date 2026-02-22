@@ -2,13 +2,11 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Query
 
 from api.deps import get_substack_client
-from client.exceptions import SubstackAPIError, SubstackAuthError
 from client.substack import SubstackClient
 from models.schemas import (
-    NoteResponse,
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
@@ -22,12 +20,8 @@ async def get_profile(
     slug: str,
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> ProfileResponse:
-    try:
-        profile = await client.get_profile_by_slug(slug)
-    except SubstackAuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
-    except SubstackAPIError as exc:
-        raise HTTPException(status_code=502, detail=exc.message) from exc
+    """Return a Substack user's public profile by their handle slug."""
+    profile = await client.get_profile_by_slug(slug)
     return ProfileResponse.from_substack(profile)
 
 
@@ -35,18 +29,12 @@ async def get_profile(
 async def get_profile_posts(
     slug: str,
     client: Annotated[SubstackClient, Depends(get_substack_client)],
-    limit: int = 25,
-    offset: int = 0,
+    limit: int = Query(default=25, gt=0, le=100),
+    offset: int = Query(default=0, ge=0),
 ) -> PostsPageResponse:
-    try:
-        profile = await client.get_profile_by_slug(slug)
-        page = await client.get_posts_for_profile(
-            profile.id, limit=limit, offset=offset
-        )
-    except SubstackAuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
-    except SubstackAPIError as exc:
-        raise HTTPException(status_code=502, detail=exc.message) from exc
+    """Return a page of posts for the given profile slug."""
+    profile = await client.get_profile_by_slug(slug)
+    page = await client.get_posts_for_profile(profile.id, limit=limit, offset=offset)
     return PostsPageResponse.from_substack(page)
 
 
@@ -56,14 +44,7 @@ async def get_profile_notes(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
     cursor: str | None = None,
 ) -> NotesPageResponse:
-    try:
-        profile = await client.get_profile_by_slug(slug)
-        page = await client.get_notes_for_profile(profile.id, cursor=cursor)
-    except SubstackAuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
-    except SubstackAPIError as exc:
-        raise HTTPException(status_code=502, detail=exc.message) from exc
-    return NotesPageResponse(
-        items=[NoteResponse.from_substack(n) for n in page.items],
-        next_cursor=page.nextCursor,
-    )
+    """Return a page of notes for the given profile slug."""
+    profile = await client.get_profile_by_slug(slug)
+    page = await client.get_notes_for_profile(profile.id, cursor=cursor)
+    return NotesPageResponse.from_substack(page)

@@ -11,11 +11,11 @@ Feature: Public profile endpoint
     And the response field "handle" is "jakubslys"
     And the response field "slug" is "jakubslys"
 
-  Scenario: Profile not found returns 502
+  Scenario: Profile not found returns 404
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
     And the Substack public profile endpoint for "unknown-user" returns status 404
     When I send GET /api/v1/profiles/unknown-user
-    Then the response status code is 502
+    Then the response status code is 404
 
   Scenario: Authentication failure returns 401
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

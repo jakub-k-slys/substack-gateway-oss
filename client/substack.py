@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import httpx
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
@@ -20,12 +22,23 @@ from models.substack import (
 _SUBSTACK_BASE = "https://substack.com"
 _API_PREFIX = "api/v1"
 _TIMEOUT = 10.0
+_HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
 class SubstackClient:
     def __init__(self, token: str, publication_url: str) -> None:
         self._cookies = {"connect.sid": token}
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
+        self._http: httpx.AsyncClient | None = None
+
+    async def __aenter__(self) -> SubstackClient:
+        self._http = httpx.AsyncClient(cookies=self._cookies, timeout=_TIMEOUT)
+        return self
+
+    async def __aexit__(self, *args: object) -> None:
+        if self._http is not None:
+            await self._http.aclose()
+            self._http = None
 
     # ------------------------------------------------------------------
     # Connectivity
@@ -34,15 +47,11 @@ class SubstackClient:
     async def check_connectivity(self) -> bool:
         """Mirrors ConnectivityService.isConnected() — never raises."""
         url = f"{self._pub_base}/user-setting"
-        async with httpx.AsyncClient(cookies=self._cookies, timeout=_TIMEOUT) as http:
-            try:
-                r = await http.put(
-                    url,
-                    json={"type": "last_home_tab", "value_text": "inbox"},
-                )
-                return r.status_code == 200
-            except httpx.HTTPError:
-                return False
+        try:
+            await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
+            return True
+        except (SubstackAuthError, SubstackAPIError):
+            return False
 
     # ------------------------------------------------------------------
     # Profile
@@ -58,6 +67,10 @@ class SubstackClient:
         url = f"{self._pub_base}/handle/options"
         r = await self._request("GET", url)
         response = HandleOptionsResponse.model_validate(r.json())
+        if not response.potentialHandles:
+            raise SubstackAPIError(
+                502, "Substack returned no potential handles for this account"
+            )
         return response.potentialHandles[0].handle
 
     async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
@@ -123,22 +136,30 @@ class SubstackClient:
     async def _get_own_id(self) -> int:
         """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
         url = f"{self._pub_base}/user-setting"
-        r = await self._request(
-            "PUT", url, json={"type": "last_home_tab", "value_text": "inbox"}
-        )
-        return int(r.json()["user_id"])
+        r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
+        raw = r.json().get("user_id")
+        if raw is None:
+            raise SubstackAPIError(502, "Substack response missing user_id field")
+        try:
+            return int(raw)
+        except (TypeError, ValueError) as exc:
+            raise SubstackAPIError(
+                502, f"Substack returned non-integer user_id: {raw!r}"
+            ) from exc
 
-    async def get_note_by_id(self, note_id: int) -> SubstackNote:
-        """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (global)."""
-        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/comment/{note_id}"
-        r = await self._request("GET", url)
-        return SubstackItemResponse.model_validate(r.json()).item
-
-    async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
-        """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (global)."""
+    async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
+        """Internal: GET /reader/comment/{id} (global)."""
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/comment/{comment_id}"
         r = await self._request("GET", url)
         return SubstackItemResponse.model_validate(r.json()).item
+
+    async def get_note_by_id(self, note_id: int) -> SubstackNote:
+        """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (global)."""
+        return await self._get_reader_comment(note_id)
+
+    async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
+        """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (global)."""
+        return await self._get_reader_comment(comment_id)
 
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""
@@ -156,15 +177,22 @@ class SubstackClient:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    async def _request(self, method: str, url: str, **kwargs) -> httpx.Response:
-        async with httpx.AsyncClient(cookies=self._cookies, timeout=_TIMEOUT) as http:
-            try:
-                r = await http.request(method, url, **kwargs)
-            except httpx.HTTPError as exc:
-                raise SubstackAPIError(502, f"Network error: {exc}") from exc
+    async def _request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+        if self._http is None:
+            raise RuntimeError(
+                "SubstackClient must be used as an async context manager"
+            )
+        try:
+            r = await self._http.request(method, url, **kwargs)
+        except httpx.HTTPError as exc:
+            raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
-        if r.status_code in (401, 403):
-            raise SubstackAuthError("Invalid or expired Substack session token")
+        if r.status_code == 401:
+            raise SubstackAuthError(401, "Invalid or expired Substack session token")
+        if r.status_code == 403:
+            raise SubstackAuthError(
+                403, "Forbidden: insufficient permissions for this resource"
+            )
         if not r.is_success:
             raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}")
         return r
