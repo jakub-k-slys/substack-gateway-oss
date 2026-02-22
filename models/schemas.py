@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel
+
+from models.substack import SubstackPublicProfile
 
 
 class HealthResponse(BaseModel):
@@ -19,16 +19,15 @@ class ProfileResponse(BaseModel):
     bio: str | None = None
 
     @classmethod
-    def from_raw(cls, data: dict[str, Any]) -> ProfileResponse:
-        handle = data.get("handle", "")
+    def from_substack(cls, profile: SubstackPublicProfile) -> ProfileResponse:
         return cls(
-            id=data["id"],
-            slug=handle,
-            handle=handle,
-            name=data.get("name", ""),
-            url=f"https://substack.com/@{handle}",
-            avatar_url=data.get("photo_url", ""),
-            bio=data.get("bio"),
+            id=profile.id,
+            slug=profile.handle,
+            handle=profile.handle,
+            name=profile.name,
+            url=f"https://substack.com/@{profile.handle}",
+            avatar_url=profile.photo_url or "",
+            bio=profile.bio,
         )
 
 
