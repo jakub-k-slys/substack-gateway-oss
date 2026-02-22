@@ -8,7 +8,7 @@ from api.deps import get_substack_client
 from client.substack import SubstackClient
 from models.schemas import NoteResponse
 
-router = APIRouter()
+router = APIRouter(tags=["notes"])
 
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)

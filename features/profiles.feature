@@ -9,7 +9,6 @@ Feature: Public profile endpoint
     When I send GET /api/v1/profiles/jakubslys
     Then the response status code is 200
     And the response field "handle" is "jakubslys"
-    And the response field "slug" is "jakubslys"
 
   Scenario: Profile not found returns 404
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

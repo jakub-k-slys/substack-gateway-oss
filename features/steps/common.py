@@ -9,24 +9,39 @@ from behave import given, then, when
 SUBSTACK_BASE = "https://substack.com"
 SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
 
+_USER_SETTING_PATH = "/api/v1/user-setting"
+_PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"
+
 
 def load_sample(path: str):
     return json.loads((SAMPLES_DIR / path).read_text())
 
 
-@given('a valid bearer token "{token}" and publication URL "{pub_url}"')
-def step_valid_auth(context, token, pub_url):
+def pub_url(context) -> str:
+    return context.headers.get("x-publication-url", "").rstrip("/")
+
+
+def user_setting_url(context) -> str:
+    return f"{pub_url(context)}{_USER_SETTING_PATH}"
+
+
+def public_profile_url(slug: str) -> str:
+    return f"{SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
+
+
+@given('a valid bearer token "{token}" and publication URL "{pub_url_}"')
+def step_valid_auth(context, token, pub_url_):
     context.headers = {
         "Authorization": f"Bearer {token}",
-        "x-publication-url": pub_url,
+        "x-publication-url": pub_url_,
     }
 
 
-@given('a malformed authorization header and publication URL "{pub_url}"')
-def step_malformed_auth(context, pub_url):
+@given('a malformed authorization header and publication URL "{pub_url_}"')
+def step_malformed_auth(context, pub_url_):
     context.headers = {
         "Authorization": "not-a-bearer-token",
-        "x-publication-url": pub_url,
+        "x-publication-url": pub_url_,
     }
 
 

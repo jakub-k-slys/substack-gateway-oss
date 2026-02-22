@@ -12,7 +12,7 @@ from models.schemas import (
     ProfileResponse,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["profiles"])
 
 
 @router.get("/profiles/{slug}", response_model=ProfileResponse)

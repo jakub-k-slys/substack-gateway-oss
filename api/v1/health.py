@@ -8,7 +8,7 @@ from api.deps import get_substack_client
 from client.substack import SubstackClient
 from models.schemas import HealthResponse
 
-router = APIRouter()
+router = APIRouter(tags=["health"])
 
 
 @router.get("/health", response_model=HealthResponse)

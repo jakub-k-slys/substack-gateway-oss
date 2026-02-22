@@ -31,3 +31,10 @@ Feature: Own notes endpoint
     Given a malformed authorization header and publication URL "https://example.substack.com"
     When I send GET /api/v1/me/notes
     Then the response status code is 401
+
+  Scenario: Fetching notes with a cursor returns the next page
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack notes endpoint returns the sample response
+    When I send GET /api/v1/me/notes?cursor=eyJleGFtcGxlIjoidGVzdCJ9
+    Then the response status code is 200
+    And the response list "items" has 20 items

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
+from config import settings
 from models.substack import (
     HandleOptionsResponse,
     SubstackComment,
@@ -19,9 +21,11 @@ from models.substack import (
     SubstackSubscriberLists,
 )
 
-_SUBSTACK_BASE = "https://substack.com"
+_log = logging.getLogger(__name__)
+
+_SUBSTACK_BASE = settings.substack_base_url
 _API_PREFIX = "api/v1"
-_TIMEOUT = 10.0
+_TIMEOUT = settings.substack_timeout
 _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
@@ -45,12 +49,20 @@ class SubstackClient:
     # ------------------------------------------------------------------
 
     async def check_connectivity(self) -> bool:
-        """Mirrors ConnectivityService.isConnected() — never raises."""
+        """Mirrors ConnectivityService.isConnected() — never raises.
+
+        Returns True when Substack responds (even with an auth error), and
+        False only when there is a network-level failure or a server error,
+        since those indicate the service itself is unreachable.
+        """
         url = f"{self._pub_base}/user-setting"
         try:
             await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
             return True
-        except (SubstackAuthError, SubstackAPIError):
+        except SubstackAuthError:
+            # Substack replied — the service is reachable, the token is just invalid.
+            return True
+        except SubstackAPIError:
             return False
 
     # ------------------------------------------------------------------
@@ -67,11 +79,11 @@ class SubstackClient:
         url = f"{self._pub_base}/handle/options"
         r = await self._request("GET", url)
         response = HandleOptionsResponse.model_validate(r.json())
-        if not response.potentialHandles:
+        if not response.potential_handles:
             raise SubstackAPIError(
                 502, "Substack returned no potential handles for this account"
             )
-        return response.potentialHandles[0].handle
+        return response.potential_handles[0].handle
 
     async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
         """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
@@ -128,7 +140,7 @@ class SubstackClient:
         r = await self._request("GET", url, params={"lists": "following"})
         data = SubstackSubscriberLists.model_validate(r.json())
         users: list[SubstackFollowingUser] = []
-        for sl in data.subscriberLists:
+        for sl in data.subscriber_lists:
             for group in sl.groups:
                 users.extend(group.users)
         return users
@@ -185,6 +197,7 @@ class SubstackClient:
         try:
             r = await self._http.request(method, url, **kwargs)
         except httpx.HTTPError as exc:
+            _log.warning("Substack network error: %s %s — %s", method, url, exc)
             raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
         if r.status_code == 401:
@@ -194,5 +207,8 @@ class SubstackClient:
                 403, "Forbidden: insufficient permissions for this resource"
             )
         if not r.is_success:
+            _log.warning(
+                "Substack error response: %s %s → %s", method, url, r.status_code
+            )
             raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}")
         return r

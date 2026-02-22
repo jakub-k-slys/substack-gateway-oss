@@ -10,7 +10,12 @@ Feature: User profile endpoint
     When I send GET /api/v1/me
     Then the response status code is 200
     And the response field "handle" is "jakubslys"
-    And the response field "slug" is "jakubslys"
+
+  Scenario: Empty handles list returns 502
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack handles endpoint returns the empty handles response
+    When I send GET /api/v1/me
+    Then the response status code is 502
 
   Scenario: Authentication failure returns 401
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

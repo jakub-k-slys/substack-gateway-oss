@@ -13,7 +13,7 @@ from models.schemas import (
     ProfileResponse,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["me"])
 
 
 @router.get("/me", response_model=ProfileResponse)

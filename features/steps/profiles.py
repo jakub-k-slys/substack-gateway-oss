@@ -3,14 +3,9 @@ from __future__ import annotations
 import httpx
 from behave import given
 
-from features.steps.common import SUBSTACK_BASE, load_sample
+from features.steps.common import SUBSTACK_BASE, load_sample, public_profile_url
 
-_PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"
 _PROFILE_NOTES_PATH = "/api/v1/reader/feed/profile/{profile_id}"
-
-
-def _public_profile_url(slug: str) -> str:
-    return f"{SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
 
 
 def _profile_notes_url(profile_id: int) -> str:
@@ -19,7 +14,7 @@ def _profile_notes_url(profile_id: int) -> str:
 
 @given('the Substack public profile endpoint for "{slug}" returns status {status:d}')
 def step_public_profile_returns_status(context, slug, status):
-    context.respx_mock.get(_public_profile_url(slug)).mock(
+    context.respx_mock.get(public_profile_url(slug)).mock(
         return_value=httpx.Response(status)
     )
 

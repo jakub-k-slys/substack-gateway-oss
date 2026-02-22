@@ -33,3 +33,18 @@ Feature: Own posts endpoint
     Given a malformed authorization header and publication URL "https://example.substack.com"
     When I send GET /api/v1/me/posts
     Then the response status code is 401
+
+  Scenario: limit=0 is rejected with 422
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/me/posts?limit=0
+    Then the response status code is 422
+
+  Scenario: limit exceeding maximum is rejected with 422
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/me/posts?limit=101
+    Then the response status code is 422
+
+  Scenario: negative offset is rejected with 422
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/me/posts?offset=-1
+    Then the response status code is 422

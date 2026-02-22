@@ -20,7 +20,6 @@ class HealthResponse(BaseModel):
 
 class ProfileResponse(BaseModel):
     id: int
-    slug: str
     handle: str
     name: str
     url: str
@@ -31,7 +30,6 @@ class ProfileResponse(BaseModel):
     def from_substack(cls, profile: SubstackPublicProfile) -> ProfileResponse:
         return cls(
             id=profile.id,
-            slug=profile.handle,
             handle=profile.handle,
             name=profile.name,
             url=f"https://substack.com/@{profile.handle}",
@@ -87,7 +85,7 @@ class NotesPageResponse(BaseModel):
     def from_substack(cls, page: SubstackNotesPage) -> NotesPageResponse:
         return cls(
             items=[NoteResponse.from_substack(n) for n in page.items],
-            next_cursor=page.nextCursor,
+            next_cursor=page.next_cursor,
         )
 
 
@@ -122,7 +120,7 @@ class PostsPageResponse(BaseModel):
     def from_substack(cls, page: SubstackProfilePostsPage) -> PostsPageResponse:
         return cls(
             items=[PostResponse.from_substack(p) for p in page.posts],
-            next_cursor=page.nextCursor,
+            next_cursor=page.next_cursor,
         )
 
 
@@ -154,11 +152,11 @@ class FullPostResponse(BaseModel):
             subtitle=post.subtitle,
             url=post.canonical_url,
             published_at=post.post_date,
-            html_body=post.body_html or post.htmlBody,
+            html_body=post.body_html or post.html_body,
             truncated_body=post.truncated_body_text,
             reactions=post.reactions,
             restacks=post.restacks,
-            tags=post.postTags,
+            tags=post.post_tags,
             cover_image=post.cover_image,
         )
 

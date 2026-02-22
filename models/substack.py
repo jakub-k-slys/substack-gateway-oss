@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
 
 
 class HandleOption(BaseModel):
@@ -10,7 +11,9 @@ class HandleOption(BaseModel):
 
 
 class HandleOptionsResponse(BaseModel):
-    potentialHandles: list[HandleOption]
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    potential_handles: list[HandleOption]
 
 
 class SubstackPublicProfile(BaseModel):
@@ -50,15 +53,21 @@ class SubstackNoteComment(BaseModel):
 
 
 class SubstackNote(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     entity_key: str
     context: SubstackNoteContext
     comment: SubstackNoteComment | None = None
-    parentComments: list[SubstackNoteComment] = []
+    parent_comments: list[SubstackNoteComment] = Field(
+        alias="parentComments", default=[]
+    )
 
 
 class SubstackNotesPage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     items: list[SubstackNote] = []
-    nextCursor: str | None = None
+    next_cursor: str | None = Field(alias="nextCursor", default=None)
 
 
 # ------------------------------------------------------------------
@@ -75,11 +84,15 @@ class SubstackPreviewPost(BaseModel):
 
 
 class SubstackProfilePostsPage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     posts: list[SubstackPreviewPost] = []
-    nextCursor: str | None = None
+    next_cursor: str | None = Field(alias="nextCursor", default=None)
 
 
 class SubstackFullPost(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: int
     title: str
     slug: str
@@ -88,10 +101,10 @@ class SubstackFullPost(BaseModel):
     subtitle: str | None = None
     truncated_body_text: str | None = None
     body_html: str | None = None
-    htmlBody: str | None = None
+    html_body: str | None = Field(alias="htmlBody", default=None)
     reactions: dict[str, int] | None = None
     restacks: int | None = None
-    postTags: list[str] | None = None
+    post_tags: list[str] | None = Field(alias="postTags", default=None)
     cover_image: str | None = None
 
 
@@ -135,4 +148,6 @@ class SubstackFollowingList(BaseModel):
 
 
 class SubstackSubscriberLists(BaseModel):
-    subscriberLists: list[SubstackFollowingList]
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    subscriber_lists: list[SubstackFollowingList]

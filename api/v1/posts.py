@@ -8,7 +8,7 @@ from api.deps import get_substack_client
 from client.substack import SubstackClient
 from models.schemas import CommentsResponse, FullPostResponse
 
-router = APIRouter()
+router = APIRouter(tags=["posts"])
 
 
 @router.get("/posts/{post_id}", response_model=FullPostResponse)
