@@ -4,7 +4,13 @@ from pydantic import BaseModel
 
 
 class HandleOption(BaseModel):
+    id: str | None = None
     handle: str
+    type: str | None = None
+
+
+class HandleOptionsResponse(BaseModel):
+    potentialHandles: list[HandleOption]
 
 
 class SubstackPublicProfile(BaseModel):

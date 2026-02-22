@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+import json
+import pathlib
+
 import httpx
 from behave import given
 
 _SUBSTACK_BASE = "https://substack.com"
 _HANDLE_OPTIONS_PATH = "/api/v1/handle/options"
 _PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"
+
+_SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
+
+
+def _load_sample(path: str):
+    return json.loads((_SAMPLES_DIR / path).read_text())
 
 
 def _handle_options_url(context) -> str:
@@ -17,25 +26,18 @@ def _public_profile_url(slug: str) -> str:
     return f"{_SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
 
 
-@given('the Substack handles endpoint returns handle "{handle}"')
-def step_handles_returns_handle(context, handle):
+@given("the Substack handles endpoint returns the sample response")
+def step_handles_returns_sample(context):
     context.respx_mock.get(_handle_options_url(context)).mock(
-        return_value=httpx.Response(200, json=[{"handle": handle}])
+        return_value=httpx.Response(200, json=_load_sample("api/v1/handle/options"))
     )
 
 
-@given('the Substack public profile endpoint returns a profile for "{handle}"')
-def step_public_profile_returns(context, handle):
+@given('the Substack public profile endpoint returns the sample response for "{handle}"')
+def step_public_profile_returns_sample(context, handle):
     context.respx_mock.get(_public_profile_url(handle)).mock(
         return_value=httpx.Response(
-            200,
-            json={
-                "id": 42,
-                "handle": handle,
-                "name": "Test User",
-                "photo_url": "https://example.com/avatar.jpg",
-                "bio": "A test bio",
-            },
+            200, json=_load_sample(f"api/v1/user/{handle}/public_profile")
         )
     )
 
