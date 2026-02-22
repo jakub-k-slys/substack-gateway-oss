@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from models.substack import (
     SubstackComment,
+    SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
     SubstackPreviewPost,
@@ -168,6 +169,24 @@ class CommentResponse(BaseModel):
 
 class CommentsResponse(BaseModel):
     items: list[CommentResponse]
+
+
+# ------------------------------------------------------------------
+# Following
+# ------------------------------------------------------------------
+
+
+class FollowingUserResponse(BaseModel):
+    id: int
+    handle: str
+
+    @classmethod
+    def from_substack(cls, user: SubstackFollowingUser) -> FollowingUserResponse:
+        return cls(id=user.id, handle=user.handle)
+
+
+class FollowingResponse(BaseModel):
+    items: list[FollowingUserResponse]
 
 
 class ErrorResponse(BaseModel):

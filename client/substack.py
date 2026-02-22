@@ -7,10 +7,14 @@ from models.substack import (
     HandleOptionsResponse,
     SubstackComment,
     SubstackCommentsResponse,
+    SubstackFollowingUser,
     SubstackFullPost,
+    SubstackItemResponse,
+    SubstackNote,
     SubstackNotesPage,
     SubstackProfilePostsPage,
     SubstackPublicProfile,
+    SubstackSubscriberLists,
 )
 
 _SUBSTACK_BASE = "https://substack.com"
@@ -103,6 +107,38 @@ class SubstackClient:
             params["cursor"] = cursor
         r = await self._request("GET", url, params=params)
         return SubstackNotesPage.model_validate(r.json())
+
+    async def get_own_following(self) -> list[SubstackFollowingUser]:
+        """Mirrors FollowingService.getFollowing() — PUT /user-setting then GET /user/{id}/subscriber-lists."""
+        user_id = await self._get_own_id()
+        url = f"{self._pub_base}/user/{user_id}/subscriber-lists"
+        r = await self._request("GET", url, params={"lists": "following"})
+        data = SubstackSubscriberLists.model_validate(r.json())
+        users: list[SubstackFollowingUser] = []
+        for sl in data.subscriberLists:
+            for group in sl.groups:
+                users.extend(group.users)
+        return users
+
+    async def _get_own_id(self) -> int:
+        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
+        url = f"{self._pub_base}/user-setting"
+        r = await self._request(
+            "PUT", url, json={"type": "last_home_tab", "value_text": "inbox"}
+        )
+        return int(r.json()["user_id"])
+
+    async def get_note_by_id(self, note_id: int) -> SubstackNote:
+        """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (global)."""
+        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/comment/{note_id}"
+        r = await self._request("GET", url)
+        return SubstackItemResponse.model_validate(r.json()).item
+
+    async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
+        """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (global)."""
+        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/comment/{comment_id}"
+        r = await self._request("GET", url)
+        return SubstackItemResponse.model_validate(r.json()).item
 
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""

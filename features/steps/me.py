@@ -80,3 +80,39 @@ def step_posts_returns_sample(context, user_id):
     context.respx_mock.get(_profile_posts_url(context)).mock(
         return_value=httpx.Response(200, json=_load_sample("api/v1/profile/posts"))
     )
+
+
+def _user_setting_url(context) -> str:
+    pub_url = context.headers.get("x-publication-url", "").rstrip("/")
+    return f"{pub_url}/api/v1/user-setting"
+
+
+def _subscriber_lists_url(context, user_id: int) -> str:
+    pub_url = context.headers.get("x-publication-url", "").rstrip("/")
+    return f"{pub_url}/api/v1/user/{user_id}/subscriber-lists"
+
+
+@given("the Substack user-setting endpoint returns user id {user_id:d}")
+def step_user_setting_returns_user_id(context, user_id):
+    context.respx_mock.put(_user_setting_url(context)).mock(
+        return_value=httpx.Response(200, json=_load_sample("api/v1/user-setting"))
+    )
+
+
+@given("the Substack user-setting endpoint returns status {status:d}")
+def step_user_setting_returns_status(context, status):
+    context.respx_mock.put(_user_setting_url(context)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
+@given(
+    "the Substack subscriber-lists endpoint returns the sample response for user {user_id:d}"
+)
+def step_subscriber_lists_returns_sample(context, user_id):
+    context.respx_mock.get(_subscriber_lists_url(context, user_id)).mock(
+        return_value=httpx.Response(
+            200,
+            json=_load_sample(f"api/v1/user/{user_id}/subscriber-lists"),
+        )
+    )

@@ -1,0 +1,16 @@
+{
+  "subscriberLists": [
+    {
+      "id": "following",
+      "name": "Following",
+      "groups": [
+        {
+          "users": [
+            { "id": 108855261, "handle": "anotheruser" },
+            { "id": 34637, "handle": "substack" }
+          ]
+        }
+      ]
+    }
+  ]
+}

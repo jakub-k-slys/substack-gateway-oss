@@ -108,3 +108,31 @@ class SubstackComment(BaseModel):
 
 class SubstackCommentsResponse(BaseModel):
     comments: list[SubstackComment] = []
+
+
+class SubstackItemResponse(BaseModel):
+    item: SubstackNote
+
+
+# ------------------------------------------------------------------
+# Following
+# ------------------------------------------------------------------
+
+
+class SubstackFollowingUser(BaseModel):
+    id: int
+    handle: str
+
+
+class SubstackFollowingGroup(BaseModel):
+    users: list[SubstackFollowingUser]
+
+
+class SubstackFollowingList(BaseModel):
+    id: str
+    name: str
+    groups: list[SubstackFollowingGroup]
+
+
+class SubstackSubscriberLists(BaseModel):
+    subscriberLists: list[SubstackFollowingList]
