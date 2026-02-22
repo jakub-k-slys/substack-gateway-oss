@@ -54,3 +54,21 @@ def step_field_string(context, field, value):
     assert body[field] == value, (
         f'Expected field "{field}" to be "{value}", got "{body[field]}"'
     )
+
+
+@then('the response list "{field}" has {count:d} item')
+def step_list_has_one_item(context, field, count):
+    body = context.response.json()
+    actual = len(body[field])
+    assert actual == count, f'Expected "{field}" to have {count} item(s), got {actual}'
+
+
+@then('the first item field "{field}" is "{value}"')
+def step_first_item_field(context, field, value):
+    body = context.response.json()
+    items = body.get("items", [])
+    assert items, "Response list 'items' is empty"
+    actual = items[0][field]
+    assert actual == value, (
+        f'Expected first item "{field}" to be "{value}", got "{actual}"'
+    )

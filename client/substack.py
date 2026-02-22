@@ -3,7 +3,12 @@ from __future__ import annotations
 import httpx
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
-from models.substack import HandleOptionsResponse, SubstackPublicProfile
+from models.substack import (
+    HandleOptionsResponse,
+    SubstackNotesPage,
+    SubstackPreviewPost,
+    SubstackPublicProfile,
+)
 
 _SUBSTACK_BASE = "https://substack.com"
 _API_PREFIX = "api/v1"
@@ -53,6 +58,31 @@ class SubstackClient:
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/user/{slug}/public_profile"
         r = await self._request("GET", url)
         return SubstackPublicProfile.model_validate(r.json())
+
+    # ------------------------------------------------------------------
+    # Notes
+    # ------------------------------------------------------------------
+
+    async def get_own_notes(self, cursor: str | None = None) -> SubstackNotesPage:
+        """Mirrors OwnProfile.notes() — GET /notes with optional cursor."""
+        url = f"{self._pub_base}/notes"
+        params = {"cursor": cursor} if cursor else {}
+        r = await self._request("GET", url, params=params)
+        return SubstackNotesPage.model_validate(r.json())
+
+    # ------------------------------------------------------------------
+    # Posts
+    # ------------------------------------------------------------------
+
+    async def get_own_posts(
+        self, limit: int = 25, offset: int = 0
+    ) -> list[SubstackPreviewPost]:
+        """Mirrors Profile.posts() — resolves own ID then GET /profile/posts."""
+        profile = await self.get_own_profile()
+        url = f"{self._pub_base}/profile/posts"
+        params = {"profile_user_id": profile.id, "limit": limit, "offset": offset}
+        r = await self._request("GET", url, params=params)
+        return [SubstackPreviewPost.model_validate(p) for p in r.json()]
 
     # ------------------------------------------------------------------
     # Internal helpers

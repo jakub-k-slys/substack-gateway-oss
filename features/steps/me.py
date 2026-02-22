@@ -49,3 +49,34 @@ def step_handles_returns_status(context, status):
     context.respx_mock.get(_handle_options_url(context)).mock(
         return_value=httpx.Response(status)
     )
+
+
+def _notes_url(context) -> str:
+    pub_url = context.headers.get("x-publication-url", "").rstrip("/")
+    return f"{pub_url}/api/v1/notes"
+
+
+def _profile_posts_url(context) -> str:
+    pub_url = context.headers.get("x-publication-url", "").rstrip("/")
+    return f"{pub_url}/api/v1/profile/posts"
+
+
+@given("the Substack notes endpoint returns the sample response")
+def step_notes_returns_sample(context):
+    context.respx_mock.get(_notes_url(context)).mock(
+        return_value=httpx.Response(200, json=_load_sample("api/v1/notes"))
+    )
+
+
+@given("the Substack notes endpoint returns status {status:d}")
+def step_notes_returns_status(context, status):
+    context.respx_mock.get(_notes_url(context)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
+@given("the Substack posts endpoint returns the sample response for user {user_id:d}")
+def step_posts_returns_sample(context, user_id):
+    context.respx_mock.get(_profile_posts_url(context)).mock(
+        return_value=httpx.Response(200, json=_load_sample("api/v1/profile/posts"))
+    )
