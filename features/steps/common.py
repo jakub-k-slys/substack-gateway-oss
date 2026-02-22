@@ -35,13 +35,17 @@ def step_status_code(context, status):
 @then('the response field "{field}" is true')
 def step_field_true(context, field):
     body = context.response.json()
-    assert body[field] is True, f'Expected field "{field}" to be true, got {body[field]}'
+    assert body[field] is True, (
+        f'Expected field "{field}" to be true, got {body[field]}'
+    )
 
 
 @then('the response field "{field}" is false')
 def step_field_false(context, field):
     body = context.response.json()
-    assert body[field] is False, f'Expected field "{field}" to be false, got {body[field]}'
+    assert body[field] is False, (
+        f'Expected field "{field}" to be false, got {body[field]}'
+    )
 
 
 @then('the response field "{field}" is "{value}"')
