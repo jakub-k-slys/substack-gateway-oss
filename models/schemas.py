@@ -7,6 +7,7 @@ from models.substack import (
     SubstackFullPost,
     SubstackNote,
     SubstackPreviewPost,
+    SubstackProfilePostsPage,
     SubstackPublicProfile,
 )
 
@@ -104,6 +105,14 @@ class PostResponse(BaseModel):
 
 class PostsPageResponse(BaseModel):
     items: list[PostResponse]
+    next_cursor: str | None = None
+
+    @classmethod
+    def from_substack(cls, page: SubstackProfilePostsPage) -> PostsPageResponse:
+        return cls(
+            items=[PostResponse.from_substack(p) for p in page.posts],
+            next_cursor=page.nextCursor,
+        )
 
 
 # ------------------------------------------------------------------

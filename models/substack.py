@@ -74,6 +74,11 @@ class SubstackPreviewPost(BaseModel):
     truncated_body_text: str | None = None
 
 
+class SubstackProfilePostsPage(BaseModel):
+    posts: list[SubstackPreviewPost] = []
+    nextCursor: str | None = None
+
+
 class SubstackFullPost(BaseModel):
     id: int
     title: str

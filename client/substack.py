@@ -9,7 +9,7 @@ from models.substack import (
     SubstackCommentsResponse,
     SubstackFullPost,
     SubstackNotesPage,
-    SubstackPreviewPost,
+    SubstackProfilePostsPage,
     SubstackPublicProfile,
 )
 
@@ -79,13 +79,30 @@ class SubstackClient:
 
     async def get_own_posts(
         self, limit: int = 25, offset: int = 0
-    ) -> list[SubstackPreviewPost]:
+    ) -> SubstackProfilePostsPage:
         """Mirrors Profile.posts() — resolves own ID then GET /profile/posts."""
         profile = await self.get_own_profile()
+        return await self.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+
+    async def get_posts_for_profile(
+        self, profile_id: int, limit: int = 25, offset: int = 0
+    ) -> SubstackProfilePostsPage:
+        """Mirrors PostService.getPostsForProfile() — GET /profile/posts (pub)."""
         url = f"{self._pub_base}/profile/posts"
-        params = {"profile_user_id": profile.id, "limit": limit, "offset": offset}
+        params = {"profile_user_id": profile_id, "limit": limit, "offset": offset}
         r = await self._request("GET", url, params=params)
-        return [SubstackPreviewPost.model_validate(p) for p in r.json()]
+        return SubstackProfilePostsPage.model_validate(r.json())
+
+    async def get_notes_for_profile(
+        self, profile_id: int, cursor: str | None = None
+    ) -> SubstackNotesPage:
+        """Mirrors Profile.notes() — GET /reader/feed/profile/{id}?types=note (global)."""
+        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/feed/profile/{profile_id}"
+        params: dict[str, str] = {"types": "note"}
+        if cursor:
+            params["cursor"] = cursor
+        r = await self._request("GET", url, params=params)
+        return SubstackNotesPage.model_validate(r.json())
 
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""

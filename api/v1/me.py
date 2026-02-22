@@ -10,7 +10,6 @@ from client.substack import SubstackClient
 from models.schemas import (
     NoteResponse,
     NotesPageResponse,
-    PostResponse,
     PostsPageResponse,
     ProfileResponse,
 )
@@ -55,9 +54,9 @@ async def get_me_posts(
     offset: int = 0,
 ) -> PostsPageResponse:
     try:
-        posts = await client.get_own_posts(limit=limit, offset=offset)
+        page = await client.get_own_posts(limit=limit, offset=offset)
     except SubstackAuthError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     except SubstackAPIError as exc:
         raise HTTPException(status_code=502, detail=exc.message) from exc
-    return PostsPageResponse(items=[PostResponse.from_substack(p) for p in posts])
+    return PostsPageResponse.from_substack(page)
