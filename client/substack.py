@@ -39,7 +39,7 @@ class SubstackClient:
     async def get_own_profile(self) -> SubstackPublicProfile:
         """Mirrors OwnProfile — fetches handle then full profile."""
         slug = await self._get_own_slug()
-        return await self._get_profile_by_slug(slug)
+        return await self.get_profile_by_slug(slug)
 
     async def _get_own_slug(self) -> str:
         """Mirrors ProfileService.getOwnSlug() — GET /handle/options."""
@@ -48,7 +48,7 @@ class SubstackClient:
         response = HandleOptionsResponse.model_validate(r.json())
         return response.potentialHandles[0].handle
 
-    async def _get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
+    async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
         """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/user/{slug}/public_profile"
         r = await self._request("GET", url)
