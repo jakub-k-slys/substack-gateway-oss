@@ -33,7 +33,9 @@ def step_handles_returns_sample(context):
     )
 
 
-@given('the Substack public profile endpoint returns the sample response for "{handle}"')
+@given(
+    'the Substack public profile endpoint returns the sample response for "{handle}"'
+)
 def step_public_profile_returns_sample(context, handle):
     context.respx_mock.get(_public_profile_url(handle)).mock(
         return_value=httpx.Response(
