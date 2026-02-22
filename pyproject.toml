@@ -19,6 +19,9 @@ packages = ["api", "client", "models"]
 dev = [
   "ruff>=0.8.0",
   "ty>=0.0.1",
+  "behave>=1.2.6",
+  "respx>=0.22.0",
+  "httpx>=0.28.0",
 ]
 
 [tool.ruff]
@@ -32,3 +35,6 @@ ignore = ["E501"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.ty.src]
+exclude = ["features"]
