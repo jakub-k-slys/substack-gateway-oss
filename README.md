@@ -1,16 +1,49 @@
-# FastAPI Starter
+# Substack Gateway
 
-Deploy your [FastAPI](https://fastapi.tiangolo.com/) project to Vercel with zero configuration.
+A REST API gateway for [Substack](https://substack.com), built with [FastAPI](https://fastapi.tiangolo.com/). Proxies authenticated requests to the Substack API using session-based auth. Deployable to [Vercel](https://vercel.com).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/vercel/tree/main/examples/fastapi&template=fastapi)
+## API Endpoints
 
-_Live Example: https://vercel-plus-fastapi.vercel.app/_
+All endpoints require two headers:
 
-Visit the [FastAPI documentation](https://fastapi.tiangolo.com/) to learn more.
+| Header | Description |
+|--------|-------------|
+| `Authorization` | `Bearer <substack-session-token>` (your Substack `connect.sid` cookie) |
+| `x-publication-url` | Your publication URL (e.g. `https://example.substack.com`) |
+
+### `GET /api/v1/health`
+
+Check connectivity to the Substack API.
+
+```json
+{ "connected": true }
+```
+
+### `GET /api/v1/me`
+
+Fetch the authenticated user's profile.
+
+```json
+{
+  "id": 42,
+  "slug": "testuser",
+  "handle": "testuser",
+  "name": "Test User",
+  "url": "https://substack.com/@testuser",
+  "avatar_url": "https://...",
+  "bio": "Optional bio"
+}
+```
 
 ## Getting Started
 
-Install the required dependencies:
+Install dependencies using [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync --dev
+```
+
+Or with pip:
 
 ```bash
 python -m venv .venv
@@ -18,34 +51,35 @@ source .venv/bin/activate
 pip install .
 ```
 
-Or, if using [uv](https://docs.astral.sh/uv/):
-
-```bash
-uv sync
-```
-
-
 ## Running Locally
 
-Start the development server on http://0.0.0.0:5001
+Start the development server on http://0.0.0.0:5001 (auto-reloads on changes):
 
 ```bash
-python main.py
-# using uv:
 uv run main.py
 ```
 
-When you make changes to your project, the server will automatically reload.
+## Testing
+
+Integration tests use [Behave](https://behave.readthedocs.io/) (BDD):
+
+```bash
+uv run behave features/
+```
+
+## Linting & Type Checking
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run ty check .
+```
 
 ## Deploying to Vercel
-
-Deploy your project to Vercel with the following command:
 
 ```bash
 npm install -g vercel
 vercel --prod
 ```
 
-Or `git push` to your repository with our [git integration](https://vercel.com/docs/deployments/git).
-
-To view the source code for this template, [visit the example repository](https://github.com/vercel/vercel/tree/main/examples/fastapi).
+Or `git push` with [Vercel git integration](https://vercel.com/docs/deployments/git).
