@@ -17,9 +17,9 @@ async def get_me(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> ProfileResponse:
     try:
-        raw = await client.get_own_profile()
+        profile = await client.get_own_profile()
     except SubstackAuthError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     except SubstackAPIError as exc:
         raise HTTPException(status_code=502, detail=exc.message) from exc
-    return ProfileResponse.from_raw(raw)
+    return ProfileResponse.from_substack(profile)
