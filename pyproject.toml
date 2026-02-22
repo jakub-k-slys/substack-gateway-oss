@@ -6,8 +6,8 @@ dependencies = [
   "fastapi>=0.121.0",
   "uvicorn>=0.34.0",
   "httpx>=0.28.0",
-  "ruff>=0.15.1",
-  "ty>=0.0.17",
+  "pydantic>=2.0",
+  "pydantic-settings>=2.0",
 ]
 
 [build-system]

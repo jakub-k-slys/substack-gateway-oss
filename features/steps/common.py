@@ -1,21 +1,47 @@
 from __future__ import annotations
 
+import json
+import pathlib
+
 from behave import given, then, when
 
+# Shared constants used across step files
+SUBSTACK_BASE = "https://substack.com"
+SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
 
-@given('a valid bearer token "{token}" and publication URL "{pub_url}"')
-def step_valid_auth(context, token, pub_url):
+_USER_SETTING_PATH = "/api/v1/user-setting"
+_PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"
+
+
+def load_sample(path: str):
+    return json.loads((SAMPLES_DIR / path).read_text())
+
+
+def pub_url(context) -> str:
+    return context.headers.get("x-publication-url", "").rstrip("/")
+
+
+def user_setting_url(context) -> str:
+    return f"{pub_url(context)}{_USER_SETTING_PATH}"
+
+
+def public_profile_url(slug: str) -> str:
+    return f"{SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
+
+
+@given('a valid bearer token "{token}" and publication URL "{pub_url_}"')
+def step_valid_auth(context, token, pub_url_):
     context.headers = {
         "Authorization": f"Bearer {token}",
-        "x-publication-url": pub_url,
+        "x-publication-url": pub_url_,
     }
 
 
-@given('a malformed authorization header and publication URL "{pub_url}"')
-def step_malformed_auth(context, pub_url):
+@given('a malformed authorization header and publication URL "{pub_url_}"')
+def step_malformed_auth(context, pub_url_):
     context.headers = {
         "Authorization": "not-a-bearer-token",
-        "x-publication-url": pub_url,
+        "x-publication-url": pub_url_,
     }
 
 
@@ -53,4 +79,33 @@ def step_field_string(context, field, value):
     body = context.response.json()
     assert body[field] == value, (
         f'Expected field "{field}" to be "{value}", got "{body[field]}"'
+    )
+
+
+@then('the response field "{field}" is not null')
+def step_field_not_null(context, field):
+    body = context.response.json()
+    assert body[field] is not None, f'Expected field "{field}" to be non-null, got null'
+
+
+@then('the response list "{field}" has {count:d} item')
+def step_list_count_singular(context, field, count):
+    body = context.response.json()
+    actual = len(body[field])
+    assert actual == count, f'Expected "{field}" to have {count} item(s), got {actual}'
+
+
+@then('the response list "{field}" has {count:d} items')
+def step_list_count_plural(context, field, count):
+    step_list_count_singular(context, field, count)
+
+
+@then('the first item field "{field}" is "{value}"')
+def step_first_item_field(context, field, value):
+    body = context.response.json()
+    items = body.get("items", [])
+    assert items, "Response list 'items' is empty"
+    actual = items[0][field]
+    assert actual == value, (
+        f'Expected first item "{field}" to be "{value}", got "{actual}"'
     )
