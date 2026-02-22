@@ -6,6 +6,8 @@ dependencies = [
   "fastapi>=0.121.0",
   "uvicorn>=0.34.0",
   "httpx>=0.28.0",
+  "ruff>=0.15.1",
+  "ty>=0.0.17",
 ]
 
 [build-system]
@@ -36,5 +38,11 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 
+[tool.behave]
+paths = ["features/"]
+show_timings = true
+summary = true
+default_format = "pretty"
+
 [tool.ty.src]
-exclude = ["features"]
+exclude = ["features/"]
