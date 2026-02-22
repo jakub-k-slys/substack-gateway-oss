@@ -57,10 +57,15 @@ def step_field_string(context, field, value):
 
 
 @then('the response list "{field}" has {count:d} item')
-def step_list_has_one_item(context, field, count):
+def step_list_count_singular(context, field, count):
     body = context.response.json()
     actual = len(body[field])
     assert actual == count, f'Expected "{field}" to have {count} item(s), got {actual}'
+
+
+@then('the response list "{field}" has {count:d} items')
+def step_list_count_plural(context, field, count):
+    step_list_count_singular(context, field, count)
 
 
 @then('the first item field "{field}" is "{value}"')

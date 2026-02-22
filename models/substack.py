@@ -72,3 +72,34 @@ class SubstackPreviewPost(BaseModel):
     post_date: str
     subtitle: str | None = None
     truncated_body_text: str | None = None
+
+
+class SubstackFullPost(BaseModel):
+    id: int
+    title: str
+    slug: str
+    post_date: str
+    canonical_url: str
+    subtitle: str | None = None
+    truncated_body_text: str | None = None
+    body_html: str | None = None
+    htmlBody: str | None = None
+    reactions: dict[str, int] | None = None
+    restacks: int | None = None
+    postTags: list[str] | None = None
+    cover_image: str | None = None
+
+
+# ------------------------------------------------------------------
+# Comments
+# ------------------------------------------------------------------
+
+
+class SubstackComment(BaseModel):
+    id: int
+    body: str
+    author_is_admin: bool | None = None
+
+
+class SubstackCommentsResponse(BaseModel):
+    comments: list[SubstackComment] = []

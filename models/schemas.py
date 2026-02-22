@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from models.substack import SubstackNote, SubstackPreviewPost, SubstackPublicProfile
+from models.substack import (
+    SubstackComment,
+    SubstackFullPost,
+    SubstackNote,
+    SubstackPreviewPost,
+    SubstackPublicProfile,
+)
 
 
 class HealthResponse(BaseModel):
@@ -98,6 +104,61 @@ class PostResponse(BaseModel):
 
 class PostsPageResponse(BaseModel):
     items: list[PostResponse]
+
+
+# ------------------------------------------------------------------
+# Full post & comments
+# ------------------------------------------------------------------
+
+
+class FullPostResponse(BaseModel):
+    id: int
+    title: str
+    slug: str
+    subtitle: str | None = None
+    url: str
+    published_at: str
+    html_body: str | None = None
+    truncated_body: str | None = None
+    reactions: dict[str, int] | None = None
+    restacks: int | None = None
+    tags: list[str] | None = None
+    cover_image: str | None = None
+
+    @classmethod
+    def from_substack(cls, post: SubstackFullPost) -> FullPostResponse:
+        return cls(
+            id=post.id,
+            title=post.title,
+            slug=post.slug,
+            subtitle=post.subtitle,
+            url=post.canonical_url,
+            published_at=post.post_date,
+            html_body=post.body_html or post.htmlBody,
+            truncated_body=post.truncated_body_text,
+            reactions=post.reactions,
+            restacks=post.restacks,
+            tags=post.postTags,
+            cover_image=post.cover_image,
+        )
+
+
+class CommentResponse(BaseModel):
+    id: int
+    body: str
+    is_admin: bool
+
+    @classmethod
+    def from_substack(cls, comment: SubstackComment) -> CommentResponse:
+        return cls(
+            id=comment.id,
+            body=comment.body,
+            is_admin=comment.author_is_admin or False,
+        )
+
+
+class CommentsResponse(BaseModel):
+    items: list[CommentResponse]
 
 
 class ErrorResponse(BaseModel):

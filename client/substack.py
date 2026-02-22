@@ -5,6 +5,9 @@ import httpx
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from models.substack import (
     HandleOptionsResponse,
+    SubstackComment,
+    SubstackCommentsResponse,
+    SubstackFullPost,
     SubstackNotesPage,
     SubstackPreviewPost,
     SubstackPublicProfile,
@@ -83,6 +86,18 @@ class SubstackClient:
         params = {"profile_user_id": profile.id, "limit": limit, "offset": offset}
         r = await self._request("GET", url, params=params)
         return [SubstackPreviewPost.model_validate(p) for p in r.json()]
+
+    async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
+        """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""
+        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/posts/by-id/{post_id}"
+        r = await self._request("GET", url)
+        return SubstackFullPost.model_validate(r.json())
+
+    async def get_comments_for_post(self, post_id: int) -> list[SubstackComment]:
+        """Mirrors CommentService.getCommentsForPost() — GET /post/{id}/comments (pub)."""
+        url = f"{self._pub_base}/post/{post_id}/comments"
+        r = await self._request("GET", url)
+        return SubstackCommentsResponse.model_validate(r.json()).comments
 
     # ------------------------------------------------------------------
     # Internal helpers

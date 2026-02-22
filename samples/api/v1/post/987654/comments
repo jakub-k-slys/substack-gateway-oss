@@ -1,0 +1,14 @@
+{
+  "comments": [
+    {
+      "id": 111111,
+      "body": "Great post!",
+      "author_is_admin": false
+    },
+    {
+      "id": 222222,
+      "body": "Thanks for sharing.",
+      "author_is_admin": true
+    }
+  ]
+}
