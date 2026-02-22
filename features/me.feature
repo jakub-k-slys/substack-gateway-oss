@@ -5,12 +5,12 @@ Feature: User profile endpoint
 
   Scenario: Successfully fetch own profile
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
-    And the Substack handles endpoint returns handle "testuser"
-    And the Substack public profile endpoint returns a profile for "testuser"
+    And the Substack handles endpoint returns the sample response
+    And the Substack public profile endpoint returns the sample response for "jakubslys"
     When I send GET /api/v1/me
     Then the response status code is 200
-    And the response field "handle" is "testuser"
-    And the response field "slug" is "testuser"
+    And the response field "handle" is "jakubslys"
+    And the response field "slug" is "jakubslys"
 
   Scenario: Authentication failure returns 401
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

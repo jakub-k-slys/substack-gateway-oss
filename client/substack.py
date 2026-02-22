@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from pydantic import TypeAdapter
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
-from models.substack import HandleOption, SubstackPublicProfile
+from models.substack import HandleOptionsResponse, SubstackPublicProfile
 
 _SUBSTACK_BASE = "https://substack.com"
 _API_PREFIX = "api/v1"
@@ -46,8 +45,8 @@ class SubstackClient:
         """Mirrors ProfileService.getOwnSlug() — GET /handle/options."""
         url = f"{self._pub_base}/handle/options"
         r = await self._request("GET", url)
-        handles = TypeAdapter(list[HandleOption]).validate_python(r.json())
-        return handles[0].handle
+        response = HandleOptionsResponse.model_validate(r.json())
+        return response.potentialHandles[0].handle
 
     async def _get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
         """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
