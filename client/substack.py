@@ -32,8 +32,9 @@ _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 class SubstackClient:
     def __init__(self, token: str, publication_url: str) -> None:
-        self._cookies = {"connect.sid": token}
+        self._cookies = {"substack.sid": token}
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
+        self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
         self._http: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> SubstackClient:
@@ -56,8 +57,8 @@ class SubstackClient:
         False only when there is a network-level failure or a server error,
         since those indicate the service itself is unreachable.
         """
-        _log.debug("Checking connectivity via %s", self._pub_base)
-        url = f"{self._pub_base}/user-setting"
+        _log.debug("Checking connectivity via %s", self._sub_base)
+        url = f"{self._sub_base}/user-setting"
         try:
             await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
             _log.debug("Connectivity check: reachable (authenticated)")
@@ -84,7 +85,7 @@ class SubstackClient:
     async def _get_own_slug(self) -> str:
         """Mirrors ProfileService.getOwnSlug() — GET /handle/options."""
         _log.debug("Resolving own handle slug via /handle/options")
-        url = f"{self._pub_base}/handle/options"
+        url = f"{self._sub_base}/handle/options"
         r = await self._request("GET", url)
         response = HandleOptionsResponse.model_validate(r.json())
         if not response.potential_handles:
@@ -96,7 +97,7 @@ class SubstackClient:
     async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
         """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
         _log.debug("Fetching public profile for slug=%r", slug)
-        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/user/{slug}/public_profile"
+        url = f"{self._sub_base}/user/{slug}/public_profile"
         r = await self._request("GET", url)
         return SubstackPublicProfile.model_validate(r.json())
 
@@ -131,14 +132,14 @@ class SubstackClient:
     async def get_posts_for_profile(
         self, profile_id: int, limit: int = 25, offset: int = 0
     ) -> SubstackProfilePostsPage:
-        """Mirrors PostService.getPostsForProfile() — GET /profile/posts (pub)."""
+        """Mirrors PostService.getPostsForProfile() — GET /profile/posts (global)."""
         _log.debug(
             "Fetching posts for profile_id=%d (limit=%d, offset=%d)",
             profile_id,
             limit,
             offset,
         )
-        url = f"{self._pub_base}/profile/posts"
+        url = f"{self._sub_base}/profile/posts"
         params = {"profile_user_id": profile_id, "limit": limit, "offset": offset}
         r = await self._request("GET", url, params=params)
         page = SubstackProfilePostsPage.model_validate(r.json())
@@ -153,9 +154,9 @@ class SubstackClient:
     async def get_notes_for_profile(
         self, profile_id: int, cursor: str | None = None
     ) -> SubstackNotesPage:
-        """Mirrors Profile.notes() — GET /reader/feed/profile/{id}?types=note (global)."""
+        """Mirrors NoteService.getNotesForProfile() — GET /reader/feed/profile/{id}?types=note (pub)."""
         _log.debug("Fetching notes for profile_id=%d (cursor=%r)", profile_id, cursor)
-        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/feed/profile/{profile_id}"
+        url = f"{self._pub_base}/reader/feed/profile/{profile_id}"
         params: dict[str, str] = {"types": "note"}
         if cursor:
             params["cursor"] = cursor
@@ -186,7 +187,7 @@ class SubstackClient:
     async def _get_own_id(self) -> int:
         """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
         _log.debug("Resolving own user ID via /user-setting")
-        url = f"{self._pub_base}/user-setting"
+        url = f"{self._sub_base}/user-setting"
         r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
         raw = r.json().get("user_id")
         if raw is None:
@@ -201,25 +202,25 @@ class SubstackClient:
         return user_id
 
     async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
-        """Internal: GET /reader/comment/{id} (global)."""
-        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/comment/{comment_id}"
+        """Internal: GET /reader/comment/{id} (pub)."""
+        url = f"{self._pub_base}/reader/comment/{comment_id}"
         r = await self._request("GET", url)
         return SubstackItemResponse.model_validate(r.json()).item
 
     async def get_note_by_id(self, note_id: int) -> SubstackNote:
-        """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (global)."""
+        """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (pub)."""
         _log.debug("Fetching note id=%d", note_id)
         return await self._get_reader_comment(note_id)
 
     async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
-        """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (global)."""
+        """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (pub)."""
         _log.debug("Fetching comment id=%d", comment_id)
         return await self._get_reader_comment(comment_id)
 
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""
         _log.debug("Fetching post id=%d", post_id)
-        url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/posts/by-id/{post_id}"
+        url = f"{self._sub_base}/posts/by-id/{post_id}"
         r = await self._request("GET", url)
         return SubstackFullPost.model_validate(r.json())
 

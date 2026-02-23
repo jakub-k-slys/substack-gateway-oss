@@ -21,8 +21,8 @@ def pub_url(context) -> str:
     return context.headers.get("x-publication-url", "").rstrip("/")
 
 
-def user_setting_url(context) -> str:
-    return f"{pub_url(context)}{_USER_SETTING_PATH}"
+def user_setting_url() -> str:
+    return f"{SUBSTACK_BASE}{_USER_SETTING_PATH}"
 
 
 def public_profile_url(slug: str) -> str:
