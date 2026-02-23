@@ -1,8 +1,51 @@
+from __future__ import annotations
+
+import logging
+import logging.config
+import time
+from collections.abc import Awaitable, Callable
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 from api.v1 import router as v1_router
 from client.exceptions import SubstackAPIError, SubstackAuthError
+from config import settings
+
+
+def _configure_logging() -> None:
+    level = settings.log_level.upper()
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": "%(asctime)s %(levelname)-8s %(name)s %(message)s",
+                    "datefmt": "%Y-%m-%dT%H:%M:%S",
+                },
+            },
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "default",
+                    "stream": "ext://sys.stderr",
+                },
+            },
+            "root": {"handlers": ["console"], "level": level},
+            "loggers": {
+                # Suppress chatty low-level HTTP library debug output.
+                "httpx": {"level": "WARNING"},
+                "httpcore": {"level": "WARNING"},
+            },
+        }
+    )
+
+
+_configure_logging()
+
+_log = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Substack Gateway",
@@ -11,10 +54,35 @@ app = FastAPI(
 )
 
 
+@app.middleware("http")
+async def log_requests(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    _log.debug("→ %s %s", request.method, request.url.path)
+    start = time.monotonic()
+    response = await call_next(request)
+    elapsed = time.monotonic() - start
+    _log.info(
+        "%s %s → %d (%.3fs)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed,
+    )
+    return response
+
+
 @app.exception_handler(SubstackAuthError)
 async def substack_auth_error_handler(
     request: Request, exc: SubstackAuthError
 ) -> JSONResponse:
+    _log.warning(
+        "Auth error on %s %s: [%d] %s",
+        request.method,
+        request.url.path,
+        exc.status_code,
+        exc.message,
+    )
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
@@ -26,6 +94,14 @@ async def substack_api_error_handler(
     # everything else becomes 502 Bad Gateway.
     _PASSTHROUGH = {404, 429}
     status = exc.status_code if exc.status_code in _PASSTHROUGH else 502
+    _log.warning(
+        "API error on %s %s: upstream=%d response=%d — %s",
+        request.method,
+        request.url.path,
+        exc.status_code,
+        status,
+        exc.message,
+    )
     return JSONResponse(status_code=status, content={"detail": exc.message})
 
 
