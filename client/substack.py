@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import httpx
@@ -55,14 +56,18 @@ class SubstackClient:
         False only when there is a network-level failure or a server error,
         since those indicate the service itself is unreachable.
         """
+        _log.debug("Checking connectivity via %s", self._pub_base)
         url = f"{self._pub_base}/user-setting"
         try:
             await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
+            _log.debug("Connectivity check: reachable (authenticated)")
             return True
         except SubstackAuthError:
             # Substack replied — the service is reachable, the token is just invalid.
+            _log.debug("Connectivity check: reachable (auth error — token invalid)")
             return True
         except SubstackAPIError:
+            _log.warning("Connectivity check: unreachable (API/network error)")
             return False
 
     # ------------------------------------------------------------------
@@ -71,11 +76,14 @@ class SubstackClient:
 
     async def get_own_profile(self) -> SubstackPublicProfile:
         """Mirrors OwnProfile — fetches handle then full profile."""
+        _log.debug("Fetching own profile")
         slug = await self._get_own_slug()
+        _log.debug("Resolved own slug: %r", slug)
         return await self.get_profile_by_slug(slug)
 
     async def _get_own_slug(self) -> str:
         """Mirrors ProfileService.getOwnSlug() — GET /handle/options."""
+        _log.debug("Resolving own handle slug via /handle/options")
         url = f"{self._pub_base}/handle/options"
         r = await self._request("GET", url)
         response = HandleOptionsResponse.model_validate(r.json())
@@ -87,6 +95,7 @@ class SubstackClient:
 
     async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
         """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
+        _log.debug("Fetching public profile for slug=%r", slug)
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/user/{slug}/public_profile"
         r = await self._request("GET", url)
         return SubstackPublicProfile.model_validate(r.json())
@@ -97,10 +106,15 @@ class SubstackClient:
 
     async def get_own_notes(self, cursor: str | None = None) -> SubstackNotesPage:
         """Mirrors OwnProfile.notes() — GET /notes with optional cursor."""
+        _log.debug("Fetching own notes (cursor=%r)", cursor)
         url = f"{self._pub_base}/notes"
         params = {"cursor": cursor} if cursor else {}
         r = await self._request("GET", url, params=params)
-        return SubstackNotesPage.model_validate(r.json())
+        page = SubstackNotesPage.model_validate(r.json())
+        _log.debug(
+            "Got %d own notes (next_cursor=%r)", len(page.items), page.next_cursor
+        )
+        return page
 
     # ------------------------------------------------------------------
     # Posts
@@ -110,6 +124,7 @@ class SubstackClient:
         self, limit: int = 25, offset: int = 0
     ) -> SubstackProfilePostsPage:
         """Mirrors Profile.posts() — resolves own ID then GET /profile/posts."""
+        _log.debug("Fetching own posts (limit=%d, offset=%d)", limit, offset)
         profile = await self.get_own_profile()
         return await self.get_posts_for_profile(profile.id, limit=limit, offset=offset)
 
@@ -117,24 +132,46 @@ class SubstackClient:
         self, profile_id: int, limit: int = 25, offset: int = 0
     ) -> SubstackProfilePostsPage:
         """Mirrors PostService.getPostsForProfile() — GET /profile/posts (pub)."""
+        _log.debug(
+            "Fetching posts for profile_id=%d (limit=%d, offset=%d)",
+            profile_id,
+            limit,
+            offset,
+        )
         url = f"{self._pub_base}/profile/posts"
         params = {"profile_user_id": profile_id, "limit": limit, "offset": offset}
         r = await self._request("GET", url, params=params)
-        return SubstackProfilePostsPage.model_validate(r.json())
+        page = SubstackProfilePostsPage.model_validate(r.json())
+        _log.debug(
+            "Got %d posts for profile_id=%d (next_cursor=%r)",
+            len(page.posts),
+            profile_id,
+            page.next_cursor,
+        )
+        return page
 
     async def get_notes_for_profile(
         self, profile_id: int, cursor: str | None = None
     ) -> SubstackNotesPage:
         """Mirrors Profile.notes() — GET /reader/feed/profile/{id}?types=note (global)."""
+        _log.debug("Fetching notes for profile_id=%d (cursor=%r)", profile_id, cursor)
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/reader/feed/profile/{profile_id}"
         params: dict[str, str] = {"types": "note"}
         if cursor:
             params["cursor"] = cursor
         r = await self._request("GET", url, params=params)
-        return SubstackNotesPage.model_validate(r.json())
+        page = SubstackNotesPage.model_validate(r.json())
+        _log.debug(
+            "Got %d notes for profile_id=%d (next_cursor=%r)",
+            len(page.items),
+            profile_id,
+            page.next_cursor,
+        )
+        return page
 
     async def get_own_following(self) -> list[SubstackFollowingUser]:
         """Mirrors FollowingService.getFollowing() — PUT /user-setting then GET /user/{id}/subscriber-lists."""
+        _log.debug("Fetching own following list")
         user_id = await self._get_own_id()
         url = f"{self._pub_base}/user/{user_id}/subscriber-lists"
         r = await self._request("GET", url, params={"lists": "following"})
@@ -143,21 +180,25 @@ class SubstackClient:
         for sl in data.subscriber_lists:
             for group in sl.groups:
                 users.extend(group.users)
+        _log.debug("Got %d following users for user_id=%d", len(users), user_id)
         return users
 
     async def _get_own_id(self) -> int:
         """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
+        _log.debug("Resolving own user ID via /user-setting")
         url = f"{self._pub_base}/user-setting"
         r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
         raw = r.json().get("user_id")
         if raw is None:
             raise SubstackAPIError(502, "Substack response missing user_id field")
         try:
-            return int(raw)
+            user_id = int(raw)
         except (TypeError, ValueError) as exc:
             raise SubstackAPIError(
                 502, f"Substack returned non-integer user_id: {raw!r}"
             ) from exc
+        _log.debug("Resolved own user_id=%d", user_id)
+        return user_id
 
     async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
         """Internal: GET /reader/comment/{id} (global)."""
@@ -167,23 +208,29 @@ class SubstackClient:
 
     async def get_note_by_id(self, note_id: int) -> SubstackNote:
         """Mirrors NoteService.getNoteById() — GET /reader/comment/{id} (global)."""
+        _log.debug("Fetching note id=%d", note_id)
         return await self._get_reader_comment(note_id)
 
     async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
         """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (global)."""
+        _log.debug("Fetching comment id=%d", comment_id)
         return await self._get_reader_comment(comment_id)
 
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """Mirrors PostService.getPostById() — GET /posts/by-id/{id} (global)."""
+        _log.debug("Fetching post id=%d", post_id)
         url = f"{_SUBSTACK_BASE}/{_API_PREFIX}/posts/by-id/{post_id}"
         r = await self._request("GET", url)
         return SubstackFullPost.model_validate(r.json())
 
     async def get_comments_for_post(self, post_id: int) -> list[SubstackComment]:
         """Mirrors CommentService.getCommentsForPost() — GET /post/{id}/comments (pub)."""
+        _log.debug("Fetching comments for post id=%d", post_id)
         url = f"{self._pub_base}/post/{post_id}/comments"
         r = await self._request("GET", url)
-        return SubstackCommentsResponse.model_validate(r.json()).comments
+        comments = SubstackCommentsResponse.model_validate(r.json()).comments
+        _log.debug("Got %d comments for post id=%d", len(comments), post_id)
+        return comments
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -194,21 +241,28 @@ class SubstackClient:
             raise RuntimeError(
                 "SubstackClient must be used as an async context manager"
             )
+        _log.debug("→ %s %s", method, url)
+        start = time.monotonic()
         try:
             r = await self._http.request(method, url, **kwargs)
         except httpx.HTTPError as exc:
-            _log.warning("Substack network error: %s %s — %s", method, url, exc)
+            elapsed = time.monotonic() - start
+            _log.warning(
+                "Substack network error: %s %s — %s (%.3fs)", method, url, exc, elapsed
+            )
             raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
+        elapsed = time.monotonic() - start
         if r.status_code == 401:
+            _log.warning("← %s %s → 401 Unauthorized (%.3fs)", method, url, elapsed)
             raise SubstackAuthError(401, "Invalid or expired Substack session token")
         if r.status_code == 403:
+            _log.warning("← %s %s → 403 Forbidden (%.3fs)", method, url, elapsed)
             raise SubstackAuthError(
                 403, "Forbidden: insufficient permissions for this resource"
             )
         if not r.is_success:
-            _log.warning(
-                "Substack error response: %s %s → %s", method, url, r.status_code
-            )
+            _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
             raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}")
+        _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
         return r
