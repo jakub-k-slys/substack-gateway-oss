@@ -19,7 +19,7 @@ Feature: Health check endpoint
 
   Scenario: Expired token still reports connected (service is reachable)
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
-    And the Substack user-setting endpoint returns status 401
+    And the Substack feed/following endpoint returns status 401
     When I send GET /api/v1/health
     Then the response status code is 200
     And the response field "connected" is true

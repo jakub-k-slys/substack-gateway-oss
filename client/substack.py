@@ -51,16 +51,16 @@ class SubstackClient:
     # ------------------------------------------------------------------
 
     async def check_connectivity(self) -> bool:
-        """Mirrors ConnectivityService.isConnected() — never raises.
+        """GET /feed/following — never raises.
 
         Returns True when Substack responds (even with an auth error), and
         False only when there is a network-level failure or a server error,
         since those indicate the service itself is unreachable.
         """
-        _log.debug("Checking connectivity via %s", self._sub_base)
-        url = f"{self._sub_base}/user-setting"
+        url = f"{self._sub_base}/feed/following"
+        _log.debug("Checking connectivity via %s", url)
         try:
-            await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
+            await self._request("GET", url)
             _log.debug("Connectivity check: reachable (authenticated)")
             return True
         except SubstackAuthError:
