@@ -3,7 +3,12 @@ from __future__ import annotations
 import httpx
 from behave import given
 
-from features.steps.common import SUBSTACK_BASE, load_sample, public_profile_url, user_setting_url
+from features.steps.common import (
+    SUBSTACK_BASE,
+    load_sample,
+    public_profile_url,
+    user_setting_url,
+)
 
 _HANDLE_OPTIONS_PATH = "/api/v1/handle/options"
 
@@ -86,9 +91,7 @@ def step_user_setting_returns_user_id(context, user_id):
 
 @given("the Substack user-setting endpoint returns status {status:d}")
 def step_user_setting_returns_status(context, status):
-    context.respx_mock.put(user_setting_url()).mock(
-        return_value=httpx.Response(status)
-    )
+    context.respx_mock.put(user_setting_url()).mock(return_value=httpx.Response(status))
 
 
 @given(

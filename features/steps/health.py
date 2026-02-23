@@ -10,9 +10,7 @@ _FEED_FOLLOWING_URL = f"{SUBSTACK_BASE}/api/v1/feed/following"
 
 @given("the Substack API is reachable")
 def step_api_reachable(context):
-    context.respx_mock.get(_FEED_FOLLOWING_URL).mock(
-        return_value=httpx.Response(200)
-    )
+    context.respx_mock.get(_FEED_FOLLOWING_URL).mock(return_value=httpx.Response(200))
 
 
 @given("the Substack API is unreachable")
