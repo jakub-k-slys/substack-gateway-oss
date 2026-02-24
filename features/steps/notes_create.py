@@ -5,7 +5,7 @@ from behave import given
 
 from features.steps.common import SUBSTACK_BASE, load_sample
 
-_CREATE_NOTE_URL = f"{SUBSTACK_BASE}/api/v1/comment/feed"
+_CREATE_NOTE_URL = f"{SUBSTACK_BASE}/api/v1/comment/feed/"
 
 
 @given("the Substack create-note endpoint returns the sample response")

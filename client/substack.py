@@ -240,7 +240,7 @@ class SubstackClient:
         """Convert markdown to Substack note payload and POST to /comment/feed."""
         _log.debug("Creating note (%d chars of markdown)", len(content))
         payload = markdown_to_note_payload(content)
-        url = f"{self._sub_base}/comment/feed"
+        url = f"{self._sub_base}/comment/feed/"
         r = await self._request("POST", url, json=payload)
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
