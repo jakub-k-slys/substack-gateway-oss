@@ -156,7 +156,7 @@ class FullPostResponse(BaseModel):
             truncated_body=post.truncated_body_text,
             reactions=post.reactions,
             restacks=post.restacks,
-            tags=post.post_tags,
+            tags=[t.name for t in post.post_tags] if post.post_tags else None,
             cover_image=post.cover_image,
         )
 
