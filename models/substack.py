@@ -90,6 +90,11 @@ class SubstackProfilePostsPage(BaseModel):
     next_cursor: str | None = Field(alias="nextCursor", default=None)
 
 
+class SubstackPostTag(BaseModel):
+    name: str
+    slug: str | None = None
+
+
 class SubstackFullPost(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -104,8 +109,12 @@ class SubstackFullPost(BaseModel):
     html_body: str | None = Field(alias="htmlBody", default=None)
     reactions: dict[str, int] | None = None
     restacks: int | None = None
-    post_tags: list[str] | None = Field(alias="postTags", default=None)
+    post_tags: list[SubstackPostTag] | None = Field(alias="postTags", default=None)
     cover_image: str | None = None
+
+
+class SubstackPostResponse(BaseModel):
+    post: SubstackFullPost
 
 
 # ------------------------------------------------------------------

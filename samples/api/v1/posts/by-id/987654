@@ -1,14 +1,16 @@
 {
-  "id": 987654,
-  "title": "Sample Post Title",
-  "slug": "sample-post-title",
-  "post_date": "2024-01-10T09:00:00.000Z",
-  "canonical_url": "https://example.substack.com/p/sample-post-title",
-  "subtitle": "A sample subtitle for the post",
-  "truncated_body_text": "This is the beginning of the post body...",
-  "body_html": "<p>This is the full post body in HTML.</p>",
-  "reactions": {"❤": 12},
-  "restacks": 3,
-  "postTags": ["tech", "ai"],
-  "cover_image": "https://example.com/cover.jpg"
+  "post": {
+    "id": 987654,
+    "title": "Sample Post Title",
+    "slug": "sample-post-title",
+    "post_date": "2024-01-10T09:00:00.000Z",
+    "canonical_url": "https://example.substack.com/p/sample-post-title",
+    "subtitle": "A sample subtitle for the post",
+    "truncated_body_text": "This is the beginning of the post body...",
+    "body_html": "<p>This is the full post body in HTML.</p>",
+    "reactions": {"❤": 12},
+    "restacks": 3,
+    "postTags": [{"name": "tech", "slug": "tech"}, {"name": "ai", "slug": "ai"}],
+    "cover_image": "https://example.com/cover.jpg"
+  }
 }

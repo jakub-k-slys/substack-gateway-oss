@@ -17,6 +17,7 @@ from models.substack import (
     SubstackItemResponse,
     SubstackNote,
     SubstackNotesPage,
+    SubstackPostResponse,
     SubstackProfilePostsPage,
     SubstackPublicProfile,
     SubstackSubscriberLists,
@@ -222,7 +223,7 @@ class SubstackClient:
         _log.debug("Fetching post id=%d", post_id)
         url = f"{self._sub_base}/posts/by-id/{post_id}"
         r = await self._request("GET", url)
-        return SubstackFullPost.model_validate(r.json())
+        return SubstackPostResponse.model_validate(r.json()).post
 
     async def get_comments_for_post(self, post_id: int) -> list[SubstackComment]:
         """Mirrors CommentService.getCommentsForPost() — GET /post/{id}/comments (pub)."""
