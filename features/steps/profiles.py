@@ -19,17 +19,23 @@ def step_public_profile_returns_status(context, slug, status):
     )
 
 
-@given('the Substack public profile endpoint for "{slug}" returns a response with no id field')
+@given(
+    'the Substack public profile endpoint for "{slug}" returns a response with no id field'
+)
 def step_public_profile_returns_no_id(context, slug):
     context.respx_mock.get(public_profile_url(slug)).mock(
         return_value=httpx.Response(200, json={"handle": slug, "name": "Test"})
     )
 
 
-@given('the Substack public profile endpoint for "{slug}" returns a response with a non-integer id')
+@given(
+    'the Substack public profile endpoint for "{slug}" returns a response with a non-integer id'
+)
 def step_public_profile_returns_bad_id(context, slug):
     context.respx_mock.get(public_profile_url(slug)).mock(
-        return_value=httpx.Response(200, json={"id": "not-a-number", "handle": slug, "name": "Test"})
+        return_value=httpx.Response(
+            200, json={"id": "not-a-number", "handle": slug, "name": "Test"}
+        )
     )
 
 

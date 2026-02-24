@@ -325,9 +325,13 @@ class SubstackClient:
             _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
             try:
                 body = r.json()
-                detail = body.get("error") or body.get("message") or f"HTTP {r.status_code}"
+                detail = (
+                    body.get("error") or body.get("message") or f"HTTP {r.status_code}"
+                )
             except Exception:
                 detail = f"HTTP {r.status_code}"
-            raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}: {detail}")
+            raise SubstackAPIError(
+                r.status_code, f"Substack returned {r.status_code}: {detail}"
+            )
         _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
         return r

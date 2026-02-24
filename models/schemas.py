@@ -71,9 +71,13 @@ class NoteResponse(BaseModel):
         user = note.context.users[0] if note.context.users else None
         comment = note.comment
         if comment is None:
-            _log.warning("Note %r has no comment body; returning empty defaults", note.entity_key)
+            _log.warning(
+                "Note %r has no comment body; returning empty defaults", note.entity_key
+            )
         if user is None:
-            _log.warning("Note %r has no author; returning empty defaults", note.entity_key)
+            _log.warning(
+                "Note %r has no author; returning empty defaults", note.entity_key
+            )
         return cls(
             id=comment.id if comment else 0,
             body=comment.body if comment else "",
