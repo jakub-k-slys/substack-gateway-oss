@@ -40,3 +40,17 @@ Feature: Create note endpoint
     Given a malformed authorization header and publication URL "https://example.substack.com"
     When I send POST /api/v1/notes with JSON body {"content": "Hello world."}
     Then the response status code is 401
+
+  Scenario: Create a note with a link attachment
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack create-attachment endpoint returns the sample response
+    And the Substack create-note endpoint returns the sample response
+    When I send POST /api/v1/notes with JSON body {"content": "Hello world.", "attachment": "https://substack.com"}
+    Then the response status code is 201
+    And the response field "id" is not null
+
+  Scenario: Attachment endpoint failure returns 502
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack create-attachment endpoint returns status 500
+    When I send POST /api/v1/notes with JSON body {"content": "Hello world.", "attachment": "https://substack.com"}
+    Then the response status code is 502
