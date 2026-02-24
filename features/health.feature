@@ -30,6 +30,13 @@ Feature: Health check endpoints
     Then the response status code is 200
     And the response field "connected" is false
 
+  Scenario: Substack API timeout is treated as unreachable
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack API times out
+    When I send GET /api/v1/health/ready
+    Then the response status code is 200
+    And the response field "connected" is false
+
   Scenario: Expired token still reports connected (service is reachable)
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
     And the Substack feed/following endpoint returns status 401

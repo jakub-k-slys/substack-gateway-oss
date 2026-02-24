@@ -3,6 +3,13 @@ from __future__ import annotations
 import re
 from typing import Any
 
+# Substack note payload envelope constants
+_TAB_ID = "for-you"
+_SURFACE = "feed"
+_REPLY_MIN_ROLE = "everyone"
+_DOC_TYPE = "doc"
+_SCHEMA_VERSION = "v1"
+
 # Inline formatting: bold before italic so ** is not consumed by single-* rule.
 _INLINE = re.compile(
     r"\*\*(.*?)\*\*"  # bold
@@ -36,13 +43,13 @@ def markdown_to_note_payload(
 
     payload: dict[str, Any] = {
         "bodyJson": {
-            "type": "doc",
-            "attrs": {"schemaVersion": "v1"},
+            "type": _DOC_TYPE,
+            "attrs": {"schemaVersion": _SCHEMA_VERSION},
             "content": paragraphs,
         },
-        "tabId": "for-you",
-        "surface": "feed",
-        "replyMinimumRole": "everyone",
+        "tabId": _TAB_ID,
+        "surface": _SURFACE,
+        "replyMinimumRole": _REPLY_MIN_ROLE,
     }
 
     if attachment_ids:

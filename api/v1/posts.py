@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 
 from api.deps import get_substack_client
 from client.substack import SubstackClient
@@ -13,7 +13,7 @@ router = APIRouter(tags=["posts"])
 
 @router.get("/posts/{post_id}", response_model=FullPostResponse)
 async def get_post(
-    post_id: int,
+    post_id: Annotated[int, Path(gt=0)],
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> FullPostResponse:
     """Return a single Substack post with its full content."""
@@ -23,7 +23,7 @@ async def get_post(
 
 @router.get("/posts/{post_id}/comments", response_model=CommentsResponse)
 async def get_post_comments(
-    post_id: int,
+    post_id: Annotated[int, Path(gt=0)],
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> CommentsResponse:
     """Return comments for the given post."""

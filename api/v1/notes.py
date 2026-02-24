@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 
 from api.deps import get_substack_client
 from client.substack import SubstackClient
@@ -13,7 +13,7 @@ router = APIRouter(tags=["notes"])
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)
 async def get_note(
-    note_id: int,
+    note_id: Annotated[int, Path(gt=0)],
     client: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> NoteResponse:
     """Return a single Substack note by its ID."""

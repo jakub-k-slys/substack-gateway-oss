@@ -223,3 +223,18 @@ Feature: Markdown to Substack note payload converter
   Scenario: Only empty list items raises an error
     When I convert the markdown "- \n* \n1. "
     Then a ValueError is raised with message "Note must contain at least one paragraph with actual content"
+
+  # ------------------------------------------------------------------
+  # Overlapping / nested inline formatting
+  # ------------------------------------------------------------------
+
+  Scenario: Triple-asterisk is consumed as bold wrapping a leading asterisk
+    When I convert the markdown "***bold italic***"
+    Then the note payload has 1 paragraph
+    And paragraph 1 text node 1 is bold "*bold italic"
+    And paragraph 1 text node 2 is plain "*"
+
+  Scenario: Inline code inside bold is not processed as code mark
+    When I convert the markdown "**bold with `code` inside**"
+    Then the note payload has 1 paragraph
+    And paragraph 1 has 1 text node with bold text "bold with `code` inside"

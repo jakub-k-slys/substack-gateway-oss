@@ -31,6 +31,7 @@ _log = logging.getLogger(__name__)
 _SUBSTACK_BASE = settings.substack_base_url
 _API_PREFIX = "api/v1"
 _TIMEOUT = settings.substack_timeout
+_LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
 _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
@@ -42,7 +43,9 @@ class SubstackClient:
         self._http: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> SubstackClient:
-        self._http = httpx.AsyncClient(cookies=self._cookies, timeout=_TIMEOUT)
+        self._http = httpx.AsyncClient(
+            cookies=self._cookies, timeout=_TIMEOUT, limits=_LIMITS
+        )
         return self
 
     async def __aexit__(self, *args: object) -> None:
@@ -110,7 +113,15 @@ class SubstackClient:
         _log.debug("Resolving profile ID for slug=%r", slug)
         url = f"{self._sub_base}/user/{slug}/public_profile"
         r = await self._request("GET", url)
-        profile_id: int = r.json()["id"]
+        raw = r.json().get("id")
+        if raw is None:
+            raise SubstackAPIError(502, "Substack profile response missing id field")
+        try:
+            profile_id = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise SubstackAPIError(
+                502, f"Substack returned non-integer profile id: {raw!r}"
+            ) from exc
         _log.debug("Resolved profile ID=%d for slug=%r", profile_id, slug)
         return profile_id
 
@@ -313,9 +324,10 @@ class SubstackClient:
         if not r.is_success:
             _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
             try:
-                detail = r.json().get("error") or r.json().get("message") or r.text[:200]
+                body = r.json()
+                detail = body.get("error") or body.get("message") or f"HTTP {r.status_code}"
             except Exception:
-                detail = r.text[:200]
+                detail = f"HTTP {r.status_code}"
             raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}: {detail}")
         _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
         return r

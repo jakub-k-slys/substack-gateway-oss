@@ -4,8 +4,6 @@ import logging
 
 from pydantic import BaseModel
 
-_log = logging.getLogger(__name__)
-
 from models.substack import (
     SubstackComment,
     SubstackFollowingUser,
@@ -17,6 +15,8 @@ from models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
 )
+
+_log = logging.getLogger(__name__)
 
 
 class LivenessResponse(BaseModel):
