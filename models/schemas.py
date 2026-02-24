@@ -7,6 +7,7 @@ from models.substack import (
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
+    SubstackNoteCreated,
     SubstackNotesPage,
     SubstackPreviewPost,
     SubstackProfilePostsPage,
@@ -203,3 +204,20 @@ class FollowingResponse(BaseModel):
     @classmethod
     def from_substack(cls, users: list[SubstackFollowingUser]) -> FollowingResponse:
         return cls(items=[FollowingUserResponse.from_substack(u) for u in users])
+
+
+# ------------------------------------------------------------------
+# Note creation
+# ------------------------------------------------------------------
+
+
+class CreateNoteRequest(BaseModel):
+    content: str
+
+
+class CreateNoteResponse(BaseModel):
+    id: int
+
+    @classmethod
+    def from_substack(cls, note: SubstackNoteCreated) -> CreateNoteResponse:
+        return cls(id=note.id)

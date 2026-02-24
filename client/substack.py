@@ -8,6 +8,7 @@ import httpx
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
+from converters.markdown import markdown_to_note_payload
 from models.substack import (
     HandleOptionsResponse,
     SubstackComment,
@@ -16,6 +17,7 @@ from models.substack import (
     SubstackFullPost,
     SubstackItemResponse,
     SubstackNote,
+    SubstackNoteCreated,
     SubstackNotesPage,
     SubstackPostResponse,
     SubstackProfilePostsPage,
@@ -233,6 +235,16 @@ class SubstackClient:
         comments = SubstackCommentsResponse.model_validate(r.json()).comments
         _log.debug("Got %d comments for post id=%d", len(comments), post_id)
         return comments
+
+    async def create_note(self, content: str) -> SubstackNoteCreated:
+        """Convert markdown to Substack note payload and POST to /comment/feed."""
+        _log.debug("Creating note (%d chars of markdown)", len(content))
+        payload = markdown_to_note_payload(content)
+        url = f"{self._sub_base}/comment/feed/"
+        r = await self._request("POST", url, json=payload)
+        note = SubstackNoteCreated.model_validate(r.json())
+        _log.debug("Created note id=%d", note.id)
+        return note
 
     # ------------------------------------------------------------------
     # Internal helpers
