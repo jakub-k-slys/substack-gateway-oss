@@ -23,7 +23,7 @@ async def get_substack_client(
             status_code=401,
             detail="Authorization header must be 'Bearer <substack-session-token>'",
         )
-    token = authorization.removeprefix("Bearer ")
+    token = authorization.removeprefix("Bearer ").strip()
     if not token:
         _log.warning("Rejected: empty Bearer token in Authorization header")
         raise HTTPException(

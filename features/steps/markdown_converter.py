@@ -155,6 +155,16 @@ def step_single_node_bold(context, para, count, text):
     assert marks == [{"type": "bold"}], f"Expected bold marks, got {marks}"
 
 
+@then('paragraph {para:d} has 1 text node with bold and italic text "{text}"')
+def step_single_node_bold_italic(context, para, text):
+    paragraphs = _paragraphs(context)
+    nodes = paragraphs[para - 1]["content"]
+    assert len(nodes) == 1, f"Expected 1 node, got {len(nodes)}: {nodes}"
+    assert nodes[0]["text"] == text, f"Expected {text!r}, got {nodes[0]['text']!r}"
+    mark_types = {m["type"] for m in nodes[0].get("marks", [])}
+    assert mark_types == {"bold", "italic"}, f"Expected bold+italic marks, got {mark_types}"
+
+
 @then('paragraph {para:d} text node {node:d} is plain "{text}"')
 def step_node_plain(context, para, node, text):
     n = _node(context, para, node)

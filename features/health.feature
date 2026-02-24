@@ -32,3 +32,10 @@ Feature: Health check endpoint
     Given a malformed authorization header and publication URL "https://example.substack.com"
     When I send GET /api/v1/health
     Then the response status code is 401
+
+  Scenario: Bearer token with extra surrounding whitespace is accepted
+    Given a bearer token with extra whitespace and publication URL "https://example.substack.com"
+    And the Substack API is reachable
+    When I send GET /api/v1/health
+    Then the response status code is 200
+    And the response field "connected" is true

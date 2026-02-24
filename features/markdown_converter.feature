@@ -44,6 +44,13 @@ Feature: Markdown to Substack note payload converter
     And paragraph 1 text node 6 is code "code"
     And paragraph 1 text node 7 is plain " text."
 
+  Scenario: Space between adjacent inline marks is preserved
+    When I convert the markdown "**bold** *italic*"
+    Then the note payload has 1 paragraph
+    And paragraph 1 text node 1 is bold "bold"
+    And paragraph 1 text node 2 is plain " "
+    And paragraph 1 text node 3 is italic "italic"
+
   # ------------------------------------------------------------------
   # Headings
   # ------------------------------------------------------------------
@@ -52,6 +59,11 @@ Feature: Markdown to Substack note payload converter
     When I convert the markdown "## Main Heading"
     Then the note payload has 1 paragraph
     And paragraph 1 has 1 text node with bold text "Main Heading"
+
+  Scenario: Heading with inline italic text gets both bold and italic marks
+    When I convert the markdown "## *italic heading*"
+    Then the note payload has 1 paragraph
+    And paragraph 1 has 1 text node with bold and italic text "italic heading"
 
   Scenario: Multiple heading levels all become bold paragraphs
     When I convert the markdown:

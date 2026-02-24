@@ -115,7 +115,7 @@ def _parse_inline(text: str) -> list[dict[str, Any]]:
         last_end = m.end()
     if last_end < len(text):
         nodes.append(_text(text[last_end:]))
-    return [n for n in nodes if n["text"].strip()]
+    return [n for n in nodes if n["text"]]
 
 
 def _text(text: str, mark: str | None = None) -> dict[str, Any]:
@@ -126,7 +126,10 @@ def _text(text: str, mark: str | None = None) -> dict[str, Any]:
 
 
 def _bold(node: dict[str, Any]) -> dict[str, Any]:
-    return {**node, "marks": [{"type": "bold"}]}
+    existing = node.get("marks", [])
+    if any(m["type"] == "bold" for m in existing):
+        return node
+    return {**node, "marks": [*existing, {"type": "bold"}]}
 
 
 def _paragraph(content: list[dict[str, Any]]) -> dict[str, Any]:

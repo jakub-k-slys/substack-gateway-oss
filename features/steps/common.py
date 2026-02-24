@@ -45,6 +45,14 @@ def step_malformed_auth(context, pub_url_):
     }
 
 
+@given('a bearer token with extra whitespace and publication URL "{pub_url_}"')
+def step_whitespace_token(context, pub_url_):
+    context.headers = {
+        "Authorization": "Bearer   test-token   ",
+        "x-publication-url": pub_url_,
+    }
+
+
 @when("I send GET {path}")
 def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
