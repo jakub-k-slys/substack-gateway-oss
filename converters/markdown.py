@@ -15,9 +15,7 @@ _UNORDERED = re.compile(r"^[-*]\s+(.*)")
 _ORDERED = re.compile(r"^(\d+)\.\s+(.*)")
 
 
-def markdown_to_note_payload(
-    markdown: str, attachment_ids: list[str] | None = None
-) -> dict[str, Any]:
+def markdown_to_note_payload(markdown: str) -> dict[str, Any]:
     """Convert a markdown string to a Substack note creation payload."""
     text = markdown.replace("\\n", "\n")
 
@@ -34,7 +32,7 @@ def markdown_to_note_payload(
     if not paragraphs:
         raise ValueError("Note must contain at least one paragraph with actual content")
 
-    payload: dict[str, Any] = {
+    return {
         "bodyJson": {
             "type": "doc",
             "attrs": {"schemaVersion": "v1"},
@@ -44,11 +42,6 @@ def markdown_to_note_payload(
         "surface": "feed",
         "replyMinimumRole": "everyone",
     }
-
-    if attachment_ids:
-        payload["attachmentIds"] = attachment_ids
-
-    return payload
 
 
 def _process_block(block: str) -> list[dict[str, Any]]:

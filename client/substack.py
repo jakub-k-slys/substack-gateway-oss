@@ -11,7 +11,6 @@ from config import settings
 from converters.markdown import markdown_to_note_payload
 from models.substack import (
     HandleOptionsResponse,
-    SubstackAttachmentCreated,
     SubstackComment,
     SubstackCommentsResponse,
     SubstackFollowingUser,
@@ -237,25 +236,10 @@ class SubstackClient:
         _log.debug("Got %d comments for post id=%d", len(comments), post_id)
         return comments
 
-    async def create_attachment(self, url: str) -> SubstackAttachmentCreated:
-        """POST /comment/attachment/ to register a link attachment, returns its UUID."""
-        _log.debug("Creating attachment for url=%r", url)
-        endpoint = f"{self._sub_base}/comment/attachment/"
-        r = await self._request("POST", endpoint, json={"url": url, "type": "link"})
-        attachment = SubstackAttachmentCreated.model_validate(r.json())
-        _log.debug("Created attachment id=%r", attachment.id)
-        return attachment
-
-    async def create_note(
-        self, content: str, attachment: str | None = None
-    ) -> SubstackNoteCreated:
-        """Convert markdown to Substack note payload and POST to /comment/feed/."""
+    async def create_note(self, content: str) -> SubstackNoteCreated:
+        """Convert markdown to Substack note payload and POST to /comment/feed."""
         _log.debug("Creating note (%d chars of markdown)", len(content))
-        attachment_ids: list[str] | None = None
-        if attachment:
-            att = await self.create_attachment(attachment)
-            attachment_ids = [att.id]
-        payload = markdown_to_note_payload(content, attachment_ids=attachment_ids)
+        payload = markdown_to_note_payload(content)
         url = f"{self._sub_base}/comment/feed/"
         r = await self._request("POST", url, json=payload)
         note = SubstackNoteCreated.model_validate(r.json())

@@ -213,7 +213,6 @@ class FollowingResponse(BaseModel):
 
 class CreateNoteRequest(BaseModel):
     content: str
-    attachment: str | None = None
 
 
 class CreateNoteResponse(BaseModel):

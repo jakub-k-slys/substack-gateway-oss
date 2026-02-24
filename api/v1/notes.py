@@ -28,7 +28,7 @@ async def create_note(
 ) -> CreateNoteResponse:
     """Convert markdown content to a Substack note and publish it."""
     try:
-        note = await client.create_note(body.content, attachment=body.attachment)
+        note = await client.create_note(body.content)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return CreateNoteResponse.from_substack(note)

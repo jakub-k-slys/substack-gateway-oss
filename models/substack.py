@@ -128,10 +128,6 @@ class SubstackNoteCreated(BaseModel):
     status: str | None = None
 
 
-class SubstackAttachmentCreated(BaseModel):
-    id: str
-
-
 # ------------------------------------------------------------------
 # Comments
 # ------------------------------------------------------------------
