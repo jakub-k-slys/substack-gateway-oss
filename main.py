@@ -92,8 +92,7 @@ async def substack_api_error_handler(
 ) -> JSONResponse:
     # Map specific upstream codes to semantically correct HTTP responses;
     # everything else becomes 502 Bad Gateway.
-    _PASSTHROUGH = {404, 429}
-    status = exc.status_code if exc.status_code in _PASSTHROUGH else 502
+    status = exc.status_code if exc.status_code in _PASSTHROUGH_CODES else 502
     _log.warning(
         "API error on %s %s: upstream=%d response=%d — %s",
         request.method,
@@ -104,6 +103,8 @@ async def substack_api_error_handler(
     )
     return JSONResponse(status_code=status, content={"detail": exc.message})
 
+
+_PASSTHROUGH_CODES = {404, 429}
 
 app.include_router(v1_router, prefix="/api/v1")
 

@@ -105,6 +105,15 @@ class SubstackClient:
         r = await self._request("GET", url)
         return SubstackPublicProfile.model_validate(r.json())
 
+    async def get_profile_id_by_slug(self, slug: str) -> int:
+        """Return just the numeric ID for a profile slug, without building the full model."""
+        _log.debug("Resolving profile ID for slug=%r", slug)
+        url = f"{self._sub_base}/user/{slug}/public_profile"
+        r = await self._request("GET", url)
+        profile_id: int = r.json()["id"]
+        _log.debug("Resolved profile ID=%d for slug=%r", profile_id, slug)
+        return profile_id
+
     # ------------------------------------------------------------------
     # Notes
     # ------------------------------------------------------------------
@@ -128,10 +137,15 @@ class SubstackClient:
     async def get_own_posts(
         self, limit: int = 25, offset: int = 0
     ) -> SubstackProfilePostsPage:
-        """Mirrors Profile.posts() — resolves own ID then GET /profile/posts."""
+        """Mirrors Profile.posts() — resolves own slug then GET /profile/posts.
+
+        Uses get_profile_id_by_slug instead of get_own_profile to avoid
+        constructing the full profile model when only the ID is needed.
+        """
         _log.debug("Fetching own posts (limit=%d, offset=%d)", limit, offset)
-        profile = await self.get_own_profile()
-        return await self.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+        slug = await self._get_own_slug()
+        profile_id = await self.get_profile_id_by_slug(slug)
+        return await self.get_posts_for_profile(profile_id, limit=limit, offset=offset)
 
     async def get_posts_for_profile(
         self, profile_id: int, limit: int = 25, offset: int = 0
@@ -189,7 +203,12 @@ class SubstackClient:
         return users
 
     async def _get_own_id(self) -> int:
-        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
+        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id.
+
+        Note: this is a write operation (it sets the user's last home tab preference
+        to "inbox") that Substack's own client uses as the only way to retrieve the
+        caller's user ID. There is no read-only alternative in the public API.
+        """
         _log.debug("Resolving own user ID via /user-setting")
         url = f"{self._sub_base}/user-setting"
         r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
@@ -293,6 +312,10 @@ class SubstackClient:
             )
         if not r.is_success:
             _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
-            raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}")
+            try:
+                detail = r.json().get("error") or r.json().get("message") or r.text[:200]
+            except Exception:
+                detail = r.text[:200]
+            raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}: {detail}")
         _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
         return r

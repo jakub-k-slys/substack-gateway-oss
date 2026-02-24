@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import logging
+
 from pydantic import BaseModel
+
+_log = logging.getLogger(__name__)
 
 from models.substack import (
     SubstackComment,
@@ -13,6 +17,10 @@ from models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
 )
+
+
+class LivenessResponse(BaseModel):
+    status: str
 
 
 class HealthResponse(BaseModel):
@@ -62,6 +70,10 @@ class NoteResponse(BaseModel):
     def from_substack(cls, note: SubstackNote) -> NoteResponse:
         user = note.context.users[0] if note.context.users else None
         comment = note.comment
+        if comment is None:
+            _log.warning("Note %r has no comment body; returning empty defaults", note.entity_key)
+        if user is None:
+            _log.warning("Note %r has no author; returning empty defaults", note.entity_key)
         return cls(
             id=comment.id if comment else 0,
             body=comment.body if comment else "",

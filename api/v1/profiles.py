@@ -33,8 +33,8 @@ async def get_profile_posts(
     offset: int = Query(default=0, ge=0),
 ) -> PostsPageResponse:
     """Return a page of posts for the given profile slug."""
-    profile = await client.get_profile_by_slug(slug)
-    page = await client.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+    profile_id = await client.get_profile_id_by_slug(slug)
+    page = await client.get_posts_for_profile(profile_id, limit=limit, offset=offset)
     return PostsPageResponse.from_substack(page)
 
 
@@ -45,6 +45,6 @@ async def get_profile_notes(
     cursor: str | None = None,
 ) -> NotesPageResponse:
     """Return a page of notes for the given profile slug."""
-    profile = await client.get_profile_by_slug(slug)
-    page = await client.get_notes_for_profile(profile.id, cursor=cursor)
+    profile_id = await client.get_profile_id_by_slug(slug)
+    page = await client.get_notes_for_profile(profile_id, cursor=cursor)
     return NotesPageResponse.from_substack(page)

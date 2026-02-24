@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncGenerator
 from typing import Annotated
+from urllib.parse import urlparse
 
 from fastapi import Header, HTTPException
 
@@ -30,7 +31,8 @@ async def get_substack_client(
             status_code=401,
             detail="Bearer token must not be empty",
         )
-    if not x_publication_url.startswith(("http://", "https://")):
+    _parsed = urlparse(x_publication_url)
+    if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
         raise HTTPException(
             status_code=400,

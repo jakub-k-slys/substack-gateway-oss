@@ -60,10 +60,8 @@ def step_get(context, path):
 
 @when("I send POST {path} with JSON body {body}")
 def step_post_json(context, path, body):
-    import json as _json
-
     context.response = context.client.post(
-        path, json=_json.loads(body), headers=context.headers
+        path, json=json.loads(body), headers=context.headers
     )
 
 
