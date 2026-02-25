@@ -81,5 +81,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Run tests (behave)
+      - name: Run unit tests (pytest)
+        run: uv run pytest tests/
+
+      - name: Run integration tests (behave)
         run: uv run behave
