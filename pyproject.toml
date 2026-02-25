@@ -24,6 +24,7 @@ dev = [
   "behave>=1.2.6",
   "respx>=0.22.0",
   "httpx>=0.28.0",
+  "pytest>=8.0",
 ]
 
 [tool.ruff]

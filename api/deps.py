@@ -5,7 +5,7 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 from urllib.parse import urlparse
 
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
 
 from client.substack import SubstackClient
 
@@ -13,6 +13,7 @@ _log = logging.getLogger(__name__)
 
 
 async def get_substack_client(
+    request: Request,
     authorization: Annotated[str, Header()],
     x_publication_url: Annotated[str, Header()],
 ) -> AsyncGenerator[SubstackClient, None]:
@@ -38,6 +39,9 @@ async def get_substack_client(
             status_code=400,
             detail="x-publication-url must be a valid HTTP or HTTPS URL",
         )
+    request_id: str | None = getattr(request.state, "request_id", None)
     _log.debug("Creating SubstackClient for publication: %s", x_publication_url)
-    async with SubstackClient(token=token, publication_url=x_publication_url) as client:
+    async with SubstackClient(
+        token=token, publication_url=x_publication_url, request_id=request_id
+    ) as client:
         yield client

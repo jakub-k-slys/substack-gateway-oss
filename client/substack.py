@@ -37,7 +37,9 @@ _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
 class SubstackClient:
-    def __init__(self, token: str, publication_url: str) -> None:
+    def __init__(
+        self, token: str, publication_url: str, request_id: str | None = None
+    ) -> None:
         self._cookies = {"substack.sid": token}
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
         self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
@@ -45,6 +47,7 @@ class SubstackClient:
         # Request-scoped cache: avoids a repeated GET /user/{slug}/public_profile
         # when the same slug is resolved more than once within a single request.
         self._profile_cache: dict[str, SubstackPublicProfile] = {}
+        self._rid = f"[{request_id}] " if request_id else ""
 
     async def __aenter__(self) -> SubstackClient:
         self._http = httpx.AsyncClient(
@@ -308,28 +311,39 @@ class SubstackClient:
             raise RuntimeError(
                 "SubstackClient must be used as an async context manager"
             )
-        _log.debug("→ %s %s", method, url)
+        _log.debug("%s→ %s %s", self._rid, method, url)
         start = time.monotonic()
         try:
             r = await self._http.request(method, url, **kwargs)
         except httpx.HTTPError as exc:
             elapsed = time.monotonic() - start
             _log.warning(
-                "Substack network error: %s %s — %s (%.3fs)", method, url, exc, elapsed
+                "%sSubstack network error: %s %s — %s (%.3fs)",
+                self._rid,
+                method,
+                url,
+                exc,
+                elapsed,
             )
             raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
         elapsed = time.monotonic() - start
         if r.status_code == 401:
-            _log.warning("← %s %s → 401 Unauthorized (%.3fs)", method, url, elapsed)
+            _log.warning(
+                "%s← %s %s → 401 Unauthorized (%.3fs)", self._rid, method, url, elapsed
+            )
             raise SubstackAuthError(401, "Invalid or expired Substack session token")
         if r.status_code == 403:
-            _log.warning("← %s %s → 403 Forbidden (%.3fs)", method, url, elapsed)
+            _log.warning(
+                "%s← %s %s → 403 Forbidden (%.3fs)", self._rid, method, url, elapsed
+            )
             raise SubstackAuthError(
                 403, "Forbidden: insufficient permissions for this resource"
             )
         if not r.is_success:
-            _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
+            _log.warning(
+                "%s← %s %s → %d (%.3fs)", self._rid, method, url, r.status_code, elapsed
+            )
             try:
                 body = r.json()
                 detail = (
@@ -340,5 +354,7 @@ class SubstackClient:
             raise SubstackAPIError(
                 r.status_code, f"Substack returned {r.status_code}: {detail}"
             )
-        _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
+        _log.debug(
+            "%s← %s %s → %d (%.3fs)", self._rid, method, url, r.status_code, elapsed
+        )
         return r
