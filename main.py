@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import logging.config
 import time
+import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request
@@ -58,17 +59,21 @@ app = FastAPI(
 async def log_requests(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
-    _log.debug("→ %s %s", request.method, request.url.path)
+    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    request.state.request_id = request_id
+    _log.debug("[%s] → %s %s", request_id, request.method, request.url.path)
     start = time.monotonic()
     response = await call_next(request)
     elapsed = time.monotonic() - start
     _log.info(
-        "%s %s → %d (%.3fs)",
+        "[%s] %s %s → %d (%.3fs)",
+        request_id,
         request.method,
         request.url.path,
         response.status_code,
         elapsed,
     )
+    response.headers["X-Request-ID"] = request_id
     return response
 
 
@@ -76,8 +81,10 @@ async def log_requests(
 async def substack_auth_error_handler(
     request: Request, exc: SubstackAuthError
 ) -> JSONResponse:
+    rid = getattr(request.state, "request_id", "-")
     _log.warning(
-        "Auth error on %s %s: [%d] %s",
+        "[%s] Auth error on %s %s: [%d] %s",
+        rid,
         request.method,
         request.url.path,
         exc.status_code,
@@ -92,10 +99,11 @@ async def substack_api_error_handler(
 ) -> JSONResponse:
     # Map specific upstream codes to semantically correct HTTP responses;
     # everything else becomes 502 Bad Gateway.
-    _PASSTHROUGH = {404, 429}
-    status = exc.status_code if exc.status_code in _PASSTHROUGH else 502
+    status = exc.status_code if exc.status_code in _PASSTHROUGH_CODES else 502
+    rid = getattr(request.state, "request_id", "-")
     _log.warning(
-        "API error on %s %s: upstream=%d response=%d — %s",
+        "[%s] API error on %s %s: upstream=%d response=%d — %s",
+        rid,
         request.method,
         request.url.path,
         exc.status_code,
@@ -104,6 +112,8 @@ async def substack_api_error_handler(
     )
     return JSONResponse(status_code=status, content={"detail": exc.message})
 
+
+_PASSTHROUGH_CODES = {404, 429}
 
 app.include_router(v1_router, prefix="/api/v1")
 

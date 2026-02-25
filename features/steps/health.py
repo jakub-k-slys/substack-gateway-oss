@@ -20,6 +20,13 @@ def step_api_unreachable(context):
     )
 
 
+@given("the Substack API times out")
+def step_api_timeout(context):
+    context.respx_mock.get(_FEED_FOLLOWING_URL).mock(
+        side_effect=httpx.TimeoutException("request timed out")
+    )
+
+
 @given("the Substack feed/following endpoint returns status {status:d}")
 def step_feed_following_returns_status(context, status):
     context.respx_mock.get(_FEED_FOLLOWING_URL).mock(

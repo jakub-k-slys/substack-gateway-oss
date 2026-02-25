@@ -33,3 +33,15 @@ Feature: Profile posts endpoint
     When I send GET /api/v1/profiles/jakubslys/posts
     Then the response status code is 401
 
+  Scenario: Profile response missing id field returns 502
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack public profile endpoint for "jakubslys" returns a response with no id field
+    When I send GET /api/v1/profiles/jakubslys/posts
+    Then the response status code is 502
+
+  Scenario: Profile response with non-integer id returns 502
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack public profile endpoint for "jakubslys" returns a response with a non-integer id
+    When I send GET /api/v1/profiles/jakubslys/posts
+    Then the response status code is 502
+

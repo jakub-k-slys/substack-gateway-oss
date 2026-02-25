@@ -5,6 +5,8 @@ import time
 from typing import Any
 
 import httpx
+import pydantic
+from async_lru import alru_cache
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
@@ -31,18 +33,28 @@ _log = logging.getLogger(__name__)
 _SUBSTACK_BASE = settings.substack_base_url
 _API_PREFIX = "api/v1"
 _TIMEOUT = settings.substack_timeout
+_LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
 _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
 class SubstackClient:
-    def __init__(self, token: str, publication_url: str) -> None:
+    def __init__(
+        self, token: str, publication_url: str, request_id: str | None = None
+    ) -> None:
         self._cookies = {"substack.sid": token}
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
         self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
         self._http: httpx.AsyncClient | None = None
+        self._rid = f"[{request_id}] " if request_id else ""
+        # Instance-scoped cache: alru_cache wraps the bound method so the
+        # cache key is just (slug,) and the cache lives on this instance.
+        # It is GC'd with the client — no cross-request contamination.
+        self.get_profile_by_slug = alru_cache(self._fetch_profile)
 
     async def __aenter__(self) -> SubstackClient:
-        self._http = httpx.AsyncClient(cookies=self._cookies, timeout=_TIMEOUT)
+        self._http = httpx.AsyncClient(
+            cookies=self._cookies, timeout=_TIMEOUT, limits=_LIMITS
+        )
         return self
 
     async def __aexit__(self, *args: object) -> None:
@@ -98,12 +110,27 @@ class SubstackClient:
             )
         return response.potential_handles[0].handle
 
-    async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
-        """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
+    async def _fetch_profile(self, slug: str) -> SubstackPublicProfile:
+        """GET /user/{slug}/public_profile — called through self.get_profile_by_slug.
+
+        get_profile_by_slug is an alru_cache-wrapped version of this method,
+        created per-instance in __init__ so the cache is request-scoped and
+        GC'd with the client.
+        """
         _log.debug("Fetching public profile for slug=%r", slug)
         url = f"{self._sub_base}/user/{slug}/public_profile"
         r = await self._request("GET", url)
-        return SubstackPublicProfile.model_validate(r.json())
+        try:
+            return SubstackPublicProfile.model_validate(r.json())
+        except pydantic.ValidationError as exc:
+            raise SubstackAPIError(
+                502, f"Substack profile response invalid: {exc}"
+            ) from exc
+
+    async def get_profile_id_by_slug(self, slug: str) -> int:
+        """Return the numeric ID for a profile slug, using the request-scoped cache."""
+        profile = await self.get_profile_by_slug(slug)
+        return profile.id
 
     # ------------------------------------------------------------------
     # Notes
@@ -128,10 +155,15 @@ class SubstackClient:
     async def get_own_posts(
         self, limit: int = 25, offset: int = 0
     ) -> SubstackProfilePostsPage:
-        """Mirrors Profile.posts() — resolves own ID then GET /profile/posts."""
+        """Mirrors Profile.posts() — resolves own slug then GET /profile/posts.
+
+        Uses get_profile_id_by_slug instead of get_own_profile to avoid
+        constructing the full profile model when only the ID is needed.
+        """
         _log.debug("Fetching own posts (limit=%d, offset=%d)", limit, offset)
-        profile = await self.get_own_profile()
-        return await self.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+        slug = await self._get_own_slug()
+        profile_id = await self.get_profile_id_by_slug(slug)
+        return await self.get_posts_for_profile(profile_id, limit=limit, offset=offset)
 
     async def get_posts_for_profile(
         self, profile_id: int, limit: int = 25, offset: int = 0
@@ -189,7 +221,12 @@ class SubstackClient:
         return users
 
     async def _get_own_id(self) -> int:
-        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id."""
+        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id.
+
+        Note: this is a write operation (it sets the user's last home tab preference
+        to "inbox") that Substack's own client uses as the only way to retrieve the
+        caller's user ID. There is no read-only alternative in the public API.
+        """
         _log.debug("Resolving own user ID via /user-setting")
         url = f"{self._sub_base}/user-setting"
         r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
@@ -271,28 +308,50 @@ class SubstackClient:
             raise RuntimeError(
                 "SubstackClient must be used as an async context manager"
             )
-        _log.debug("→ %s %s", method, url)
+        _log.debug("%s→ %s %s", self._rid, method, url)
         start = time.monotonic()
         try:
             r = await self._http.request(method, url, **kwargs)
         except httpx.HTTPError as exc:
             elapsed = time.monotonic() - start
             _log.warning(
-                "Substack network error: %s %s — %s (%.3fs)", method, url, exc, elapsed
+                "%sSubstack network error: %s %s — %s (%.3fs)",
+                self._rid,
+                method,
+                url,
+                exc,
+                elapsed,
             )
             raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
         elapsed = time.monotonic() - start
         if r.status_code == 401:
-            _log.warning("← %s %s → 401 Unauthorized (%.3fs)", method, url, elapsed)
+            _log.warning(
+                "%s← %s %s → 401 Unauthorized (%.3fs)", self._rid, method, url, elapsed
+            )
             raise SubstackAuthError(401, "Invalid or expired Substack session token")
         if r.status_code == 403:
-            _log.warning("← %s %s → 403 Forbidden (%.3fs)", method, url, elapsed)
+            _log.warning(
+                "%s← %s %s → 403 Forbidden (%.3fs)", self._rid, method, url, elapsed
+            )
             raise SubstackAuthError(
                 403, "Forbidden: insufficient permissions for this resource"
             )
         if not r.is_success:
-            _log.warning("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
-            raise SubstackAPIError(r.status_code, f"Substack returned {r.status_code}")
-        _log.debug("← %s %s → %d (%.3fs)", method, url, r.status_code, elapsed)
+            _log.warning(
+                "%s← %s %s → %d (%.3fs)", self._rid, method, url, r.status_code, elapsed
+            )
+            try:
+                body = r.json()
+                detail = (
+                    body.get("error") or body.get("message") or f"HTTP {r.status_code}"
+                )
+            except Exception:
+                detail = f"HTTP {r.status_code}"
+            raise SubstackAPIError(
+                r.status_code, f"Substack returned {r.status_code}: {detail}"
+            )
+        _log.debug(
+            "%s← %s %s → %d (%.3fs)", self._rid, method, url, r.status_code, elapsed
+        )
         return r

@@ -105,6 +105,9 @@ class SubstackFullPost(BaseModel):
     canonical_url: str
     subtitle: str | None = None
     truncated_body_text: str | None = None
+    # Substack has used both snake_case (body_html) and camelCase (htmlBody) for
+    # the HTML body field across different endpoints/versions. Both are captured
+    # here and merged in FullPostResponse.from_substack via `body_html or html_body`.
     body_html: str | None = None
     html_body: str | None = Field(alias="htmlBody", default=None)
     reactions: dict[str, int] | None = None

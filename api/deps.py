@@ -3,8 +3,9 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncGenerator
 from typing import Annotated
+from urllib.parse import urlparse
 
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
 
 from client.substack import SubstackClient
 
@@ -12,6 +13,7 @@ _log = logging.getLogger(__name__)
 
 
 async def get_substack_client(
+    request: Request,
     authorization: Annotated[str, Header()],
     x_publication_url: Annotated[str, Header()],
 ) -> AsyncGenerator[SubstackClient, None]:
@@ -23,19 +25,23 @@ async def get_substack_client(
             status_code=401,
             detail="Authorization header must be 'Bearer <substack-session-token>'",
         )
-    token = authorization.removeprefix("Bearer ")
+    token = authorization.removeprefix("Bearer ").strip()
     if not token:
         _log.warning("Rejected: empty Bearer token in Authorization header")
         raise HTTPException(
             status_code=401,
             detail="Bearer token must not be empty",
         )
-    if not x_publication_url.startswith(("http://", "https://")):
+    _parsed = urlparse(x_publication_url)
+    if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
         raise HTTPException(
             status_code=400,
             detail="x-publication-url must be a valid HTTP or HTTPS URL",
         )
+    request_id: str | None = getattr(request.state, "request_id", None)
     _log.debug("Creating SubstackClient for publication: %s", x_publication_url)
-    async with SubstackClient(token=token, publication_url=x_publication_url) as client:
+    async with SubstackClient(
+        token=token, publication_url=x_publication_url, request_id=request_id
+    ) as client:
         yield client

@@ -8,6 +8,7 @@ dependencies = [
   "httpx>=0.28.0",
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
+  "async-lru>=2.0",
 ]
 
 [build-system]
@@ -24,6 +25,7 @@ dev = [
   "behave>=1.2.6",
   "respx>=0.22.0",
   "httpx>=0.28.0",
+  "pytest>=8.0",
 ]
 
 [tool.ruff]

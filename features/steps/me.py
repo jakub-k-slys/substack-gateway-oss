@@ -18,7 +18,10 @@ def _handle_options_url() -> str:
 
 
 def _notes_url(context) -> str:
-    return f"{context.headers.get('x-publication-url', '').rstrip('/')}/api/v1/notes"
+    pub = context.headers.get("x-publication-url")
+    if not pub:
+        raise RuntimeError("x-publication-url not set — missing a Given step?")
+    return f"{pub.rstrip('/')}/api/v1/notes"
 
 
 def _profile_posts_url() -> str:
@@ -26,7 +29,10 @@ def _profile_posts_url() -> str:
 
 
 def _subscriber_lists_url(context, user_id: int) -> str:
-    return f"{context.headers.get('x-publication-url', '').rstrip('/')}/api/v1/user/{user_id}/subscriber-lists"
+    pub = context.headers.get("x-publication-url")
+    if not pub:
+        raise RuntimeError("x-publication-url not set — missing a Given step?")
+    return f"{pub.rstrip('/')}/api/v1/user/{user_id}/subscriber-lists"
 
 
 @given("the Substack handles endpoint returns the sample response")
@@ -85,7 +91,7 @@ def step_posts_returns_sample(context, user_id):
 @given("the Substack user-setting endpoint returns user id {user_id:d}")
 def step_user_setting_returns_user_id(context, user_id):
     context.respx_mock.put(user_setting_url()).mock(
-        return_value=httpx.Response(200, json=load_sample("api/v1/user-setting"))
+        return_value=httpx.Response(200, json={"user_id": user_id})
     )
 
 
