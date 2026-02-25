@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 import pydantic
+from async_lru import alru_cache
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
@@ -44,10 +45,11 @@ class SubstackClient:
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
         self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
         self._http: httpx.AsyncClient | None = None
-        # Request-scoped cache: avoids a repeated GET /user/{slug}/public_profile
-        # when the same slug is resolved more than once within a single request.
-        self._profile_cache: dict[str, SubstackPublicProfile] = {}
         self._rid = f"[{request_id}] " if request_id else ""
+        # Instance-scoped cache: alru_cache wraps the bound method so the
+        # cache key is just (slug,) and the cache lives on this instance.
+        # It is GC'd with the client — no cross-request contamination.
+        self.get_profile_by_slug = alru_cache(self._fetch_profile)
 
     async def __aenter__(self) -> SubstackClient:
         self._http = httpx.AsyncClient(
@@ -108,27 +110,22 @@ class SubstackClient:
             )
         return response.potential_handles[0].handle
 
-    async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
-        """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile.
+    async def _fetch_profile(self, slug: str) -> SubstackPublicProfile:
+        """GET /user/{slug}/public_profile — called through self.get_profile_by_slug.
 
-        Results are cached for the lifetime of this client instance (one request),
-        so repeated calls with the same slug make only one HTTP round-trip.
+        get_profile_by_slug is an alru_cache-wrapped version of this method,
+        created per-instance in __init__ so the cache is request-scoped and
+        GC'd with the client.
         """
-        if slug not in self._profile_cache:
-            _log.debug("Fetching public profile for slug=%r", slug)
-            url = f"{self._sub_base}/user/{slug}/public_profile"
-            r = await self._request("GET", url)
-            try:
-                self._profile_cache[slug] = SubstackPublicProfile.model_validate(
-                    r.json()
-                )
-            except pydantic.ValidationError as exc:
-                raise SubstackAPIError(
-                    502, f"Substack profile response invalid: {exc}"
-                ) from exc
-        else:
-            _log.debug("Profile cache hit for slug=%r", slug)
-        return self._profile_cache[slug]
+        _log.debug("Fetching public profile for slug=%r", slug)
+        url = f"{self._sub_base}/user/{slug}/public_profile"
+        r = await self._request("GET", url)
+        try:
+            return SubstackPublicProfile.model_validate(r.json())
+        except pydantic.ValidationError as exc:
+            raise SubstackAPIError(
+                502, f"Substack profile response invalid: {exc}"
+            ) from exc
 
     async def get_profile_id_by_slug(self, slug: str) -> int:
         """Return the numeric ID for a profile slug, using the request-scoped cache."""

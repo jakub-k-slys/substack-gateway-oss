@@ -8,6 +8,7 @@ dependencies = [
   "httpx>=0.28.0",
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
+  "async-lru>=2.0",
 ]
 
 [build-system]
