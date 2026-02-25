@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
 from api.deps import get_substack_client
 from client.substack import SubstackClient
+from models.pagination import CursorPage, OffsetPage
 from models.schemas import (
     FollowingResponse,
     NotesPageResponse,
@@ -28,22 +29,21 @@ async def get_me(
 @router.get("/me/notes", response_model=NotesPageResponse)
 async def get_me_notes(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
-    cursor: str | None = None,
+    page: Annotated[CursorPage, Depends()],
 ) -> NotesPageResponse:
     """Return a page of the authenticated user's own notes."""
-    page = await client.get_own_notes(cursor=cursor)
-    return NotesPageResponse.from_substack(page)
+    result = await client.get_own_notes(cursor=page.cursor)
+    return NotesPageResponse.from_substack(result)
 
 
 @router.get("/me/posts", response_model=PostsPageResponse)
 async def get_me_posts(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
-    limit: int = Query(default=25, gt=0, le=100),
-    offset: int = Query(default=0, ge=0),
+    page: Annotated[OffsetPage, Depends()],
 ) -> PostsPageResponse:
     """Return a page of the authenticated user's own posts."""
-    page = await client.get_own_posts(limit=limit, offset=offset)
-    return PostsPageResponse.from_substack(page)
+    result = await client.get_own_posts(limit=page.limit, offset=page.offset)
+    return PostsPageResponse.from_substack(result)
 
 
 @router.get("/me/following", response_model=FollowingResponse)

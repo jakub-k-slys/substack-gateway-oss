@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 
 from api.deps import get_substack_client
 from client.substack import SubstackClient
+from models.pagination import CursorPage, OffsetPage
 from models.schemas import (
     NotesPageResponse,
     PostsPageResponse,
@@ -29,22 +30,23 @@ async def get_profile(
 async def get_profile_posts(
     slug: str,
     client: Annotated[SubstackClient, Depends(get_substack_client)],
-    limit: int = Query(default=25, gt=0, le=100),
-    offset: int = Query(default=0, ge=0),
+    page: Annotated[OffsetPage, Depends()],
 ) -> PostsPageResponse:
     """Return a page of posts for the given profile slug."""
     profile_id = await client.get_profile_id_by_slug(slug)
-    page = await client.get_posts_for_profile(profile_id, limit=limit, offset=offset)
-    return PostsPageResponse.from_substack(page)
+    result = await client.get_posts_for_profile(
+        profile_id, limit=page.limit, offset=page.offset
+    )
+    return PostsPageResponse.from_substack(result)
 
 
 @router.get("/profiles/{slug}/notes", response_model=NotesPageResponse)
 async def get_profile_notes(
     slug: str,
     client: Annotated[SubstackClient, Depends(get_substack_client)],
-    cursor: str | None = None,
+    page: Annotated[CursorPage, Depends()],
 ) -> NotesPageResponse:
     """Return a page of notes for the given profile slug."""
     profile_id = await client.get_profile_id_by_slug(slug)
-    page = await client.get_notes_for_profile(profile_id, cursor=cursor)
-    return NotesPageResponse.from_substack(page)
+    result = await client.get_notes_for_profile(profile_id, cursor=page.cursor)
+    return NotesPageResponse.from_substack(result)

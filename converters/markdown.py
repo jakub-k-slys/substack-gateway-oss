@@ -22,10 +22,11 @@ _UNORDERED = re.compile(r"^[-*]\s+(.*)")
 _ORDERED = re.compile(r"^(\d+)\.\s+(.*)")
 
 
-def markdown_to_note_payload(
-    markdown: str, attachment_ids: list[str] | None = None
-) -> dict[str, Any]:
-    """Convert a markdown string to a Substack note creation payload."""
+def markdown_to_doc(markdown: str) -> dict[str, Any]:
+    """Parse a markdown string into a Substack ProseMirror document node.
+
+    Raises ValueError if the markdown is empty or produces no content.
+    """
     text = markdown.replace("\\n", "\n")
 
     if not text.strip():
@@ -41,12 +42,19 @@ def markdown_to_note_payload(
     if not paragraphs:
         raise ValueError("Note must contain at least one paragraph with actual content")
 
+    return {
+        "type": _DOC_TYPE,
+        "attrs": {"schemaVersion": _SCHEMA_VERSION},
+        "content": paragraphs,
+    }
+
+
+def markdown_to_note_payload(
+    markdown: str, attachment_ids: list[str] | None = None
+) -> dict[str, Any]:
+    """Convert a markdown string to a Substack note creation payload."""
     payload: dict[str, Any] = {
-        "bodyJson": {
-            "type": _DOC_TYPE,
-            "attrs": {"schemaVersion": _SCHEMA_VERSION},
-            "content": paragraphs,
-        },
+        "bodyJson": markdown_to_doc(markdown),
         "tabId": _TAB_ID,
         "surface": _SURFACE,
         "replyMinimumRole": _REPLY_MIN_ROLE,

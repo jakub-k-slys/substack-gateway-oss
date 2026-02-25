@@ -5,6 +5,7 @@ import time
 from typing import Any
 
 import httpx
+import pydantic
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
@@ -41,6 +42,9 @@ class SubstackClient:
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
         self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
         self._http: httpx.AsyncClient | None = None
+        # Request-scoped cache: avoids a repeated GET /user/{slug}/public_profile
+        # when the same slug is resolved more than once within a single request.
+        self._profile_cache: dict[str, SubstackPublicProfile] = {}
 
     async def __aenter__(self) -> SubstackClient:
         self._http = httpx.AsyncClient(
@@ -102,28 +106,31 @@ class SubstackClient:
         return response.potential_handles[0].handle
 
     async def get_profile_by_slug(self, slug: str) -> SubstackPublicProfile:
-        """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile."""
-        _log.debug("Fetching public profile for slug=%r", slug)
-        url = f"{self._sub_base}/user/{slug}/public_profile"
-        r = await self._request("GET", url)
-        return SubstackPublicProfile.model_validate(r.json())
+        """Mirrors ProfileService.getProfileBySlug() — GET /user/{slug}/public_profile.
+
+        Results are cached for the lifetime of this client instance (one request),
+        so repeated calls with the same slug make only one HTTP round-trip.
+        """
+        if slug not in self._profile_cache:
+            _log.debug("Fetching public profile for slug=%r", slug)
+            url = f"{self._sub_base}/user/{slug}/public_profile"
+            r = await self._request("GET", url)
+            try:
+                self._profile_cache[slug] = SubstackPublicProfile.model_validate(
+                    r.json()
+                )
+            except pydantic.ValidationError as exc:
+                raise SubstackAPIError(
+                    502, f"Substack profile response invalid: {exc}"
+                ) from exc
+        else:
+            _log.debug("Profile cache hit for slug=%r", slug)
+        return self._profile_cache[slug]
 
     async def get_profile_id_by_slug(self, slug: str) -> int:
-        """Return just the numeric ID for a profile slug, without building the full model."""
-        _log.debug("Resolving profile ID for slug=%r", slug)
-        url = f"{self._sub_base}/user/{slug}/public_profile"
-        r = await self._request("GET", url)
-        raw = r.json().get("id")
-        if raw is None:
-            raise SubstackAPIError(502, "Substack profile response missing id field")
-        try:
-            profile_id = int(raw)
-        except (TypeError, ValueError) as exc:
-            raise SubstackAPIError(
-                502, f"Substack returned non-integer profile id: {raw!r}"
-            ) from exc
-        _log.debug("Resolved profile ID=%d for slug=%r", profile_id, slug)
-        return profile_id
+        """Return the numeric ID for a profile slug, using the request-scoped cache."""
+        profile = await self.get_profile_by_slug(slug)
+        return profile.id
 
     # ------------------------------------------------------------------
     # Notes
