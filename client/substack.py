@@ -39,9 +39,13 @@ _HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 class SubstackClient:
     def __init__(
-        self, token: str, publication_url: str, request_id: str | None = None
+        self,
+        substack_sid: str,
+        connect_sid: str,
+        publication_url: str,
+        request_id: str | None = None,
     ) -> None:
-        self._cookies = {"substack.sid": token}
+        self._cookies = {"substack.sid": substack_sid, "connect.sid": connect_sid}
         self._pub_base = f"{publication_url.rstrip('/')}/{_API_PREFIX}"
         self._sub_base = f"{_SUBSTACK_BASE}/{_API_PREFIX}"
         self._http: httpx.AsyncClient | None = None
