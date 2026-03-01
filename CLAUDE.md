@@ -58,7 +58,7 @@ main.py  →  api/v1/{health,me,notes,posts,profiles,drafts}.py
 - **`models/substack.py`** — Pydantic models for Substack API responses. Uses `model_validate()`. Key models: `SubstackPublicProfile`, `SubstackNote`, `SubstackFullPost`, `SubstackDraft`, `SubstackDraftPayload`, `SubstackUserSettingsResponse`.
 - **`models/schemas.py`** — API response and request schemas. Key models: `BearerCredentials`, `HealthResponse`, `ProfileResponse`, `NoteResponse`, `FullPostResponse`, `CreateDraftRequest`, `UpdateDraftRequest`, `DraftResponse`.
 - **`config.py`** — App settings via `pydantic-settings`. Includes `gateway_key` for protecting draft endpoints.
-- **`converters/markdown.py`** — Converts Markdown to Substack's ProseMirror note payload.
+- **`converters/markdown.py`** — Two converters: `markdown_to_note_payload` (Markdown → Substack note ProseMirror payload) and `markdown_to_draft_body` / `draft_body_to_markdown` (Markdown ↔ ProseMirror JSON string for draft `body` field). Supports headings, lists, fenced code blocks, blockquotes, pull quotes, bold, italic, inline code, strikethrough, and links.
 - **`samples/`** — Real Substack API response JSON files used as test fixtures and model design reference.
 
 ## Testing
@@ -81,14 +81,16 @@ Uses Behave (BDD) with Gherkin `.feature` files. Tests use `respx` to mock Subst
 | `GET` | `/api/v1/me/following` | Bearer | Following list |
 | `GET` | `/api/v1/notes/{note_id}` | Bearer | Single note by ID |
 | `POST` | `/api/v1/notes` | Bearer | Publish a note (Markdown → Substack format) |
+| `DELETE` | `/api/v1/notes/{note_id}` | Bearer | Delete a note by ID |
 | `GET` | `/api/v1/posts/{post_id}` | Bearer | Full post by ID |
 | `GET` | `/api/v1/posts/{post_id}/comments` | Bearer | Comments for a post |
 | `GET` | `/api/v1/profiles/{slug}` | Bearer | Public profile |
 | `GET` | `/api/v1/profiles/{slug}/posts` | Bearer | Profile posts |
 | `GET` | `/api/v1/profiles/{slug}/notes` | Bearer | Profile notes |
-| `POST` | `/api/v1/drafts` | Bearer + gateway_key | Create a post draft |
-| `GET` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Fetch a draft |
-| `PUT` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delta-update a draft |
+| `POST` | `/api/v1/drafts` | Bearer + gateway_key | Create a post draft (body accepts Markdown) |
+| `GET` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Fetch a draft (body returned as Markdown) |
+| `PUT` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delta-update a draft (body accepts Markdown) |
+| `DELETE` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delete a draft by ID |
 
 ## Code Conventions
 
