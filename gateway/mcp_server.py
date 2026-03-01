@@ -9,9 +9,9 @@ from fastmcp import FastMCP
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
-from client.substack import SubstackClient
-from converters.markdown import markdown_to_draft_body
-from models.schemas import (
+from gateway.client.substack import SubstackClient
+from gateway.converters.markdown import markdown_to_draft_body
+from gateway.models.schemas import (
     BearerCredentials,
     CommentsResponse,
     CreateDraftResponse,
@@ -24,7 +24,7 @@ from models.schemas import (
     PostsPageResponse,
     ProfileResponse,
 )
-from models.substack import SubstackUpdateDraftPayload
+from gateway.models.substack import SubstackUpdateDraftPayload
 
 mcp = FastMCP("substack-gateway")
 

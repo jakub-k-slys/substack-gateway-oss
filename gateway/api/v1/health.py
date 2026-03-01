@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from api.deps import get_credentials, get_substack_client
-from client.substack import SubstackClient
-from models.schemas import (
+from gateway.api.deps import get_credentials, get_substack_client
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import (
     BearerCredentials,
     HealthResponse,
     LivenessResponse,

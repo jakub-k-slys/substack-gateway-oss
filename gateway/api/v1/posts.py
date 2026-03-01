@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from api.deps import get_substack_client
-from client.substack import SubstackClient
-from models.schemas import CommentsResponse, FullPostResponse
+from gateway.api.deps import get_substack_client
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import CommentsResponse, FullPostResponse
 
 router = APIRouter(tags=["posts"])
 

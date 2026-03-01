@@ -4,8 +4,8 @@ import logging
 
 from pydantic import BaseModel
 
-from converters.markdown import draft_body_to_markdown, markdown_to_draft_body
-from models.substack import (
+from gateway.converters.markdown import draft_body_to_markdown, markdown_to_draft_body
+from gateway.models.substack import (
     SubstackComment,
     SubstackDraft,
     SubstackDraftCreated,

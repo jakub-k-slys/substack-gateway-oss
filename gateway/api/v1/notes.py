@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from api.deps import get_substack_client
-from client.substack import SubstackClient
-from models.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
+from gateway.api.deps import get_substack_client
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
 
 router = APIRouter(tags=["notes"])
 

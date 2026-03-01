@@ -8,10 +8,10 @@ import httpx
 import pydantic
 from async_lru import alru_cache
 
-from client.exceptions import SubstackAPIError, SubstackAuthError
-from config import settings
-from converters.markdown import markdown_to_draft_body, markdown_to_note_payload
-from models.substack import (
+from gateway.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway.config import settings
+from gateway.converters.markdown import markdown_to_draft_body, markdown_to_note_payload
+from gateway.models.substack import (
     HandleOptionsResponse,
     SubstackAttachmentCreated,
     SubstackComment,

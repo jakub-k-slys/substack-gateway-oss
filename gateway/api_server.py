@@ -10,9 +10,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
-from api.v1 import router as v1_router
-from client.exceptions import SubstackAPIError, SubstackAuthError
-from config import settings
+from gateway.api.v1 import router as v1_router
+from gateway.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway.config import settings
 
 
 def _configure_logging() -> None:

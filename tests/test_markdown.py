@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from converters.markdown import markdown_to_doc, markdown_to_note_payload
+from gateway.converters.markdown import markdown_to_doc, markdown_to_note_payload
 
 # ---------------------------------------------------------------------------
 # Helpers

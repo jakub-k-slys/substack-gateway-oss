@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from api.deps import get_substack_client, require_gateway_key
-from client.substack import SubstackClient
-from models.schemas import (
+from gateway.api.deps import get_substack_client, require_gateway_key
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import (
     CreateDraftRequest,
     CreateDraftResponse,
     DraftResponse,
