@@ -112,6 +112,14 @@ def step_field_not_null(context, field):
     assert body[field] is not None, f'Expected field "{field}" to be non-null, got null'
 
 
+@then('the response field "{field}" is null')
+def step_field_null(context, field):
+    body = context.response.json()
+    assert body[field] is None, (
+        f'Expected field "{field}" to be null, got {body[field]}'
+    )
+
+
 @then('the response list "{field}" has {count:d} item')
 def step_list_count_singular(context, field, count):
     body = context.response.json()

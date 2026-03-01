@@ -26,6 +26,7 @@ async def health_live() -> LivenessResponse:
 async def health_ready(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
     credentials: Annotated[BearerCredentials, Depends(get_credentials)],
+    show: bool = False,
 ) -> HealthResponse:
     """Authenticated readiness probe — verifies Substack connectivity."""
     connected = await client.check_connectivity()
@@ -35,5 +36,7 @@ async def health_ready(
             substack_sid=credentials.substack_sid,
             connect_sid=credentials.connect_sid,
             gateway_key=credentials.gateway_key,
-        ),
+        )
+        if show
+        else None,
     )
