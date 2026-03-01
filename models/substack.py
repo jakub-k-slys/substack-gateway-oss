@@ -178,3 +178,13 @@ class SubstackSubscriberLists(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
     subscriber_lists: list[SubstackFollowingList]
+
+
+# ------------------------------------------------------------------
+# Drafts
+# ------------------------------------------------------------------
+
+
+class SubstackDraftCreated(BaseModel):
+    id: int
+    uuid: str

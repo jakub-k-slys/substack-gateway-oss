@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+import httpx
+from behave import given
+
+from features.steps.common import SUBSTACK_BASE, load_sample
+
+
+def _create_draft_url(context) -> str:
+    pub = context.headers.get("x-publication-url")
+    if not pub:
+        raise RuntimeError("x-publication-url not set — missing a Given step?")
+    return f"{pub.rstrip('/')}/api/v1/post"
+
+
+def _user_setting_url() -> str:
+    return f"{SUBSTACK_BASE}/api/v1/user-setting"
+
+
+@given("the Substack create-draft endpoint returns the sample response")
+def step_create_draft_returns_sample(context):
+    context.respx_mock.put(_user_setting_url()).mock(
+        return_value=httpx.Response(200, json={"user_id": 254824415})
+    )
+    context.respx_mock.post(_create_draft_url(context)).mock(
+        return_value=httpx.Response(201, json=load_sample("api/v1/draft/response"))
+    )
+
+
+@given("the Substack create-draft endpoint returns status {status:d}")
+def step_create_draft_returns_status(context, status):
+    context.respx_mock.put(_user_setting_url()).mock(
+        return_value=httpx.Response(200, json={"user_id": 254824415})
+    )
+    context.respx_mock.post(_create_draft_url(context)).mock(
+        return_value=httpx.Response(status)
+    )

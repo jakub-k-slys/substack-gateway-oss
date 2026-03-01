@@ -16,6 +16,7 @@ from models.substack import (
     SubstackAttachmentCreated,
     SubstackComment,
     SubstackCommentsResponse,
+    SubstackDraftCreated,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackItemResponse,
@@ -302,6 +303,33 @@ class SubstackClient:
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def create_draft(
+        self,
+        title: str | None = None,
+        subtitle: str | None = None,
+        body: str | None = None,
+    ) -> SubstackDraftCreated:
+        """POST /post on the publication to create a new draft."""
+        _log.debug("Creating draft title=%r", title)
+        user_id = await self._get_own_id()
+        payload = {
+            "draft_title": title or "",
+            "draft_subtitle": subtitle or "",
+            "draft_podcast_url": None,
+            "draft_podcast_duration": None,
+            "draft_body": body or "",
+            "section_chosen": False,
+            "draft_section_id": None,
+            "draft_bylines": [{"id": user_id, "is_guest": False}],
+            "audience": "only_paid",
+            "type": "newsletter",
+        }
+        url = f"{self._pub_base}/post"
+        r = await self._request("POST", url, json=payload)
+        draft = SubstackDraftCreated.model_validate(r.json())
+        _log.debug("Created draft id=%d uuid=%s", draft.id, draft.uuid)
+        return draft
 
     # ------------------------------------------------------------------
     # Internal helpers

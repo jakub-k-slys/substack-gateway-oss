@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from api.v1.comments import router as comments_router
+from api.v1.drafts import router as drafts_router
 from api.v1.health import router as health_router
 from api.v1.me import router as me_router
 from api.v1.notes import router as notes_router
@@ -14,3 +15,4 @@ router.include_router(notes_router)
 router.include_router(comments_router)
 router.include_router(posts_router)
 router.include_router(profiles_router)
+router.include_router(drafts_router)

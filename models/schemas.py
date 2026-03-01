@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from models.substack import (
     SubstackComment,
+    SubstackDraftCreated,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
@@ -251,3 +252,23 @@ class CreateNoteResponse(BaseModel):
     @classmethod
     def from_substack(cls, note: SubstackNoteCreated) -> CreateNoteResponse:
         return cls(id=note.id)
+
+
+# ------------------------------------------------------------------
+# Draft creation
+# ------------------------------------------------------------------
+
+
+class CreateDraftRequest(BaseModel):
+    title: str | None = None
+    subtitle: str | None = None
+    body: str | None = None
+
+
+class CreateDraftResponse(BaseModel):
+    id: int
+    uuid: str
+
+    @classmethod
+    def from_substack(cls, draft: SubstackDraftCreated) -> CreateDraftResponse:
+        return cls(id=draft.id, uuid=draft.uuid)
