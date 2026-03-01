@@ -252,6 +252,7 @@ async def get_post_comments(
         comments = await client.get_comments_for_post(post_id)
         return CommentsResponse.from_substack(comments).model_dump()
 
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request):
     return JSONResponse({"status": "healthy", "service": "mcp-server"})
