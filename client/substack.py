@@ -10,7 +10,7 @@ from async_lru import alru_cache
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
-from converters.markdown import markdown_to_note_payload
+from converters.markdown import markdown_to_draft_body, markdown_to_note_payload
 from models.substack import (
     HandleOptionsResponse,
     SubstackAttachmentCreated,
@@ -326,7 +326,7 @@ class SubstackClient:
         payload = SubstackDraftPayload(
             draft_title=title or "",
             draft_subtitle=subtitle or "",
-            draft_body=body or "",
+            draft_body=markdown_to_draft_body(body) if body else "",
             draft_bylines=[SubstackDraftByline(id=user_id)],
         )
         url = f"{self._pub_base}/drafts"
