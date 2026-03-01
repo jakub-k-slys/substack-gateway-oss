@@ -22,8 +22,8 @@ packages = ["api", "client", "models"]
 
 [dependency-groups]
 dev = [
-  "ruff>=0.8.0",
-  "ty>=0.0.1",
+  "ruff>=0.15.4",
+  "ty>=0.0.19",
   "behave>=1.2.6",
   "respx>=0.22.0",
   "httpx>=0.28.0",
