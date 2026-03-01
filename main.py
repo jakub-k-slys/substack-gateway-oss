@@ -7,7 +7,7 @@ from gateway import api, mcp
 
 app = Starlette(
     routes=[
-        Mount("/mcp", app=mcp.http_app()),
+        Mount("/mcp", app=mcp.http_app(transport="streamable-http")),
         Mount("/api", app=api),
     ]
 )
