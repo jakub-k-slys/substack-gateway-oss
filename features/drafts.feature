@@ -45,6 +45,35 @@ Feature: Draft endpoints
     Then the response status code is 422
 
   # ------------------------------------------------------------------
+  # PUT /drafts/{draft_id}
+  # ------------------------------------------------------------------
+
+  Scenario: Successfully update all draft fields
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack update-draft endpoint returns the sample response for draft 189535264
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "test1", "subtitle": "test2", "body": "test3"}
+    Then the response status code is 200
+    And the response field "title" is "test1"
+    And the response field "subtitle" is "test2"
+
+  Scenario: Update only title
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack update-draft endpoint returns the sample response for draft 189535264
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "new title"}
+    Then the response status code is 200
+
+  Scenario: Update draft with wrong gateway key returns 403
+    Given a bearer token authorized by gateway key "wrong-key" and publication URL "https://example.substack.com"
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "test1"}
+    Then the response status code is 403
+
+  Scenario: Update draft Substack API error returns 502
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack update-draft endpoint returns status 503 for draft 189535264
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "test1"}
+    Then the response status code is 502
+
+  # ------------------------------------------------------------------
   # GET /drafts/{draft_id}
   # ------------------------------------------------------------------
 

@@ -83,6 +83,13 @@ def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
 
 
+@when("I send PUT {path} with JSON body {body}")
+def step_put_json(context, path, body):
+    context.response = context.client.put(
+        path, json=json.loads(body), headers=context.headers
+    )
+
+
 @when("I send POST {path} with JSON body {body}")
 def step_post_json(context, path, body):
     context.response = context.client.post(

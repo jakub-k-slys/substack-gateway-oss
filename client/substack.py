@@ -30,6 +30,7 @@ from models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
     SubstackSubscriberLists,
+    SubstackUpdateDraftPayload,
     SubstackUserSettingsResponse,
 )
 
@@ -296,6 +297,15 @@ class SubstackClient:
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def update_draft(
+        self, draft_id: int, payload: SubstackUpdateDraftPayload
+    ) -> SubstackDraft:
+        """PUT /drafts/{draft_id} on the publication with only the provided fields."""
+        _log.debug("Updating draft id=%d fields=%s", draft_id, payload.model_fields_set)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        r = await self._request("PUT", url, json=payload.model_dump(exclude_unset=True))
+        return SubstackDraft.model_validate(r.json())
 
     async def get_draft(self, draft_id: int) -> SubstackDraft:
         """GET /drafts/{draft_id} on the publication."""
