@@ -7,6 +7,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from pydantic import ValidationError
+from starlette.responses import JSONResponse
 
 from client.substack import SubstackClient
 from converters.markdown import markdown_to_draft_body
@@ -250,3 +251,7 @@ async def get_post_comments(
     async with _make_client(token, publication_url) as client:
         comments = await client.get_comments_for_post(post_id)
         return CommentsResponse.from_substack(comments).model_dump()
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    return JSONResponse({"status": "healthy", "service": "mcp-server"})
