@@ -3,8 +3,8 @@ name = "substack-gateway"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "fastapi>=0.121.0",
-  "uvicorn>=0.34.0",
+  "fastapi>=0.135.1",
+  "uvicorn>=0.41.0",
   "httpx>=0.28.0",
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
