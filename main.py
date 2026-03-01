@@ -118,12 +118,12 @@ async def substack_api_error_handler(
 
 _PASSTHROUGH_CODES = {404, 429}
 
-app.include_router(v1_router, prefix="/api/v1")
+app.include_router(v1_router, prefix="/v1")
 
 application = Starlette(
     routes=[
         Mount("/mcp", app=mcp.http_app()),
-        Mount("/", app=app),
+        Mount("/api", app=app),
     ]
 )
 
