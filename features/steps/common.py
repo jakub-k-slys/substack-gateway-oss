@@ -10,7 +10,7 @@ from behave import given, then, when
 SUBSTACK_BASE = "https://substack.com"
 SAMPLES_DIR = pathlib.Path(__file__).parent.parent.parent / "samples"
 
-_USER_SETTING_PATH = "/api/v1/user-setting"
+_USER_SETTING_PATH = "/api/v1/user-settings"
 _PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"
 
 

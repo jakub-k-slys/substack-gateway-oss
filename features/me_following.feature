@@ -5,7 +5,7 @@ Feature: Own following endpoint
 
   Scenario: Successfully fetch own following
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
-    And the Substack user-setting endpoint returns user id 254824415
+    And the Substack user-settings endpoint returns user id 254824415
     And the Substack subscriber-lists endpoint returns the sample response for user 254824415
     When I send GET /api/v1/me/following
     Then the response status code is 200
@@ -14,13 +14,13 @@ Feature: Own following endpoint
 
   Scenario: Authentication failure returns 401
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
-    And the Substack user-setting endpoint returns status 401
+    And the Substack user-settings endpoint returns status 401
     When I send GET /api/v1/me/following
     Then the response status code is 401
 
   Scenario: Substack API error returns 502
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
-    And the Substack user-setting endpoint returns status 503
+    And the Substack user-settings endpoint returns status 503
     When I send GET /api/v1/me/following
     Then the response status code is 502
 

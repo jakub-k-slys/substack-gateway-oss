@@ -181,6 +181,27 @@ class SubstackSubscriberLists(BaseModel):
 
 
 # ------------------------------------------------------------------
+# User settings
+# ------------------------------------------------------------------
+
+
+class SubstackUserSetting(BaseModel):
+    user_id: int
+    type: str
+    value_bool: bool | None = None
+    value_datetime: str | None = None
+    value_integer: int | None = None
+    value_text: str | None = None
+
+
+class SubstackUserSettingsResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    user_settings: list[SubstackUserSetting]
+    qualifies_for_badge: bool | None = None
+
+
+# ------------------------------------------------------------------
 # Drafts
 # ------------------------------------------------------------------
 

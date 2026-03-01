@@ -29,6 +29,7 @@ from models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
     SubstackSubscriberLists,
+    SubstackUserSettingsResponse,
 )
 
 _log = logging.getLogger(__name__)
@@ -37,7 +38,6 @@ _SUBSTACK_BASE = settings.substack_base_url
 _API_PREFIX = "api/v1"
 _TIMEOUT = settings.substack_timeout
 _LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
-_HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
 class SubstackClient:
@@ -228,24 +228,14 @@ class SubstackClient:
         return users
 
     async def _get_own_id(self) -> int:
-        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id.
-
-        Note: this is a write operation (it sets the user's last home tab preference
-        to "inbox") that Substack's own client uses as the only way to retrieve the
-        caller's user ID. There is no read-only alternative in the public API.
-        """
-        _log.debug("Resolving own user ID via /user-setting")
-        url = f"{self._sub_base}/user-setting"
-        r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
-        raw = r.json().get("user_id")
-        if raw is None:
-            raise SubstackAPIError(502, "Substack response missing user_id field")
-        try:
-            user_id = int(raw)
-        except (TypeError, ValueError) as exc:
-            raise SubstackAPIError(
-                502, f"Substack returned non-integer user_id: {raw!r}"
-            ) from exc
+        """GET /user-settings and extract the caller's user_id."""
+        _log.debug("Resolving own user ID via /user-settings")
+        url = f"{self._sub_base}/user-settings"
+        r = await self._request("GET", url)
+        response = SubstackUserSettingsResponse.model_validate(r.json())
+        if not response.user_settings:
+            raise SubstackAPIError(502, "Substack returned no user settings")
+        user_id = response.user_settings[0].user_id
         _log.debug("Resolved own user_id=%d", user_id)
         return user_id
 
