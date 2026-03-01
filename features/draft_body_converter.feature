@@ -236,3 +236,15 @@ Feature: Markdown to Substack draft body converter
       {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"test3"}]}]}
       """
     Then the markdown result is "test3"
+
+  Scenario: Whitespace inside marks is moved outside delimiters to prevent bleeding
+    When I reverse-convert the draft body JSON:
+      """
+      {"type":"doc","content":[{"type":"paragraph","content":[
+        {"type":"text","text":"Hello! "},
+        {"type":"text","marks":[{"type":"strong"}],"text":"This is BOLD. "},
+        {"type":"text","marks":[{"type":"em"}],"text":"This is italic. "},
+        {"type":"text","marks":[{"type":"strong"},{"type":"em"}],"text":"This is BOLD and italic."}
+      ]}]}
+      """
+    Then the markdown result is "Hello! **This is BOLD.** *This is italic.* ***This is BOLD and italic.***"

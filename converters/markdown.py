@@ -360,13 +360,20 @@ def _inline_to_md(content: list[dict[str, Any]]) -> str:
     for node in content:
         text = node.get("text", "")
         marks = {m["type"] for m in node.get("marks", [])}
-        if "strong" in marks and "em" in marks:
-            text = f"***{text}***"
-        elif "strong" in marks:
-            text = f"**{text}**"
-        elif "em" in marks:
-            text = f"*{text}*"
-        elif "code" in marks:
-            text = f"`{text}`"
+        if marks and text.strip():
+            # Keep leading/trailing whitespace outside the delimiters so that
+            # adjacent marks don't bleed into each other.
+            # e.g. "This is BOLD. " strong + "italic" em must not produce ***
+            leading = text[: len(text) - len(text.lstrip())]
+            trailing = text[len(text.rstrip()) :]
+            inner = text.strip()
+            if "strong" in marks and "em" in marks:
+                text = f"{leading}***{inner}***{trailing}"
+            elif "strong" in marks:
+                text = f"{leading}**{inner}**{trailing}"
+            elif "em" in marks:
+                text = f"{leading}*{inner}*{trailing}"
+            elif "code" in marks:
+                text = f"{leading}`{inner}`{trailing}"
         parts.append(text)
     return "".join(parts)
