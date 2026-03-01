@@ -97,6 +97,11 @@ def step_post_json(context, path, body):
     )
 
 
+@when("I send DELETE {path}")
+def step_delete(context, path):
+    context.response = context.client.delete(path, headers=context.headers)
+
+
 @then("the response status code is {status:d}")
 def step_status_code(context, status):
     actual = context.response.status_code

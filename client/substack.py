@@ -314,6 +314,13 @@ class SubstackClient:
         r = await self._request("GET", url)
         return SubstackDraft.model_validate(r.json())
 
+    async def delete_draft(self, draft_id: int) -> None:
+        """DELETE /drafts/{draft_id} on the publication."""
+        _log.debug("Deleting draft id=%d", draft_id)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        await self._request("DELETE", url)
+        _log.debug("Deleted draft id=%d", draft_id)
+
     async def create_draft(
         self,
         title: str | None = None,

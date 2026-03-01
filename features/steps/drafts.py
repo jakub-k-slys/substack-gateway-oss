@@ -73,6 +73,15 @@ def step_update_draft_returns_status(context, status, draft_id):
     )
 
 
+@given(
+    "the Substack delete-draft endpoint returns status {status:d} for draft {draft_id:d}"
+)
+def step_delete_draft_returns_status(context, status, draft_id):
+    context.respx_mock.delete(_draft_url(context, draft_id)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
 @given("the Substack create-draft endpoint returns the sample response")
 def step_create_draft_returns_sample(context):
     context.respx_mock.get(_user_settings_url()).mock(

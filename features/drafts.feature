@@ -102,3 +102,30 @@ Feature: Draft endpoints
     And the Substack get-draft endpoint returns status 401 for draft 189535264
     When I send GET /api/v1/drafts/189535264
     Then the response status code is 401
+
+  # ------------------------------------------------------------------
+  # DELETE /drafts/{draft_id}
+  # ------------------------------------------------------------------
+
+  Scenario: Successfully delete a draft
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack delete-draft endpoint returns status 204 for draft 189535264
+    When I send DELETE /api/v1/drafts/189535264
+    Then the response status code is 204
+
+  Scenario: Delete draft with wrong gateway key returns 403
+    Given a bearer token authorized by gateway key "wrong-key" and publication URL "https://example.substack.com"
+    When I send DELETE /api/v1/drafts/189535264
+    Then the response status code is 403
+
+  Scenario: Delete draft Substack API error returns 502
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack delete-draft endpoint returns status 503 for draft 189535264
+    When I send DELETE /api/v1/drafts/189535264
+    Then the response status code is 502
+
+  Scenario: Delete draft authentication failure returns 401
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack delete-draft endpoint returns status 401 for draft 189535264
+    When I send DELETE /api/v1/drafts/189535264
+    Then the response status code is 401
