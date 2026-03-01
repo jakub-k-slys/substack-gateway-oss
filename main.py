@@ -8,11 +8,14 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from starlette.applications import Starlette
 from starlette.responses import Response
+from starlette.routing import Mount
 
 from api.v1 import router as v1_router
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
+from mcp_server import mcp
 
 
 def _configure_logging() -> None:
@@ -117,7 +120,16 @@ _PASSTHROUGH_CODES = {404, 429}
 
 app.include_router(v1_router, prefix="/api/v1")
 
+application = Starlette(
+    routes=[
+        Mount("/mcp", app=mcp.http_app()),
+        Mount("/", app=app),
+    ]
+)
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True, loop="uvloop")
+    uvicorn.run(
+        "main:application", host="0.0.0.0", port=5001, reload=True, loop="uvloop"
+    )
