@@ -22,7 +22,9 @@ async def health_live() -> LivenessResponse:
     return LivenessResponse(status="ok")
 
 
-@router.get("/health/ready", response_model=HealthResponse)
+@router.get(
+    "/health/ready", response_model=HealthResponse, response_model_exclude_none=True
+)
 async def health_ready(
     client: Annotated[SubstackClient, Depends(get_substack_client)],
     credentials: Annotated[BearerCredentials, Depends(get_credentials)],

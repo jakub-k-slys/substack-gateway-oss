@@ -22,7 +22,7 @@ Feature: Health check endpoints
     When I send GET /api/v1/health/ready
     Then the response status code is 200
     And the response field "connected" is true
-    And the response field "tokens" is null
+    And the response field "tokens" is absent
 
   Scenario: Tokens are returned when show=true
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

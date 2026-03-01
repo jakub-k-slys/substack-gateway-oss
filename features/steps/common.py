@@ -112,11 +112,11 @@ def step_field_not_null(context, field):
     assert body[field] is not None, f'Expected field "{field}" to be non-null, got null'
 
 
-@then('the response field "{field}" is null')
-def step_field_null(context, field):
+@then('the response field "{field}" is absent')
+def step_field_absent(context, field):
     body = context.response.json()
-    assert body[field] is None, (
-        f'Expected field "{field}" to be null, got {body[field]}'
+    assert field not in body, (
+        f'Expected field "{field}" to be absent, got {body[field]}'
     )
 
 
