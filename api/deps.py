@@ -10,6 +10,7 @@ from fastapi import Depends, Header, HTTPException, Request
 from pydantic import ValidationError
 
 from client.substack import SubstackClient
+from config import settings
 from models.schemas import BearerCredentials
 
 _log = logging.getLogger(__name__)
@@ -54,6 +55,14 @@ def get_credentials(
     authorization: Annotated[str, Header()],
 ) -> BearerCredentials:
     return _decode_bearer(authorization)
+
+
+def require_gateway_key(
+    credentials: Annotated[BearerCredentials, Depends(get_credentials)],
+) -> None:
+    if credentials.gateway_key != settings.gateway_key:
+        _log.warning("Rejected: invalid or missing gateway_key")
+        raise HTTPException(status_code=403, detail="Invalid or missing gateway_key")
 
 
 async def get_substack_client(

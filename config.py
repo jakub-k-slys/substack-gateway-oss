@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     substack_base_url: str = "https://substack.com"
     substack_timeout: float = Field(default=10.0, gt=0, le=60)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    gateway_key: str = "WW91IHNoYWxsIG5vdCBwYXNzCg=="
 
     @field_validator("substack_base_url")
     @classmethod

@@ -40,6 +40,22 @@ def step_valid_auth(context, token, pub_url_):
     }
 
 
+@given(
+    'a bearer token authorized by gateway key "{gateway_key}" and publication URL "{pub_url_}"'
+)
+def step_valid_auth_with_gateway_key(context, gateway_key, pub_url_):
+    credentials = {
+        "substack_sid": "test-token",
+        "connect_sid": "test-token",
+        "gateway_key": gateway_key,
+    }
+    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
+    context.headers = {
+        "Authorization": f"Bearer {encoded}",
+        "x-publication-url": pub_url_,
+    }
+
+
 @given('a malformed authorization header and publication URL "{pub_url_}"')
 def step_malformed_auth(context, pub_url_):
     context.headers = {
