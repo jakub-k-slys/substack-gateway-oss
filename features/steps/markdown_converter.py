@@ -4,7 +4,7 @@ import textwrap
 
 from behave import then, when
 
-from converters.markdown import markdown_to_note_payload
+from gateway.converters.markdown import markdown_to_note_payload
 
 
 @when('I convert the markdown "{markdown}"')

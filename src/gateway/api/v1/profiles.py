@@ -4,10 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from api.deps import get_substack_client
-from client.substack import SubstackClient
-from models.pagination import CursorPage, OffsetPage
-from models.schemas import (
+from gateway.api.deps import get_substack_client
+from gateway.client.substack import SubstackClient
+from gateway.models.pagination import CursorPage, OffsetPage
+from gateway.models.schemas import (
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,

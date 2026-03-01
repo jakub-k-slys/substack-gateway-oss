@@ -9,9 +9,9 @@ from urllib.parse import urlparse
 from fastapi import Depends, Header, HTTPException, Request
 from pydantic import ValidationError
 
-from client.substack import SubstackClient
-from config import settings
-from models.schemas import BearerCredentials
+from gateway.client.substack import SubstackClient
+from gateway.config import settings
+from gateway.models.schemas import BearerCredentials
 
 _log = logging.getLogger(__name__)
 

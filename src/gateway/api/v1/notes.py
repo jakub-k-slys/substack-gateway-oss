@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from api.deps import get_substack_client
-from client.substack import SubstackClient
-from models.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
+from gateway.api.deps import get_substack_client
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
 
 router = APIRouter(tags=["notes"])
 
@@ -19,6 +19,15 @@ async def get_note(
     """Return a single Substack note by its ID."""
     note = await client.get_note_by_id(note_id)
     return NoteResponse.from_substack(note)
+
+
+@router.delete("/notes/{note_id}", status_code=204)
+async def delete_note(
+    note_id: Annotated[int, Path(gt=0)],
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> None:
+    """Delete a Substack note by its ID."""
+    await client.delete_note(note_id)
 
 
 @router.post("/notes", response_model=CreateNoteResponse, status_code=201)

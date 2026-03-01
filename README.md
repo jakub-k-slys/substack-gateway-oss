@@ -156,6 +156,10 @@ Response (`201 Created`):
 { "id": 999 }
 ```
 
+#### `DELETE /api/v1/notes/{note_id}`
+
+Deletes a note by ID. Returns `204 No Content` on success.
+
 ---
 
 ### Posts
@@ -227,7 +231,7 @@ All draft endpoints require a valid `gateway_key` in the credentials. Requests w
 
 #### `POST /api/v1/drafts`
 
-Creates a new post draft. All fields are optional.
+Creates a new post draft. All fields are optional. The `body` field accepts Markdown and is converted to Substack's ProseMirror format automatically.
 
 Request:
 
@@ -235,7 +239,7 @@ Request:
 {
   "title": "My Draft",
   "subtitle": "A subtitle",
-  "body": "<p>Content here</p>"
+  "body": "Hello **world**.\n\n## Section\n\nSome content."
 }
 ```
 
@@ -250,19 +254,19 @@ Response (`201 Created`):
 
 #### `GET /api/v1/drafts/{draft_id}`
 
-Returns a draft by ID.
+Returns a draft by ID. The `body` field is returned as Markdown (converted from Substack's ProseMirror format).
 
 ```json
 {
   "title": "My Draft",
   "subtitle": "A subtitle",
-  "body": "{\"type\":\"doc\",\"content\":[...]}"
+  "body": "Hello **world**.\n\n## Section\n\nSome content."
 }
 ```
 
 #### `PUT /api/v1/drafts/{draft_id}`
 
-Updates specific fields of a draft. Only the fields included in the request body are updated (delta update).
+Updates specific fields of a draft. Only the fields included in the request body are updated (delta update). The `body` field accepts Markdown.
 
 Request (any subset of fields):
 
@@ -278,9 +282,13 @@ Response:
 {
   "title": "Updated title",
   "subtitle": "A subtitle",
-  "body": "{\"type\":\"doc\",\"content\":[...]}"
+  "body": "Hello **world**."
 }
 ```
+
+#### `DELETE /api/v1/drafts/{draft_id}`
+
+Deletes a draft by ID. Returns `204 No Content` on success. Requires `gateway_key`.
 
 ---
 

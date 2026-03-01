@@ -4,7 +4,8 @@ import logging
 
 from pydantic import BaseModel
 
-from models.substack import (
+from gateway.converters.markdown import draft_body_to_markdown, markdown_to_draft_body
+from gateway.models.substack import (
     SubstackComment,
     SubstackDraft,
     SubstackDraftCreated,
@@ -279,7 +280,12 @@ class UpdateDraftRequest(BaseModel):
             "subtitle": "draft_subtitle",
             "body": "draft_body",
         }
-        kwargs = {field_map[f]: getattr(self, f) for f in self.model_fields_set}
+        kwargs: dict[str, str | None] = {}
+        for f in self.model_fields_set:
+            value = getattr(self, f)
+            if f == "body" and value is not None:
+                value = markdown_to_draft_body(value)
+            kwargs[field_map[f]] = value
         return SubstackUpdateDraftPayload(**kwargs)
 
 
@@ -302,5 +308,5 @@ class DraftResponse(BaseModel):
         return cls(
             title=draft.draft_title,
             subtitle=draft.draft_subtitle,
-            body=draft.draft_body,
+            body=draft_body_to_markdown(draft.draft_body) if draft.draft_body else None,
         )

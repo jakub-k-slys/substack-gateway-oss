@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from api.deps import get_substack_client, require_gateway_key
-from client.substack import SubstackClient
-from models.schemas import (
+from gateway.api.deps import get_substack_client, require_gateway_key
+from gateway.client.substack import SubstackClient
+from gateway.models.schemas import (
     CreateDraftRequest,
     CreateDraftResponse,
     DraftResponse,
@@ -43,6 +43,19 @@ async def update_draft(
     """Update specific fields of a Substack post draft."""
     draft = await client.update_draft(draft_id, body.to_substack_payload())
     return DraftResponse.from_substack(draft)
+
+
+@router.delete(
+    "/drafts/{draft_id}",
+    status_code=204,
+    dependencies=[Depends(require_gateway_key)],
+)
+async def delete_draft(
+    draft_id: Annotated[int, Path(gt=0)],
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> None:
+    """Delete a post draft on Substack."""
+    await client.delete_draft(draft_id)
 
 
 @router.post(

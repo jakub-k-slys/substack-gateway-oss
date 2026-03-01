@@ -54,3 +54,29 @@ Feature: Create note endpoint
     And the Substack create-attachment endpoint returns status 500
     When I send POST /api/v1/notes with JSON body {"content": "Hello world.", "attachment": "https://substack.com"}
     Then the response status code is 502
+
+  # ------------------------------------------------------------------
+  # DELETE /notes/{note_id}
+  # ------------------------------------------------------------------
+
+  Scenario: Successfully delete a note
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack delete-note endpoint returns status 204 for note 131648795
+    When I send DELETE /api/v1/notes/131648795
+    Then the response status code is 204
+
+  Scenario: Delete note Substack API error returns 502
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack delete-note endpoint returns status 503 for note 131648795
+    When I send DELETE /api/v1/notes/131648795
+    Then the response status code is 502
+
+  Scenario: Delete note authentication failure returns 401
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack delete-note endpoint returns status 401 for note 131648795
+    When I send DELETE /api/v1/notes/131648795
+    Then the response status code is 401
+
+  Scenario: Delete note missing authorization header returns 422
+    When I send DELETE /api/v1/notes/131648795
+    Then the response status code is 422
