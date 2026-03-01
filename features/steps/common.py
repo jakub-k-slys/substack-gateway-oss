@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import pathlib
 
@@ -31,8 +32,10 @@ def public_profile_url(slug: str) -> str:
 
 @given('a valid bearer token "{token}" and publication URL "{pub_url_}"')
 def step_valid_auth(context, token, pub_url_):
+    credentials = {"substack_sid": token, "connect_sid": token, "gateway_key": "test"}
+    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.headers = {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {encoded}",
         "x-publication-url": pub_url_,
     }
 
@@ -47,8 +50,14 @@ def step_malformed_auth(context, pub_url_):
 
 @given('a bearer token with extra whitespace and publication URL "{pub_url_}"')
 def step_whitespace_token(context, pub_url_):
+    credentials = {
+        "substack_sid": "test-token",
+        "connect_sid": "test-token",
+        "gateway_key": "test",
+    }
+    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.headers = {
-        "Authorization": "Bearer   test-token   ",
+        "Authorization": f"Bearer   {encoded}   ",
         "x-publication-url": pub_url_,
     }
 

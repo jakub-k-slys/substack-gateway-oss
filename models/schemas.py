@@ -23,6 +23,12 @@ class LivenessResponse(BaseModel):
     status: str
 
 
+class BearerCredentials(BaseModel):
+    substack_sid: str | None = None
+    connect_sid: str | None = None
+    gateway_key: str | None = None
+
+
 class HealthResponse(BaseModel):
     connected: bool
 
