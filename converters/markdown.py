@@ -22,15 +22,21 @@ _HEADING = re.compile(r"^#{1,6}\s+(.*)")
 _UNORDERED = re.compile(r"^[-*]\s+(.*)")
 _ORDERED = re.compile(r"^(\d+)\.\s+(.*)")
 
-# Draft body inline: *** before ** before * so bold+italic is matched first.
+# Draft body inline: ~~ before *** before ** before * so they don't shadow each other.
+# Groups: 1=strikethrough 2=bold+italic 3=bold 4=italic 5=code 6=link-text 7=link-url
 _INLINE_DRAFT = re.compile(
-    r"\*\*\*(.*?)\*\*\*"  # bold + italic  (must precede **)
+    r"~~(.*?)~~"  # strikethrough  (must precede *)
+    r"|\*\*\*(.*?)\*\*\*"  # bold + italic  (must precede **)
     r"|\*\*(.*?)\*\*"  # bold
     r"|\*(.*?)\*"  # italic
     r"|`(.*?)`"  # code
-    r"|\[([^\]]+)\]\(([^)]+)\)"  # link → kept as inline text
+    r"|\[([^\]]+)\]\(([^)]+)\)"  # link [text](url)
 )
 _HEADING_DRAFT = re.compile(r"^(#{1,6})\s+(.*)")
+_FENCE_OPEN = re.compile(r"^```(\w*)\s*$")
+_FENCE_CLOSE = re.compile(r"^```\s*$")
+_BLOCKQUOTE_LINE = re.compile(r"^> ?(.*)", re.DOTALL)
+_PULLQUOTE_LINE = re.compile(r"^\|> ?(.*)", re.DOTALL)
 
 
 def markdown_to_doc(markdown: str) -> dict[str, Any]:
@@ -170,19 +176,30 @@ def _paragraph(content: list[dict[str, Any]]) -> dict[str, Any]:
 def markdown_to_draft_body(markdown: str) -> str:
     """Convert Markdown to the JSON string expected by Substack's draft_body field.
 
-    The output is a ProseMirror document serialised to JSON — the same format
-    Substack stores internally. Unlike the note converter, this produces proper
-    heading, bullet_list, and ordered_list nodes, and uses 'strong'/'em' marks.
+    Supported block elements: headings (#–######), fenced code blocks (```lang),
+    blockquotes (> ), pull quotes (|> ), bullet lists (- ), ordered lists (1. ).
+    Supported inline marks: **bold**, *italic*, ***bold+italic***, `code`,
+    ~~strikethrough~~, [link](url).
     """
-    doc = _build_draft_doc(markdown.replace("\\n", "\n"))
+    doc = {"type": "doc", "content": _build_nodes(markdown.replace("\\n", "\n").splitlines())}
     return json.dumps(doc, ensure_ascii=False)
 
 
-def _build_draft_doc(text: str) -> dict[str, Any]:
+def _build_nodes(lines: list[str]) -> list[dict[str, Any]]:
+    """Recursively convert a list of markdown lines to ProseMirror content nodes.
+
+    Called for the document root and again for the inner content of blockquotes
+    and pull quotes (after stripping the > / |> prefix).
+    """
     nodes: list[dict[str, Any]] = []
     para_lines: list[str] = []
     list_type: str | None = None  # "bullet" or "ordered"
     list_items: list[list[dict[str, Any]]] = []
+    quote_type: str | None = None  # "blockquote" or "pullquote"
+    quote_lines: list[str] = []
+    in_fence: bool = False
+    fence_lang: str = ""
+    fence_lines: list[str] = []
 
     def flush_para() -> None:
         nonlocal para_lines
@@ -203,48 +220,117 @@ def _build_draft_doc(text: str) -> dict[str, Any]:
         list_type = None
         list_items = []
 
-    for line in text.splitlines():
+    def flush_quote() -> None:
+        nonlocal quote_type, quote_lines
+        if quote_lines:
+            inner = _build_nodes(quote_lines)
+            if inner:
+                if quote_type == "blockquote":
+                    nodes.append({"type": "blockquote", "content": inner})
+                else:
+                    nodes.append(
+                        {"type": "pullquote", "attrs": {"align": None, "color": None}, "content": inner}
+                    )
+        quote_type = None
+        quote_lines = []
+
+    for line in lines:
         stripped = line.strip()
 
-        if not stripped:
-            flush_para()
+        # ── Inside a fenced code block ──────────────────────────────
+        if in_fence:
+            if _FENCE_CLOSE.match(stripped):
+                in_fence = False
+                nodes.append(_draft_code_block(fence_lang, "\n".join(fence_lines)))
+                fence_lang = ""
+                fence_lines = []
+            else:
+                fence_lines.append(line)  # preserve indentation
             continue
 
+        # ── Opening fence: ```lang ──────────────────────────────────
+        if m := _FENCE_OPEN.match(stripped):
+            flush_para()
+            flush_list()
+            flush_quote()
+            in_fence = True
+            fence_lang = m.group(1)
+            continue
+
+        # ── Blockquote line: > text ─────────────────────────────────
+        if m := _BLOCKQUOTE_LINE.match(stripped):
+            flush_para()
+            flush_list()
+            if quote_type != "blockquote":
+                flush_quote()
+                quote_type = "blockquote"
+            quote_lines.append(m.group(1))
+            continue
+
+        # ── Pull-quote line: |> text ────────────────────────────────
+        if m := _PULLQUOTE_LINE.match(stripped):
+            flush_para()
+            flush_list()
+            if quote_type != "pullquote":
+                flush_quote()
+                quote_type = "pullquote"
+            quote_lines.append(m.group(1))
+            continue
+
+        # ── Blank line ──────────────────────────────────────────────
+        if not stripped:
+            flush_para()
+            if quote_type:
+                # Propagate blank line into the quote so inner paragraphs stay separate.
+                quote_lines.append("")
+            continue
+
+        # ── Heading: # … ###### ─────────────────────────────────────
         if m := _HEADING_DRAFT.match(line):
             flush_para()
             flush_list()
+            flush_quote()
             level = len(m.group(1))
             heading_text = m.group(2).strip()
             if heading_text:
                 nodes.append(_draft_heading(level, _parse_inline_draft(heading_text)))
+            continue
 
-        elif m := _UNORDERED.match(line):
+        # ── Unordered list item ─────────────────────────────────────
+        if m := _UNORDERED.match(line):
             flush_para()
+            flush_quote()
             if list_type != "bullet":
                 flush_list()
                 list_type = "bullet"
             inline = _parse_inline_draft(m.group(1).strip())
             if inline:
                 list_items.append(inline)
+            continue
 
-        elif m := _ORDERED.match(line):
+        # ── Ordered list item ───────────────────────────────────────
+        if m := _ORDERED.match(line):
             flush_para()
+            flush_quote()
             if list_type != "ordered":
                 flush_list()
                 list_type = "ordered"
             inline = _parse_inline_draft(m.group(2).strip())
             if inline:
                 list_items.append(inline)
+            continue
 
-        else:
-            if list_type:
-                flush_list()
-            para_lines.append(stripped)
+        # ── Regular paragraph text ──────────────────────────────────
+        if list_type:
+            flush_list()
+        if quote_type:
+            flush_quote()
+        para_lines.append(stripped)
 
     flush_para()
     flush_list()
-
-    return {"type": "doc", "content": nodes}
+    flush_quote()
+    return nodes
 
 
 def _parse_inline_draft(text: str) -> list[dict[str, Any]]:
@@ -253,20 +339,22 @@ def _parse_inline_draft(text: str) -> list[dict[str, Any]]:
     for m in _INLINE_DRAFT.finditer(text):
         if m.start() > last_end:
             nodes.append(_text_draft(text[last_end : m.start()]))
-        if m.group(1) is not None:  # bold + italic
-            nodes.append(_text_draft(m.group(1), "strong", "em"))
-        elif m.group(2) is not None:  # bold
-            nodes.append(_text_draft(m.group(2), "strong"))
-        elif m.group(3) is not None:  # italic
-            nodes.append(_text_draft(m.group(3), "em"))
-        elif m.group(4) is not None:  # code
-            nodes.append(_text_draft(m.group(4), "code"))
-        else:  # link → plain inline text
-            nodes.append(_text_draft(f"{m.group(5)} ({m.group(6)})"))
+        if m.group(1) is not None:  # strikethrough
+            nodes.append(_text_draft(m.group(1), "strikethrough"))
+        elif m.group(2) is not None:  # bold + italic
+            nodes.append(_text_draft(m.group(2), "strong", "em"))
+        elif m.group(3) is not None:  # bold
+            nodes.append(_text_draft(m.group(3), "strong"))
+        elif m.group(4) is not None:  # italic
+            nodes.append(_text_draft(m.group(4), "em"))
+        elif m.group(5) is not None:  # code
+            nodes.append(_text_draft(m.group(5), "code"))
+        else:  # link [text](url)
+            nodes.append(_link_node(m.group(6), m.group(7)))
         last_end = m.end()
     if last_end < len(text):
         nodes.append(_text_draft(text[last_end:]))
-    return [n for n in nodes if n["text"]]
+    return [n for n in nodes if n.get("text")]
 
 
 def _text_draft(text: str, *mark_types: str) -> dict[str, Any]:
@@ -276,8 +364,34 @@ def _text_draft(text: str, *mark_types: str) -> dict[str, Any]:
     return node
 
 
+def _link_node(text: str, url: str) -> dict[str, Any]:
+    return {
+        "type": "text",
+        "marks": [
+            {
+                "type": "link",
+                "attrs": {
+                    "href": url,
+                    "target": "_blank",
+                    "rel": "noopener noreferrer nofollow",
+                    "class": None,
+                },
+            }
+        ],
+        "text": text,
+    }
+
+
 def _draft_heading(level: int, content: list[dict[str, Any]]) -> dict[str, Any]:
     return {"type": "heading", "attrs": {"level": level}, "content": content}
+
+
+def _draft_code_block(language: str, text: str) -> dict[str, Any]:
+    return {
+        "type": "highlighted_code_block",
+        "attrs": {"language": language or None, "nodeId": None},
+        "content": [{"type": "text", "text": text}],
+    }
 
 
 def _draft_bullet_list(items: list[list[dict[str, Any]]]) -> dict[str, Any]:
@@ -332,6 +446,19 @@ def _prosemirror_node_to_md(node: dict[str, Any]) -> str | None:
         text = _inline_to_md(node.get("content", []))
         return f"{'#' * level} {text}" if text.strip() else None
 
+    if node_type == "highlighted_code_block":
+        language = (node.get("attrs") or {}).get("language") or ""
+        text = "".join(n.get("text", "") for n in node.get("content", []))
+        fence = f"```{language}" if language else "```"
+        return f"{fence}\n{text}\n```"
+
+    if node_type in ("blockquote", "pullquote"):
+        prefix = "> " if node_type == "blockquote" else "|> "
+        blank = ">" if node_type == "blockquote" else "|>"
+        inner_blocks = [_prosemirror_node_to_md(n) for n in node.get("content", [])]
+        inner_md = "\n\n".join(b for b in inner_blocks if b is not None)
+        return "\n".join(f"{prefix}{line}" if line else blank for line in inner_md.splitlines())
+
     if node_type == "bullet_list":
         lines = [
             f"- {_inline_to_md(para.get('content', []))}"
@@ -359,11 +486,18 @@ def _inline_to_md(content: list[dict[str, Any]]) -> str:
     parts = []
     for node in content:
         text = node.get("text", "")
-        marks = {m["type"] for m in node.get("marks", [])}
-        if marks and text.strip():
+        node_marks = node.get("marks", [])
+        marks = {m["type"] for m in node_marks}
+        mark_attrs = {m["type"]: m.get("attrs") or {} for m in node_marks}
+
+        if "link" in marks:
+            href = mark_attrs["link"].get("href", "")
+            leading = text[: len(text) - len(text.lstrip())]
+            trailing = text[len(text.rstrip()) :]
+            text = f"{leading}[{text.strip()}]({href}){trailing}"
+        elif marks and text.strip():
             # Keep leading/trailing whitespace outside the delimiters so that
             # adjacent marks don't bleed into each other.
-            # e.g. "This is BOLD. " strong + "italic" em must not produce ***
             leading = text[: len(text) - len(text.lstrip())]
             trailing = text[len(text.rstrip()) :]
             inner = text.strip()
@@ -373,6 +507,8 @@ def _inline_to_md(content: list[dict[str, Any]]) -> str:
                 text = f"{leading}**{inner}**{trailing}"
             elif "em" in marks:
                 text = f"{leading}*{inner}*{trailing}"
+            elif "strikethrough" in marks:
+                text = f"{leading}~~{inner}~~{trailing}"
             elif "code" in marks:
                 text = f"{leading}`{inner}`{trailing}"
         parts.append(text)

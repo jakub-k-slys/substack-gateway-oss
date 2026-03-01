@@ -179,6 +179,113 @@ Feature: Markdown to Substack draft body converter
     And draft paragraph 1 text node 6 has marks "strong,em" and text "This is BOLD and italic."
 
   # ------------------------------------------------------------------
+  # Fenced code blocks
+  # ------------------------------------------------------------------
+
+  Scenario: Fenced code block with language produces highlighted_code_block node
+    When I convert draft markdown:
+      """
+      ```python
+      def main():
+        print("Hello")
+      ```
+      """
+    Then the draft doc has 1 node
+    And draft node 1 is a highlighted_code_block with language "python"
+    And draft code block text contains "def main():"
+
+  Scenario: Fenced code block without language uses null language attr
+    When I convert draft markdown:
+      """
+      ```
+      some code
+      ```
+      """
+    Then the draft doc has 1 node
+    And draft node 1 is a highlighted_code_block with null language
+
+  Scenario: Code block surrounded by paragraphs
+    When I convert draft markdown:
+      """
+      before
+
+      ```python
+      x = 1
+      ```
+
+      after
+      """
+    Then the draft doc has 3 nodes
+    And draft node 1 is a paragraph with 1 text node "before"
+    And draft node 2 is a highlighted_code_block with language "python"
+    And draft node 3 is a paragraph with 1 text node "after"
+
+  # ------------------------------------------------------------------
+  # Blockquotes
+  # ------------------------------------------------------------------
+
+  Scenario: Single-paragraph blockquote
+    When I convert draft markdown:
+      """
+      > this is a blockquote
+      """
+    Then the draft doc has 1 node
+    And draft node 1 is a blockquote with 1 inner node
+    And draft blockquote inner node 1 is a paragraph with text "this is a blockquote"
+
+  Scenario: Multi-paragraph blockquote uses blank > line as separator
+    When I convert draft markdown:
+      """
+      > first paragraph
+      >
+      > second paragraph
+      """
+    Then the draft doc has 1 node
+    And draft node 1 is a blockquote with 2 inner nodes
+
+  Scenario: Blockquote followed by normal paragraph
+    When I convert draft markdown:
+      """
+      > quoted text
+
+      normal text
+      """
+    Then the draft doc has 2 nodes
+    And draft node 1 is a blockquote with 1 inner node
+    And draft node 2 is a paragraph with 1 text node "normal text"
+
+  # ------------------------------------------------------------------
+  # Pull quotes
+  # ------------------------------------------------------------------
+
+  Scenario: Single-paragraph pull quote
+    When I convert draft markdown:
+      """
+      |> this is a pull quote
+      """
+    Then the draft doc has 1 node
+    And draft node 1 is a pullquote with 1 inner node
+    And draft pullquote inner node 1 is a paragraph with text "this is a pull quote"
+
+  # ------------------------------------------------------------------
+  # New inline marks
+  # ------------------------------------------------------------------
+
+  Scenario: Strikethrough text
+    When I convert draft markdown "This is ~~strikethrough~~ text."
+    Then the draft doc has 1 node
+    And draft paragraph 1 text node 1 is plain "This is "
+    And draft paragraph 1 text node 2 has mark "strikethrough" and text "strikethrough"
+    And draft paragraph 1 text node 3 is plain " text."
+
+  Scenario: Link produces a link mark with href
+    When I convert draft markdown "Visit [Substack](https://substack.com) today."
+    Then the draft doc has 1 node
+    And draft paragraph 1 text node 1 is plain "Visit "
+    And draft paragraph 1 text node 2 is a link with text "Substack" and href "https://substack.com"
+    And draft paragraph 1 text node 3 is plain " today."
+
+  # ------------------------------------------------------------------
   # Reverse converter: draft body JSON → Markdown
   # ------------------------------------------------------------------
 

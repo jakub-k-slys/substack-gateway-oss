@@ -14,6 +14,8 @@ def step_convert_draft_inline(context, markdown):
     context.draft_body_str = body_str
     context.draft_doc = json.loads(body_str)
     context.current_list_node = None
+    context.current_code_block = None
+    context.current_quote_node = None
 
 
 @when("I convert draft markdown:")
@@ -23,6 +25,8 @@ def step_convert_draft_docstring(context):
     context.draft_body_str = body_str
     context.draft_doc = json.loads(body_str)
     context.current_list_node = None
+    context.current_code_block = None
+    context.current_quote_node = None
 
 
 # ------------------------------------------------------------------
@@ -117,6 +121,107 @@ def step_draft_node_is_heading(context, idx, level, text):
     assert actual_level == level, f"Expected level {level}, got {actual_level}"
     actual_text = "".join(n["text"] for n in node["content"])
     assert actual_text == text, f"Expected {text!r}, got {actual_text!r}"
+
+
+@then('draft node {idx:d} is a highlighted_code_block with language "{lang}"')
+def step_draft_node_is_code_block_with_lang(context, idx, lang):
+    node = _node(context, idx)
+    assert node["type"] == "highlighted_code_block", (
+        f"Expected highlighted_code_block, got {node['type']}"
+    )
+    actual_lang = (node.get("attrs") or {}).get("language")
+    assert actual_lang == lang, f"Expected language {lang!r}, got {actual_lang!r}"
+    context.current_code_block = node
+
+
+@then("draft node {idx:d} is a highlighted_code_block with null language")
+def step_draft_node_is_code_block_null_lang(context, idx):
+    node = _node(context, idx)
+    assert node["type"] == "highlighted_code_block", (
+        f"Expected highlighted_code_block, got {node['type']}"
+    )
+    actual_lang = (node.get("attrs") or {}).get("language")
+    assert actual_lang is None, f"Expected null language, got {actual_lang!r}"
+    context.current_code_block = node
+
+
+@then('draft code block text contains "{text}"')
+def step_draft_code_block_text_contains(context, text):
+    node = context.current_code_block
+    assert node is not None, (
+        "No current code block — use a highlighted_code_block step first"
+    )
+    content_text = "".join(n.get("text", "") for n in node.get("content", []))
+    assert text in content_text, (
+        f"Expected {text!r} in code block, got {content_text!r}"
+    )
+
+
+@then("draft node {idx:d} is a blockquote with {count:d} inner node")
+def step_draft_node_is_blockquote_singular(context, idx, count):
+    step_draft_node_is_blockquote_plural(context, idx, count)
+
+
+@then("draft node {idx:d} is a blockquote with {count:d} inner nodes")
+def step_draft_node_is_blockquote_plural(context, idx, count):
+    node = _node(context, idx)
+    assert node["type"] == "blockquote", f"Expected blockquote, got {node['type']}"
+    actual = len(node.get("content", []))
+    assert actual == count, f"Expected {count} inner node(s), got {actual}"
+    context.current_quote_node = node
+
+
+@then('draft blockquote inner node {idx:d} is a paragraph with text "{text}"')
+def step_draft_blockquote_inner_node(context, idx, text):
+    node = context.current_quote_node
+    assert node is not None, "No current quote node — use a blockquote step first"
+    inner = node.get("content", [])
+    assert len(inner) >= idx, f"Expected at least {idx} inner node(s), got {len(inner)}"
+    para = inner[idx - 1]
+    assert para["type"] == "paragraph", f"Expected paragraph, got {para['type']}"
+    actual = "".join(n.get("text", "") for n in para.get("content", []))
+    assert actual == text, f"Expected {text!r}, got {actual!r}"
+
+
+@then("draft node {idx:d} is a pullquote with {count:d} inner node")
+def step_draft_node_is_pullquote_singular(context, idx, count):
+    step_draft_node_is_pullquote_plural(context, idx, count)
+
+
+@then("draft node {idx:d} is a pullquote with {count:d} inner nodes")
+def step_draft_node_is_pullquote_plural(context, idx, count):
+    node = _node(context, idx)
+    assert node["type"] == "pullquote", f"Expected pullquote, got {node['type']}"
+    actual = len(node.get("content", []))
+    assert actual == count, f"Expected {count} inner node(s), got {actual}"
+    context.current_quote_node = node
+
+
+@then('draft pullquote inner node {idx:d} is a paragraph with text "{text}"')
+def step_draft_pullquote_inner_node(context, idx, text):
+    node = context.current_quote_node
+    assert node is not None, "No current quote node — use a pullquote step first"
+    inner = node.get("content", [])
+    assert len(inner) >= idx, f"Expected at least {idx} inner node(s), got {len(inner)}"
+    para = inner[idx - 1]
+    assert para["type"] == "paragraph", f"Expected paragraph, got {para['type']}"
+    actual = "".join(n.get("text", "") for n in para.get("content", []))
+    assert actual == text, f"Expected {text!r}, got {actual!r}"
+
+
+@then(
+    'draft paragraph {para:d} text node {node_idx:d} is a link with text "{text}" and href "{href}"'
+)
+def step_draft_para_node_link(context, para, node_idx, text, href):
+    n = _para_node(context, para, node_idx)
+    assert n["text"] == text, f"Expected text {text!r}, got {n['text']!r}"
+    marks = {m["type"] for m in n.get("marks", [])}
+    assert "link" in marks, f"Expected link mark, got {marks}"
+    link_attrs = next(
+        m.get("attrs") or {} for m in n.get("marks", []) if m["type"] == "link"
+    )
+    actual_href = link_attrs.get("href", "")
+    assert actual_href == href, f"Expected href {href!r}, got {actual_href!r}"
 
 
 @then("draft node {idx:d} is a bullet_list with {count:d} items")
