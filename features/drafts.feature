@@ -1,7 +1,7 @@
-Feature: Draft creation endpoint
+Feature: Draft endpoints
   As an API consumer
-  I want to create Substack post drafts via the gateway
-  So that I can programmatically draft content
+  I want to create and retrieve Substack post drafts via the gateway
+  So that I can programmatically manage draft content
 
   Scenario: Successfully create a draft
     Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
@@ -43,3 +43,33 @@ Feature: Draft creation endpoint
   Scenario: Missing authorization header returns 422
     When I send POST /api/v1/drafts with JSON body {"title": "Test Draft"}
     Then the response status code is 422
+
+  # ------------------------------------------------------------------
+  # GET /drafts/{draft_id}
+  # ------------------------------------------------------------------
+
+  Scenario: Successfully fetch a draft
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns the sample response for draft 189535264
+    When I send GET /api/v1/drafts/189535264
+    Then the response status code is 200
+    And the response field "title" is "test1"
+    And the response field "subtitle" is "test2"
+    And the response field "body" is not null
+
+  Scenario: Get draft with wrong gateway key returns 403
+    Given a bearer token authorized by gateway key "wrong-key" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/drafts/189535264
+    Then the response status code is 403
+
+  Scenario: Get draft Substack API error returns 502
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns status 503 for draft 189535264
+    When I send GET /api/v1/drafts/189535264
+    Then the response status code is 502
+
+  Scenario: Get draft authentication failure returns 401
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns status 401 for draft 189535264
+    When I send GET /api/v1/drafts/189535264
+    Then the response status code is 401

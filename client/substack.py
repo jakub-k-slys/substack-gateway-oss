@@ -16,6 +16,7 @@ from models.substack import (
     SubstackAttachmentCreated,
     SubstackComment,
     SubstackCommentsResponse,
+    SubstackDraft,
     SubstackDraftByline,
     SubstackDraftCreated,
     SubstackDraftPayload,
@@ -295,6 +296,13 @@ class SubstackClient:
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def get_draft(self, draft_id: int) -> SubstackDraft:
+        """GET /drafts/{draft_id} on the publication."""
+        _log.debug("Fetching draft id=%d", draft_id)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        r = await self._request("GET", url)
+        return SubstackDraft.model_validate(r.json())
 
     async def create_draft(
         self,

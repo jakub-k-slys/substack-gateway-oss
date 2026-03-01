@@ -6,11 +6,16 @@ from behave import given
 from features.steps.common import SUBSTACK_BASE, load_sample
 
 
-def _create_draft_url(context) -> str:
+def _draft_url(context, draft_id: int | None = None) -> str:
     pub = context.headers.get("x-publication-url")
     if not pub:
         raise RuntimeError("x-publication-url not set — missing a Given step?")
-    return f"{pub.rstrip('/')}/api/v1/drafts"
+    base = f"{pub.rstrip('/')}/api/v1/drafts"
+    return f"{base}/{draft_id}" if draft_id is not None else base
+
+
+def _create_draft_url(context) -> str:
+    return _draft_url(context)
 
 
 def _user_settings_url() -> str:
@@ -30,6 +35,24 @@ _USER_SETTINGS_RESPONSE = {
     ],
     "qualifiesForBadge": False,
 }
+
+
+@given(
+    "the Substack get-draft endpoint returns the sample response for draft {draft_id:d}"
+)
+def step_get_draft_returns_sample(context, draft_id):
+    context.respx_mock.get(_draft_url(context, draft_id)).mock(
+        return_value=httpx.Response(200, json=load_sample("api/v1/draft/get-response"))
+    )
+
+
+@given(
+    "the Substack get-draft endpoint returns status {status:d} for draft {draft_id:d}"
+)
+def step_get_draft_returns_status(context, status, draft_id):
+    context.respx_mock.get(_draft_url(context, draft_id)).mock(
+        return_value=httpx.Response(status)
+    )
 
 
 @given("the Substack create-draft endpoint returns the sample response")
