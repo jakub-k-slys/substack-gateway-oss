@@ -9,6 +9,8 @@ dependencies = [
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
   "async-lru>=2.0",
+  "uvloop>=0.22.1",
+  "fastmcp>=3.0.2",
 ]
 
 [build-system]
