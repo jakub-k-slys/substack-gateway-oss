@@ -252,6 +252,13 @@ class SubstackClient:
         _log.debug("Fetching note id=%d", note_id)
         return await self._get_reader_comment(note_id)
 
+    async def delete_note(self, note_id: int) -> None:
+        """DELETE /comment/{note_id} on the publication."""
+        _log.debug("Deleting note id=%d", note_id)
+        url = f"{self._pub_base}/comment/{note_id}"
+        await self._request("DELETE", url)
+        _log.debug("Deleted note id=%d", note_id)
+
     async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
         """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (pub)."""
         _log.debug("Fetching comment id=%d", comment_id)
