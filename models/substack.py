@@ -185,6 +185,24 @@ class SubstackSubscriberLists(BaseModel):
 # ------------------------------------------------------------------
 
 
+class SubstackDraftByline(BaseModel):
+    id: int
+    is_guest: bool = False
+
+
+class SubstackDraftPayload(BaseModel):
+    draft_title: str = ""
+    draft_subtitle: str = ""
+    draft_podcast_url: str | None = None
+    draft_podcast_duration: str | None = None
+    draft_body: str = ""
+    section_chosen: bool = False
+    draft_section_id: int | None = None
+    draft_bylines: list[SubstackDraftByline]
+    audience: str = "only_paid"
+    type: str = "newsletter"
+
+
 class SubstackDraftCreated(BaseModel):
     id: int
     uuid: str

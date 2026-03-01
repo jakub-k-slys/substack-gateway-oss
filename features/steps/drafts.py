@@ -10,7 +10,7 @@ def _create_draft_url(context) -> str:
     pub = context.headers.get("x-publication-url")
     if not pub:
         raise RuntimeError("x-publication-url not set — missing a Given step?")
-    return f"{pub.rstrip('/')}/api/v1/post"
+    return f"{pub.rstrip('/')}/api/v1/drafts"
 
 
 def _user_setting_url() -> str:
