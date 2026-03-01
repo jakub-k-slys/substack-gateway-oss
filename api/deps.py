@@ -66,6 +66,7 @@ async def get_substack_client(
             detail="x-publication-url must be a valid HTTP or HTTPS URL",
         )
     request_id: str | None = getattr(request.state, "request_id", None)
+    _log.debug("gateway_key=%r", credentials.gateway_key)
     _log.debug("Creating SubstackClient for publication: %s", x_publication_url)
     async with SubstackClient(
         substack_sid=credentials.substack_sid,
