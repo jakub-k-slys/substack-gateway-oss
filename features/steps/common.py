@@ -124,6 +124,15 @@ def step_list_count_plural(context, field, count):
     step_list_count_singular(context, field, count)
 
 
+@then('the response nested field "{parent}.{child}" is "{value}"')
+def step_nested_field_string(context, parent, child, value):
+    body = context.response.json()
+    actual = body[parent][child]
+    assert actual == value, (
+        f'Expected "{parent}.{child}" to be "{value}", got "{actual}"'
+    )
+
+
 @then('the first item field "{field}" is "{value}"')
 def step_first_item_field(context, field, value):
     body = context.response.json()

@@ -29,8 +29,15 @@ class BearerCredentials(BaseModel):
     gateway_key: str | None = None
 
 
+class TokensInfo(BaseModel):
+    substack_sid: str | None = None
+    connect_sid: str | None = None
+    gateway_key: str | None = None
+
+
 class HealthResponse(BaseModel):
     connected: bool
+    tokens: TokensInfo | None = None
 
 
 class ProfileResponse(BaseModel):

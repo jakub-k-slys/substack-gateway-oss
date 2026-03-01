@@ -6,7 +6,7 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 from urllib.parse import urlparse
 
-from fastapi import Header, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
 from pydantic import ValidationError
 
 from client.substack import SubstackClient
@@ -50,14 +50,19 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
     return credentials
 
 
+def get_credentials(
+    authorization: Annotated[str, Header()],
+) -> BearerCredentials:
+    return _decode_bearer(authorization)
+
+
 async def get_substack_client(
     request: Request,
-    authorization: Annotated[str, Header()],
+    credentials: Annotated[BearerCredentials, Depends(get_credentials)],
     x_publication_url: Annotated[str, Header()],
 ) -> AsyncGenerator[SubstackClient, None]:
-    credentials = _decode_bearer(authorization)
-    assert credentials.substack_sid is not None  # guaranteed by _decode_bearer
-    assert credentials.connect_sid is not None  # guaranteed by _decode_bearer
+    assert credentials.substack_sid is not None  # guaranteed by get_credentials
+    assert credentials.connect_sid is not None  # guaranteed by get_credentials
     _parsed = urlparse(x_publication_url)
     if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
