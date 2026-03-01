@@ -51,14 +51,14 @@ _configure_logging()
 
 _log = logging.getLogger(__name__)
 
-app = FastAPI(
+api = FastAPI(
     title="Substack Gateway",
     description="REST API gateway for Substack",
     version="1.0.0",
 )
 
 
-@app.middleware("http")
+@api.middleware("http")
 async def log_requests(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
@@ -80,7 +80,7 @@ async def log_requests(
     return response
 
 
-@app.exception_handler(SubstackAuthError)
+@api.exception_handler(SubstackAuthError)
 async def substack_auth_error_handler(
     request: Request, exc: SubstackAuthError
 ) -> JSONResponse:
@@ -96,7 +96,7 @@ async def substack_auth_error_handler(
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
-@app.exception_handler(SubstackAPIError)
+@api.exception_handler(SubstackAPIError)
 async def substack_api_error_handler(
     request: Request, exc: SubstackAPIError
 ) -> JSONResponse:
@@ -118,18 +118,16 @@ async def substack_api_error_handler(
 
 _PASSTHROUGH_CODES = {404, 429}
 
-app.include_router(v1_router, prefix="/v1")
+api.include_router(v1_router, prefix="/v1")
 
-application = Starlette(
+app = Starlette(
     routes=[
         Mount("/mcp", app=mcp.http_app()),
-        Mount("/api", app=app),
+        Mount("/api", app=api),
     ]
 )
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        "main:application", host="0.0.0.0", port=5001, reload=True, loop="uvloop"
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True, loop="uvloop")
