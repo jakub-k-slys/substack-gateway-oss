@@ -181,7 +181,10 @@ def markdown_to_draft_body(markdown: str) -> str:
     Supported inline marks: **bold**, *italic*, ***bold+italic***, `code`,
     ~~strikethrough~~, [link](url).
     """
-    doc = {"type": "doc", "content": _build_nodes(markdown.replace("\\n", "\n").splitlines())}
+    doc = {
+        "type": "doc",
+        "content": _build_nodes(markdown.replace("\\n", "\n").splitlines()),
+    }
     return json.dumps(doc, ensure_ascii=False)
 
 
@@ -229,7 +232,11 @@ def _build_nodes(lines: list[str]) -> list[dict[str, Any]]:
                     nodes.append({"type": "blockquote", "content": inner})
                 else:
                     nodes.append(
-                        {"type": "pullquote", "attrs": {"align": None, "color": None}, "content": inner}
+                        {
+                            "type": "pullquote",
+                            "attrs": {"align": None, "color": None},
+                            "content": inner,
+                        }
                     )
         quote_type = None
         quote_lines = []
@@ -457,7 +464,9 @@ def _prosemirror_node_to_md(node: dict[str, Any]) -> str | None:
         blank = ">" if node_type == "blockquote" else "|>"
         inner_blocks = [_prosemirror_node_to_md(n) for n in node.get("content", [])]
         inner_md = "\n\n".join(b for b in inner_blocks if b is not None)
-        return "\n".join(f"{prefix}{line}" if line else blank for line in inner_md.splitlines())
+        return "\n".join(
+            f"{prefix}{line}" if line else blank for line in inner_md.splitlines()
+        )
 
     if node_type == "bullet_list":
         lines = [
