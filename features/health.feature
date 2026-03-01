@@ -22,6 +22,18 @@ Feature: Health check endpoints
     When I send GET /api/v1/health/ready
     Then the response status code is 200
     And the response field "connected" is true
+    And the response field "tokens" is absent
+
+  Scenario: Tokens are returned when show=true
+    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    And the Substack API is reachable
+    When I send GET /api/v1/health/ready?show=true
+    Then the response status code is 200
+    And the response field "connected" is true
+    And the response field "tokens" is not null
+    And the response nested field "tokens.substack_sid" is "test-token"
+    And the response nested field "tokens.connect_sid" is "test-token"
+    And the response nested field "tokens.gateway_key" is "test"
 
   Scenario: Gateway cannot reach Substack
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"

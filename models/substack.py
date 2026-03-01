@@ -178,3 +178,64 @@ class SubstackSubscriberLists(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
     subscriber_lists: list[SubstackFollowingList]
+
+
+# ------------------------------------------------------------------
+# User settings
+# ------------------------------------------------------------------
+
+
+class SubstackUserSetting(BaseModel):
+    user_id: int
+    type: str
+    value_bool: bool | None = None
+    value_datetime: str | None = None
+    value_integer: int | None = None
+    value_text: str | None = None
+
+
+class SubstackUserSettingsResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    user_settings: list[SubstackUserSetting]
+    qualifies_for_badge: bool | None = None
+
+
+# ------------------------------------------------------------------
+# Drafts
+# ------------------------------------------------------------------
+
+
+class SubstackDraftByline(BaseModel):
+    id: int
+    is_guest: bool = False
+
+
+class SubstackDraftPayload(BaseModel):
+    draft_title: str = ""
+    draft_subtitle: str = ""
+    draft_podcast_url: str | None = None
+    draft_podcast_duration: str | None = None
+    draft_body: str = ""
+    section_chosen: bool = False
+    draft_section_id: int | None = None
+    draft_bylines: list[SubstackDraftByline]
+    audience: str = "only_paid"
+    type: str = "newsletter"
+
+
+class SubstackDraftCreated(BaseModel):
+    id: int
+    uuid: str
+
+
+class SubstackDraft(BaseModel):
+    draft_title: str | None = None
+    draft_subtitle: str | None = None
+    draft_body: str | None = None
+
+
+class SubstackUpdateDraftPayload(BaseModel):
+    draft_title: str | None = None
+    draft_subtitle: str | None = None
+    draft_body: str | None = None

@@ -16,6 +16,10 @@ from models.substack import (
     SubstackAttachmentCreated,
     SubstackComment,
     SubstackCommentsResponse,
+    SubstackDraft,
+    SubstackDraftByline,
+    SubstackDraftCreated,
+    SubstackDraftPayload,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackItemResponse,
@@ -26,6 +30,8 @@ from models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
     SubstackSubscriberLists,
+    SubstackUpdateDraftPayload,
+    SubstackUserSettingsResponse,
 )
 
 _log = logging.getLogger(__name__)
@@ -34,7 +40,6 @@ _SUBSTACK_BASE = settings.substack_base_url
 _API_PREFIX = "api/v1"
 _TIMEOUT = settings.substack_timeout
 _LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
-_HOME_TAB_PAYLOAD = {"type": "last_home_tab", "value_text": "inbox"}
 
 
 class SubstackClient:
@@ -225,24 +230,14 @@ class SubstackClient:
         return users
 
     async def _get_own_id(self) -> int:
-        """Mirrors FollowingService.getOwnId() — PUT /user-setting returns user_id.
-
-        Note: this is a write operation (it sets the user's last home tab preference
-        to "inbox") that Substack's own client uses as the only way to retrieve the
-        caller's user ID. There is no read-only alternative in the public API.
-        """
-        _log.debug("Resolving own user ID via /user-setting")
-        url = f"{self._sub_base}/user-setting"
-        r = await self._request("PUT", url, json=_HOME_TAB_PAYLOAD)
-        raw = r.json().get("user_id")
-        if raw is None:
-            raise SubstackAPIError(502, "Substack response missing user_id field")
-        try:
-            user_id = int(raw)
-        except (TypeError, ValueError) as exc:
-            raise SubstackAPIError(
-                502, f"Substack returned non-integer user_id: {raw!r}"
-            ) from exc
+        """GET /user-settings and extract the caller's user_id."""
+        _log.debug("Resolving own user ID via /user-settings")
+        url = f"{self._sub_base}/user-settings"
+        r = await self._request("GET", url)
+        response = SubstackUserSettingsResponse.model_validate(r.json())
+        if not response.user_settings:
+            raise SubstackAPIError(502, "Substack returned no user settings")
+        user_id = response.user_settings[0].user_id
         _log.debug("Resolved own user_id=%d", user_id)
         return user_id
 
@@ -302,6 +297,43 @@ class SubstackClient:
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def update_draft(
+        self, draft_id: int, payload: SubstackUpdateDraftPayload
+    ) -> SubstackDraft:
+        """PUT /drafts/{draft_id} on the publication with only the provided fields."""
+        _log.debug("Updating draft id=%d fields=%s", draft_id, payload.model_fields_set)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        r = await self._request("PUT", url, json=payload.model_dump(exclude_unset=True))
+        return SubstackDraft.model_validate(r.json())
+
+    async def get_draft(self, draft_id: int) -> SubstackDraft:
+        """GET /drafts/{draft_id} on the publication."""
+        _log.debug("Fetching draft id=%d", draft_id)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        r = await self._request("GET", url)
+        return SubstackDraft.model_validate(r.json())
+
+    async def create_draft(
+        self,
+        title: str | None = None,
+        subtitle: str | None = None,
+        body: str | None = None,
+    ) -> SubstackDraftCreated:
+        """POST /post on the publication to create a new draft."""
+        _log.debug("Creating draft title=%r", title)
+        user_id = await self._get_own_id()
+        payload = SubstackDraftPayload(
+            draft_title=title or "",
+            draft_subtitle=subtitle or "",
+            draft_body=body or "",
+            draft_bylines=[SubstackDraftByline(id=user_id)],
+        )
+        url = f"{self._pub_base}/drafts"
+        r = await self._request("POST", url, json=payload.model_dump())
+        draft = SubstackDraftCreated.model_validate(r.json())
+        _log.debug("Created draft id=%d uuid=%s", draft.id, draft.uuid)
+        return draft
 
     # ------------------------------------------------------------------
     # Internal helpers

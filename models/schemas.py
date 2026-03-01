@@ -6,6 +6,8 @@ from pydantic import BaseModel
 
 from models.substack import (
     SubstackComment,
+    SubstackDraft,
+    SubstackDraftCreated,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
@@ -14,6 +16,7 @@ from models.substack import (
     SubstackPreviewPost,
     SubstackProfilePostsPage,
     SubstackPublicProfile,
+    SubstackUpdateDraftPayload,
 )
 
 _log = logging.getLogger(__name__)
@@ -29,8 +32,15 @@ class BearerCredentials(BaseModel):
     gateway_key: str | None = None
 
 
+class TokensInfo(BaseModel):
+    substack_sid: str | None = None
+    connect_sid: str | None = None
+    gateway_key: str | None = None
+
+
 class HealthResponse(BaseModel):
     connected: bool
+    tokens: TokensInfo | None = None
 
 
 class ProfileResponse(BaseModel):
@@ -244,3 +254,53 @@ class CreateNoteResponse(BaseModel):
     @classmethod
     def from_substack(cls, note: SubstackNoteCreated) -> CreateNoteResponse:
         return cls(id=note.id)
+
+
+# ------------------------------------------------------------------
+# Draft creation
+# ------------------------------------------------------------------
+
+
+class CreateDraftRequest(BaseModel):
+    title: str | None = None
+    subtitle: str | None = None
+    body: str | None = None
+
+
+class UpdateDraftRequest(BaseModel):
+    title: str | None = None
+    subtitle: str | None = None
+    body: str | None = None
+
+    def to_substack_payload(self) -> SubstackUpdateDraftPayload:
+        """Build a Substack payload containing only the fields explicitly provided."""
+        field_map = {
+            "title": "draft_title",
+            "subtitle": "draft_subtitle",
+            "body": "draft_body",
+        }
+        kwargs = {field_map[f]: getattr(self, f) for f in self.model_fields_set}
+        return SubstackUpdateDraftPayload(**kwargs)
+
+
+class CreateDraftResponse(BaseModel):
+    id: int
+    uuid: str
+
+    @classmethod
+    def from_substack(cls, draft: SubstackDraftCreated) -> CreateDraftResponse:
+        return cls(id=draft.id, uuid=draft.uuid)
+
+
+class DraftResponse(BaseModel):
+    title: str | None = None
+    subtitle: str | None = None
+    body: str | None = None
+
+    @classmethod
+    def from_substack(cls, draft: SubstackDraft) -> DraftResponse:
+        return cls(
+            title=draft.draft_title,
+            subtitle=draft.draft_subtitle,
+            body=draft.draft_body,
+        )

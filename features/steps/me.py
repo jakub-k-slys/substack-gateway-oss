@@ -88,16 +88,31 @@ def step_posts_returns_sample(context, user_id):
     )
 
 
-@given("the Substack user-setting endpoint returns user id {user_id:d}")
+@given("the Substack user-settings endpoint returns user id {user_id:d}")
 def step_user_setting_returns_user_id(context, user_id):
-    context.respx_mock.put(user_setting_url()).mock(
-        return_value=httpx.Response(200, json={"user_id": user_id})
+    context.respx_mock.get(user_setting_url()).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "userSettings": [
+                    {
+                        "user_id": user_id,
+                        "type": "last_home_tab",
+                        "value_bool": None,
+                        "value_datetime": None,
+                        "value_integer": None,
+                        "value_text": "inbox",
+                    }
+                ],
+                "qualifiesForBadge": False,
+            },
+        )
     )
 
 
-@given("the Substack user-setting endpoint returns status {status:d}")
+@given("the Substack user-settings endpoint returns status {status:d}")
 def step_user_setting_returns_status(context, status):
-    context.respx_mock.put(user_setting_url()).mock(return_value=httpx.Response(status))
+    context.respx_mock.get(user_setting_url()).mock(return_value=httpx.Response(status))
 
 
 @given(
