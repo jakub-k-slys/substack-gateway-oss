@@ -21,6 +21,15 @@ async def get_note(
     return NoteResponse.from_substack(note)
 
 
+@router.delete("/notes/{note_id}", status_code=204)
+async def delete_note(
+    note_id: Annotated[int, Path(gt=0)],
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> None:
+    """Delete a Substack note by its ID."""
+    await client.delete_note(note_id)
+
+
 @router.post("/notes", response_model=CreateNoteResponse, status_code=201)
 async def create_note(
     body: CreateNoteRequest,

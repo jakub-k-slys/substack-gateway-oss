@@ -45,6 +45,19 @@ async def update_draft(
     return DraftResponse.from_substack(draft)
 
 
+@router.delete(
+    "/drafts/{draft_id}",
+    status_code=204,
+    dependencies=[Depends(require_gateway_key)],
+)
+async def delete_draft(
+    draft_id: Annotated[int, Path(gt=0)],
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> None:
+    """Delete a post draft on Substack."""
+    await client.delete_draft(draft_id)
+
+
 @router.post(
     "/drafts",
     response_model=CreateDraftResponse,

@@ -10,7 +10,7 @@ from async_lru import alru_cache
 
 from client.exceptions import SubstackAPIError, SubstackAuthError
 from config import settings
-from converters.markdown import markdown_to_note_payload
+from converters.markdown import markdown_to_draft_body, markdown_to_note_payload
 from models.substack import (
     HandleOptionsResponse,
     SubstackAttachmentCreated,
@@ -252,6 +252,13 @@ class SubstackClient:
         _log.debug("Fetching note id=%d", note_id)
         return await self._get_reader_comment(note_id)
 
+    async def delete_note(self, note_id: int) -> None:
+        """DELETE /comment/{note_id} on the publication."""
+        _log.debug("Deleting note id=%d", note_id)
+        url = f"{self._pub_base}/comment/{note_id}"
+        await self._request("DELETE", url)
+        _log.debug("Deleted note id=%d", note_id)
+
     async def get_comment_by_id(self, comment_id: int) -> SubstackNote:
         """Mirrors CommentService.getCommentById() — GET /reader/comment/{id} (pub)."""
         _log.debug("Fetching comment id=%d", comment_id)
@@ -314,6 +321,13 @@ class SubstackClient:
         r = await self._request("GET", url)
         return SubstackDraft.model_validate(r.json())
 
+    async def delete_draft(self, draft_id: int) -> None:
+        """DELETE /drafts/{draft_id} on the publication."""
+        _log.debug("Deleting draft id=%d", draft_id)
+        url = f"{self._pub_base}/drafts/{draft_id}"
+        await self._request("DELETE", url)
+        _log.debug("Deleted draft id=%d", draft_id)
+
     async def create_draft(
         self,
         title: str | None = None,
@@ -326,7 +340,7 @@ class SubstackClient:
         payload = SubstackDraftPayload(
             draft_title=title or "",
             draft_subtitle=subtitle or "",
-            draft_body=body or "",
+            draft_body=markdown_to_draft_body(body) if body else "",
             draft_bylines=[SubstackDraftByline(id=user_id)],
         )
         url = f"{self._pub_base}/drafts"
