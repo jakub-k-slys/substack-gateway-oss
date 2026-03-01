@@ -4,7 +4,7 @@ import logging
 
 from pydantic import BaseModel
 
-from converters.markdown import markdown_to_draft_body
+from converters.markdown import draft_body_to_markdown, markdown_to_draft_body
 from models.substack import (
     SubstackComment,
     SubstackDraft,
@@ -308,5 +308,5 @@ class DraftResponse(BaseModel):
         return cls(
             title=draft.draft_title,
             subtitle=draft.draft_subtitle,
-            body=draft.draft_body,
+            body=draft_body_to_markdown(draft.draft_body) if draft.draft_body else None,
         )

@@ -84,7 +84,7 @@ Feature: Draft endpoints
     Then the response status code is 200
     And the response field "title" is "test1"
     And the response field "subtitle" is "test2"
-    And the response field "body" is not null
+    And the response field "body" is "test3"
 
   Scenario: Get draft with wrong gateway key returns 403
     Given a bearer token authorized by gateway key "wrong-key" and publication URL "https://example.substack.com"

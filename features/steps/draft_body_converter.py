@@ -5,7 +5,7 @@ import textwrap
 
 from behave import then, when
 
-from converters.markdown import markdown_to_draft_body
+from converters.markdown import draft_body_to_markdown, markdown_to_draft_body
 
 
 @when('I convert draft markdown "{markdown}"')
@@ -195,3 +195,34 @@ def step_draft_para_node_multi_mark(context, para, node_idx, marks_str, text):
     expected = set(marks_str.split(","))
     actual = {m["type"] for m in n.get("marks", [])}
     assert expected == actual, f"Expected marks {expected}, got {actual}"
+
+
+# ------------------------------------------------------------------
+# Reverse converter steps
+# ------------------------------------------------------------------
+
+
+@then('the draft body round-trips to markdown "{expected}"')
+def step_round_trip_inline(context, expected):
+    result = draft_body_to_markdown(context.draft_body_str)
+    assert result == expected, f"Expected {expected!r}, got {result!r}"
+
+
+@then("the draft body round-trips to markdown:")
+def step_round_trip_docstring(context):
+    expected = textwrap.dedent(context.text).strip()
+    result = draft_body_to_markdown(context.draft_body_str)
+    assert result == expected, f"Expected {expected!r}, got {result!r}"
+
+
+@when("I reverse-convert the draft body JSON:")
+def step_reverse_convert_docstring(context):
+    body_json = textwrap.dedent(context.text).strip()
+    context.reverse_result = draft_body_to_markdown(body_json)
+
+
+@then('the markdown result is "{expected}"')
+def step_markdown_result(context, expected):
+    assert context.reverse_result == expected, (
+        f"Expected {expected!r}, got {context.reverse_result!r}"
+    )

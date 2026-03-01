@@ -297,3 +297,76 @@ def _draft_ordered_list(items: list[list[dict[str, Any]]]) -> dict[str, Any]:
 
 def _draft_list_item(content: list[dict[str, Any]]) -> dict[str, Any]:
     return {"type": "list_item", "content": [_paragraph(content)]}
+
+
+# ------------------------------------------------------------------
+# Draft body → Markdown (reverse converter)
+# ------------------------------------------------------------------
+
+
+def draft_body_to_markdown(body: str) -> str:
+    """Convert a Substack draft_body JSON string back to Markdown.
+
+    Reverses markdown_to_draft_body: heading nodes become # prefixes,
+    bullet_list/ordered_list become - / N. lines, and strong/em marks
+    become **/***/*** delimiters.
+    """
+    doc = json.loads(body)
+    blocks: list[str] = []
+    for node in doc.get("content", []):
+        block = _prosemirror_node_to_md(node)
+        if block is not None:
+            blocks.append(block)
+    return "\n\n".join(blocks)
+
+
+def _prosemirror_node_to_md(node: dict[str, Any]) -> str | None:
+    node_type = node.get("type")
+
+    if node_type == "paragraph":
+        text = _inline_to_md(node.get("content", []))
+        return text if text.strip() else None
+
+    if node_type == "heading":
+        level = node.get("attrs", {}).get("level", 1)
+        text = _inline_to_md(node.get("content", []))
+        return f"{'#' * level} {text}" if text.strip() else None
+
+    if node_type == "bullet_list":
+        lines = [
+            f"- {_inline_to_md(para.get('content', []))}"
+            for item in node.get("content", [])
+            for para in item.get("content", [])
+            if _inline_to_md(para.get("content", [])).strip()
+        ]
+        return "\n".join(lines) if lines else None
+
+    if node_type == "ordered_list":
+        lines = []
+        counter = 1
+        for item in node.get("content", []):
+            for para in item.get("content", []):
+                text = _inline_to_md(para.get("content", []))
+                if text.strip():
+                    lines.append(f"{counter}. {text}")
+                    counter += 1
+        return "\n".join(lines) if lines else None
+
+    return None
+
+
+def _inline_to_md(content: list[dict[str, Any]]) -> str:
+    parts = []
+    for node in content:
+        text = node.get("text", "")
+        marks = {m["type"] for m in node.get("marks", [])}
+        if "strong" in marks and "em" in marks:
+            text = f"***{text}***"
+        elif "strong" in marks:
+            text = f"**{text}**"
+        elif "em" in marks:
+            text = f"*{text}*"
+        elif "code" in marks:
+            text = f"`{text}`"
+        parts.append(text)
+    return "".join(parts)

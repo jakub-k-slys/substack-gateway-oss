@@ -177,3 +177,62 @@ Feature: Markdown to Substack draft body converter
     And draft paragraph 1 text node 1 is plain "Hello! How are you? "
     And draft paragraph 1 text node 2 has mark "strong" and text "This is BOLD."
     And draft paragraph 1 text node 6 has marks "strong,em" and text "This is BOLD and italic."
+
+  # ------------------------------------------------------------------
+  # Reverse converter: draft body JSON → Markdown
+  # ------------------------------------------------------------------
+
+  Scenario: Plain paragraph round-trips back to plain text
+    When I convert draft markdown "Hello world."
+    Then the draft body round-trips to markdown "Hello world."
+
+  Scenario: Bold text round-trips to double-asterisk markdown
+    When I convert draft markdown "This is **bold** text."
+    Then the draft body round-trips to markdown "This is **bold** text."
+
+  Scenario: Italic text round-trips to single-asterisk markdown
+    When I convert draft markdown "This is *italic* text."
+    Then the draft body round-trips to markdown "This is *italic* text."
+
+  Scenario: Bold and italic round-trips to triple-asterisk markdown
+    When I convert draft markdown "This is ***bold italic*** text."
+    Then the draft body round-trips to markdown "This is ***bold italic*** text."
+
+  Scenario: Heading round-trips with correct hash prefix
+    When I convert draft markdown "## Section Title"
+    Then the draft body round-trips to markdown "## Section Title"
+
+  Scenario: Bullet list round-trips as dash-prefixed lines
+    When I convert draft markdown:
+      """
+      - alpha
+      - beta
+      - gamma
+      """
+    Then the draft body round-trips to markdown:
+      """
+      - alpha
+      - beta
+      - gamma
+      """
+
+  Scenario: Ordered list round-trips as numbered lines
+    When I convert draft markdown:
+      """
+      1. first
+      2. second
+      3. third
+      """
+    Then the draft body round-trips to markdown:
+      """
+      1. first
+      2. second
+      3. third
+      """
+
+  Scenario: Reverse converter on a raw draft body JSON string
+    When I reverse-convert the draft body JSON:
+      """
+      {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"test3"}]}]}
+      """
+    Then the markdown result is "test3"
