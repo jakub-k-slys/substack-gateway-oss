@@ -3,8 +3,8 @@ from __future__ import annotations
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
-from gateway.api_server import api
-from gateway.mcp_server import mcp
+from gateway.api.app import api
+from gateway.mcp.app import mcp
 
 app = Starlette(
     routes=[
