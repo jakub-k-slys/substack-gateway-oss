@@ -50,7 +50,11 @@ def step_malformed_auth(context, pub_url_):
 
 @given('a bearer token with extra whitespace and publication URL "{pub_url_}"')
 def step_whitespace_token(context, pub_url_):
-    credentials = {"substack_sid": "test-token", "connect_sid": "test-token", "gateway_key": "test"}
+    credentials = {
+        "substack_sid": "test-token",
+        "connect_sid": "test-token",
+        "gateway_key": "test",
+    }
     encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.headers = {
         "Authorization": f"Bearer   {encoded}   ",

@@ -57,7 +57,7 @@ async def get_substack_client(
 ) -> AsyncGenerator[SubstackClient, None]:
     credentials = _decode_bearer(authorization)
     assert credentials.substack_sid is not None  # guaranteed by _decode_bearer
-    assert credentials.connect_sid is not None   # guaranteed by _decode_bearer
+    assert credentials.connect_sid is not None  # guaranteed by _decode_bearer
     _parsed = urlparse(x_publication_url)
     if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
