@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 from fastapi import Depends, Header, HTTPException, Request
 
-from gateway.auth import decode_bearer_credentials
+from gateway.auth import decode_bearer_credentials, make_substack_client
 from gateway.client.substack import SubstackClient
 from gateway.config import settings
 from gateway.models.schemas import BearerCredentials
@@ -55,8 +55,6 @@ async def get_substack_client(
     credentials: Annotated[BearerCredentials, Depends(get_credentials)],
     x_publication_url: Annotated[str, Header()],
 ) -> AsyncGenerator[SubstackClient, None]:
-    assert credentials.substack_sid is not None  # guaranteed by get_credentials
-    assert credentials.connect_sid is not None  # guaranteed by get_credentials
     _parsed = urlparse(x_publication_url)
     if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
@@ -67,10 +65,7 @@ async def get_substack_client(
     request_id: str | None = getattr(request.state, "request_id", None)
     _log.debug("gateway_key=%r", credentials.gateway_key)
     _log.debug("Creating SubstackClient for publication: %s", x_publication_url)
-    async with SubstackClient(
-        substack_sid=credentials.substack_sid,
-        connect_sid=credentials.connect_sid,
-        publication_url=x_publication_url,
-        request_id=request_id,
+    async with make_substack_client(
+        credentials, x_publication_url, request_id
     ) as client:
         yield client
