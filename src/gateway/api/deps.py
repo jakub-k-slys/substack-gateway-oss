@@ -7,7 +7,12 @@ from urllib.parse import urlparse
 
 from fastapi import Depends, Header, HTTPException, Request
 
-from gateway.auth import decode_bearer_credentials, make_substack_client
+from gateway.auth import (
+    decode_bearer_credentials,
+    make_publication_client,
+    make_substack_client,
+)
+from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
 from gateway.config import settings
 from gateway.models.schemas import BearerCredentials
@@ -55,11 +60,11 @@ def require_gateway_key(
         raise HTTPException(status_code=403, detail=_INVALID_CREDENTIALS)
 
 
-async def get_substack_client(
+async def get_publication_client(
     request: Request,
     credentials: Annotated[BearerCredentials, Depends(get_credentials)],
     x_publication_url: Annotated[str, Header()],
-) -> AsyncGenerator[SubstackClient, None]:
+) -> AsyncGenerator[PublicationClient, None]:
     _parsed = urlparse(x_publication_url)
     if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
         _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
@@ -68,39 +73,52 @@ async def get_substack_client(
             detail="x-publication-url must be a valid HTTP or HTTPS URL",
         )
     request_id: str | None = getattr(request.state, "request_id", None)
-    _log.debug("gateway_key=%r", credentials.gateway_key)
-    _log.debug("Creating SubstackClient for publication: %s", x_publication_url)
-    async with make_substack_client(
+    _log.debug("Creating PublicationClient for publication: %s", x_publication_url)
+    async with make_publication_client(
         credentials, x_publication_url, request_id
     ) as client:
         yield client
 
 
+async def get_substack_client(
+    request: Request,
+    credentials: Annotated[BearerCredentials, Depends(get_credentials)],
+) -> AsyncGenerator[SubstackClient, None]:
+    request_id: str | None = getattr(request.state, "request_id", None)
+    _log.debug("Creating SubstackClient")
+    async with make_substack_client(credentials, request_id) as client:
+        yield client
+
+
 def get_drafts_service(
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    pub: Annotated[PublicationClient, Depends(get_publication_client)],
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> DraftsService:
-    return DraftsService(client)
+    return DraftsService(pub, sub)
 
 
 def get_notes_service(
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    pub: Annotated[PublicationClient, Depends(get_publication_client)],
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> NotesService:
-    return NotesService(client)
+    return NotesService(pub, sub)
 
 
 def get_posts_service(
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    pub: Annotated[PublicationClient, Depends(get_publication_client)],
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> PostsService:
-    return PostsService(client)
+    return PostsService(pub, sub)
 
 
 def get_profiles_service(
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> ProfilesService:
-    return ProfilesService(client)
+    return ProfilesService(sub)
 
 
 def get_following_service(
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    pub: Annotated[PublicationClient, Depends(get_publication_client)],
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> FollowingService:
-    return FollowingService(client)
+    return FollowingService(pub, sub)

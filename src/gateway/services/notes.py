@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import logging
 
-from gateway.client.base import SubstackHTTPBase
+from gateway.client.publication import PublicationClient
+from gateway.client.substack import SubstackClient
 from gateway.converters.markdown import markdown_to_note_payload
 from gateway.models.substack import (
     SubstackAttachmentCreated,
@@ -16,16 +17,15 @@ _log = logging.getLogger(__name__)
 
 
 class NotesService:
-    def __init__(self, client: SubstackHTTPBase) -> None:
-        self._client = client
+    def __init__(self, pub: PublicationClient, sub: SubstackClient) -> None:
+        self._pub = pub
+        self._sub = sub
 
     async def get_own_notes(self, cursor: str | None = None) -> SubstackNotesPage:
         """GET /notes — own notes with optional cursor."""
         _log.debug("Fetching own notes (cursor=%r)", cursor)
         params = {"cursor": cursor} if cursor else {}
-        r = await self._client._request(
-            "GET", f"{self._client._pub_base}/notes", params=params
-        )
+        r = await self._pub._request("GET", f"{self._pub._base}/notes", params=params)
         page = SubstackNotesPage.model_validate(r.json())
         _log.debug(
             "Got %d own notes (next_cursor=%r)", len(page.items), page.next_cursor
@@ -45,17 +45,15 @@ class NotesService:
     async def delete_note(self, note_id: int) -> None:
         """DELETE /comment/{note_id}."""
         _log.debug("Deleting note id=%d", note_id)
-        await self._client._request(
-            "DELETE", f"{self._client._pub_base}/comment/{note_id}"
-        )
+        await self._pub._request("DELETE", f"{self._pub._base}/comment/{note_id}")
         _log.debug("Deleted note id=%d", note_id)
 
     async def create_attachment(self, url: str) -> SubstackAttachmentCreated:
         """POST /comment/attachment/ — register a link attachment, returns its UUID."""
         _log.debug("Creating attachment for url=%r", url)
-        r = await self._client._request(
+        r = await self._sub._request(
             "POST",
-            f"{self._client._sub_base}/comment/attachment/",
+            f"{self._sub._base}/comment/attachment/",
             json={"url": url, "type": "link"},
         )
         attachment = SubstackAttachmentCreated.model_validate(r.json())
@@ -72,14 +70,14 @@ class NotesService:
             att = await self.create_attachment(attachment)
             attachment_ids = [att.id]
         payload = markdown_to_note_payload(content, attachment_ids=attachment_ids)
-        r = await self._client._request(
-            "POST", f"{self._client._sub_base}/comment/feed/", json=payload
+        r = await self._sub._request(
+            "POST", f"{self._sub._base}/comment/feed/", json=payload
         )
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
 
     async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
-        url = f"{self._client._pub_base}/reader/comment/{comment_id}"
-        r = await self._client._request("GET", url)
+        url = f"{self._pub._base}/reader/comment/{comment_id}"
+        r = await self._pub._request("GET", url)
         return SubstackItemResponse.model_validate(r.json()).item

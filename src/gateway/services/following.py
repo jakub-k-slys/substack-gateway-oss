@@ -2,23 +2,25 @@ from __future__ import annotations
 
 import logging
 
-from gateway.client.base import SubstackHTTPBase
+from gateway.client.publication import PublicationClient
+from gateway.client.substack import SubstackClient
 from gateway.models.substack import SubstackFollowingUser, SubstackSubscriberLists
 
 _log = logging.getLogger(__name__)
 
 
 class FollowingService:
-    def __init__(self, client: SubstackHTTPBase) -> None:
-        self._client = client
+    def __init__(self, pub: PublicationClient, sub: SubstackClient) -> None:
+        self._pub = pub
+        self._sub = sub
 
     async def get_own_following(self) -> list[SubstackFollowingUser]:
         """GET /user/{id}/subscriber-lists — users the caller follows."""
         _log.debug("Fetching own following list")
-        user_id = await self._client.get_own_id()
-        r = await self._client._request(
+        user_id = await self._sub.get_own_id()
+        r = await self._pub._request(
             "GET",
-            f"{self._client._pub_base}/user/{user_id}/subscriber-lists",
+            f"{self._pub._base}/user/{user_id}/subscriber-lists",
             params={"lists": "following"},
         )
         data = SubstackSubscriberLists.model_validate(r.json())
