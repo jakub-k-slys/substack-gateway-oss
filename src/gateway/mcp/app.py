@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator
 from typing import Any
 
 from fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
 from gateway.auth import decode_bearer_credentials
@@ -48,7 +49,18 @@ async def _make_client(
 # ------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve a single Substack note by its numeric ID.",
+    tags={"notes", "read"},
+    annotations=ToolAnnotations(
+        title="Get Note",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "notes", "substack_endpoint": "GET /reader/comment/{note_id}"},
+)
 async def get_note(note_id: int, token: str, publication_url: str) -> dict[str, Any]:
     """Get a Substack note by ID."""
     async with _make_client(token, publication_url) as client:
@@ -56,7 +68,18 @@ async def get_note(note_id: int, token: str, publication_url: str) -> dict[str, 
         return NoteResponse.from_substack(note).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Publish a new note to Substack from Markdown content, with an optional link attachment.",
+    tags={"notes", "write"},
+    annotations=ToolAnnotations(
+        title="Create Note",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=True,
+    ),
+    meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
+)
 async def create_note(
     content: str,
     token: str,
@@ -69,7 +92,18 @@ async def create_note(
         return CreateNoteResponse.from_substack(note).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Permanently delete a Substack note by its numeric ID.",
+    tags={"notes", "write", "delete"},
+    annotations=ToolAnnotations(
+        title="Delete Note",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
+)
 async def delete_note(note_id: int, token: str, publication_url: str) -> str:
     """Delete a Substack note by ID."""
     async with _make_client(token, publication_url) as client:
@@ -82,7 +116,18 @@ async def delete_note(note_id: int, token: str, publication_url: str) -> str:
 # ------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Fetch a Substack post draft by ID. The body is returned as Markdown.",
+    tags={"drafts", "read"},
+    annotations=ToolAnnotations(
+        title="Get Draft",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
+)
 async def get_draft(draft_id: int, token: str, publication_url: str) -> dict[str, Any]:
     """Get a Substack post draft by ID. Body is returned as Markdown."""
     async with _make_client(token, publication_url) as client:
@@ -90,7 +135,18 @@ async def get_draft(draft_id: int, token: str, publication_url: str) -> dict[str
         return DraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown.",
+    tags={"drafts", "write"},
+    annotations=ToolAnnotations(
+        title="Create Draft",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=True,
+    ),
+    meta={"category": "drafts", "substack_endpoint": "POST /drafts"},
+)
 async def create_draft(
     token: str,
     publication_url: str,
@@ -104,7 +160,18 @@ async def create_draft(
         return CreateDraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown.",
+    tags={"drafts", "write"},
+    annotations=ToolAnnotations(
+        title="Update Draft",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "drafts", "substack_endpoint": "PUT /drafts/{draft_id}"},
+)
 async def update_draft(
     draft_id: int,
     token: str,
@@ -128,7 +195,18 @@ async def update_draft(
         return DraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Permanently delete a Substack post draft by its numeric ID.",
+    tags={"drafts", "write", "delete"},
+    annotations=ToolAnnotations(
+        title="Delete Draft",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "drafts", "substack_endpoint": "DELETE /drafts/{draft_id}"},
+)
 async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
     """Delete a Substack post draft by ID."""
     async with _make_client(token, publication_url) as client:
@@ -141,7 +219,18 @@ async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
 # ------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve the authenticated user's own Substack public profile.",
+    tags={"me", "profile", "read"},
+    annotations=ToolAnnotations(
+        title="Get My Profile",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "me", "substack_endpoint": "GET /user/{slug}/public_profile"},
+)
 async def get_me(token: str, publication_url: str) -> dict[str, Any]:
     """Get the authenticated user's own Substack profile."""
     async with _make_client(token, publication_url) as client:
@@ -149,7 +238,18 @@ async def get_me(token: str, publication_url: str) -> dict[str, Any]:
         return ProfileResponse.from_substack(profile).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve the authenticated user's own notes, paginated via an optional cursor.",
+    tags={"me", "notes", "read"},
+    annotations=ToolAnnotations(
+        title="Get My Notes",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "me", "substack_endpoint": "GET /notes"},
+)
 async def get_my_notes(
     token: str, publication_url: str, cursor: str | None = None
 ) -> dict[str, Any]:
@@ -159,7 +259,18 @@ async def get_my_notes(
         return NotesPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve the authenticated user's own posts, paginated via limit and offset.",
+    tags={"me", "posts", "read"},
+    annotations=ToolAnnotations(
+        title="Get My Posts",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
+)
 async def get_my_posts(
     token: str, publication_url: str, limit: int = 25, offset: int = 0
 ) -> dict[str, Any]:
@@ -169,7 +280,18 @@ async def get_my_posts(
         return PostsPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve the list of Substack profiles that the authenticated user follows.",
+    tags={"me", "following", "read"},
+    annotations=ToolAnnotations(
+        title="Get My Following",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
+)
 async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
     """Get the list of users the authenticated user follows."""
     async with _make_client(token, publication_url) as client:
@@ -182,7 +304,21 @@ async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
 # ------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve a public Substack profile by its handle/slug.",
+    tags={"profiles", "read"},
+    annotations=ToolAnnotations(
+        title="Get Profile",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={
+        "category": "profiles",
+        "substack_endpoint": "GET /user/{slug}/public_profile",
+    },
+)
 async def get_profile(slug: str, token: str, publication_url: str) -> dict[str, Any]:
     """Get a public Substack profile by handle/slug."""
     async with _make_client(token, publication_url) as client:
@@ -190,7 +326,18 @@ async def get_profile(slug: str, token: str, publication_url: str) -> dict[str, 
         return ProfileResponse.from_substack(profile).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve a paginated list of posts for a Substack profile identified by handle/slug.",
+    tags={"profiles", "posts", "read"},
+    annotations=ToolAnnotations(
+        title="Get Profile Posts",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "profiles", "substack_endpoint": "GET /profile/posts"},
+)
 async def get_profile_posts(
     slug: str,
     token: str,
@@ -204,7 +351,18 @@ async def get_profile_posts(
         return PostsPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve a paginated list of notes for a Substack profile identified by handle/slug.",
+    tags={"profiles", "notes", "read"},
+    annotations=ToolAnnotations(
+        title="Get Profile Notes",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "profiles", "substack_endpoint": "GET /reader/feed/profile/{id}"},
+)
 async def get_profile_notes(
     slug: str,
     token: str,
@@ -222,7 +380,18 @@ async def get_profile_notes(
 # ------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve the full content of a Substack post by its numeric ID.",
+    tags={"posts", "read"},
+    annotations=ToolAnnotations(
+        title="Get Post",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
+)
 async def get_post(post_id: int, token: str, publication_url: str) -> dict[str, Any]:
     """Get a full Substack post by ID."""
     async with _make_client(token, publication_url) as client:
@@ -230,7 +399,18 @@ async def get_post(post_id: int, token: str, publication_url: str) -> dict[str, 
         return FullPostResponse.from_substack(post).model_dump()
 
 
-@mcp.tool()
+@mcp.tool(
+    description="Retrieve all comments for a Substack post by its numeric ID.",
+    tags={"posts", "comments", "read"},
+    annotations=ToolAnnotations(
+        title="Get Post Comments",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "posts", "substack_endpoint": "GET /post/{post_id}/comments"},
+)
 async def get_post_comments(
     post_id: int, token: str, publication_url: str
 ) -> dict[str, Any]:
