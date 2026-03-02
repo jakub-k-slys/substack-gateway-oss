@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+from collections.abc import AsyncGenerator
 from typing import Any
 
 from fastmcp import FastMCP
@@ -7,6 +9,7 @@ from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
 from gateway.auth import decode_bearer_credentials, make_substack_client
+from gateway.client.substack import SubstackClient
 from gateway.converters.markdown import markdown_to_draft_body
 from gateway.models.schemas import (
     CommentsResponse,
@@ -26,10 +29,14 @@ from gateway.models.substack import SubstackUpdateDraftPayload
 _mcp = FastMCP("substack-gateway")
 
 
-def _make_client(token: str, publication_url: str):
-    """Decode a base64 Bearer token and return an authenticated SubstackClient context."""
+@contextlib.asynccontextmanager
+async def _make_client(
+    token: str, publication_url: str
+) -> AsyncGenerator[SubstackClient, None]:
+    """Decode a base64 Bearer token and yield an authenticated SubstackClient."""
     creds = decode_bearer_credentials(token.removeprefix("Bearer ").strip())
-    return make_substack_client(creds, publication_url)
+    async with make_substack_client(creds, publication_url) as client:
+        yield client
 
 
 # ------------------------------------------------------------------
