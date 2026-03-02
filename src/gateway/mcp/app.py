@@ -33,6 +33,8 @@ async def _make_client(
 ) -> AsyncGenerator[SubstackClient, None]:
     """Decode a base64 Bearer token and yield an authenticated SubstackClient."""
     creds = decode_bearer_credentials(token.removeprefix("Bearer ").strip())
+    assert creds.substack_sid is not None  # guaranteed by decode_bearer_credentials
+    assert creds.connect_sid is not None  # guaranteed by decode_bearer_credentials
     async with SubstackClient(
         substack_sid=creds.substack_sid,
         connect_sid=creds.connect_sid,
