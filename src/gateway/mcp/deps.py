@@ -5,6 +5,7 @@ import logging
 from collections.abc import AsyncIterator
 
 from fastmcp.dependencies import Depends
+from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import CurrentRequest
 from starlette.requests import Request
 
@@ -24,11 +25,22 @@ from gateway.services.profiles import ProfilesService
 
 _log = logging.getLogger(__name__)
 
+_HEADER_HINT = (
+    "Configure your MCP client to send the following HTTP headers: "
+    "'Authorization: Bearer <base64-credentials>' and "
+    "'x-publication-url: <your-publication-url>'."
+)
+
 
 def _decode_bearer(authorization: str) -> BearerCredentials:
-    """Decode a base64 Bearer token; raises ValueError if invalid."""
+    """Decode a base64 Bearer token; raises ToolError if missing or invalid."""
+    if not authorization:
+        raise ToolError(f"Missing Authorization header. {_HEADER_HINT}")
     raw = authorization.removeprefix("Bearer ").strip()
-    return decode_bearer_credentials(raw)
+    try:
+        return decode_bearer_credentials(raw)
+    except ValueError as exc:
+        raise ToolError(f"Invalid Authorization header: {exc}") from exc
 
 
 async def get_credentials(request: Request = CurrentRequest()) -> BearerCredentials:
@@ -41,6 +53,8 @@ async def get_publication_client(
     request: Request = CurrentRequest(),
 ) -> AsyncIterator[PublicationClient]:
     publication_url = request.headers.get("x-publication-url", "")
+    if not publication_url:
+        raise ToolError(f"Missing x-publication-url header. {_HEADER_HINT}")
     _log.debug("Creating PublicationClient for publication: %s", publication_url)
     async with make_publication_client(credentials, publication_url) as pub:
         yield pub
