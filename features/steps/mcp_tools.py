@@ -29,6 +29,7 @@ from gateway.mcp.app import (
     get_my_posts,
     get_note,
     get_post,
+    list_drafts,
 )
 
 # ------------------------------------------------------------------
@@ -112,6 +113,17 @@ def step_call_delete_note(context, note_id):
 # ------------------------------------------------------------------
 # When — drafts
 # ------------------------------------------------------------------
+
+
+@when("I call the MCP tool list_drafts")
+def step_call_list_drafts(context):
+    _call(
+        context,
+        list_drafts(
+            token=context.mcp_token,
+            publication_url=context.mcp_pub_url,
+        ),
+    )
 
 
 @when("I call the MCP tool get_draft with draft_id {draft_id:d}")

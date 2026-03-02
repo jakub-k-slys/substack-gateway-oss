@@ -16,6 +16,7 @@ from gateway.models.schemas import (
     CreateDraftResponse,
     CreateNoteResponse,
     DraftResponse,
+    DraftsListResponse,
     FollowingResponse,
     FullPostResponse,
     NoteResponse,
@@ -114,6 +115,25 @@ async def delete_note(note_id: int, token: str, publication_url: str) -> str:
 # ------------------------------------------------------------------
 # Drafts
 # ------------------------------------------------------------------
+
+
+@_mcp.tool(
+    description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each.",
+    tags={"drafts", "read"},
+    annotations=ToolAnnotations(
+        title="List Drafts",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+    meta={"category": "drafts", "substack_endpoint": "GET /drafts"},
+)
+async def list_drafts(token: str, publication_url: str) -> dict[str, Any]:
+    """List all Substack post drafts."""
+    async with _make_client(token, publication_url) as client:
+        drafts = await client.list_drafts()
+        return DraftsListResponse.from_substack(drafts).model_dump()
 
 
 @_mcp.tool(
