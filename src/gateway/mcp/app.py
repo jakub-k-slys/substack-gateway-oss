@@ -52,11 +52,6 @@ async def _make_clients(
         yield pub, sub
 
 
-# ------------------------------------------------------------------
-# Notes
-# ------------------------------------------------------------------
-
-
 @_mcp.tool(
     description="Retrieve a single Substack note by its numeric ID.",
     tags={"notes", "read"},
@@ -117,11 +112,6 @@ async def delete_note(note_id: int, token: str, publication_url: str) -> str:
     async with _make_clients(token, publication_url) as (pub, sub):
         await NotesService(pub, sub).delete_note(note_id)
         return f"Note {note_id} deleted successfully."
-
-
-# ------------------------------------------------------------------
-# Drafts
-# ------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -243,11 +233,6 @@ async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
         return f"Draft {draft_id} deleted successfully."
 
 
-# ------------------------------------------------------------------
-# Me
-# ------------------------------------------------------------------
-
-
 @_mcp.tool(
     description="Retrieve the authenticated user's own Substack public profile.",
     tags={"me", "profile", "read"},
@@ -331,11 +316,6 @@ async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
         return FollowingResponse.from_substack(users).model_dump()
 
 
-# ------------------------------------------------------------------
-# Profiles
-# ------------------------------------------------------------------
-
-
 @_mcp.tool(
     description="Retrieve a public Substack profile by its handle/slug.",
     tags={"profiles", "read"},
@@ -411,11 +391,6 @@ async def get_profile_notes(
             profile_id, cursor=cursor
         )
         return NotesPageResponse.from_substack(page).model_dump()
-
-
-# ------------------------------------------------------------------
-# Posts
-# ------------------------------------------------------------------
 
 
 @_mcp.tool(
