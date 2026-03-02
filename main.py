@@ -6,12 +6,10 @@ from starlette.routing import Mount
 
 from gateway import api, mcp
 
-mcp_app = mcp.http_app(transport="streamable-http", path="/", stateless_http=True)
-
 app = Starlette(
-    lifespan=mcp_app.lifespan,
+    lifespan=mcp.lifespan,
     routes=[
-        Mount("/mcp", app=mcp_app),
+        Mount("/mcp", app=mcp),
         Mount("/api", app=api),
     ],
 )

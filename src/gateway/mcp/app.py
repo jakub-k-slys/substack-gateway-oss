@@ -25,7 +25,7 @@ from gateway.models.schemas import (
 )
 from gateway.models.substack import SubstackUpdateDraftPayload
 
-mcp = FastMCP("substack-gateway")
+_mcp = FastMCP("substack-gateway")
 
 
 @contextlib.asynccontextmanager
@@ -49,7 +49,7 @@ async def _make_client(
 # ------------------------------------------------------------------
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve a single Substack note by its numeric ID.",
     tags={"notes", "read"},
     annotations=ToolAnnotations(
@@ -68,7 +68,7 @@ async def get_note(note_id: int, token: str, publication_url: str) -> dict[str, 
         return NoteResponse.from_substack(note).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Publish a new note to Substack from Markdown content, with an optional link attachment.",
     tags={"notes", "write"},
     annotations=ToolAnnotations(
@@ -92,7 +92,7 @@ async def create_note(
         return CreateNoteResponse.from_substack(note).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Permanently delete a Substack note by its numeric ID.",
     tags={"notes", "write", "delete"},
     annotations=ToolAnnotations(
@@ -116,7 +116,7 @@ async def delete_note(note_id: int, token: str, publication_url: str) -> str:
 # ------------------------------------------------------------------
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Fetch a Substack post draft by ID. The body is returned as Markdown.",
     tags={"drafts", "read"},
     annotations=ToolAnnotations(
@@ -135,7 +135,7 @@ async def get_draft(draft_id: int, token: str, publication_url: str) -> dict[str
         return DraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown.",
     tags={"drafts", "write"},
     annotations=ToolAnnotations(
@@ -160,7 +160,7 @@ async def create_draft(
         return CreateDraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown.",
     tags={"drafts", "write"},
     annotations=ToolAnnotations(
@@ -195,7 +195,7 @@ async def update_draft(
         return DraftResponse.from_substack(draft).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Permanently delete a Substack post draft by its numeric ID.",
     tags={"drafts", "write", "delete"},
     annotations=ToolAnnotations(
@@ -219,7 +219,7 @@ async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
 # ------------------------------------------------------------------
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve the authenticated user's own Substack public profile.",
     tags={"me", "profile", "read"},
     annotations=ToolAnnotations(
@@ -238,7 +238,7 @@ async def get_me(token: str, publication_url: str) -> dict[str, Any]:
         return ProfileResponse.from_substack(profile).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve the authenticated user's own notes, paginated via an optional cursor.",
     tags={"me", "notes", "read"},
     annotations=ToolAnnotations(
@@ -259,7 +259,7 @@ async def get_my_notes(
         return NotesPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve the authenticated user's own posts, paginated via limit and offset.",
     tags={"me", "posts", "read"},
     annotations=ToolAnnotations(
@@ -280,7 +280,7 @@ async def get_my_posts(
         return PostsPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve the list of Substack profiles that the authenticated user follows.",
     tags={"me", "following", "read"},
     annotations=ToolAnnotations(
@@ -304,7 +304,7 @@ async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
 # ------------------------------------------------------------------
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve a public Substack profile by its handle/slug.",
     tags={"profiles", "read"},
     annotations=ToolAnnotations(
@@ -326,7 +326,7 @@ async def get_profile(slug: str, token: str, publication_url: str) -> dict[str, 
         return ProfileResponse.from_substack(profile).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve a paginated list of posts for a Substack profile identified by handle/slug.",
     tags={"profiles", "posts", "read"},
     annotations=ToolAnnotations(
@@ -351,7 +351,7 @@ async def get_profile_posts(
         return PostsPageResponse.from_substack(page).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve a paginated list of notes for a Substack profile identified by handle/slug.",
     tags={"profiles", "notes", "read"},
     annotations=ToolAnnotations(
@@ -380,7 +380,7 @@ async def get_profile_notes(
 # ------------------------------------------------------------------
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve the full content of a Substack post by its numeric ID.",
     tags={"posts", "read"},
     annotations=ToolAnnotations(
@@ -399,7 +399,7 @@ async def get_post(post_id: int, token: str, publication_url: str) -> dict[str, 
         return FullPostResponse.from_substack(post).model_dump()
 
 
-@mcp.tool(
+@_mcp.tool(
     description="Retrieve all comments for a Substack post by its numeric ID.",
     tags={"posts", "comments", "read"},
     annotations=ToolAnnotations(
@@ -420,6 +420,9 @@ async def get_post_comments(
         return CommentsResponse.from_substack(comments).model_dump()
 
 
-@mcp.custom_route("/health", methods=["GET"])
+@_mcp.custom_route("/health", methods=["GET"])
 async def health_check(request):
     return JSONResponse({"status": "healthy", "service": "mcp-server"})
+
+
+mcp = _mcp.http_app(transport="streamable-http", path="/", stateless_http=True)
