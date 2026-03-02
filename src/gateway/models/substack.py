@@ -229,6 +229,13 @@ class SubstackDraftCreated(BaseModel):
     uuid: str
 
 
+class SubstackDraftSummary(BaseModel):
+    id: int
+    uuid: str
+    draft_title: str | None = None
+    draft_updated_at: str | None = None
+
+
 class SubstackDraft(BaseModel):
     draft_title: str | None = None
     draft_subtitle: str | None = None

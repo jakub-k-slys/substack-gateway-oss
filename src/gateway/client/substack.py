@@ -20,6 +20,7 @@ from gateway.models.substack import (
     SubstackDraftByline,
     SubstackDraftCreated,
     SubstackDraftPayload,
+    SubstackDraftSummary,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackItemResponse,
@@ -318,6 +319,15 @@ class SubstackClient:
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def list_drafts(self) -> list[SubstackDraftSummary]:
+        """GET /drafts on the publication — returns all drafts as summaries."""
+        _log.debug("Listing drafts")
+        url = f"{self._pub_base}/drafts"
+        r = await self._request("GET", url)
+        drafts = [SubstackDraftSummary.model_validate(d) for d in r.json()]
+        _log.debug("Got %d drafts", len(drafts))
+        return drafts
 
     async def update_draft(
         self, draft_id: int, payload: SubstackUpdateDraftPayload

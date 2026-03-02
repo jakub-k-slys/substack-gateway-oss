@@ -10,10 +10,24 @@ from gateway.models.schemas import (
     CreateDraftRequest,
     CreateDraftResponse,
     DraftResponse,
+    DraftsListResponse,
     UpdateDraftRequest,
 )
 
 router = APIRouter(tags=["drafts"])
+
+
+@router.get(
+    "/drafts",
+    response_model=DraftsListResponse,
+    dependencies=[Depends(require_gateway_key)],
+)
+async def list_drafts(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> DraftsListResponse:
+    """List all post drafts on Substack."""
+    drafts = await client.list_drafts()
+    return DraftsListResponse.from_substack(drafts)
 
 
 @router.get(
