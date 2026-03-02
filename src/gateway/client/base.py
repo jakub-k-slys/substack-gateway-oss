@@ -19,6 +19,8 @@ _LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
 class SubstackHTTPBase:
     """Raw HTTP layer shared by PublicationClient and SubstackClient."""
 
+    _base: str  # set by each concrete subclass
+
     def __init__(
         self,
         substack_sid: str,
@@ -39,6 +41,21 @@ class SubstackHTTPBase:
         if self._http is not None:
             await self._http.aclose()
             self._http = None
+
+    def _url(self, path: str) -> str:
+        return f"{self._base}/{path.lstrip('/')}"
+
+    async def get(self, path: str, **kwargs: Any) -> httpx.Response:
+        return await self._request("GET", self._url(path), **kwargs)
+
+    async def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        return await self._request("POST", self._url(path), **kwargs)
+
+    async def put(self, path: str, **kwargs: Any) -> httpx.Response:
+        return await self._request("PUT", self._url(path), **kwargs)
+
+    async def delete(self, path: str, **kwargs: Any) -> httpx.Response:
+        return await self._request("DELETE", self._url(path), **kwargs)
 
     async def _request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
         if self._http is None:

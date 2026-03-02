@@ -18,9 +18,8 @@ class FollowingService:
         """GET /user/{id}/subscriber-lists — users the caller follows."""
         _log.debug("Fetching own following list")
         user_id = await self._sub.get_own_id()
-        r = await self._pub._request(
-            "GET",
-            f"{self._pub._base}/user/{user_id}/subscriber-lists",
+        r = await self._pub.get(
+            f"user/{user_id}/subscriber-lists",
             params={"lists": "following"},
         )
         data = SubstackSubscriberLists.model_validate(r.json())

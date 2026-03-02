@@ -25,7 +25,7 @@ class DraftsService:
     async def list_drafts(self) -> list[SubstackDraftSummary]:
         """GET /drafts — all drafts as summaries."""
         _log.debug("Listing drafts")
-        r = await self._pub._request("GET", f"{self._pub._base}/drafts")
+        r = await self._pub.get("drafts")
         drafts = [SubstackDraftSummary.model_validate(d) for d in r.json()]
         _log.debug("Got %d drafts", len(drafts))
         return drafts
@@ -33,7 +33,7 @@ class DraftsService:
     async def get_draft(self, draft_id: int) -> SubstackDraft:
         """GET /drafts/{draft_id}."""
         _log.debug("Fetching draft id=%d", draft_id)
-        r = await self._pub._request("GET", f"{self._pub._base}/drafts/{draft_id}")
+        r = await self._pub.get(f"drafts/{draft_id}")
         return SubstackDraft.model_validate(r.json())
 
     async def update_draft(
@@ -41,9 +41,8 @@ class DraftsService:
     ) -> SubstackDraft:
         """PUT /drafts/{draft_id} — update only the provided fields."""
         _log.debug("Updating draft id=%d fields=%s", draft_id, payload.model_fields_set)
-        r = await self._pub._request(
-            "PUT",
-            f"{self._pub._base}/drafts/{draft_id}",
+        r = await self._pub.put(
+            f"drafts/{draft_id}",
             json=payload.model_dump(exclude_unset=True),
         )
         return SubstackDraft.model_validate(r.json())
@@ -51,7 +50,7 @@ class DraftsService:
     async def delete_draft(self, draft_id: int) -> None:
         """DELETE /drafts/{draft_id}."""
         _log.debug("Deleting draft id=%d", draft_id)
-        await self._pub._request("DELETE", f"{self._pub._base}/drafts/{draft_id}")
+        await self._pub.delete(f"drafts/{draft_id}")
         _log.debug("Deleted draft id=%d", draft_id)
 
     async def create_draft(
@@ -69,9 +68,7 @@ class DraftsService:
             draft_body=markdown_to_draft_body(body) if body else "",
             draft_bylines=[SubstackDraftByline(id=user_id)],
         )
-        r = await self._pub._request(
-            "POST", f"{self._pub._base}/drafts", json=payload.model_dump()
-        )
+        r = await self._pub.post("drafts", json=payload.model_dump())
         draft = SubstackDraftCreated.model_validate(r.json())
         _log.debug("Created draft id=%d uuid=%s", draft.id, draft.uuid)
         return draft

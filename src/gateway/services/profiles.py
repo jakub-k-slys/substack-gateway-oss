@@ -33,8 +33,7 @@ class ProfilesService:
     async def _fetch_profile(self, slug: str) -> SubstackPublicProfile:
         """GET /user/{slug}/public_profile — backing function for get_profile_by_slug cache."""
         _log.debug("Fetching public profile for slug=%r", slug)
-        url = f"{self._sub._base}/user/{slug}/public_profile"
-        r = await self._sub._request("GET", url)
+        r = await self._sub.get(f"user/{slug}/public_profile")
         try:
             return SubstackPublicProfile.model_validate(r.json())
         except pydantic.ValidationError as exc:

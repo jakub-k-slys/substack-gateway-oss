@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 from gateway.client.base import SubstackHTTPBase
-from gateway.client.exceptions import SubstackAPIError
+from gateway.client.exceptions import SubstackAPIError, SubstackAuthError
 from gateway.config import settings
 from gateway.models.substack import HandleOptionsResponse, SubstackUserSettingsResponse
 
@@ -31,12 +31,9 @@ class SubstackClient(SubstackHTTPBase):
 
     async def check_connectivity(self) -> bool:
         """GET /feed/following — never raises; returns False only on network failure."""
-        from gateway.client.exceptions import SubstackAuthError
-
-        url = f"{self._base}/feed/following"
-        _log.debug("Checking connectivity via %s", url)
+        _log.debug("Checking connectivity via feed/following")
         try:
-            await self._request("GET", url)
+            await self.get("feed/following")
             _log.debug("Connectivity check: reachable (authenticated)")
             return True
         except SubstackAuthError:
@@ -49,8 +46,7 @@ class SubstackClient(SubstackHTTPBase):
     async def get_own_slug(self) -> str:
         """GET /handle/options — resolves the caller's own handle slug."""
         _log.debug("Resolving own handle slug via /handle/options")
-        url = f"{self._base}/handle/options"
-        r = await self._request("GET", url)
+        r = await self.get("handle/options")
         response = HandleOptionsResponse.model_validate(r.json())
         if not response.potential_handles:
             raise SubstackAPIError(
@@ -61,8 +57,7 @@ class SubstackClient(SubstackHTTPBase):
     async def get_own_id(self) -> int:
         """GET /user-settings — resolves the caller's own numeric user ID."""
         _log.debug("Resolving own user ID via /user-settings")
-        url = f"{self._base}/user-settings"
-        r = await self._request("GET", url)
+        r = await self.get("user-settings")
         response = SubstackUserSettingsResponse.model_validate(r.json())
         if not response.user_settings:
             raise SubstackAPIError(502, "Substack returned no user settings")
