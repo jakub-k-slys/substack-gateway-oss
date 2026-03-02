@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import contextlib
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterator
 
 from pydantic import ValidationError
 
@@ -37,7 +37,7 @@ async def make_substack_client(
     credentials: BearerCredentials,
     publication_url: str,
     request_id: str | None = None,
-) -> AsyncGenerator[SubstackClient, None]:
+) -> AsyncIterator[SubstackClient]:
     """Yield an authenticated SubstackClient from already-decoded credentials.
 
     Both the REST API (``api/deps.py``) and the MCP server (``mcp/app.py``)

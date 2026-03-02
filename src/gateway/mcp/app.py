@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterator
 from typing import Any
 
 from fastmcp import FastMCP
@@ -32,7 +32,7 @@ _mcp = FastMCP("substack-gateway")
 @contextlib.asynccontextmanager
 async def _make_client(
     token: str, publication_url: str
-) -> AsyncGenerator[SubstackClient, None]:
+) -> AsyncIterator[SubstackClient]:
     """Decode a base64 Bearer token and yield an authenticated SubstackClient."""
     creds = decode_bearer_credentials(token.removeprefix("Bearer ").strip())
     async with make_substack_client(creds, publication_url) as client:
