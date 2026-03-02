@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from gateway.api.deps import get_substack_client
-from gateway.client.substack import SubstackClient
+from gateway.api.deps import get_notes_service
 from gateway.models.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
+from gateway.services.notes import NotesService
 
 router = APIRouter(tags=["notes"])
 
@@ -14,30 +14,30 @@ router = APIRouter(tags=["notes"])
 @router.get("/notes/{note_id}", response_model=NoteResponse)
 async def get_note(
     note_id: Annotated[int, Path(gt=0)],
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    service: Annotated[NotesService, Depends(get_notes_service)],
 ) -> NoteResponse:
     """Return a single Substack note by its ID."""
-    note = await client.get_note_by_id(note_id)
+    note = await service.get_note_by_id(note_id)
     return NoteResponse.from_substack(note)
 
 
 @router.delete("/notes/{note_id}", status_code=204)
 async def delete_note(
     note_id: Annotated[int, Path(gt=0)],
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    service: Annotated[NotesService, Depends(get_notes_service)],
 ) -> None:
     """Delete a Substack note by its ID."""
-    await client.delete_note(note_id)
+    await service.delete_note(note_id)
 
 
 @router.post("/notes", response_model=CreateNoteResponse, status_code=201)
 async def create_note(
     body: CreateNoteRequest,
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    service: Annotated[NotesService, Depends(get_notes_service)],
 ) -> CreateNoteResponse:
     """Convert markdown content to a Substack note and publish it."""
     try:
-        note = await client.create_note(body.content, attachment=body.attachment)
+        note = await service.create_note(body.content, attachment=body.attachment)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return CreateNoteResponse.from_substack(note)

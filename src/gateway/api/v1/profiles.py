@@ -4,14 +4,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from gateway.api.deps import get_substack_client
-from gateway.client.substack import SubstackClient
+from gateway.api.deps import get_posts_service, get_profiles_service
 from gateway.models.pagination import CursorPage, OffsetPage
 from gateway.models.schemas import (
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
 )
+from gateway.services.posts import PostsService
+from gateway.services.profiles import ProfilesService
 
 router = APIRouter(tags=["profiles"])
 
@@ -19,30 +20,36 @@ router = APIRouter(tags=["profiles"])
 @router.get("/profiles/{slug}", response_model=ProfileResponse)
 async def get_profile(
     slug: str,
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    service: Annotated[ProfilesService, Depends(get_profiles_service)],
 ) -> ProfileResponse:
     """Return a Substack user's public profile by their handle slug."""
-    profile = await client.get_profile_by_slug(slug)
+    profile = await service.get_profile_by_slug(slug)
     return ProfileResponse.from_substack(profile)
 
 
 @router.get("/profiles/{slug}/posts", response_model=PostsPageResponse)
 async def get_profile_posts(
     slug: str,
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    profiles: Annotated[ProfilesService, Depends(get_profiles_service)],
+    posts: Annotated[PostsService, Depends(get_posts_service)],
     page: Annotated[OffsetPage, Depends()],
 ) -> PostsPageResponse:
     """Return a page of posts for the given profile slug."""
-    result = await client.get_posts_for_slug(slug, limit=page.limit, offset=page.offset)
+    profile_id = await profiles.get_profile_id_by_slug(slug)
+    result = await posts.get_posts_for_profile(
+        profile_id, limit=page.limit, offset=page.offset
+    )
     return PostsPageResponse.from_substack(result)
 
 
 @router.get("/profiles/{slug}/notes", response_model=NotesPageResponse)
 async def get_profile_notes(
     slug: str,
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    profiles: Annotated[ProfilesService, Depends(get_profiles_service)],
+    posts: Annotated[PostsService, Depends(get_posts_service)],
     page: Annotated[CursorPage, Depends()],
 ) -> NotesPageResponse:
     """Return a page of notes for the given profile slug."""
-    result = await client.get_notes_for_slug(slug, cursor=page.cursor)
+    profile_id = await profiles.get_profile_id_by_slug(slug)
+    result = await posts.get_notes_for_profile(profile_id, cursor=page.cursor)
     return NotesPageResponse.from_substack(result)

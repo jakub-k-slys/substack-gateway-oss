@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from gateway.api.deps import get_substack_client
-from gateway.client.substack import SubstackClient
+from gateway.api.deps import get_notes_service
 from gateway.models.schemas import NoteResponse
+from gateway.services.notes import NotesService
 
 router = APIRouter(tags=["comments"])
 
@@ -14,8 +14,8 @@ router = APIRouter(tags=["comments"])
 @router.get("/comments/{comment_id}", response_model=NoteResponse)
 async def get_comment(
     comment_id: Annotated[int, Path(gt=0)],
-    client: Annotated[SubstackClient, Depends(get_substack_client)],
+    service: Annotated[NotesService, Depends(get_notes_service)],
 ) -> NoteResponse:
     """Return a single Substack comment by its ID (uses the reader comment wire format)."""
-    comment = await client.get_comment_by_id(comment_id)
+    comment = await service.get_comment_by_id(comment_id)
     return NoteResponse.from_substack(comment)

@@ -15,24 +15,22 @@ from gateway.models.substack import (
 _log = logging.getLogger(__name__)
 
 
-class NotesMixin(SubstackHTTPBase):
+class NotesService:
+    def __init__(self, client: SubstackHTTPBase) -> None:
+        self._client = client
+
     async def get_own_notes(self, cursor: str | None = None) -> SubstackNotesPage:
         """GET /notes — own notes with optional cursor."""
         _log.debug("Fetching own notes (cursor=%r)", cursor)
-        url = f"{self._pub_base}/notes"
         params = {"cursor": cursor} if cursor else {}
-        r = await self._request("GET", url, params=params)
+        r = await self._client._request(
+            "GET", f"{self._client._pub_base}/notes", params=params
+        )
         page = SubstackNotesPage.model_validate(r.json())
         _log.debug(
             "Got %d own notes (next_cursor=%r)", len(page.items), page.next_cursor
         )
         return page
-
-    async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
-        """GET /reader/comment/{id} (pub)."""
-        url = f"{self._pub_base}/reader/comment/{comment_id}"
-        r = await self._request("GET", url)
-        return SubstackItemResponse.model_validate(r.json()).item
 
     async def get_note_by_id(self, note_id: int) -> SubstackNote:
         """GET /reader/comment/{id} — fetch a note by ID."""
@@ -45,17 +43,19 @@ class NotesMixin(SubstackHTTPBase):
         return await self._get_reader_comment(comment_id)
 
     async def delete_note(self, note_id: int) -> None:
-        """DELETE /comment/{note_id} on the publication."""
+        """DELETE /comment/{note_id}."""
         _log.debug("Deleting note id=%d", note_id)
-        await self._request("DELETE", f"{self._pub_base}/comment/{note_id}")
+        await self._client._request(
+            "DELETE", f"{self._client._pub_base}/comment/{note_id}"
+        )
         _log.debug("Deleted note id=%d", note_id)
 
     async def create_attachment(self, url: str) -> SubstackAttachmentCreated:
         """POST /comment/attachment/ — register a link attachment, returns its UUID."""
         _log.debug("Creating attachment for url=%r", url)
-        r = await self._request(
+        r = await self._client._request(
             "POST",
-            f"{self._sub_base}/comment/attachment/",
+            f"{self._client._sub_base}/comment/attachment/",
             json={"url": url, "type": "link"},
         )
         attachment = SubstackAttachmentCreated.model_validate(r.json())
@@ -72,7 +72,14 @@ class NotesMixin(SubstackHTTPBase):
             att = await self.create_attachment(attachment)
             attachment_ids = [att.id]
         payload = markdown_to_note_payload(content, attachment_ids=attachment_ids)
-        r = await self._request("POST", f"{self._sub_base}/comment/feed/", json=payload)
+        r = await self._client._request(
+            "POST", f"{self._client._sub_base}/comment/feed/", json=payload
+        )
         note = SubstackNoteCreated.model_validate(r.json())
         _log.debug("Created note id=%d", note.id)
         return note
+
+    async def _get_reader_comment(self, comment_id: int) -> SubstackNote:
+        url = f"{self._client._pub_base}/reader/comment/{comment_id}"
+        r = await self._client._request("GET", url)
+        return SubstackItemResponse.model_validate(r.json()).item

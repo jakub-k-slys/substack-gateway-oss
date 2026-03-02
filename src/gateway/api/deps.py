@@ -11,6 +11,11 @@ from gateway.auth import decode_bearer_credentials, make_substack_client
 from gateway.client.substack import SubstackClient
 from gateway.config import settings
 from gateway.models.schemas import BearerCredentials
+from gateway.services.drafts import DraftsService
+from gateway.services.following import FollowingService
+from gateway.services.notes import NotesService
+from gateway.services.posts import PostsService
+from gateway.services.profiles import ProfilesService
 
 _log = logging.getLogger(__name__)
 
@@ -69,3 +74,33 @@ async def get_substack_client(
         credentials, x_publication_url, request_id
     ) as client:
         yield client
+
+
+def get_drafts_service(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> DraftsService:
+    return DraftsService(client)
+
+
+def get_notes_service(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> NotesService:
+    return NotesService(client)
+
+
+def get_posts_service(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> PostsService:
+    return PostsService(client)
+
+
+def get_profiles_service(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> ProfilesService:
+    return ProfilesService(client)
+
+
+def get_following_service(
+    client: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> FollowingService:
+    return FollowingService(client)

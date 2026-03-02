@@ -61,7 +61,7 @@ class SubstackHTTPBase:
             _log.warning("Connectivity check: unreachable (API/network error)")
             return False
 
-    async def _get_own_slug(self) -> str:
+    async def get_own_slug(self) -> str:
         """GET /handle/options — resolves the caller's own handle slug."""
         _log.debug("Resolving own handle slug via /handle/options")
         url = f"{self._sub_base}/handle/options"
@@ -73,7 +73,7 @@ class SubstackHTTPBase:
             )
         return response.potential_handles[0].handle
 
-    async def _get_own_id(self) -> int:
+    async def get_own_id(self) -> int:
         """GET /user-settings — resolves the caller's own numeric user ID."""
         _log.debug("Resolving own user ID via /user-settings")
         url = f"{self._sub_base}/user-settings"

@@ -15,15 +15,9 @@ from gateway.models.substack import (
 _log = logging.getLogger(__name__)
 
 
-class PostsMixin(SubstackHTTPBase):
-    async def get_own_posts(
-        self, limit: int = 25, offset: int = 0
-    ) -> SubstackProfilePostsPage:
-        """Resolve own slug → profile ID, then fetch posts."""
-        _log.debug("Fetching own posts (limit=%d, offset=%d)", limit, offset)
-        slug = await self._get_own_slug()
-        profile_id = await self.get_profile_id_by_slug(slug)  # type: ignore[attr-defined]
-        return await self.get_posts_for_profile(profile_id, limit=limit, offset=offset)
+class PostsService:
+    def __init__(self, client: SubstackHTTPBase) -> None:
+        self._client = client
 
     async def get_posts_for_profile(
         self, profile_id: int, limit: int = 25, offset: int = 0
@@ -36,7 +30,9 @@ class PostsMixin(SubstackHTTPBase):
             offset,
         )
         params = {"profile_user_id": profile_id, "limit": limit, "offset": offset}
-        r = await self._request("GET", f"{self._sub_base}/profile/posts", params=params)
+        r = await self._client._request(
+            "GET", f"{self._client._sub_base}/profile/posts", params=params
+        )
         page = SubstackProfilePostsPage.model_validate(r.json())
         _log.debug(
             "Got %d posts for profile_id=%d (next_cursor=%r)",
@@ -54,8 +50,10 @@ class PostsMixin(SubstackHTTPBase):
         params: dict[str, str] = {"types": "note"}
         if cursor:
             params["cursor"] = cursor
-        r = await self._request(
-            "GET", f"{self._pub_base}/reader/feed/profile/{profile_id}", params=params
+        r = await self._client._request(
+            "GET",
+            f"{self._client._pub_base}/reader/feed/profile/{profile_id}",
+            params=params,
         )
         page = SubstackNotesPage.model_validate(r.json())
         _log.debug(
@@ -69,13 +67,17 @@ class PostsMixin(SubstackHTTPBase):
     async def get_post_by_id(self, post_id: int) -> SubstackFullPost:
         """GET /posts/by-id/{id} — full post by numeric ID."""
         _log.debug("Fetching post id=%d", post_id)
-        r = await self._request("GET", f"{self._sub_base}/posts/by-id/{post_id}")
+        r = await self._client._request(
+            "GET", f"{self._client._sub_base}/posts/by-id/{post_id}"
+        )
         return SubstackPostResponse.model_validate(r.json()).post
 
     async def get_comments_for_post(self, post_id: int) -> list[SubstackComment]:
         """GET /post/{id}/comments — all comments for a post."""
         _log.debug("Fetching comments for post id=%d", post_id)
-        r = await self._request("GET", f"{self._pub_base}/post/{post_id}/comments")
+        r = await self._client._request(
+            "GET", f"{self._client._pub_base}/post/{post_id}/comments"
+        )
         comments = SubstackCommentsResponse.model_validate(r.json()).comments
         _log.debug("Got %d comments for post id=%d", len(comments), post_id)
         return comments
