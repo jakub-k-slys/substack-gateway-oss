@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import base64
 import contextlib
 from collections.abc import AsyncGenerator
 from typing import Any
 
 from fastmcp import FastMCP
-from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
+from gateway.auth import decode_bearer_credentials
 from gateway.client.substack import SubstackClient
 from gateway.converters.markdown import markdown_to_draft_body
 from gateway.models.schemas import (
-    BearerCredentials,
     CommentsResponse,
     CreateDraftResponse,
     CreateNoteResponse,
@@ -34,16 +32,7 @@ async def _make_client(
     token: str, publication_url: str
 ) -> AsyncGenerator[SubstackClient, None]:
     """Decode a base64 Bearer token and yield an authenticated SubstackClient."""
-    raw = token.removeprefix("Bearer ").strip()
-    try:
-        decoded = base64.b64decode(raw).decode()
-        creds = BearerCredentials.model_validate_json(decoded)
-    except (ValidationError, Exception) as exc:
-        raise ValueError(
-            "Invalid token: expected base64-encoded JSON credentials"
-        ) from exc
-    if not creds.substack_sid or not creds.connect_sid:
-        raise ValueError("Token must contain substack_sid and connect_sid")
+    creds = decode_bearer_credentials(token.removeprefix("Bearer ").strip())
     async with SubstackClient(
         substack_sid=creds.substack_sid,
         connect_sid=creds.connect_sid,
@@ -209,10 +198,7 @@ async def get_profile_posts(
 ) -> dict[str, Any]:
     """Get paginated posts for a Substack profile."""
     async with _make_client(token, publication_url) as client:
-        profile_id = await client.get_profile_id_by_slug(slug)
-        page = await client.get_posts_for_profile(
-            profile_id, limit=limit, offset=offset
-        )
+        page = await client.get_posts_for_slug(slug, limit=limit, offset=offset)
         return PostsPageResponse.from_substack(page).model_dump()
 
 
@@ -225,8 +211,7 @@ async def get_profile_notes(
 ) -> dict[str, Any]:
     """Get paginated notes for a Substack profile."""
     async with _make_client(token, publication_url) as client:
-        profile_id = await client.get_profile_id_by_slug(slug)
-        page = await client.get_notes_for_profile(profile_id, cursor=cursor)
+        page = await client.get_notes_for_slug(slug, cursor=cursor)
         return NotesPageResponse.from_substack(page).model_dump()
 
 

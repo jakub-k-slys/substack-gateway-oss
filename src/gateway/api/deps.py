@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import base64
 import logging
 from collections.abc import AsyncGenerator
 from typing import Annotated
 from urllib.parse import urlparse
 
 from fastapi import Depends, Header, HTTPException, Request
-from pydantic import ValidationError
 
+from gateway.auth import decode_bearer_credentials
 from gateway.client.substack import SubstackClient
 from gateway.config import settings
 from gateway.models.schemas import BearerCredentials
@@ -31,15 +30,10 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
         _log.warning("Rejected: empty Bearer token in Authorization header")
         raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
     try:
-        decoded = base64.b64decode(raw).decode()
-        credentials = BearerCredentials.model_validate_json(decoded)
-    except (ValidationError, Exception):
+        return decode_bearer_credentials(raw)
+    except ValueError:
         _log.warning("Rejected: Bearer token is not valid base64-encoded JSON")
         raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
-    if not credentials.substack_sid or not credentials.connect_sid:
-        _log.warning("Rejected: credentials missing substack_sid or connect_sid")
-        raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
-    return credentials
 
 
 def get_credentials(

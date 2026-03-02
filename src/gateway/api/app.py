@@ -79,20 +79,32 @@ async def log_requests(
     return response
 
 
+def _error_response(
+    request: Request, status: int, message: str, log_extra: str
+) -> JSONResponse:
+    rid = getattr(request.state, "request_id", "-")
+    _log.warning(
+        "[%s] %s %s %s → %d: %s",
+        rid,
+        request.method,
+        request.url.path,
+        log_extra,
+        status,
+        message,
+    )
+    return JSONResponse(status_code=status, content={"detail": message})
+
+
 @api.exception_handler(SubstackAuthError)
 async def substack_auth_error_handler(
     request: Request, exc: SubstackAuthError
 ) -> JSONResponse:
-    rid = getattr(request.state, "request_id", "-")
-    _log.warning(
-        "[%s] Auth error on %s %s: [%d] %s",
-        rid,
-        request.method,
-        request.url.path,
+    return _error_response(
+        request,
         exc.status_code,
         exc.message,
+        f"auth [upstream={exc.status_code}]",
     )
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 @api.exception_handler(SubstackAPIError)
@@ -102,17 +114,12 @@ async def substack_api_error_handler(
     # Map specific upstream codes to semantically correct HTTP responses;
     # everything else becomes 502 Bad Gateway.
     status = exc.status_code if exc.status_code in _PASSTHROUGH_CODES else 502
-    rid = getattr(request.state, "request_id", "-")
-    _log.warning(
-        "[%s] API error on %s %s: upstream=%d response=%d — %s",
-        rid,
-        request.method,
-        request.url.path,
-        exc.status_code,
+    return _error_response(
+        request,
         status,
         exc.message,
+        f"api [upstream={exc.status_code} response={status}]",
     )
-    return JSONResponse(status_code=status, content={"detail": exc.message})
 
 
 api.include_router(v1_router, prefix="/v1")

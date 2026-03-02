@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from typing import Any
 
 # Substack note payload envelope constants
@@ -100,7 +101,7 @@ def _process_block(block: str) -> list[dict[str, Any]]:
             accumulated.clear()
             text = m.group(1).rstrip()
             if text:
-                paragraphs.append(_paragraph([_text("• ")] + _parse_inline(text)))
+                paragraphs.append(_paragraph([_text_draft("• ")] + _parse_inline(text)))
 
         elif m := _ORDERED.match(line):
             _flush(accumulated, paragraphs)
@@ -108,7 +109,7 @@ def _process_block(block: str) -> list[dict[str, Any]]:
             text = m.group(2).rstrip()
             if text:
                 paragraphs.append(
-                    _paragraph([_text(f"{m.group(1)}. ")] + _parse_inline(text))
+                    _paragraph([_text_draft(f"{m.group(1)}. ")] + _parse_inline(text))
                 )
 
         elif not line.strip():
@@ -130,31 +131,59 @@ def _flush(accumulated: list[str], paragraphs: list[dict[str, Any]]) -> None:
         paragraphs.append(_paragraph(nodes))
 
 
-def _parse_inline(text: str) -> list[dict[str, Any]]:
+def _parse_inline_generic(
+    text: str,
+    pattern: re.Pattern[str],
+    handlers: list[Callable[[re.Match[str]], dict[str, Any] | None]],
+) -> list[dict[str, Any]]:
+    """Shared tokeniser for both note-body and draft-body inline markdown."""
     nodes: list[dict[str, Any]] = []
     last_end = 0
-    for m in _INLINE.finditer(text):
+    for m in pattern.finditer(text):
         if m.start() > last_end:
-            nodes.append(_text(text[last_end : m.start()]))
-        if m.group(1) is not None:
-            nodes.append(_text(m.group(1), "bold"))
-        elif m.group(2) is not None:
-            nodes.append(_text(m.group(2), "italic"))
-        elif m.group(3) is not None:
-            nodes.append(_text(m.group(3), "code"))
-        else:
-            nodes.append(_text(f"{m.group(4)} ({m.group(5)})"))
+            nodes.append(_text_draft(text[last_end : m.start()]))
+        for handler in handlers:
+            node = handler(m)
+            if node is not None:
+                nodes.append(node)
+                break
         last_end = m.end()
     if last_end < len(text):
-        nodes.append(_text(text[last_end:]))
-    return [n for n in nodes if n["text"]]
+        nodes.append(_text_draft(text[last_end:]))
+    return [n for n in nodes if n.get("text")]
 
 
-def _text(text: str, mark: str | None = None) -> dict[str, Any]:
-    node: dict[str, Any] = {"type": "text", "text": text}
-    if mark:
-        node["marks"] = [{"type": mark}]
-    return node
+# Note-body inline handlers — groups for _INLINE: 1=bold 2=italic 3=code 4/5=link
+def _h_note_bold(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(1)
+    return _text_draft(g, "bold") if g is not None else None
+
+
+def _h_note_italic(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(2)
+    return _text_draft(g, "italic") if g is not None else None
+
+
+def _h_note_code(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(3)
+    return _text_draft(g, "code") if g is not None else None
+
+
+def _h_note_link(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(4)
+    return _text_draft(f"{g} ({m.group(5)})") if g is not None else None
+
+
+_NOTE_INLINE_HANDLERS: list[Callable[[re.Match[str]], dict[str, Any] | None]] = [
+    _h_note_bold,
+    _h_note_italic,
+    _h_note_code,
+    _h_note_link,
+]
+
+
+def _parse_inline(text: str) -> list[dict[str, Any]]:
+    return _parse_inline_generic(text, _INLINE, _NOTE_INLINE_HANDLERS)
 
 
 def _bold(node: dict[str, Any]) -> dict[str, Any]:
@@ -340,30 +369,6 @@ def _build_nodes(lines: list[str]) -> list[dict[str, Any]]:
     return nodes
 
 
-def _parse_inline_draft(text: str) -> list[dict[str, Any]]:
-    nodes: list[dict[str, Any]] = []
-    last_end = 0
-    for m in _INLINE_DRAFT.finditer(text):
-        if m.start() > last_end:
-            nodes.append(_text_draft(text[last_end : m.start()]))
-        if m.group(1) is not None:  # strikethrough
-            nodes.append(_text_draft(m.group(1), "strikethrough"))
-        elif m.group(2) is not None:  # bold + italic
-            nodes.append(_text_draft(m.group(2), "strong", "em"))
-        elif m.group(3) is not None:  # bold
-            nodes.append(_text_draft(m.group(3), "strong"))
-        elif m.group(4) is not None:  # italic
-            nodes.append(_text_draft(m.group(4), "em"))
-        elif m.group(5) is not None:  # code
-            nodes.append(_text_draft(m.group(5), "code"))
-        else:  # link [text](url)
-            nodes.append(_link_node(m.group(6), m.group(7)))
-        last_end = m.end()
-    if last_end < len(text):
-        nodes.append(_text_draft(text[last_end:]))
-    return [n for n in nodes if n.get("text")]
-
-
 def _text_draft(text: str, *mark_types: str) -> dict[str, Any]:
     node: dict[str, Any] = {"type": "text", "text": text}
     if mark_types:
@@ -387,6 +392,52 @@ def _link_node(text: str, url: str) -> dict[str, Any]:
         ],
         "text": text,
     }
+
+
+# Draft-body inline handlers — groups for _INLINE_DRAFT:
+# 1=strikethrough 2=bold+italic 3=bold 4=italic 5=code 6/7=link
+def _h_draft_strike(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(1)
+    return _text_draft(g, "strikethrough") if g is not None else None
+
+
+def _h_draft_bold_italic(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(2)
+    return _text_draft(g, "strong", "em") if g is not None else None
+
+
+def _h_draft_bold(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(3)
+    return _text_draft(g, "strong") if g is not None else None
+
+
+def _h_draft_italic(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(4)
+    return _text_draft(g, "em") if g is not None else None
+
+
+def _h_draft_code(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(5)
+    return _text_draft(g, "code") if g is not None else None
+
+
+def _h_draft_link(m: re.Match[str]) -> dict[str, Any] | None:
+    g = m.group(6)
+    return _link_node(g, m.group(7)) if g is not None else None
+
+
+_DRAFT_INLINE_HANDLERS: list[Callable[[re.Match[str]], dict[str, Any] | None]] = [
+    _h_draft_strike,
+    _h_draft_bold_italic,
+    _h_draft_bold,
+    _h_draft_italic,
+    _h_draft_code,
+    _h_draft_link,
+]
+
+
+def _parse_inline_draft(text: str) -> list[dict[str, Any]]:
+    return _parse_inline_generic(text, _INLINE_DRAFT, _DRAFT_INLINE_HANDLERS)
 
 
 def _draft_heading(level: int, content: list[dict[str, Any]]) -> dict[str, Any]:

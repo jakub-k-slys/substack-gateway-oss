@@ -13,7 +13,7 @@ app = Starlette(
     routes=[
         Mount("/mcp", app=mcp_app),
         Mount("/api", app=api),
-    ]
+    ],
 )
 
 app.add_middleware(

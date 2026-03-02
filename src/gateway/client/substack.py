@@ -141,6 +141,20 @@ class SubstackClient:
         profile = await self.get_profile_by_slug(slug)
         return profile.id
 
+    async def get_posts_for_slug(
+        self, slug: str, limit: int = 25, offset: int = 0
+    ) -> SubstackProfilePostsPage:
+        """Resolve slug → profile ID, then fetch posts."""
+        profile_id = await self.get_profile_id_by_slug(slug)
+        return await self.get_posts_for_profile(profile_id, limit=limit, offset=offset)
+
+    async def get_notes_for_slug(
+        self, slug: str, cursor: str | None = None
+    ) -> SubstackNotesPage:
+        """Resolve slug → profile ID, then fetch notes."""
+        profile_id = await self.get_profile_id_by_slug(slug)
+        return await self.get_notes_for_profile(profile_id, cursor=cursor)
+
     # ------------------------------------------------------------------
     # Notes
     # ------------------------------------------------------------------
