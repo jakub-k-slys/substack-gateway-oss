@@ -1,21 +1,20 @@
 from __future__ import annotations
 
-import contextlib
-from collections.abc import AsyncIterator
 from typing import Any
 
 from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
 from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
-from gateway.auth import (
-    decode_bearer_credentials,
-    make_publication_client,
-    make_substack_client,
-)
-from gateway.client.publication import PublicationClient
-from gateway.client.substack import SubstackClient
 from gateway.converters.markdown import markdown_to_draft_body
+from gateway.mcp.deps import (
+    get_drafts_service,
+    get_following_service,
+    get_notes_service,
+    get_posts_service,
+    get_profiles_service,
+)
 from gateway.models.schemas import (
     CommentsResponse,
     CreateDraftResponse,
@@ -39,17 +38,9 @@ from gateway.services.profiles import ProfilesService
 _mcp = FastMCP("substack-gateway")
 
 
-@contextlib.asynccontextmanager
-async def _make_clients(
-    token: str, publication_url: str
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
-    """Decode a base64 Bearer token and yield authenticated pub + sub clients."""
-    creds = decode_bearer_credentials(token.removeprefix("Bearer ").strip())
-    async with (
-        make_publication_client(creds, publication_url) as pub,
-        make_substack_client(creds) as sub,
-    ):
-        yield pub, sub
+# ---------------------------------------------------------------------------
+# Notes tools
+# ---------------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -64,11 +55,13 @@ async def _make_clients(
     ),
     meta={"category": "notes", "substack_endpoint": "GET /reader/comment/{note_id}"},
 )
-async def get_note(note_id: int, token: str, publication_url: str) -> dict[str, Any]:
+async def get_note(
+    note_id: int,
+    notes: NotesService = Depends(get_notes_service),
+) -> dict[str, Any]:
     """Get a Substack note by ID."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        note = await NotesService(pub, sub).get_note_by_id(note_id)
-        return NoteResponse.from_substack(note).model_dump()
+    note = await notes.get_note_by_id(note_id)
+    return NoteResponse.from_substack(note).model_dump()
 
 
 @_mcp.tool(
@@ -85,14 +78,12 @@ async def get_note(note_id: int, token: str, publication_url: str) -> dict[str, 
 )
 async def create_note(
     content: str,
-    token: str,
-    publication_url: str,
+    notes: NotesService = Depends(get_notes_service),
     attachment: str | None = None,
 ) -> dict[str, Any]:
     """Publish a new Substack note from Markdown content."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        note = await NotesService(pub, sub).create_note(content, attachment=attachment)
-        return CreateNoteResponse.from_substack(note).model_dump()
+    note = await notes.create_note(content, attachment=attachment)
+    return CreateNoteResponse.from_substack(note).model_dump()
 
 
 @_mcp.tool(
@@ -107,11 +98,18 @@ async def create_note(
     ),
     meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
 )
-async def delete_note(note_id: int, token: str, publication_url: str) -> str:
+async def delete_note(
+    note_id: int,
+    notes: NotesService = Depends(get_notes_service),
+) -> str:
     """Delete a Substack note by ID."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        await NotesService(pub, sub).delete_note(note_id)
-        return f"Note {note_id} deleted successfully."
+    await notes.delete_note(note_id)
+    return f"Note {note_id} deleted successfully."
+
+
+# ---------------------------------------------------------------------------
+# Drafts tools
+# ---------------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -126,11 +124,12 @@ async def delete_note(note_id: int, token: str, publication_url: str) -> str:
     ),
     meta={"category": "drafts", "substack_endpoint": "GET /drafts"},
 )
-async def list_drafts(token: str, publication_url: str) -> dict[str, Any]:
+async def list_drafts(
+    drafts: DraftsService = Depends(get_drafts_service),
+) -> dict[str, Any]:
     """List all Substack post drafts."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        drafts = await DraftsService(pub, sub).list_drafts()
-        return DraftsListResponse.from_substack(drafts).model_dump()
+    result = await drafts.list_drafts()
+    return DraftsListResponse.from_substack(result).model_dump()
 
 
 @_mcp.tool(
@@ -145,11 +144,13 @@ async def list_drafts(token: str, publication_url: str) -> dict[str, Any]:
     ),
     meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
 )
-async def get_draft(draft_id: int, token: str, publication_url: str) -> dict[str, Any]:
+async def get_draft(
+    draft_id: int,
+    drafts: DraftsService = Depends(get_drafts_service),
+) -> dict[str, Any]:
     """Get a Substack post draft by ID. Body is returned as Markdown."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        draft = await DraftsService(pub, sub).get_draft(draft_id)
-        return DraftResponse.from_substack(draft).model_dump()
+    draft = await drafts.get_draft(draft_id)
+    return DraftResponse.from_substack(draft).model_dump()
 
 
 @_mcp.tool(
@@ -165,18 +166,14 @@ async def get_draft(draft_id: int, token: str, publication_url: str) -> dict[str
     meta={"category": "drafts", "substack_endpoint": "POST /drafts"},
 )
 async def create_draft(
-    token: str,
-    publication_url: str,
+    drafts: DraftsService = Depends(get_drafts_service),
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
 ) -> dict[str, Any]:
     """Create a new Substack post draft. Body accepts Markdown."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        draft = await DraftsService(pub, sub).create_draft(
-            title=title, subtitle=subtitle, body=body
-        )
-        return CreateDraftResponse.from_substack(draft).model_dump()
+    draft = await drafts.create_draft(title=title, subtitle=subtitle, body=body)
+    return CreateDraftResponse.from_substack(draft).model_dump()
 
 
 @_mcp.tool(
@@ -193,8 +190,7 @@ async def create_draft(
 )
 async def update_draft(
     draft_id: int,
-    token: str,
-    publication_url: str,
+    drafts: DraftsService = Depends(get_drafts_service),
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
@@ -207,11 +203,8 @@ async def update_draft(
         kwargs["draft_subtitle"] = subtitle
     if body is not None:
         kwargs["draft_body"] = markdown_to_draft_body(body)
-    async with _make_clients(token, publication_url) as (pub, sub):
-        draft = await DraftsService(pub, sub).update_draft(
-            draft_id, SubstackUpdateDraftPayload(**kwargs)
-        )
-        return DraftResponse.from_substack(draft).model_dump()
+    draft = await drafts.update_draft(draft_id, SubstackUpdateDraftPayload(**kwargs))
+    return DraftResponse.from_substack(draft).model_dump()
 
 
 @_mcp.tool(
@@ -226,11 +219,18 @@ async def update_draft(
     ),
     meta={"category": "drafts", "substack_endpoint": "DELETE /drafts/{draft_id}"},
 )
-async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
+async def delete_draft(
+    draft_id: int,
+    drafts: DraftsService = Depends(get_drafts_service),
+) -> str:
     """Delete a Substack post draft by ID."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        await DraftsService(pub, sub).delete_draft(draft_id)
-        return f"Draft {draft_id} deleted successfully."
+    await drafts.delete_draft(draft_id)
+    return f"Draft {draft_id} deleted successfully."
+
+
+# ---------------------------------------------------------------------------
+# Me tools
+# ---------------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -245,11 +245,12 @@ async def delete_draft(draft_id: int, token: str, publication_url: str) -> str:
     ),
     meta={"category": "me", "substack_endpoint": "GET /user/{slug}/public_profile"},
 )
-async def get_me(token: str, publication_url: str) -> dict[str, Any]:
+async def get_me(
+    profiles: ProfilesService = Depends(get_profiles_service),
+) -> dict[str, Any]:
     """Get the authenticated user's own Substack profile."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        profile = await ProfilesService(sub).get_own_profile()
-        return ProfileResponse.from_substack(profile).model_dump()
+    profile = await profiles.get_own_profile()
+    return ProfileResponse.from_substack(profile).model_dump()
 
 
 @_mcp.tool(
@@ -265,12 +266,12 @@ async def get_me(token: str, publication_url: str) -> dict[str, Any]:
     meta={"category": "me", "substack_endpoint": "GET /notes"},
 )
 async def get_my_notes(
-    token: str, publication_url: str, cursor: str | None = None
+    notes: NotesService = Depends(get_notes_service),
+    cursor: str | None = None,
 ) -> dict[str, Any]:
     """Get the authenticated user's notes (paginated, optional cursor)."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        page = await NotesService(pub, sub).get_own_notes(cursor=cursor)
-        return NotesPageResponse.from_substack(page).model_dump()
+    page = await notes.get_own_notes(cursor=cursor)
+    return NotesPageResponse.from_substack(page).model_dump()
 
 
 @_mcp.tool(
@@ -286,15 +287,15 @@ async def get_my_notes(
     meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
 )
 async def get_my_posts(
-    token: str, publication_url: str, limit: int = 25, offset: int = 0
+    profiles: ProfilesService = Depends(get_profiles_service),
+    posts: PostsService = Depends(get_posts_service),
+    limit: int = 25,
+    offset: int = 0,
 ) -> dict[str, Any]:
     """Get the authenticated user's posts (paginated)."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        profile = await ProfilesService(sub).get_own_profile()
-        page = await PostsService(pub, sub).get_posts_for_profile(
-            profile.id, limit=limit, offset=offset
-        )
-        return PostsPageResponse.from_substack(page).model_dump()
+    profile = await profiles.get_own_profile()
+    page = await posts.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+    return PostsPageResponse.from_substack(page).model_dump()
 
 
 @_mcp.tool(
@@ -309,11 +310,17 @@ async def get_my_posts(
     ),
     meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
 )
-async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
+async def get_my_following(
+    following: FollowingService = Depends(get_following_service),
+) -> dict[str, Any]:
     """Get the list of users the authenticated user follows."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        users = await FollowingService(pub, sub).get_own_following()
-        return FollowingResponse.from_substack(users).model_dump()
+    users = await following.get_own_following()
+    return FollowingResponse.from_substack(users).model_dump()
+
+
+# ---------------------------------------------------------------------------
+# Profiles tools
+# ---------------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -331,11 +338,13 @@ async def get_my_following(token: str, publication_url: str) -> dict[str, Any]:
         "substack_endpoint": "GET /user/{slug}/public_profile",
     },
 )
-async def get_profile(slug: str, token: str, publication_url: str) -> dict[str, Any]:
+async def get_profile(
+    slug: str,
+    profiles: ProfilesService = Depends(get_profiles_service),
+) -> dict[str, Any]:
     """Get a public Substack profile by handle/slug."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        profile = await ProfilesService(sub).get_profile_by_slug(slug)
-        return ProfileResponse.from_substack(profile).model_dump()
+    profile = await profiles.get_profile_by_slug(slug)
+    return ProfileResponse.from_substack(profile).model_dump()
 
 
 @_mcp.tool(
@@ -352,18 +361,15 @@ async def get_profile(slug: str, token: str, publication_url: str) -> dict[str, 
 )
 async def get_profile_posts(
     slug: str,
-    token: str,
-    publication_url: str,
+    profiles: ProfilesService = Depends(get_profiles_service),
+    posts: PostsService = Depends(get_posts_service),
     limit: int = 25,
     offset: int = 0,
 ) -> dict[str, Any]:
     """Get paginated posts for a Substack profile."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        profile_id = await ProfilesService(sub).get_profile_id_by_slug(slug)
-        page = await PostsService(pub, sub).get_posts_for_profile(
-            profile_id, limit=limit, offset=offset
-        )
-        return PostsPageResponse.from_substack(page).model_dump()
+    profile_id = await profiles.get_profile_id_by_slug(slug)
+    page = await posts.get_posts_for_profile(profile_id, limit=limit, offset=offset)
+    return PostsPageResponse.from_substack(page).model_dump()
 
 
 @_mcp.tool(
@@ -380,17 +386,19 @@ async def get_profile_posts(
 )
 async def get_profile_notes(
     slug: str,
-    token: str,
-    publication_url: str,
+    profiles: ProfilesService = Depends(get_profiles_service),
+    posts: PostsService = Depends(get_posts_service),
     cursor: str | None = None,
 ) -> dict[str, Any]:
     """Get paginated notes for a Substack profile."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        profile_id = await ProfilesService(sub).get_profile_id_by_slug(slug)
-        page = await PostsService(pub, sub).get_notes_for_profile(
-            profile_id, cursor=cursor
-        )
-        return NotesPageResponse.from_substack(page).model_dump()
+    profile_id = await profiles.get_profile_id_by_slug(slug)
+    page = await posts.get_notes_for_profile(profile_id, cursor=cursor)
+    return NotesPageResponse.from_substack(page).model_dump()
+
+
+# ---------------------------------------------------------------------------
+# Posts tools
+# ---------------------------------------------------------------------------
 
 
 @_mcp.tool(
@@ -405,11 +413,13 @@ async def get_profile_notes(
     ),
     meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
 )
-async def get_post(post_id: int, token: str, publication_url: str) -> dict[str, Any]:
+async def get_post(
+    post_id: int,
+    posts: PostsService = Depends(get_posts_service),
+) -> dict[str, Any]:
     """Get a full Substack post by ID."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        post = await PostsService(pub, sub).get_post_by_id(post_id)
-        return FullPostResponse.from_substack(post).model_dump()
+    post = await posts.get_post_by_id(post_id)
+    return FullPostResponse.from_substack(post).model_dump()
 
 
 @_mcp.tool(
@@ -425,12 +435,12 @@ async def get_post(post_id: int, token: str, publication_url: str) -> dict[str, 
     meta={"category": "posts", "substack_endpoint": "GET /post/{post_id}/comments"},
 )
 async def get_post_comments(
-    post_id: int, token: str, publication_url: str
+    post_id: int,
+    posts: PostsService = Depends(get_posts_service),
 ) -> dict[str, Any]:
     """Get all comments for a Substack post."""
-    async with _make_clients(token, publication_url) as (pub, sub):
-        comments = await PostsService(pub, sub).get_comments_for_post(post_id)
-        return CommentsResponse.from_substack(comments).model_dump()
+    comments = await posts.get_comments_for_post(post_id)
+    return CommentsResponse.from_substack(comments).model_dump()
 
 
 @_mcp.custom_route("/health", methods=["GET"])
