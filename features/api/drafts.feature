@@ -3,6 +3,37 @@ Feature: Draft endpoints
   I want to create and retrieve Substack post drafts via the gateway
   So that I can programmatically manage draft content
 
+  # ------------------------------------------------------------------
+  # GET /drafts
+  # ------------------------------------------------------------------
+
+  Scenario: Successfully list drafts
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack list-drafts endpoint returns the sample response
+    When I send GET /api/v1/drafts
+    Then the response status code is 200
+    And the response field "items" is not null
+    And the first item field "uuid" is "44fd4b78-d2e6-4fbb-8d14-fc2321b8cd9c"
+    And the first item field "title" is "Retention strategies for keeping your best talent"
+    And the first item field "updated" is "2024-08-28T11:09:36.995Z"
+
+  Scenario: List drafts with wrong gateway key returns 403
+    Given a bearer token authorized by gateway key "wrong-key" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/drafts
+    Then the response status code is 403
+
+  Scenario: List drafts Substack API error returns 502
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack list-drafts endpoint returns status 503
+    When I send GET /api/v1/drafts
+    Then the response status code is 502
+
+  Scenario: List drafts authentication failure returns 401
+    Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
+    And the Substack list-drafts endpoint returns status 401
+    When I send GET /api/v1/drafts
+    Then the response status code is 401
+
   Scenario: Successfully create a draft
     Given a bearer token authorized by gateway key "WW91IHNoYWxsIG5vdCBwYXNzCg==" and publication URL "https://example.substack.com"
     And the Substack create-draft endpoint returns the sample response

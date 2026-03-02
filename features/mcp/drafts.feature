@@ -3,6 +3,12 @@ Feature: MCP draft tools
   I want to use MCP tools to manage Substack post drafts
   So that I can read, create, and delete drafts programmatically
 
+  Scenario: list_drafts returns draft list
+    Given a valid MCP token and publication URL "https://example.substack.com"
+    And the Substack list-drafts endpoint returns the sample response
+    When I call the MCP tool list_drafts
+    Then the MCP result field "items" is not null
+
   Scenario: get_draft returns draft data
     Given a valid MCP token and publication URL "https://example.substack.com"
     And the Substack get-draft endpoint returns the sample response for draft 189535264

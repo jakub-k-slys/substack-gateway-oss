@@ -9,6 +9,7 @@ from gateway.models.substack import (
     SubstackComment,
     SubstackDraft,
     SubstackDraftCreated,
+    SubstackDraftSummary,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
@@ -257,6 +258,30 @@ class CreateNoteResponse(BaseModel):
 # ------------------------------------------------------------------
 # Draft creation
 # ------------------------------------------------------------------
+
+
+class DraftSummaryResponse(BaseModel):
+    id: int
+    uuid: str
+    title: str | None = None
+    updated: str | None = None
+
+    @classmethod
+    def from_substack(cls, draft: SubstackDraftSummary) -> DraftSummaryResponse:
+        return cls(
+            id=draft.id,
+            uuid=draft.uuid,
+            title=draft.draft_title,
+            updated=draft.draft_updated_at,
+        )
+
+
+class DraftsListResponse(BaseModel):
+    items: list[DraftSummaryResponse]
+
+    @classmethod
+    def from_substack(cls, drafts: list[SubstackDraftSummary]) -> DraftsListResponse:
+        return cls(items=[DraftSummaryResponse.from_substack(d) for d in drafts])
 
 
 class CreateDraftRequest(BaseModel):

@@ -82,6 +82,22 @@ def step_delete_draft_returns_status(context, status, draft_id):
     )
 
 
+@given("the Substack list-drafts endpoint returns the sample response")
+def step_list_drafts_returns_sample(context):
+    context.respx_mock.get(_draft_url(context)).mock(
+        return_value=httpx.Response(
+            200, json=load_sample("api/v1/drafts/list-response")
+        )
+    )
+
+
+@given("the Substack list-drafts endpoint returns status {status:d}")
+def step_list_drafts_returns_status(context, status):
+    context.respx_mock.get(_draft_url(context)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
 @given("the Substack create-draft endpoint returns the sample response")
 def step_create_draft_returns_sample(context):
     context.respx_mock.get(_user_settings_url()).mock(
