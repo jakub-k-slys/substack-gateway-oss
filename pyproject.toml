@@ -49,4 +49,4 @@ summary = true
 default_format = "pretty"
 
 [tool.ty.src]
-exclude = ["features/"]
+exclude = ["features/", "e2e/"]
