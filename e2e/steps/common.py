@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from urllib.parse import urlparse
 
 from behave import given, then, when
 
@@ -8,9 +9,19 @@ from behave import given, then, when
 @given("valid credentials")
 def step_valid_credentials(context):
     token = os.environ["SUBSTACK_TOKEN"]
-    pub_url = os.environ["PUBLICATION_URL"]
+    pub_url = os.environ["SUBSTACK_PUBLICATION_URL"]
     context.headers["Authorization"] = f"Bearer {token}"
     context.headers["x-publication-url"] = pub_url
+
+
+@given("a valid publication URL")
+def step_valid_publication_url(context):
+    pub_url = os.environ.get("SUBSTACK_PUBLICATION_URL", "")
+    parsed = urlparse(pub_url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        context.scenario.skip(
+            "SUBSTACK_PUBLICATION_URL not configured or not a valid HTTP/HTTPS URL"
+        )
 
 
 @when("I GET {path}")
@@ -54,21 +65,21 @@ def step_profile_slug(context):
     context.profile_slug = slug
 
 
-@when("I GET the test profile")
+@when("I fetch the test profile")
 def step_get_profile(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}", headers=context.headers
     )
 
 
-@when("I GET the test profile posts")
+@when("I fetch the test profile posts")
 def step_get_profile_posts(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}/posts", headers=context.headers
     )
 
 
-@when("I GET the test profile notes")
+@when("I fetch the test profile notes")
 def step_get_profile_notes(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}/notes", headers=context.headers
@@ -83,7 +94,7 @@ def step_note_id(context):
     context.note_id = note_id
 
 
-@when("I GET the test note")
+@when("I fetch the test note")
 def step_get_note(context):
     context.response = context.client.get(
         f"/api/v1/notes/{context.note_id}", headers=context.headers
@@ -98,14 +109,14 @@ def step_post_id(context):
     context.post_id = post_id
 
 
-@when("I GET the test post")
+@when("I fetch the test post")
 def step_get_post(context):
     context.response = context.client.get(
         f"/api/v1/posts/{context.post_id}", headers=context.headers
     )
 
 
-@when("I GET the test post comments")
+@when("I fetch the test post comments")
 def step_get_post_comments(context):
     context.response = context.client.get(
         f"/api/v1/posts/{context.post_id}/comments", headers=context.headers

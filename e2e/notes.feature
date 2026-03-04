@@ -5,6 +5,6 @@ Feature: Notes endpoints
     And a test note ID
 
   Scenario: Get note by ID
-    When I GET the test note
+    When I fetch the test note
     Then the response status is 200
     And the response has field "id"

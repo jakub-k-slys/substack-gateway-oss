@@ -5,17 +5,19 @@ Feature: Profile endpoints
     And a test profile slug
 
   Scenario: Get profile by slug
-    When I GET the test profile
+    When I fetch the test profile
     Then the response status is 200
     And the response has field "id"
     And the response has field "name"
 
   Scenario: Get profile posts
-    When I GET the test profile posts
+    Given a valid publication URL
+    When I fetch the test profile posts
     Then the response status is 200
-    And the response is a list
+    And the response field "items" is a list
 
   Scenario: Get profile notes
-    When I GET the test profile notes
+    Given a valid publication URL
+    When I fetch the test profile notes
     Then the response status is 200
-    And the response field "notes" is a list
+    And the response field "items" is a list
