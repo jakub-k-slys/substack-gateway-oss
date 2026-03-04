@@ -32,9 +32,9 @@ jobs:
       - name: Run E2E tests (behave)
         run: uv run behave e2e/
         env:
-          E2E_GATEWAY_BASE_URL: ${{ secrets.E2E_GATEWAY_BASE_URL }}
+          SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_TOKEN: ${{ secrets.SUBSTACK_TOKEN }}
-          E2E_PUBLICATION_URL: ${{ secrets.E2E_PUBLICATION_URL }}
+          PUBLICATION_URL: ${{ secrets.PUBLICATION_URL }}
           E2E_PROFILE_SLUG: ${{ secrets.E2E_PROFILE_SLUG }}
           E2E_NOTE_ID: ${{ secrets.E2E_NOTE_ID }}
           E2E_POST_ID: ${{ secrets.E2E_POST_ID }}

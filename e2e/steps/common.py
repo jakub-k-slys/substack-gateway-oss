@@ -8,7 +8,7 @@ from behave import given, then, when
 @given("valid credentials")
 def step_valid_credentials(context):
     token = os.environ["SUBSTACK_TOKEN"]
-    pub_url = os.environ["E2E_PUBLICATION_URL"]
+    pub_url = os.environ["PUBLICATION_URL"]
     context.headers["Authorization"] = f"Bearer {token}"
     context.headers["x-publication-url"] = pub_url
 
