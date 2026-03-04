@@ -1,0 +1,40 @@
+name: E2E Tests
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run E2E tests (behave)
+        run: uv run behave e2e/
+        env:
+          E2E_GATEWAY_BASE_URL: ${{ secrets.E2E_GATEWAY_BASE_URL }}
+          SUBSTACK_TOKEN: ${{ secrets.SUBSTACK_TOKEN }}
+          E2E_PUBLICATION_URL: ${{ secrets.E2E_PUBLICATION_URL }}
+          E2E_PROFILE_SLUG: ${{ secrets.E2E_PROFILE_SLUG }}
+          E2E_NOTE_ID: ${{ secrets.E2E_NOTE_ID }}
+          E2E_POST_ID: ${{ secrets.E2E_POST_ID }}
