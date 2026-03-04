@@ -28,7 +28,9 @@ def step_status(context, status):
 @then('the response has field "{field}"')
 def step_has_field(context, field):
     data = context.response.json()
-    assert field in data, f"Expected field '{field}' in response, got keys: {list(data.keys())}"
+    assert field in data, (
+        f"Expected field '{field}' in response, got keys: {list(data.keys())}"
+    )
 
 
 @then("the response is a list")
