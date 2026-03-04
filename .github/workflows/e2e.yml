@@ -30,7 +30,7 @@ jobs:
         run: uv sync --dev
 
       - name: Run E2E tests (behave)
-        run: uv run behave e2e/
+        run: uv run behave e2e/ --junit --junit-directory e2e-reports/
         env:
           SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_TOKEN: ${{ secrets.SUBSTACK_TOKEN }}
@@ -38,3 +38,11 @@ jobs:
           E2E_PROFILE_SLUG: ${{ secrets.E2E_PROFILE_SLUG }}
           E2E_NOTE_ID: ${{ secrets.E2E_NOTE_ID }}
           E2E_POST_ID: ${{ secrets.E2E_POST_ID }}
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: E2E Test Results
+          path: e2e-reports/*.xml
+          reporter: java-junit
