@@ -11,11 +11,13 @@ Feature: Profile endpoints
     And the response has field "name"
 
   Scenario: Get profile posts
+    Given a valid publication URL
     When I fetch the test profile posts
     Then the response status is 200
-    And the response is a list
+    And the response field "items" is a list
 
   Scenario: Get profile notes
+    Given a valid publication URL
     When I fetch the test profile notes
     Then the response status is 200
-    And the response field "notes" is a list
+    And the response field "items" is a list

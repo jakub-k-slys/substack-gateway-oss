@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from urllib.parse import urlparse
 
 from behave import given, then, when
 
@@ -11,6 +12,16 @@ def step_valid_credentials(context):
     pub_url = os.environ["PUBLICATION_URL"]
     context.headers["Authorization"] = f"Bearer {token}"
     context.headers["x-publication-url"] = pub_url
+
+
+@given("a valid publication URL")
+def step_valid_publication_url(context):
+    pub_url = os.environ.get("PUBLICATION_URL", "")
+    parsed = urlparse(pub_url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        context.scenario.skip(
+            "PUBLICATION_URL not configured or not a valid HTTP/HTTPS URL"
+        )
 
 
 @when("I GET {path}")

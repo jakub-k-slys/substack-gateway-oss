@@ -8,4 +8,4 @@ Feature: Health endpoints
     Given valid credentials
     When I GET /api/v1/health/ready
     Then the response status is 200
-    And the response has field "status"
+    And the response has field "connected"
