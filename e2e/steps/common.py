@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 
 from behave import given, then, when
 
@@ -14,7 +13,7 @@ def step_valid_credentials(context):
     context.headers["x-publication-url"] = pub_url
 
 
-@when(re.compile(r"I GET (/\S+)"))
+@when("I GET {path}")
 def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
 
@@ -55,21 +54,21 @@ def step_profile_slug(context):
     context.profile_slug = slug
 
 
-@when("I GET the test profile")
+@when("I fetch the test profile")
 def step_get_profile(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}", headers=context.headers
     )
 
 
-@when("I GET the test profile posts")
+@when("I fetch the test profile posts")
 def step_get_profile_posts(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}/posts", headers=context.headers
     )
 
 
-@when("I GET the test profile notes")
+@when("I fetch the test profile notes")
 def step_get_profile_notes(context):
     context.response = context.client.get(
         f"/api/v1/profiles/{context.profile_slug}/notes", headers=context.headers
@@ -84,7 +83,7 @@ def step_note_id(context):
     context.note_id = note_id
 
 
-@when("I GET the test note")
+@when("I fetch the test note")
 def step_get_note(context):
     context.response = context.client.get(
         f"/api/v1/notes/{context.note_id}", headers=context.headers
@@ -99,14 +98,14 @@ def step_post_id(context):
     context.post_id = post_id
 
 
-@when("I GET the test post")
+@when("I fetch the test post")
 def step_get_post(context):
     context.response = context.client.get(
         f"/api/v1/posts/{context.post_id}", headers=context.headers
     )
 
 
-@when("I GET the test post comments")
+@when("I fetch the test post comments")
 def step_get_post_comments(context):
     context.response = context.client.get(
         f"/api/v1/posts/{context.post_id}/comments", headers=context.headers
