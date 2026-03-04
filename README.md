@@ -1,5 +1,8 @@
 # Substack Gateway
 
+[![CI](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml)
+[![E2E Tests](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/e2e.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/e2e.yml)
+
 A stateless REST API gateway for [Substack](https://substack.com), built with [FastAPI](https://fastapi.tiangolo.com/). Proxies authenticated requests to the Substack API using session-based auth. Deployable to [Vercel](https://vercel.com).
 
 ## Authentication
