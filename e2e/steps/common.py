@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 
 from behave import given, then, when
 
@@ -13,7 +14,7 @@ def step_valid_credentials(context):
     context.headers["x-publication-url"] = pub_url
 
 
-@when("I GET {path}")
+@when(re.compile(r"I GET (/\S+)"))
 def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
 
