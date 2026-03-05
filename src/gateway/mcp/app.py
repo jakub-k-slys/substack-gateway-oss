@@ -7,6 +7,7 @@ from fastmcp.dependencies import Depends
 from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
+from gateway.config import settings
 from gateway.converters.markdown import markdown_to_draft_body
 from gateway.mcp.deps import (
     get_drafts_service,
@@ -35,7 +36,19 @@ from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
 
-_mcp = FastMCP("substack-gateway")
+# ---------------------------------------------------------------------------
+# OAuth provider (optional — only active when env vars are configured)
+# ---------------------------------------------------------------------------
+
+oauth_provider = None
+if settings.oauth_enabled:
+    from gateway.oauth.provider import NeonOAuthProvider
+
+    oauth_provider = NeonOAuthProvider(
+        base_url=f"{settings.base_url}/mcp",
+    )
+
+_mcp = FastMCP("substack-gateway", auth=oauth_provider)
 
 
 # ---------------------------------------------------------------------------

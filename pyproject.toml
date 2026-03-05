@@ -11,6 +11,10 @@ dependencies = [
   "async-lru>=2.0",
   "uvloop>=0.22.1",
   "fastmcp>=3.0.2",
+  "pyjwt>=2.11.0",
+  "bcrypt>=5.0.0",
+  "sqlalchemy>=2.0.48",
+  "asyncpg>=0.31.0",
 ]
 
 [build-system]
