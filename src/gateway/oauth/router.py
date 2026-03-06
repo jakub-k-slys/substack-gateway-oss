@@ -4,9 +4,19 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from starlette.responses import Response
 
-from gateway.mcp.app import oauth_provider
+from gateway.config import settings
 from gateway.oauth.login import process_login, process_token_form
 from gateway.oauth.templates import render_login, render_token_form
+
+oauth_provider = None
+if settings.oauth_enabled:
+    from gateway.oauth.provider import NeonOAuthProvider
+
+    assert settings.base_url, "BASE_URL must be set when OAuth is enabled"
+    oauth_provider = NeonOAuthProvider(
+        base_url=f"{settings.base_url}/mcp",
+        login_base_url=settings.base_url,
+    )
 
 well_known_routes = oauth_provider.get_well_known_routes() if oauth_provider is not None else []
 
