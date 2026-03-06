@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Wait for deployment
+        if: github.event_name == 'push'
+        run: sleep 120
+
       - uses: actions/checkout@v4
 
       - name: Install uv
