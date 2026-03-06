@@ -13,8 +13,8 @@ from gateway.config import settings
 _log = logging.getLogger(__name__)
 
 _TIMEOUT = httpx.Timeout(
-    timeout=settings.substack_timeout,
-    connect=settings.substack_connect_timeout,
+    timeout=settings.substack_timeout_sec,
+    connect=settings.substack_connect_timeout_sec,
 )
 _LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
 
