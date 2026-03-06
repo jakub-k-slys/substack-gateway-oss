@@ -23,12 +23,25 @@ from mcp.server.auth.provider import (
 from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl
-from sqlalchemy import text
+from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.routing import Route
 
-from gateway.oauth.db import generate_opaque_token, get_engine, hash_token
+from gateway.oauth.db import (
+    generate_opaque_token,
+    get_engine,
+    hash_token,
+    t_access_tokens,
+    t_auth_codes,
+    t_auth_requests,
+    t_login_sessions,
+    t_oauth_clients,
+    t_refresh_tokens,
+    t_user_credentials,
+    t_users,
+)
 
 _UTC = timezone.utc
 _log = logging.getLogger(__name__)
@@ -54,8 +67,9 @@ class NeonOAuthProvider(OAuthProvider):
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text("SELECT client_data FROM oauth_clients WHERE client_id = :id"),
-                {"id": client_id},
+                select(t_oauth_clients.c.client_data).where(
+                    t_oauth_clients.c.client_id == client_id
+                )
             )
             record = row.fetchone()
         if record is None:
@@ -63,17 +77,16 @@ class NeonOAuthProvider(OAuthProvider):
         return OAuthClientInformationFull.model_validate_json(record[0])
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
+        stmt = pg_insert(t_oauth_clients).values(
+            client_id=client_info.client_id,
+            client_data=client_info.model_dump_json(),
+        )
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO oauth_clients (client_id, client_data) "
-                    "VALUES (:id, :data) "
-                    "ON CONFLICT (client_id) DO UPDATE SET client_data = :data"
-                ),
-                {
-                    "id": client_info.client_id,
-                    "data": client_info.model_dump_json(),
-                },
+                stmt.on_conflict_do_update(
+                    index_elements=["client_id"],
+                    set_={"client_data": stmt.excluded.client_data},
+                )
             )
 
     async def authorize(
@@ -84,23 +97,17 @@ class NeonOAuthProvider(OAuthProvider):
         scopes_str = " ".join(params.scopes or [])
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO auth_requests "
-                    "(request_id, client_id, code_challenge, redirect_uri, "
-                    "redirect_uri_provided_explicitly, scopes, state, resource, expires_at) "
-                    "VALUES (:rid, :cid, :cc, :ruri, :ruri_ex, :scopes, :state, :resource, :exp)"
-                ),
-                {
-                    "rid": request_id,
-                    "cid": client.client_id,
-                    "cc": params.code_challenge,
-                    "ruri": str(params.redirect_uri),
-                    "ruri_ex": params.redirect_uri_provided_explicitly,
-                    "scopes": scopes_str,
-                    "state": params.state,
-                    "resource": params.resource,
-                    "exp": expires_at,
-                },
+                insert(t_auth_requests).values(
+                    request_id=request_id,
+                    client_id=client.client_id,
+                    code_challenge=params.code_challenge,
+                    redirect_uri=str(params.redirect_uri),
+                    redirect_uri_provided_explicitly=params.redirect_uri_provided_explicitly,
+                    scopes=scopes_str,
+                    state=params.state,
+                    resource=params.resource,
+                    expires_at=expires_at,
+                )
             )
         return f"{str(self.base_url).rstrip('/')}/login?request_id={request_id}"
 
@@ -109,12 +116,19 @@ class NeonOAuthProvider(OAuthProvider):
     ) -> AuthorizationCode | None:
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text(
-                    "SELECT code, client_id, redirect_uri, redirect_uri_provided_explicitly, "
-                    "scopes, expires_at, code_challenge, resource "
-                    "FROM auth_codes WHERE code = :code AND client_id = :cid"
-                ),
-                {"code": authorization_code, "cid": client.client_id},
+                select(
+                    t_auth_codes.c.code,
+                    t_auth_codes.c.client_id,
+                    t_auth_codes.c.redirect_uri,
+                    t_auth_codes.c.redirect_uri_provided_explicitly,
+                    t_auth_codes.c.scopes,
+                    t_auth_codes.c.expires_at,
+                    t_auth_codes.c.code_challenge,
+                    t_auth_codes.c.resource,
+                ).where(
+                    (t_auth_codes.c.code == authorization_code)
+                    & (t_auth_codes.c.client_id == client.client_id)
+                )
             )
             record = row.fetchone()
         if record is None:
@@ -144,10 +158,9 @@ class NeonOAuthProvider(OAuthProvider):
         # Consume the auth code and retrieve the user_id stored in it
         async with get_engine().begin() as conn:
             deleted = await conn.execute(
-                text(
-                    "DELETE FROM auth_codes WHERE code = :code RETURNING code, user_id"
-                ),
-                {"code": authorization_code.code},
+                delete(t_auth_codes)
+                .where(t_auth_codes.c.code == authorization_code.code)
+                .returning(t_auth_codes.c.code, t_auth_codes.c.user_id)
             )
             row = deleted.fetchone()
             if row is None:
@@ -162,29 +175,20 @@ class NeonOAuthProvider(OAuthProvider):
 
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO access_tokens (jti, client_id, scopes, expires_at) "
-                    "VALUES (:jti, :cid, :scopes, :exp)"
-                ),
-                {
-                    "jti": jti,
-                    "cid": client.client_id,
-                    "scopes": " ".join(authorization_code.scopes),
-                    "exp": exp,
-                },
+                insert(t_access_tokens).values(
+                    jti=jti,
+                    client_id=client.client_id,
+                    scopes=" ".join(authorization_code.scopes),
+                    expires_at=exp,
+                )
             )
             await conn.execute(
-                text(
-                    "INSERT INTO refresh_tokens "
-                    "(token_hash, client_id, scopes, access_jti) "
-                    "VALUES (:h, :cid, :scopes, :jti)"
-                ),
-                {
-                    "h": refresh_hash,
-                    "cid": client.client_id,
-                    "scopes": " ".join(authorization_code.scopes),
-                    "jti": jti,
-                },
+                insert(t_refresh_tokens).values(
+                    token_hash=refresh_hash,
+                    client_id=client.client_id,
+                    scopes=" ".join(authorization_code.scopes),
+                    access_jti=jti,
+                )
             )
 
         return OAuthToken(
@@ -201,12 +205,16 @@ class NeonOAuthProvider(OAuthProvider):
         token_hash = hash_token(refresh_token)
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text(
-                    "SELECT client_id, scopes, expires_at, access_jti "
-                    "FROM refresh_tokens "
-                    "WHERE token_hash = :h AND client_id = :cid AND revoked = FALSE"
-                ),
-                {"h": token_hash, "cid": client.client_id},
+                select(
+                    t_refresh_tokens.c.client_id,
+                    t_refresh_tokens.c.scopes,
+                    t_refresh_tokens.c.expires_at,
+                    t_refresh_tokens.c.access_jti,
+                ).where(
+                    (t_refresh_tokens.c.token_hash == token_hash)
+                    & (t_refresh_tokens.c.client_id == client.client_id)
+                    & (t_refresh_tokens.c.revoked.is_(False))
+                )
             )
             record = row.fetchone()
         if record is None:
@@ -241,13 +249,15 @@ class NeonOAuthProvider(OAuthProvider):
 
         async with get_engine().begin() as conn:
             await conn.execute(
-                text("UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = :h"),
-                {"h": old_hash},
+                update(t_refresh_tokens)
+                .where(t_refresh_tokens.c.token_hash == old_hash)
+                .values(revoked=True)
             )
             if old_jti:
                 await conn.execute(
-                    text("UPDATE access_tokens SET revoked = TRUE WHERE jti = :jti"),
-                    {"jti": old_jti},
+                    update(t_access_tokens)
+                    .where(t_access_tokens.c.jti == old_jti)
+                    .values(revoked=True)
                 )
 
         access_token_str, jti, exp = self._issue_jwt(client.client_id, effective_scopes)
@@ -256,29 +266,20 @@ class NeonOAuthProvider(OAuthProvider):
 
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO access_tokens (jti, client_id, scopes, expires_at) "
-                    "VALUES (:jti, :cid, :scopes, :exp)"
-                ),
-                {
-                    "jti": jti,
-                    "cid": client.client_id,
-                    "scopes": " ".join(effective_scopes),
-                    "exp": exp,
-                },
+                insert(t_access_tokens).values(
+                    jti=jti,
+                    client_id=client.client_id,
+                    scopes=" ".join(effective_scopes),
+                    expires_at=exp,
+                )
             )
             await conn.execute(
-                text(
-                    "INSERT INTO refresh_tokens "
-                    "(token_hash, client_id, scopes, access_jti) "
-                    "VALUES (:h, :cid, :scopes, :jti)"
-                ),
-                {
-                    "h": new_refresh_hash,
-                    "cid": client.client_id,
-                    "scopes": " ".join(effective_scopes),
-                    "jti": jti,
-                },
+                insert(t_refresh_tokens).values(
+                    token_hash=new_refresh_hash,
+                    client_id=client.client_id,
+                    scopes=" ".join(effective_scopes),
+                    access_jti=jti,
+                )
             )
 
         return OAuthToken(
@@ -305,10 +306,10 @@ class NeonOAuthProvider(OAuthProvider):
 
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text(
-                    "SELECT jti FROM access_tokens WHERE jti = :jti AND revoked = FALSE"
-                ),
-                {"jti": jti},
+                select(t_access_tokens.c.jti).where(
+                    (t_access_tokens.c.jti == jti)
+                    & (t_access_tokens.c.revoked.is_(False))
+                )
             )
             if row.fetchone() is None:
                 return None
@@ -336,33 +337,30 @@ class NeonOAuthProvider(OAuthProvider):
                     jti = payload.get("jti")
                     if jti:
                         await conn.execute(
-                            text(
-                                "UPDATE access_tokens SET revoked = TRUE "
-                                "WHERE jti = :jti"
-                            ),
-                            {"jti": jti},
+                            update(t_access_tokens)
+                            .where(t_access_tokens.c.jti == jti)
+                            .values(revoked=True)
                         )
                 except jwt.PyJWTError:
                     pass
             else:
                 token_hash = hash_token(token.token)
                 row = await conn.execute(
-                    text("SELECT access_jti FROM refresh_tokens WHERE token_hash = :h"),
-                    {"h": token_hash},
+                    select(t_refresh_tokens.c.access_jti).where(
+                        t_refresh_tokens.c.token_hash == token_hash
+                    )
                 )
                 record = row.fetchone()
                 if record and record[0]:
                     await conn.execute(
-                        text(
-                            "UPDATE access_tokens SET revoked = TRUE WHERE jti = :jti"
-                        ),
-                        {"jti": record[0]},
+                        update(t_access_tokens)
+                        .where(t_access_tokens.c.jti == record[0])
+                        .values(revoked=True)
                     )
                 await conn.execute(
-                    text(
-                        "UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = :h"
-                    ),
-                    {"h": token_hash},
+                    update(t_refresh_tokens)
+                    .where(t_refresh_tokens.c.token_hash == token_hash)
+                    .values(revoked=True)
                 )
 
     # ------------------------------------------------------------------
@@ -407,8 +405,9 @@ class NeonOAuthProvider(OAuthProvider):
         # Validate the OAuth request still exists and hasn't expired
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text("SELECT expires_at FROM auth_requests WHERE request_id = :rid"),
-                {"rid": request_id},
+                select(t_auth_requests.c.expires_at).where(
+                    t_auth_requests.c.request_id == request_id
+                )
             )
             rec = row.fetchone()
 
@@ -423,8 +422,9 @@ class NeonOAuthProvider(OAuthProvider):
         # Verify credentials
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text("SELECT id, hashed_password FROM users WHERE email = :email"),
-                {"email": email},
+                select(t_users.c.id, t_users.c.hashed_password).where(
+                    t_users.c.email == email
+                )
             )
             user_rec = row.fetchone()
 
@@ -440,17 +440,12 @@ class NeonOAuthProvider(OAuthProvider):
         session_expires = datetime.now(_UTC) + timedelta(seconds=_LOGIN_SESSION_TTL)
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO login_sessions "
-                    "(session_id, request_id, user_id, expires_at) "
-                    "VALUES (:sid, :rid, :uid, :exp)"
-                ),
-                {
-                    "sid": session_id,
-                    "rid": request_id,
-                    "uid": user_id,
-                    "exp": session_expires,
-                },
+                insert(t_login_sessions).values(
+                    session_id=session_id,
+                    request_id=request_id,
+                    user_id=user_id,
+                    expires_at=session_expires,
+                )
             )
 
         redirect = (
@@ -483,11 +478,11 @@ class NeonOAuthProvider(OAuthProvider):
         # Load and validate the login session
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text(
-                    "SELECT request_id, user_id, expires_at "
-                    "FROM login_sessions WHERE session_id = :sid"
-                ),
-                {"sid": session_id},
+                select(
+                    t_login_sessions.c.request_id,
+                    t_login_sessions.c.user_id,
+                    t_login_sessions.c.expires_at,
+                ).where(t_login_sessions.c.session_id == session_id)
             )
             sess = row.fetchone()
 
@@ -506,12 +501,15 @@ class NeonOAuthProvider(OAuthProvider):
         # Load the original OAuth request
         async with get_engine().connect() as conn:
             row = await conn.execute(
-                text(
-                    "SELECT client_id, code_challenge, redirect_uri, "
-                    "redirect_uri_provided_explicitly, scopes, state, resource "
-                    "FROM auth_requests WHERE request_id = :rid"
-                ),
-                {"rid": request_id},
+                select(
+                    t_auth_requests.c.client_id,
+                    t_auth_requests.c.code_challenge,
+                    t_auth_requests.c.redirect_uri,
+                    t_auth_requests.c.redirect_uri_provided_explicitly,
+                    t_auth_requests.c.scopes,
+                    t_auth_requests.c.state,
+                    t_auth_requests.c.resource,
+                ).where(t_auth_requests.c.request_id == request_id)
             )
             auth_req = row.fetchone()
 
@@ -531,15 +529,19 @@ class NeonOAuthProvider(OAuthProvider):
             return self._render_token_form(session_id, str(exc))
 
         # Persist the user's Substack credentials
+        stmt = pg_insert(t_user_credentials).values(
+            user_id=user_id, bearer=bearer, pub_url=pub_url
+        )
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO user_credentials (user_id, bearer, pub_url) "
-                    "VALUES (:uid, :bearer, :pub_url) "
-                    "ON CONFLICT (user_id) DO UPDATE "
-                    "SET bearer = :bearer, pub_url = :pub_url, updated_at = NOW()"
-                ),
-                {"uid": user_id, "bearer": bearer, "pub_url": pub_url},
+                stmt.on_conflict_do_update(
+                    index_elements=["user_id"],
+                    set_={
+                        "bearer": stmt.excluded.bearer,
+                        "pub_url": stmt.excluded.pub_url,
+                        "updated_at": func.now(),
+                    },
+                )
             )
 
         # Issue the auth code, embedding user_id for later JWT issuance
@@ -548,32 +550,28 @@ class NeonOAuthProvider(OAuthProvider):
 
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO auth_codes "
-                    "(code, client_id, redirect_uri, redirect_uri_provided_explicitly, "
-                    "scopes, expires_at, code_challenge, resource, user_id) "
-                    "VALUES (:code, :cid, :ruri, :ruri_ex, :scopes, :exp, :cc, :resource, :uid)"
-                ),
-                {
-                    "code": code,
-                    "cid": cid,
-                    "ruri": redirect_uri,
-                    "ruri_ex": ruri_ex,
-                    "scopes": scopes_str,
-                    "exp": exp,
-                    "cc": code_challenge,
-                    "resource": resource,
-                    "uid": user_id,
-                },
+                insert(t_auth_codes).values(
+                    code=code,
+                    client_id=cid,
+                    redirect_uri=redirect_uri,
+                    redirect_uri_provided_explicitly=ruri_ex,
+                    scopes=scopes_str,
+                    expires_at=exp,
+                    code_challenge=code_challenge,
+                    resource=resource,
+                    user_id=user_id,
+                )
             )
             # Clean up transient rows
             await conn.execute(
-                text("DELETE FROM login_sessions WHERE session_id = :sid"),
-                {"sid": session_id},
+                delete(t_login_sessions).where(
+                    t_login_sessions.c.session_id == session_id
+                )
             )
             await conn.execute(
-                text("DELETE FROM auth_requests WHERE request_id = :rid"),
-                {"rid": request_id},
+                delete(t_auth_requests).where(
+                    t_auth_requests.c.request_id == request_id
+                )
             )
 
         redirect_url = construct_redirect_uri(redirect_uri, code=code, state=state)

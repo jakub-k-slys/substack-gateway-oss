@@ -5,9 +5,9 @@ import logging
 import bcrypt
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import insert
 
-from gateway.oauth.db import get_engine, init_db
+from gateway.oauth.db import get_engine, init_db, t_users
 
 router = APIRouter(tags=["users"])
 
@@ -46,10 +46,10 @@ async def create_user(
     try:
         async with get_engine().begin() as conn:
             await conn.execute(
-                text(
-                    "INSERT INTO users (email, hashed_password) VALUES (:email, :hash)"
-                ),
-                {"email": body.email.strip().lower(), "hash": hashed},
+                insert(t_users).values(
+                    email=body.email.strip().lower(),
+                    hashed_password=hashed,
+                )
             )
     except Exception as exc:
         if "unique" in str(exc).lower():
