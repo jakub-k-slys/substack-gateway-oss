@@ -18,93 +18,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
 
-_CREATE_TABLES = [
-    """
-    CREATE TABLE IF NOT EXISTS users (
-        id              SERIAL PRIMARY KEY,
-        email           TEXT UNIQUE NOT NULL,
-        hashed_password TEXT NOT NULL,
-        created_at      TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS oauth_clients (
-        client_id   TEXT PRIMARY KEY,
-        client_data TEXT NOT NULL,
-        created_at  TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS auth_requests (
-        request_id                       TEXT PRIMARY KEY,
-        client_id                        TEXT NOT NULL,
-        code_challenge                   TEXT NOT NULL,
-        redirect_uri                     TEXT NOT NULL,
-        redirect_uri_provided_explicitly BOOLEAN NOT NULL,
-        scopes                           TEXT NOT NULL,
-        state                            TEXT,
-        resource                         TEXT,
-        expires_at                       TIMESTAMPTZ NOT NULL
-    )
-    """,
-    # login_sessions holds the intermediate state between phase-1 (email/password)
-    # and phase-2 (Substack bearer token) of the login flow.
-    """
-    CREATE TABLE IF NOT EXISTS login_sessions (
-        session_id  TEXT PRIMARY KEY,
-        request_id  TEXT NOT NULL,
-        user_id     INTEGER NOT NULL,
-        expires_at  TIMESTAMPTZ NOT NULL
-    )
-    """,
-    # user_credentials stores the Substack bearer token and publication URL
-    # that each user provides during phase-2 login.  These are used by the
-    # MCP tool dependencies instead of per-request HTTP headers.
-    """
-    CREATE TABLE IF NOT EXISTS user_credentials (
-        user_id     INTEGER PRIMARY KEY,
-        bearer      TEXT NOT NULL,
-        pub_url     TEXT NOT NULL,
-        updated_at  TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS auth_codes (
-        code                             TEXT PRIMARY KEY,
-        client_id                        TEXT NOT NULL,
-        redirect_uri                     TEXT NOT NULL,
-        redirect_uri_provided_explicitly BOOLEAN NOT NULL,
-        scopes                           TEXT NOT NULL,
-        expires_at                       DOUBLE PRECISION NOT NULL,
-        code_challenge                   TEXT NOT NULL,
-        resource                         TEXT,
-        user_id                          INTEGER,
-        created_at                       TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS access_tokens (
-        jti         TEXT PRIMARY KEY,
-        client_id   TEXT NOT NULL,
-        scopes      TEXT NOT NULL,
-        expires_at  INTEGER NOT NULL,
-        revoked     BOOLEAN DEFAULT FALSE,
-        created_at  TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-    """
-    CREATE TABLE IF NOT EXISTS refresh_tokens (
-        token_hash  TEXT PRIMARY KEY,
-        client_id   TEXT NOT NULL,
-        scopes      TEXT NOT NULL,
-        expires_at  INTEGER,
-        revoked     BOOLEAN DEFAULT FALSE,
-        access_jti  TEXT,
-        created_at  TIMESTAMPTZ DEFAULT NOW()
-    )
-    """,
-]
-
+# Migrations for columns added after initial deployment.
 _MIGRATIONS = [
     "ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS user_id INTEGER",
 ]
@@ -125,7 +39,9 @@ class DBUser(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
 
 
 class DBOAuthClient(Base):
@@ -133,7 +49,9 @@ class DBOAuthClient(Base):
 
     client_id: Mapped[str] = mapped_column(Text, primary_key=True)
     client_data: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
 
 
 class DBAuthRequest(Base):
@@ -188,7 +106,9 @@ class DBAuthCode(Base):
     code_challenge: Mapped[str] = mapped_column(Text, nullable=False)
     resource: Mapped[str | None] = mapped_column(Text)
     user_id: Mapped[int | None] = mapped_column(Integer)
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
 
 
 class DBAccessToken(Base):
@@ -201,7 +121,9 @@ class DBAccessToken(Base):
     revoked: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false", default=False
     )
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
 
 
 class DBRefreshToken(Base):
@@ -215,7 +137,9 @@ class DBRefreshToken(Base):
         Boolean, nullable=False, server_default="false", default=False
     )
     access_jti: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -260,8 +184,7 @@ async def init_db() -> None:
     if not settings.database_url:
         return
     async with get_engine().begin() as conn:
-        for stmt in _CREATE_TABLES:
-            await conn.execute(text(stmt))
+        await conn.run_sync(Base.metadata.create_all)
         for stmt in _MIGRATIONS:
             await conn.execute(text(stmt))
 
