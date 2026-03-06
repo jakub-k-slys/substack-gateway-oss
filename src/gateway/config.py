@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     gateway_key: str = "WW91IHNoYWxsIG5vdCBwYXNzCg=="
 
+    # OAuth 2.1 / Neon DB settings (all required for OAuth to be active)
+    base_url: str | None = None
+    database_url: str | None = None
+    jwt_secret: str | None = None
+
+    @property
+    def oauth_enabled(self) -> bool:
+        return bool(self.base_url and self.database_url and self.jwt_secret)
+
     @field_validator("substack_base_url")
     @classmethod
     def _validate_base_url(cls, v: str) -> str:
