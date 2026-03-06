@@ -30,3 +30,16 @@ Feature: MCP me and posts tools
     When I call the MCP tool get_post with post_id 987654
     Then the MCP result field "title" is "Sample Post Title"
     And the MCP result field "slug" is "sample-post-title"
+
+  Scenario: get_post_comments returns comments
+    Given a valid MCP token and publication URL "https://example.substack.com"
+    And the Substack comments endpoint returns the sample response for post 987654
+    When I call the MCP tool get_post_comments with post_id 987654
+    Then the MCP result field "items" is not null
+
+  Scenario: get_my_following returns following list
+    Given a valid MCP token and publication URL "https://example.substack.com"
+    And the Substack user-settings endpoint returns user id 254824415
+    And the Substack subscriber-lists endpoint returns the sample response for user 254824415
+    When I call the MCP tool get_my_following
+    Then the MCP result field "items" is not null

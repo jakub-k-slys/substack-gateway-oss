@@ -34,13 +34,19 @@ from gateway.mcp.app import (
     delete_note,
     get_draft,
     get_me,
+    get_my_following,
     get_my_notes,
     get_my_posts,
     get_note,
     get_post,
+    get_post_comments,
+    get_profile,
+    get_profile_notes,
+    get_profile_posts,
     list_drafts,
 )
 from gateway.services.drafts import DraftsService
+from gateway.services.following import FollowingService
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
@@ -207,6 +213,64 @@ def step_call_get_post(context, post_id):
     async def run():
         async with _clients(context) as (pub, sub):
             return await get_post(post_id=post_id, posts=PostsService(pub, sub))
+
+    _call(context, run())
+
+
+@when("I call the MCP tool get_post_comments with post_id {post_id:d}")
+def step_call_get_post_comments(context, post_id):
+    async def run():
+        async with _clients(context) as (pub, sub):
+            return await get_post_comments(post_id=post_id, posts=PostsService(pub, sub))
+
+    _call(context, run())
+
+
+@when("I call the MCP tool get_my_following")
+def step_call_get_my_following(context):
+    async def run():
+        async with _clients(context) as (pub, sub):
+            return await get_my_following(following=FollowingService(pub, sub))
+
+    _call(context, run())
+
+
+# ------------------------------------------------------------------
+# When — profiles
+# ------------------------------------------------------------------
+
+
+@when('I call the MCP tool get_profile with slug "{slug}"')
+def step_call_get_profile(context, slug):
+    async def run():
+        async with _clients(context) as (pub, sub):
+            return await get_profile(slug=slug, profiles=ProfilesService(sub))
+
+    _call(context, run())
+
+
+@when('I call the MCP tool get_profile_posts with slug "{slug}"')
+def step_call_get_profile_posts(context, slug):
+    async def run():
+        async with _clients(context) as (pub, sub):
+            return await get_profile_posts(
+                slug=slug,
+                profiles=ProfilesService(sub),
+                posts=PostsService(pub, sub),
+            )
+
+    _call(context, run())
+
+
+@when('I call the MCP tool get_profile_notes with slug "{slug}"')
+def step_call_get_profile_notes(context, slug):
+    async def run():
+        async with _clients(context) as (pub, sub):
+            return await get_profile_notes(
+                slug=slug,
+                profiles=ProfilesService(sub),
+                posts=PostsService(pub, sub),
+            )
 
     _call(context, run())
 
