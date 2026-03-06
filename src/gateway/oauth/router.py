@@ -4,8 +4,11 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from starlette.responses import Response
 
+from gateway.mcp.app import oauth_provider
 from gateway.oauth.login import process_login, process_token_form
 from gateway.oauth.templates import render_login, render_token_form
+
+well_known_routes = oauth_provider.get_well_known_routes() if oauth_provider is not None else []
 
 _router = APIRouter(tags=["oauth"])
 
