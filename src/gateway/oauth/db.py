@@ -6,7 +6,7 @@ import secrets
 from collections.abc import AsyncIterator
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Double, Integer, NullPool, Text, text
+from sqlalchemy import Boolean, DateTime, Double, Integer, NullPool, Text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -17,11 +17,6 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
-
-# Migrations for columns added after initial deployment.
-_MIGRATIONS = [
-    "ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS user_id INTEGER",
-]
 
 
 # ---------------------------------------------------------------------------
@@ -185,8 +180,6 @@ async def init_db() -> None:
         return
     async with get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        for stmt in _MIGRATIONS:
-            await conn.execute(text(stmt))
 
 
 # ---------------------------------------------------------------------------
