@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Wait for deployment
         if: github.event_name == 'push'
-        run: sleep 120
+        run: sleep 60
 
       - uses: actions/checkout@v4
 
