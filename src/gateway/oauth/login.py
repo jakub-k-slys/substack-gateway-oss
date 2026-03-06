@@ -48,7 +48,9 @@ async def process_login(request: Request, token_form_url: str) -> Response:
             return render_login(request_id, "Session expired. Please try again.")
 
         user = await uow.users.get_by_email(email)
-        if user is None or not bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
+        if user is None or not bcrypt.checkpw(
+            password.encode(), user.hashed_password.encode()
+        ):
             return render_login(request_id, "Invalid email or password.")
 
         session_id = str(uuid.uuid4())
@@ -90,7 +92,9 @@ async def process_token_form(request: Request) -> Response:
 
         auth_req = await uow.auth_requests.get(login_sess.request_id)
         if auth_req is None:
-            return render_token_form(session_id, "OAuth session expired. Please start over.")
+            return render_token_form(
+                session_id, "OAuth session expired. Please start over."
+            )
 
         bearer = _encode_bearer(substack_sid, connect_sid)
         try:

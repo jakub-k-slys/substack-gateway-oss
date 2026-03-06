@@ -18,7 +18,9 @@ if settings.oauth_enabled:
         login_base_url=settings.base_url,
     )
 
-well_known_routes = oauth_provider.get_well_known_routes() if oauth_provider is not None else []
+well_known_routes = (
+    oauth_provider.get_well_known_routes() if oauth_provider is not None else []
+)
 
 _router = APIRouter(tags=["oauth"])
 

@@ -195,7 +195,9 @@ class NeonOAuthProvider(OAuthProvider):
             if old_jti:
                 await uow.access_tokens.revoke(old_jti)
 
-            access_token_str, jti, exp = self._issue_jwt(client.client_id, effective_scopes)
+            access_token_str, jti, exp = self._issue_jwt(
+                client.client_id, effective_scopes
+            )
             await uow.access_tokens.save(
                 DBAccessToken(
                     jti=jti,

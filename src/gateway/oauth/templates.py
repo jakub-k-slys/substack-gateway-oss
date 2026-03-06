@@ -197,7 +197,9 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                         required=True,
                         placeholder="https://yourname.substack.com",
                     ),
-                    p(class_="hint")["Your Substack publication URL (no trailing slash)"],
+                    p(class_="hint")[
+                        "Your Substack publication URL (no trailing slash)"
+                    ],
                     button(type="submit")["Authorize"],
                 ],
             ],

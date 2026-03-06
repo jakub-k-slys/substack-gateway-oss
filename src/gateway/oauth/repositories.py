@@ -130,7 +130,9 @@ class AuthCodeRepository:
     async def consume(self, code: str) -> int | None:
         """Atomically delete the code and return its user_id, or None if already used."""
         result = await self._s.execute(
-            delete(DBAuthCode).where(DBAuthCode.code == code).returning(DBAuthCode.user_id)
+            delete(DBAuthCode)
+            .where(DBAuthCode.code == code)
+            .returning(DBAuthCode.user_id)
         )
         row = result.fetchone()
         return row[0] if row is not None else None
@@ -159,7 +161,9 @@ class RefreshTokenRepository:
     async def get(self, token_hash: str) -> DBRefreshToken | None:
         return await self._s.get(DBRefreshToken, token_hash)
 
-    async def get_active(self, token_hash: str, client_id: str) -> DBRefreshToken | None:
+    async def get_active(
+        self, token_hash: str, client_id: str
+    ) -> DBRefreshToken | None:
         result = await self._s.execute(
             select(DBRefreshToken).where(
                 (DBRefreshToken.token_hash == token_hash)
