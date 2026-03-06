@@ -7,6 +7,8 @@ SQLAlchemy directly.
 
 from __future__ import annotations
 
+import types
+
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -203,5 +205,10 @@ class UnitOfWork:
         self.refresh_tokens = RefreshTokenRepository(session)
         return self
 
-    async def __aexit__(self, *args: object) -> bool | None:
-        return await self._cm.__aexit__(*args)
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> bool | None:
+        return await self._cm.__aexit__(exc_type, exc_val, exc_tb)

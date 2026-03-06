@@ -57,6 +57,8 @@ class NeonOAuthProvider(OAuthProvider):
         return OAuthClientInformationFull.model_validate_json(record.client_data)
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
+        if not client_info.client_id:
+            return
         async with UnitOfWork() as uow:
             await uow.oauth_clients.upsert(
                 client_info.client_id, client_info.model_dump_json()
@@ -86,6 +88,8 @@ class NeonOAuthProvider(OAuthProvider):
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str
     ) -> AuthorizationCode | None:
+        if not client.client_id:
+            return None
         async with UnitOfWork() as uow:
             record = await uow.auth_codes.get(authorization_code, client.client_id)
         if record is None:
@@ -150,6 +154,8 @@ class NeonOAuthProvider(OAuthProvider):
     async def load_refresh_token(
         self, client: OAuthClientInformationFull, refresh_token: str
     ) -> RefreshToken | None:
+        if not client.client_id:
+            return None
         token_hash = hash_token(refresh_token)
         async with UnitOfWork() as uow:
             record = await uow.refresh_tokens.get_active(token_hash, client.client_id)

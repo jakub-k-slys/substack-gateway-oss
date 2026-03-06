@@ -44,6 +44,7 @@ oauth_provider = None
 if settings.oauth_enabled:
     from gateway.oauth.provider import NeonOAuthProvider
 
+    assert settings.base_url, "BASE_URL must be set when OAuth is enabled"
     oauth_provider = NeonOAuthProvider(
         base_url=f"{settings.base_url}/mcp",
         login_base_url=settings.base_url,
