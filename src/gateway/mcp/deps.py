@@ -6,7 +6,8 @@ from collections.abc import AsyncIterator
 
 from fastmcp.dependencies import Depends
 from fastmcp.exceptions import ToolError
-from fastmcp.server.dependencies import CurrentRequest
+from fastmcp.server.dependencies import CurrentRequest, get_access_token
+from sqlalchemy import text
 from starlette.requests import Request
 
 from gateway.auth import (
@@ -43,7 +44,28 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
         raise ToolError(f"Invalid Authorization header: {exc}") from exc
 
 
+async def _load_user_creds(user_id: int) -> tuple[str, str] | None:
+    """Return (bearer_b64, pub_url) from user_credentials, or None."""
+    from gateway.oauth.db import get_engine
+
+    async with get_engine().connect() as conn:
+        row = await conn.execute(
+            text("SELECT bearer, pub_url FROM user_credentials WHERE user_id = :uid"),
+            {"uid": user_id},
+        )
+        rec = row.fetchone()
+    return (rec[0], rec[1]) if rec is not None else None
+
+
 async def get_credentials(request: Request = CurrentRequest()) -> BearerCredentials:
+    token = get_access_token()
+    if token is not None:
+        user_id = (token.claims or {}).get("user_id")
+        if user_id is not None:
+            creds = await _load_user_creds(int(user_id))
+            if creds is not None:
+                bearer_b64, _pub_url = creds
+                return decode_bearer_credentials(bearer_b64)
     return _decode_bearer(request.headers.get("authorization", ""))
 
 
@@ -52,6 +74,17 @@ async def get_publication_client(
     credentials: BearerCredentials = Depends(get_credentials),
     request: Request = CurrentRequest(),
 ) -> AsyncIterator[PublicationClient]:
+    token = get_access_token()
+    if token is not None:
+        user_id = (token.claims or {}).get("user_id")
+        if user_id is not None:
+            creds = await _load_user_creds(int(user_id))
+            if creds is not None:
+                _bearer_b64, pub_url = creds
+                _log.debug("Creating PublicationClient for publication: %s", pub_url)
+                async with make_publication_client(credentials, pub_url) as pub:
+                    yield pub
+                return
     publication_url = request.headers.get("x-publication-url", "")
     if not publication_url:
         raise ToolError(f"Missing x-publication-url header. {_HEADER_HINT}")

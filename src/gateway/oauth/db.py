@@ -2,13 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import secrets
-from typing import TYPE_CHECKING
 
 from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-
-if TYPE_CHECKING:
-    pass
 
 _engine: AsyncEngine | None = None
 
@@ -41,6 +37,27 @@ _CREATE_TABLES = [
         expires_at                       TIMESTAMPTZ NOT NULL
     )
     """,
+    # login_sessions holds the intermediate state between phase-1 (email/password)
+    # and phase-2 (Substack bearer token) of the login flow.
+    """
+    CREATE TABLE IF NOT EXISTS login_sessions (
+        session_id  TEXT PRIMARY KEY,
+        request_id  TEXT NOT NULL,
+        user_id     INTEGER NOT NULL,
+        expires_at  TIMESTAMPTZ NOT NULL
+    )
+    """,
+    # user_credentials stores the Substack bearer token and publication URL
+    # that each user provides during phase-2 login.  These are used by the
+    # MCP tool dependencies instead of per-request HTTP headers.
+    """
+    CREATE TABLE IF NOT EXISTS user_credentials (
+        user_id     INTEGER PRIMARY KEY,
+        bearer      TEXT NOT NULL,
+        pub_url     TEXT NOT NULL,
+        updated_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+    """,
     """
     CREATE TABLE IF NOT EXISTS auth_codes (
         code                             TEXT PRIMARY KEY,
@@ -51,6 +68,7 @@ _CREATE_TABLES = [
         expires_at                       DOUBLE PRECISION NOT NULL,
         code_challenge                   TEXT NOT NULL,
         resource                         TEXT,
+        user_id                          INTEGER,
         created_at                       TIMESTAMPTZ DEFAULT NOW()
     )
     """,
@@ -77,6 +95,12 @@ _CREATE_TABLES = [
     """,
 ]
 
+# Migration: add columns that are new in this version but may be absent on
+# existing deployments (CREATE TABLE IF NOT EXISTS won't add them).
+_MIGRATIONS = [
+    "ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS user_id INTEGER",
+]
+
 
 def get_engine() -> AsyncEngine:
     global _engine
@@ -90,13 +114,15 @@ def get_engine() -> AsyncEngine:
 
 
 async def init_db() -> None:
-    """Create all tables if they don't exist. Idempotent."""
+    """Create all tables and run migrations. Idempotent."""
     from gateway.config import settings
 
     if not settings.database_url:
         return
     async with get_engine().begin() as conn:
         for stmt in _CREATE_TABLES:
+            await conn.execute(text(stmt))
+        for stmt in _MIGRATIONS:
             await conn.execute(text(stmt))
 
 
