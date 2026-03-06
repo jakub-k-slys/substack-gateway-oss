@@ -19,7 +19,8 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from gateway.oauth.provider import NeonOAuthProvider, _encode_bearer, _validate_bearer
+from gateway.oauth.bearer import _encode_bearer, _validate_bearer
+from gateway.oauth.provider import NeonOAuthProvider
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -40,7 +41,8 @@ def login_client(provider):
     """Minimal Starlette app exposing only the /login and /login/token routes."""
     all_routes = provider.get_routes()
     routes = [
-        r for r in all_routes
+        r
+        for r in all_routes
         if isinstance(r, Route) and r.path in ("/login", "/login/token")
     ]
     app = Starlette(routes=routes)
@@ -229,9 +231,7 @@ class TestTokenForm:
         assert "All fields are required" in response.text
 
     def test_xss_in_session_id_is_escaped(self, login_client):
-        response = login_client.get(
-            "/login/token?session_id=<script>alert(1)</script>"
-        )
+        response = login_client.get("/login/token?session_id=<script>alert(1)</script>")
         assert "<script>" not in response.text
 
 
@@ -276,9 +276,9 @@ class TestCreateUserEndpoint:
 
     def test_create_user_with_mocked_db(self, monkeypatch):
         """201 path with all DB calls mocked out."""
+        import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        import importlib
         users_mod = importlib.import_module("gateway.api.v1.users")
         from gateway.config import settings
 
@@ -305,9 +305,9 @@ class TestCreateUserEndpoint:
 
     def test_duplicate_email_returns_409(self, monkeypatch):
         """409 when the DB raises a unique constraint violation."""
+        import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        import importlib
         users_mod = importlib.import_module("gateway.api.v1.users")
         from gateway.config import settings
 

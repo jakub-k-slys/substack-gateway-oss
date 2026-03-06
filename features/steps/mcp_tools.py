@@ -221,7 +221,9 @@ def step_call_get_post(context, post_id):
 def step_call_get_post_comments(context, post_id):
     async def run():
         async with _clients(context) as (pub, sub):
-            return await get_post_comments(post_id=post_id, posts=PostsService(pub, sub))
+            return await get_post_comments(
+                post_id=post_id, posts=PostsService(pub, sub)
+            )
 
     _call(context, run())
 

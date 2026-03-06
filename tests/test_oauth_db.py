@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import hashlib
 
-import pytest
-
 from gateway.oauth.db import generate_opaque_token, hash_token
 
 
@@ -34,7 +32,10 @@ class TestGenerateOpaqueToken:
     def test_is_url_safe(self):
         token = generate_opaque_token()
         # url_safe base64 uses only A-Z a-z 0-9 - _
-        assert all(c in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for c in token)
+        assert all(
+            c in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+            for c in token
+        )
 
     def test_has_sufficient_entropy(self):
         # 48 bytes → ≥64 base64 chars
