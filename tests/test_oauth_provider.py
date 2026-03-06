@@ -276,21 +276,23 @@ class TestCreateUserEndpoint:
 
     def test_create_user_with_mocked_db(self, monkeypatch):
         """201 path with all DB calls mocked out."""
+        import contextlib
         import importlib
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import AsyncMock
 
         users_mod = importlib.import_module("gateway.api.v1.users")
         from gateway.config import settings
 
-        mock_conn = AsyncMock()
-        mock_engine = MagicMock()
-        mock_engine.begin.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_engine.begin.return_value.__aexit__ = AsyncMock(return_value=False)
+        mock_session = AsyncMock()
+
+        @contextlib.asynccontextmanager
+        async def mock_get_session():
+            yield mock_session
 
         monkeypatch.setattr(settings, "database_url", "postgresql+asyncpg://fake")
         monkeypatch.setattr(settings, "base_url", "http://localhost")
         monkeypatch.setattr(settings, "jwt_secret", "test-secret")
-        monkeypatch.setattr(users_mod, "get_engine", lambda: mock_engine)
+        monkeypatch.setattr(users_mod, "get_session", mock_get_session)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 
         from main import app
@@ -305,22 +307,22 @@ class TestCreateUserEndpoint:
 
     def test_duplicate_email_returns_409(self, monkeypatch):
         """409 when the DB raises a unique constraint violation."""
+        import contextlib
         import importlib
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import AsyncMock
 
         users_mod = importlib.import_module("gateway.api.v1.users")
         from gateway.config import settings
 
-        mock_conn = AsyncMock()
-        mock_conn.execute.side_effect = Exception("unique constraint violation")
-        mock_engine = MagicMock()
-        mock_engine.begin.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_engine.begin.return_value.__aexit__ = AsyncMock(return_value=False)
+        @contextlib.asynccontextmanager
+        async def mock_failing_session():
+            yield AsyncMock()
+            raise Exception("unique constraint violation")
 
         monkeypatch.setattr(settings, "database_url", "postgresql+asyncpg://fake")
         monkeypatch.setattr(settings, "base_url", "http://localhost")
         monkeypatch.setattr(settings, "jwt_secret", "test-secret")
-        monkeypatch.setattr(users_mod, "get_engine", lambda: mock_engine)
+        monkeypatch.setattr(users_mod, "get_session", mock_failing_session)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 
         from main import app

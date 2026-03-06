@@ -1,23 +1,22 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import secrets
+from collections.abc import AsyncIterator
+from datetime import datetime
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Double,
-    Integer,
-    MetaData,
-    NullPool,
-    Table,
-    Text,
-    text,
+from sqlalchemy import Boolean, DateTime, Double, Integer, NullPool, Text, text
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 _engine: AsyncEngine | None = None
+_session_factory: async_sessionmaker[AsyncSession] | None = None
 
 _CREATE_TABLES = [
     """
@@ -106,104 +105,122 @@ _CREATE_TABLES = [
     """,
 ]
 
-# Migration: add columns that are new in this version but may be absent on
-# existing deployments (CREATE TABLE IF NOT EXISTS won't add them).
 _MIGRATIONS = [
     "ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS user_id INTEGER",
 ]
 
+
 # ---------------------------------------------------------------------------
-# SQLAlchemy table definitions (used for typed DML expressions)
+# ORM models
 # ---------------------------------------------------------------------------
 
-metadata = MetaData()
 
-t_users = Table(
-    "users",
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("email", Text, unique=True, nullable=False),
-    Column("hashed_password", Text, nullable=False),
-    Column("created_at", DateTime(timezone=True)),
-)
+class Base(DeclarativeBase):
+    pass
 
-t_oauth_clients = Table(
-    "oauth_clients",
-    metadata,
-    Column("client_id", Text, primary_key=True),
-    Column("client_data", Text, nullable=False),
-    Column("created_at", DateTime(timezone=True)),
-)
 
-t_auth_requests = Table(
-    "auth_requests",
-    metadata,
-    Column("request_id", Text, primary_key=True),
-    Column("client_id", Text, nullable=False),
-    Column("code_challenge", Text, nullable=False),
-    Column("redirect_uri", Text, nullable=False),
-    Column("redirect_uri_provided_explicitly", Boolean, nullable=False),
-    Column("scopes", Text, nullable=False),
-    Column("state", Text),
-    Column("resource", Text),
-    Column("expires_at", DateTime(timezone=True), nullable=False),
-)
+class DBUser(Base):
+    __tablename__ = "users"
 
-t_login_sessions = Table(
-    "login_sessions",
-    metadata,
-    Column("session_id", Text, primary_key=True),
-    Column("request_id", Text, nullable=False),
-    Column("user_id", Integer, nullable=False),
-    Column("expires_at", DateTime(timezone=True), nullable=False),
-)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-t_user_credentials = Table(
-    "user_credentials",
-    metadata,
-    Column("user_id", Integer, primary_key=True),
-    Column("bearer", Text, nullable=False),
-    Column("pub_url", Text, nullable=False),
-    Column("updated_at", DateTime(timezone=True)),
-)
 
-t_auth_codes = Table(
-    "auth_codes",
-    metadata,
-    Column("code", Text, primary_key=True),
-    Column("client_id", Text, nullable=False),
-    Column("redirect_uri", Text, nullable=False),
-    Column("redirect_uri_provided_explicitly", Boolean, nullable=False),
-    Column("scopes", Text, nullable=False),
-    Column("expires_at", Double, nullable=False),
-    Column("code_challenge", Text, nullable=False),
-    Column("resource", Text),
-    Column("user_id", Integer),
-    Column("created_at", DateTime(timezone=True)),
-)
+class DBOAuthClient(Base):
+    __tablename__ = "oauth_clients"
 
-t_access_tokens = Table(
-    "access_tokens",
-    metadata,
-    Column("jti", Text, primary_key=True),
-    Column("client_id", Text, nullable=False),
-    Column("scopes", Text, nullable=False),
-    Column("expires_at", Integer, nullable=False),
-    Column("revoked", Boolean),
-    Column("created_at", DateTime(timezone=True)),
-)
+    client_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    client_data: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-t_refresh_tokens = Table(
-    "refresh_tokens",
-    metadata,
-    Column("token_hash", Text, primary_key=True),
-    Column("client_id", Text, nullable=False),
-    Column("scopes", Text, nullable=False),
-    Column("expires_at", Integer),
-    Column("revoked", Boolean),
-    Column("access_jti", Text),
-    Column("created_at", DateTime(timezone=True)),
-)
+
+class DBAuthRequest(Base):
+    __tablename__ = "auth_requests"
+
+    request_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    client_id: Mapped[str] = mapped_column(Text, nullable=False)
+    code_challenge: Mapped[str] = mapped_column(Text, nullable=False)
+    redirect_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    redirect_uri_provided_explicitly: Mapped[bool] = mapped_column(
+        Boolean, nullable=False
+    )
+    scopes: Mapped[str] = mapped_column(Text, nullable=False)
+    state: Mapped[str | None] = mapped_column(Text)
+    resource: Mapped[str | None] = mapped_column(Text)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+
+
+class DBLoginSession(Base):
+    __tablename__ = "login_sessions"
+
+    session_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    request_id: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+
+
+class DBUserCredential(Base):
+    __tablename__ = "user_credentials"
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    bearer: Mapped[str] = mapped_column(Text, nullable=False)
+    pub_url: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DBAuthCode(Base):
+    __tablename__ = "auth_codes"
+
+    code: Mapped[str] = mapped_column(Text, primary_key=True)
+    client_id: Mapped[str] = mapped_column(Text, nullable=False)
+    redirect_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    redirect_uri_provided_explicitly: Mapped[bool] = mapped_column(
+        Boolean, nullable=False
+    )
+    scopes: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[float] = mapped_column(Double, nullable=False)
+    code_challenge: Mapped[str] = mapped_column(Text, nullable=False)
+    resource: Mapped[str | None] = mapped_column(Text)
+    user_id: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DBAccessToken(Base):
+    __tablename__ = "access_tokens"
+
+    jti: Mapped[str] = mapped_column(Text, primary_key=True)
+    client_id: Mapped[str] = mapped_column(Text, nullable=False)
+    scopes: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[int] = mapped_column(Integer, nullable=False)
+    revoked: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false", default=False
+    )
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DBRefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    token_hash: Mapped[str] = mapped_column(Text, primary_key=True)
+    client_id: Mapped[str] = mapped_column(Text, nullable=False)
+    scopes: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[int | None] = mapped_column(Integer)
+    revoked: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false", default=False
+    )
+    access_jti: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# ---------------------------------------------------------------------------
+# Engine and session
+# ---------------------------------------------------------------------------
 
 
 def get_engine() -> AsyncEngine:
@@ -217,6 +234,25 @@ def get_engine() -> AsyncEngine:
     return _engine
 
 
+def _get_session_factory() -> async_sessionmaker[AsyncSession]:
+    global _session_factory
+    if _session_factory is None:
+        _session_factory = async_sessionmaker(get_engine(), expire_on_commit=False)
+    return _session_factory
+
+
+@contextlib.asynccontextmanager
+async def get_session() -> AsyncIterator[AsyncSession]:
+    """Yield an ORM session that auto-commits on success and rolls back on error."""
+    async with _get_session_factory().begin() as session:
+        yield session
+
+
+# ---------------------------------------------------------------------------
+# Schema management
+# ---------------------------------------------------------------------------
+
+
 async def init_db() -> None:
     """Create all tables and run migrations. Idempotent."""
     from gateway.config import settings
@@ -228,6 +264,11 @@ async def init_db() -> None:
             await conn.execute(text(stmt))
         for stmt in _MIGRATIONS:
             await conn.execute(text(stmt))
+
+
+# ---------------------------------------------------------------------------
+# Token helpers
+# ---------------------------------------------------------------------------
 
 
 def hash_token(token: str) -> str:

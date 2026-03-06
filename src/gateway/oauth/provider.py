@@ -18,20 +18,20 @@ from mcp.server.auth.provider import (
 from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from starlette.routing import Route
 
 from gateway.oauth.bearer import _RefreshTokenWithJti
 from gateway.oauth.db import (
+    DBAccessToken,
+    DBAuthCode,
+    DBAuthRequest,
+    DBOAuthClient,
+    DBRefreshToken,
     generate_opaque_token,
-    get_engine,
+    get_session,
     hash_token,
-    t_access_tokens,
-    t_auth_codes,
-    t_auth_requests,
-    t_oauth_clients,
-    t_refresh_tokens,
 )
 from gateway.oauth.login import handle_login, handle_token_form
 
@@ -56,24 +56,19 @@ class NeonOAuthProvider(OAuthProvider):
     # ------------------------------------------------------------------
 
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
-        async with get_engine().connect() as conn:
-            row = await conn.execute(
-                select(t_oauth_clients.c.client_data).where(
-                    t_oauth_clients.c.client_id == client_id
-                )
-            )
-            record = row.fetchone()
+        async with get_session() as session:
+            record = await session.get(DBOAuthClient, client_id)
         if record is None:
             return None
-        return OAuthClientInformationFull.model_validate_json(record[0])
+        return OAuthClientInformationFull.model_validate_json(record.client_data)
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
-        stmt = pg_insert(t_oauth_clients).values(
+        stmt = pg_insert(DBOAuthClient).values(
             client_id=client_info.client_id,
             client_data=client_info.model_dump_json(),
         )
-        async with get_engine().begin() as conn:
-            await conn.execute(
+        async with get_session() as session:
+            await session.execute(
                 stmt.on_conflict_do_update(
                     index_elements=["client_id"],
                     set_={"client_data": stmt.excluded.client_data},
@@ -85,16 +80,15 @@ class NeonOAuthProvider(OAuthProvider):
     ) -> str:
         request_id = str(uuid.uuid4())
         expires_at = datetime.now(_UTC) + timedelta(seconds=_AUTH_REQUEST_TTL)
-        scopes_str = " ".join(params.scopes or [])
-        async with get_engine().begin() as conn:
-            await conn.execute(
-                insert(t_auth_requests).values(
+        async with get_session() as session:
+            session.add(
+                DBAuthRequest(
                     request_id=request_id,
                     client_id=client.client_id,
                     code_challenge=params.code_challenge,
                     redirect_uri=str(params.redirect_uri),
                     redirect_uri_provided_explicitly=params.redirect_uri_provided_explicitly,
-                    scopes=scopes_str,
+                    scopes=" ".join(params.scopes or []),
                     state=params.state,
                     resource=params.resource,
                     expires_at=expires_at,
@@ -105,37 +99,27 @@ class NeonOAuthProvider(OAuthProvider):
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str
     ) -> AuthorizationCode | None:
-        async with get_engine().connect() as conn:
-            row = await conn.execute(
-                select(
-                    t_auth_codes.c.code,
-                    t_auth_codes.c.client_id,
-                    t_auth_codes.c.redirect_uri,
-                    t_auth_codes.c.redirect_uri_provided_explicitly,
-                    t_auth_codes.c.scopes,
-                    t_auth_codes.c.expires_at,
-                    t_auth_codes.c.code_challenge,
-                    t_auth_codes.c.resource,
-                ).where(
-                    (t_auth_codes.c.code == authorization_code)
-                    & (t_auth_codes.c.client_id == client.client_id)
+        async with get_session() as session:
+            result = await session.execute(
+                select(DBAuthCode).where(
+                    (DBAuthCode.code == authorization_code)
+                    & (DBAuthCode.client_id == client.client_id)
                 )
             )
-            record = row.fetchone()
+            record = result.scalar_one_or_none()
         if record is None:
             return None
-        code, cid, ruri, ruri_ex, scopes_str, expires_at, challenge, resource = record
-        if expires_at < time.time():
+        if record.expires_at < time.time():
             return None
         return AuthorizationCode(
-            code=code,
-            client_id=cid,
-            redirect_uri=AnyHttpUrl(ruri),
-            redirect_uri_provided_explicitly=ruri_ex,
-            scopes=(scopes_str.split() if scopes_str else []),
-            expires_at=expires_at,
-            code_challenge=challenge,
-            resource=resource,
+            code=record.code,
+            client_id=record.client_id,
+            redirect_uri=AnyHttpUrl(record.redirect_uri),
+            redirect_uri_provided_explicitly=record.redirect_uri_provided_explicitly,
+            scopes=record.scopes.split() if record.scopes else [],
+            expires_at=record.expires_at,
+            code_challenge=record.code_challenge,
+            resource=record.resource,
         )
 
     async def exchange_authorization_code(
@@ -146,34 +130,33 @@ class NeonOAuthProvider(OAuthProvider):
         if not client.client_id:
             raise TokenError("invalid_client", "Client ID is required.")
 
-        async with get_engine().begin() as conn:
-            deleted = await conn.execute(
-                delete(t_auth_codes)
-                .where(t_auth_codes.c.code == authorization_code.code)
-                .returning(t_auth_codes.c.code, t_auth_codes.c.user_id)
+        refresh_token_str = generate_opaque_token()
+        refresh_hash = hash_token(refresh_token_str)
+
+        async with get_session() as session:
+            deleted = await session.execute(
+                delete(DBAuthCode)
+                .where(DBAuthCode.code == authorization_code.code)
+                .returning(DBAuthCode.user_id)
             )
             row = deleted.fetchone()
             if row is None:
                 raise TokenError("invalid_grant", "Authorization code already used.")
-            user_id: int | None = row[1]
+            user_id: int | None = row[0]
 
-        access_token_str, jti, exp = self._issue_jwt(
-            client.client_id, authorization_code.scopes, user_id
-        )
-        refresh_token_str = generate_opaque_token()
-        refresh_hash = hash_token(refresh_token_str)
-
-        async with get_engine().begin() as conn:
-            await conn.execute(
-                insert(t_access_tokens).values(
+            access_token_str, jti, exp = self._issue_jwt(
+                client.client_id, authorization_code.scopes, user_id
+            )
+            session.add(
+                DBAccessToken(
                     jti=jti,
                     client_id=client.client_id,
                     scopes=" ".join(authorization_code.scopes),
                     expires_at=exp,
                 )
             )
-            await conn.execute(
-                insert(t_refresh_tokens).values(
+            session.add(
+                DBRefreshToken(
                     token_hash=refresh_hash,
                     client_id=client.client_id,
                     scopes=" ".join(authorization_code.scopes),
@@ -193,31 +176,25 @@ class NeonOAuthProvider(OAuthProvider):
         self, client: OAuthClientInformationFull, refresh_token: str
     ) -> RefreshToken | None:
         token_hash = hash_token(refresh_token)
-        async with get_engine().connect() as conn:
-            row = await conn.execute(
-                select(
-                    t_refresh_tokens.c.client_id,
-                    t_refresh_tokens.c.scopes,
-                    t_refresh_tokens.c.expires_at,
-                    t_refresh_tokens.c.access_jti,
-                ).where(
-                    (t_refresh_tokens.c.token_hash == token_hash)
-                    & (t_refresh_tokens.c.client_id == client.client_id)
-                    & (t_refresh_tokens.c.revoked.is_(False))
+        async with get_session() as session:
+            result = await session.execute(
+                select(DBRefreshToken).where(
+                    (DBRefreshToken.token_hash == token_hash)
+                    & (DBRefreshToken.client_id == client.client_id)
+                    & (DBRefreshToken.revoked.is_(False))
                 )
             )
-            record = row.fetchone()
+            record = result.scalar_one_or_none()
         if record is None:
             return None
-        cid, scopes_str, expires_at, access_jti = record
-        if expires_at is not None and expires_at < time.time():
+        if record.expires_at is not None and record.expires_at < time.time():
             return None
         return _RefreshTokenWithJti(
             token=refresh_token,
-            client_id=cid,
-            scopes=(scopes_str.split() if scopes_str else []),
-            expires_at=expires_at,
-            access_jti=access_jti,
+            client_id=record.client_id,
+            scopes=record.scopes.split() if record.scopes else [],
+            expires_at=record.expires_at,
+            access_jti=record.access_jti,
         )
 
     async def exchange_refresh_token(
@@ -236,35 +213,34 @@ class NeonOAuthProvider(OAuthProvider):
 
         old_hash = hash_token(refresh_token.token)
         old_jti = getattr(refresh_token, "access_jti", None)
-
-        async with get_engine().begin() as conn:
-            await conn.execute(
-                update(t_refresh_tokens)
-                .where(t_refresh_tokens.c.token_hash == old_hash)
-                .values(revoked=True)
-            )
-            if old_jti:
-                await conn.execute(
-                    update(t_access_tokens)
-                    .where(t_access_tokens.c.jti == old_jti)
-                    .values(revoked=True)
-                )
-
-        access_token_str, jti, exp = self._issue_jwt(client.client_id, effective_scopes)
         new_refresh_str = generate_opaque_token()
         new_refresh_hash = hash_token(new_refresh_str)
 
-        async with get_engine().begin() as conn:
-            await conn.execute(
-                insert(t_access_tokens).values(
+        async with get_session() as session:
+            await session.execute(
+                update(DBRefreshToken)
+                .where(DBRefreshToken.token_hash == old_hash)
+                .values(revoked=True)
+            )
+            if old_jti:
+                await session.execute(
+                    update(DBAccessToken)
+                    .where(DBAccessToken.jti == old_jti)
+                    .values(revoked=True)
+                )
+            access_token_str, jti, exp = self._issue_jwt(
+                client.client_id, effective_scopes
+            )
+            session.add(
+                DBAccessToken(
                     jti=jti,
                     client_id=client.client_id,
                     scopes=" ".join(effective_scopes),
                     expires_at=exp,
                 )
             )
-            await conn.execute(
-                insert(t_refresh_tokens).values(
+            session.add(
+                DBRefreshToken(
                     token_hash=new_refresh_hash,
                     client_id=client.client_id,
                     scopes=" ".join(effective_scopes),
@@ -294,15 +270,10 @@ class NeonOAuthProvider(OAuthProvider):
         if not jti:
             return None
 
-        async with get_engine().connect() as conn:
-            row = await conn.execute(
-                select(t_access_tokens.c.jti).where(
-                    (t_access_tokens.c.jti == jti)
-                    & (t_access_tokens.c.revoked.is_(False))
-                )
-            )
-            if row.fetchone() is None:
-                return None
+        async with get_session() as session:
+            record = await session.get(DBAccessToken, jti)
+        if record is None or record.revoked:
+            return None
 
         scope_str = payload.get("scope", "")
         return AccessToken(
@@ -314,44 +285,34 @@ class NeonOAuthProvider(OAuthProvider):
         )
 
     async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
-        async with get_engine().begin() as conn:
-            if isinstance(token, AccessToken):
-                from gateway.config import settings
+        if isinstance(token, AccessToken):
+            from gateway.config import settings
 
-                if not settings.jwt_secret:
-                    return
-                try:
-                    payload = jwt.decode(
-                        token.token, settings.jwt_secret, algorithms=["HS256"]
-                    )
-                    jti = payload.get("jti")
-                    if jti:
-                        await conn.execute(
-                            update(t_access_tokens)
-                            .where(t_access_tokens.c.jti == jti)
-                            .values(revoked=True)
-                        )
-                except jwt.PyJWTError:
-                    pass
-            else:
-                token_hash = hash_token(token.token)
-                row = await conn.execute(
-                    select(t_refresh_tokens.c.access_jti).where(
-                        t_refresh_tokens.c.token_hash == token_hash
-                    )
+            if not settings.jwt_secret:
+                return
+            try:
+                payload = jwt.decode(
+                    token.token, settings.jwt_secret, algorithms=["HS256"]
                 )
-                record = row.fetchone()
-                if record and record[0]:
-                    await conn.execute(
-                        update(t_access_tokens)
-                        .where(t_access_tokens.c.jti == record[0])
-                        .values(revoked=True)
-                    )
-                await conn.execute(
-                    update(t_refresh_tokens)
-                    .where(t_refresh_tokens.c.token_hash == token_hash)
-                    .values(revoked=True)
-                )
+            except jwt.PyJWTError:
+                return
+            jti = payload.get("jti")
+            if not jti:
+                return
+            async with get_session() as session:
+                record = await session.get(DBAccessToken, jti)
+                if record:
+                    record.revoked = True
+        else:
+            token_hash = hash_token(token.token)
+            async with get_session() as session:
+                rt = await session.get(DBRefreshToken, token_hash)
+                if rt:
+                    if rt.access_jti:
+                        at = await session.get(DBAccessToken, rt.access_jti)
+                        if at:
+                            at.revoked = True
+                    rt.revoked = True
 
     # ------------------------------------------------------------------
     # Login routes (two-phase)

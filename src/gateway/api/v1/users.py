@@ -5,9 +5,8 @@ import logging
 import bcrypt
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import insert
 
-from gateway.oauth.db import get_engine, init_db, t_users
+from gateway.oauth.db import DBUser, get_session, init_db
 
 router = APIRouter(tags=["users"])
 
@@ -42,15 +41,11 @@ async def create_user(
     await init_db()
 
     hashed = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
+    email = body.email.strip().lower()
 
     try:
-        async with get_engine().begin() as conn:
-            await conn.execute(
-                insert(t_users).values(
-                    email=body.email.strip().lower(),
-                    hashed_password=hashed,
-                )
-            )
+        async with get_session() as session:
+            session.add(DBUser(email=email, hashed_password=hashed))
     except Exception as exc:
         if "unique" in str(exc).lower():
             raise HTTPException(
@@ -59,4 +54,4 @@ async def create_user(
         _log.exception("Failed to create user")
         raise HTTPException(status_code=500, detail="Failed to create user.") from exc
 
-    return {"email": body.email.strip().lower()}
+    return {"email": email}

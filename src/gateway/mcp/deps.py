@@ -7,7 +7,6 @@ from collections.abc import AsyncIterator
 from fastmcp.dependencies import Depends
 from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import CurrentRequest, get_access_token
-from sqlalchemy import select
 from starlette.requests import Request
 
 from gateway.auth import (
@@ -46,16 +45,11 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
 
 async def _load_user_creds(user_id: int) -> tuple[str, str] | None:
     """Return (bearer_b64, pub_url) from user_credentials, or None."""
-    from gateway.oauth.db import get_engine, t_user_credentials
+    from gateway.oauth.db import DBUserCredential, get_session
 
-    async with get_engine().connect() as conn:
-        row = await conn.execute(
-            select(t_user_credentials.c.bearer, t_user_credentials.c.pub_url).where(
-                t_user_credentials.c.user_id == user_id
-            )
-        )
-        rec = row.fetchone()
-    return (rec[0], rec[1]) if rec is not None else None
+    async with get_session() as session:
+        record = await session.get(DBUserCredential, user_id)
+    return (record.bearer, record.pub_url) if record is not None else None
 
 
 async def get_credentials(request: Request = CurrentRequest()) -> BearerCredentials:
