@@ -15,6 +15,7 @@ dependencies = [
   "bcrypt>=5.0.0",
   "sqlalchemy>=2.0.48",
   "asyncpg>=0.31.0",
+  "htpy>=25.12.0",
 ]
 
 [build-system]

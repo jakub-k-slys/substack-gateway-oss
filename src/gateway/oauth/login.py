@@ -6,7 +6,6 @@ Phase 2 (/login/token) — Substack cookie values → auth code + redirect
 
 from __future__ import annotations
 
-import html as _html
 import secrets
 import time
 import uuid
@@ -17,7 +16,7 @@ from mcp.server.auth.provider import construct_redirect_uri
 from sqlalchemy import delete, func, insert, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse, Response
+from starlette.responses import RedirectResponse, Response
 
 from gateway.oauth.bearer import _encode_bearer, _validate_bearer
 from gateway.oauth.db import (
@@ -28,28 +27,11 @@ from gateway.oauth.db import (
     t_user_credentials,
     t_users,
 )
-from gateway.oauth.templates import _LOGIN_HTML, _TOKEN_HTML
+from gateway.oauth.templates import render_login, render_token_form
 
 _UTC = timezone.utc
 _AUTH_CODE_TTL = 300  # seconds
 _LOGIN_SESSION_TTL = 600  # seconds
-
-
-# ------------------------------------------------------------------
-# Rendering helpers
-# ------------------------------------------------------------------
-
-
-def render_login(request_id: str, error: str = "") -> Response:
-    safe_rid = _html.escape(request_id)
-    safe_err = f'<p class="error">{_html.escape(error)}</p>' if error else ""
-    return HTMLResponse(_LOGIN_HTML.format(request_id=safe_rid, error=safe_err))
-
-
-def render_token_form(session_id: str, error: str = "") -> Response:
-    safe_sid = _html.escape(session_id)
-    safe_err = f'<p class="error">{_html.escape(error)}</p>' if error else ""
-    return HTMLResponse(_TOKEN_HTML.format(session_id=safe_sid, error=safe_err))
 
 
 # ------------------------------------------------------------------
