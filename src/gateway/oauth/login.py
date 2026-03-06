@@ -17,14 +17,8 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 
 from gateway.oauth.bearer import _encode_bearer, _validate_bearer
-from gateway.oauth.db import DBAuthCode, DBLoginSession, get_session
-from gateway.oauth.repositories import (
-    AuthCodeRepository,
-    AuthRequestRepository,
-    LoginSessionRepository,
-    UserCredentialRepository,
-    UserRepository,
-)
+from gateway.oauth.db import DBAuthCode, DBLoginSession
+from gateway.oauth.repositories import UnitOfWork
 from gateway.oauth.templates import render_login, render_token_form
 
 _UTC = timezone.utc
@@ -52,24 +46,20 @@ async def _process_login(request: Request, base_url: str) -> Response:
     if not (request_id and email and password):
         return render_login(request_id, "All fields are required.")
 
-    async with get_session() as db:
-        auth_req = await AuthRequestRepository(db).get(request_id)
+    async with UnitOfWork() as uow:
+        auth_req = await uow.auth_requests.get(request_id)
+        if auth_req is None:
+            return render_login(request_id, "Session expired. Please try again.")
+        if datetime.now(_UTC) > auth_req.expires_at:
+            return render_login(request_id, "Session expired. Please try again.")
 
-    if auth_req is None:
-        return render_login(request_id, "Session expired. Please try again.")
-    if datetime.now(_UTC) > auth_req.expires_at:
-        return render_login(request_id, "Session expired. Please try again.")
+        user = await uow.users.get_by_email(email)
+        if user is None or not bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
+            return render_login(request_id, "Invalid email or password.")
 
-    async with get_session() as db:
-        user = await UserRepository(db).get_by_email(email)
-
-    if user is None or not bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
-        return render_login(request_id, "Invalid email or password.")
-
-    session_id = str(uuid.uuid4())
-    session_expires = datetime.now(_UTC) + timedelta(seconds=_LOGIN_SESSION_TTL)
-    async with get_session() as db:
-        await LoginSessionRepository(db).save(
+        session_id = str(uuid.uuid4())
+        session_expires = datetime.now(_UTC) + timedelta(seconds=_LOGIN_SESSION_TTL)
+        await uow.login_sessions.save(
             DBLoginSession(
                 session_id=session_id,
                 request_id=request_id,
@@ -103,33 +93,28 @@ async def _process_token_form(request: Request) -> Response:
     if not (session_id and substack_sid and connect_sid and pub_url):
         return render_token_form(session_id, "All fields are required.")
 
-    async with get_session() as db:
-        login_sess = await LoginSessionRepository(db).get(session_id)
+    async with UnitOfWork() as uow:
+        login_sess = await uow.login_sessions.get(session_id)
+        if login_sess is None:
+            return render_token_form(session_id, "Session expired. Please start over.")
+        if datetime.now(_UTC) > login_sess.expires_at:
+            return render_token_form(session_id, "Session expired. Please start over.")
 
-    if login_sess is None:
-        return render_token_form(session_id, "Session expired. Please start over.")
-    if datetime.now(_UTC) > login_sess.expires_at:
-        return render_token_form(session_id, "Session expired. Please start over.")
+        auth_req = await uow.auth_requests.get(login_sess.request_id)
+        if auth_req is None:
+            return render_token_form(session_id, "OAuth session expired. Please start over.")
 
-    async with get_session() as db:
-        auth_req = await AuthRequestRepository(db).get(login_sess.request_id)
+        bearer = _encode_bearer(substack_sid, connect_sid)
+        try:
+            _validate_bearer(bearer)
+        except ValueError as exc:
+            return render_token_form(session_id, str(exc))
 
-    if auth_req is None:
-        return render_token_form(session_id, "OAuth session expired. Please start over.")
+        await uow.user_credentials.upsert(login_sess.user_id, bearer, pub_url)
 
-    bearer = _encode_bearer(substack_sid, connect_sid)
-    try:
-        _validate_bearer(bearer)
-    except ValueError as exc:
-        return render_token_form(session_id, str(exc))
-
-    async with get_session() as db:
-        await UserCredentialRepository(db).upsert(login_sess.user_id, bearer, pub_url)
-
-    code = secrets.token_urlsafe(32)
-    exp = time.time() + _AUTH_CODE_TTL
-    async with get_session() as db:
-        await AuthCodeRepository(db).save(
+        code = secrets.token_urlsafe(32)
+        exp = time.time() + _AUTH_CODE_TTL
+        await uow.auth_codes.save(
             DBAuthCode(
                 code=code,
                 client_id=auth_req.client_id,
@@ -142,8 +127,8 @@ async def _process_token_form(request: Request) -> Response:
                 user_id=login_sess.user_id,
             )
         )
-        await LoginSessionRepository(db).delete(session_id)
-        await AuthRequestRepository(db).delete(login_sess.request_id)
+        await uow.login_sessions.delete(session_id)
+        await uow.auth_requests.delete(login_sess.request_id)
 
     redirect_url = construct_redirect_uri(
         auth_req.redirect_uri, code=code, state=auth_req.state

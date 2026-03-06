@@ -6,8 +6,8 @@ import bcrypt
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-from gateway.oauth.db import DBUser, get_session, init_db
-from gateway.oauth.repositories import UserRepository
+from gateway.oauth.db import DBUser, init_db
+from gateway.oauth.repositories import UnitOfWork
 
 router = APIRouter(tags=["users"])
 
@@ -45,8 +45,8 @@ async def create_user(
     email = body.email.strip().lower()
 
     try:
-        async with get_session() as session:
-            await UserRepository(session).save(DBUser(email=email, hashed_password=hashed))
+        async with UnitOfWork() as uow:
+            await uow.users.save(DBUser(email=email, hashed_password=hashed))
     except Exception as exc:
         if "unique" in str(exc).lower():
             raise HTTPException(

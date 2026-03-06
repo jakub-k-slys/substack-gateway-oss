@@ -26,17 +26,10 @@ from gateway.oauth.db import (
     DBAuthRequest,
     DBRefreshToken,
     generate_opaque_token,
-    get_session,
     hash_token,
 )
 from gateway.oauth.login import handle_login, handle_token_form
-from gateway.oauth.repositories import (
-    AccessTokenRepository,
-    AuthCodeRepository,
-    AuthRequestRepository,
-    OAuthClientRepository,
-    RefreshTokenRepository,
-)
+from gateway.oauth.repositories import UnitOfWork
 
 _UTC = timezone.utc
 _log = logging.getLogger(__name__)
@@ -59,15 +52,15 @@ class NeonOAuthProvider(OAuthProvider):
     # ------------------------------------------------------------------
 
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
-        async with get_session() as session:
-            record = await OAuthClientRepository(session).get(client_id)
+        async with UnitOfWork() as uow:
+            record = await uow.oauth_clients.get(client_id)
         if record is None:
             return None
         return OAuthClientInformationFull.model_validate_json(record.client_data)
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
-        async with get_session() as session:
-            await OAuthClientRepository(session).upsert(
+        async with UnitOfWork() as uow:
+            await uow.oauth_clients.upsert(
                 client_info.client_id, client_info.model_dump_json()
             )
 
@@ -76,8 +69,8 @@ class NeonOAuthProvider(OAuthProvider):
     ) -> str:
         request_id = str(uuid.uuid4())
         expires_at = datetime.now(_UTC) + timedelta(seconds=_AUTH_REQUEST_TTL)
-        async with get_session() as session:
-            await AuthRequestRepository(session).save(
+        async with UnitOfWork() as uow:
+            await uow.auth_requests.save(
                 DBAuthRequest(
                     request_id=request_id,
                     client_id=client.client_id,
@@ -95,10 +88,8 @@ class NeonOAuthProvider(OAuthProvider):
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str
     ) -> AuthorizationCode | None:
-        async with get_session() as session:
-            record = await AuthCodeRepository(session).get(
-                authorization_code, client.client_id
-            )
+        async with UnitOfWork() as uow:
+            record = await uow.auth_codes.get(authorization_code, client.client_id)
         if record is None:
             return None
         if record.expires_at < time.time():
@@ -125,15 +116,15 @@ class NeonOAuthProvider(OAuthProvider):
         refresh_token_str = generate_opaque_token()
         refresh_hash = hash_token(refresh_token_str)
 
-        async with get_session() as session:
-            user_id = await AuthCodeRepository(session).consume(authorization_code.code)
+        async with UnitOfWork() as uow:
+            user_id = await uow.auth_codes.consume(authorization_code.code)
             if user_id is None:
                 raise TokenError("invalid_grant", "Authorization code already used.")
 
             access_token_str, jti, exp = self._issue_jwt(
                 client.client_id, authorization_code.scopes, user_id
             )
-            await AccessTokenRepository(session).save(
+            await uow.access_tokens.save(
                 DBAccessToken(
                     jti=jti,
                     client_id=client.client_id,
@@ -141,7 +132,7 @@ class NeonOAuthProvider(OAuthProvider):
                     expires_at=exp,
                 )
             )
-            await RefreshTokenRepository(session).save(
+            await uow.refresh_tokens.save(
                 DBRefreshToken(
                     token_hash=refresh_hash,
                     client_id=client.client_id,
@@ -162,10 +153,8 @@ class NeonOAuthProvider(OAuthProvider):
         self, client: OAuthClientInformationFull, refresh_token: str
     ) -> RefreshToken | None:
         token_hash = hash_token(refresh_token)
-        async with get_session() as session:
-            record = await RefreshTokenRepository(session).get_active(
-                token_hash, client.client_id
-            )
+        async with UnitOfWork() as uow:
+            record = await uow.refresh_tokens.get_active(token_hash, client.client_id)
         if record is None:
             return None
         if record.expires_at is not None and record.expires_at < time.time():
@@ -197,16 +186,13 @@ class NeonOAuthProvider(OAuthProvider):
         new_refresh_str = generate_opaque_token()
         new_refresh_hash = hash_token(new_refresh_str)
 
-        async with get_session() as session:
-            at_repo = AccessTokenRepository(session)
-            rt_repo = RefreshTokenRepository(session)
-
-            await rt_repo.revoke(old_hash)
+        async with UnitOfWork() as uow:
+            await uow.refresh_tokens.revoke(old_hash)
             if old_jti:
-                await at_repo.revoke(old_jti)
+                await uow.access_tokens.revoke(old_jti)
 
             access_token_str, jti, exp = self._issue_jwt(client.client_id, effective_scopes)
-            await at_repo.save(
+            await uow.access_tokens.save(
                 DBAccessToken(
                     jti=jti,
                     client_id=client.client_id,
@@ -214,7 +200,7 @@ class NeonOAuthProvider(OAuthProvider):
                     expires_at=exp,
                 )
             )
-            await rt_repo.save(
+            await uow.refresh_tokens.save(
                 DBRefreshToken(
                     token_hash=new_refresh_hash,
                     client_id=client.client_id,
@@ -245,8 +231,8 @@ class NeonOAuthProvider(OAuthProvider):
         if not jti:
             return None
 
-        async with get_session() as session:
-            record = await AccessTokenRepository(session).get(jti)
+        async with UnitOfWork() as uow:
+            record = await uow.access_tokens.get(jti)
         if record is None or record.revoked:
             return None
 
@@ -274,17 +260,16 @@ class NeonOAuthProvider(OAuthProvider):
             jti = payload.get("jti")
             if not jti:
                 return
-            async with get_session() as session:
-                await AccessTokenRepository(session).revoke(jti)
+            async with UnitOfWork() as uow:
+                await uow.access_tokens.revoke(jti)
         else:
             token_hash = hash_token(token.token)
-            async with get_session() as session:
-                rt_repo = RefreshTokenRepository(session)
-                rt = await rt_repo.get(token_hash)
+            async with UnitOfWork() as uow:
+                rt = await uow.refresh_tokens.get(token_hash)
                 if rt:
                     if rt.access_jti:
-                        await AccessTokenRepository(session).revoke(rt.access_jti)
-                    await rt_repo.revoke(token_hash)
+                        await uow.access_tokens.revoke(rt.access_jti)
+                    await uow.refresh_tokens.revoke(token_hash)
 
     # ------------------------------------------------------------------
     # Login routes (two-phase)

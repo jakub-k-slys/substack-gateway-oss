@@ -20,6 +20,7 @@ from gateway.oauth.db import (
     DBRefreshToken,
     DBUser,
     DBUserCredential,
+    get_session,
 )
 
 
@@ -175,3 +176,32 @@ class RefreshTokenRepository:
             .where(DBRefreshToken.token_hash == token_hash)
             .values(revoked=True)
         )
+
+
+class UnitOfWork:
+    """Single session shared across all repositories; commits on success, rolls back on error."""
+
+    users: UserRepository
+    oauth_clients: OAuthClientRepository
+    auth_requests: AuthRequestRepository
+    login_sessions: LoginSessionRepository
+    user_credentials: UserCredentialRepository
+    auth_codes: AuthCodeRepository
+    access_tokens: AccessTokenRepository
+    refresh_tokens: RefreshTokenRepository
+
+    async def __aenter__(self) -> UnitOfWork:
+        self._cm = get_session()
+        session = await self._cm.__aenter__()
+        self.users = UserRepository(session)
+        self.oauth_clients = OAuthClientRepository(session)
+        self.auth_requests = AuthRequestRepository(session)
+        self.login_sessions = LoginSessionRepository(session)
+        self.user_credentials = UserCredentialRepository(session)
+        self.auth_codes = AuthCodeRepository(session)
+        self.access_tokens = AccessTokenRepository(session)
+        self.refresh_tokens = RefreshTokenRepository(session)
+        return self
+
+    async def __aexit__(self, *args: object) -> bool | None:
+        return await self._cm.__aexit__(*args)

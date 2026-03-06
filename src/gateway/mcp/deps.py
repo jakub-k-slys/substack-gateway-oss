@@ -45,11 +45,10 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
 
 async def _load_user_creds(user_id: int) -> tuple[str, str] | None:
     """Return (bearer_b64, pub_url) from user_credentials, or None."""
-    from gateway.oauth.db import get_session
-    from gateway.oauth.repositories import UserCredentialRepository
+    from gateway.oauth.repositories import UnitOfWork
 
-    async with get_session() as session:
-        record = await UserCredentialRepository(session).get(user_id)
+    async with UnitOfWork() as uow:
+        record = await uow.user_credentials.get(user_id)
     return (record.bearer, record.pub_url) if record is not None else None
 
 
