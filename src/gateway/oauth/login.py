@@ -13,19 +13,17 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from mcp.server.auth.provider import construct_redirect_uri
-from sqlalchemy import delete, func, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 
 from gateway.oauth.bearer import _encode_bearer, _validate_bearer
-from gateway.oauth.db import (
-    DBAuthCode,
-    DBAuthRequest,
-    DBLoginSession,
-    DBUser,
-    DBUserCredential,
-    get_session,
+from gateway.oauth.db import DBAuthCode, DBLoginSession, get_session
+from gateway.oauth.repositories import (
+    AuthCodeRepository,
+    AuthRequestRepository,
+    LoginSessionRepository,
+    UserCredentialRepository,
+    UserRepository,
 )
 from gateway.oauth.templates import render_login, render_token_form
 
@@ -55,7 +53,7 @@ async def _process_login(request: Request, base_url: str) -> Response:
         return render_login(request_id, "All fields are required.")
 
     async with get_session() as db:
-        auth_req = await db.get(DBAuthRequest, request_id)
+        auth_req = await AuthRequestRepository(db).get(request_id)
 
     if auth_req is None:
         return render_login(request_id, "Session expired. Please try again.")
@@ -63,8 +61,7 @@ async def _process_login(request: Request, base_url: str) -> Response:
         return render_login(request_id, "Session expired. Please try again.")
 
     async with get_session() as db:
-        result = await db.execute(select(DBUser).where(DBUser.email == email))
-        user = result.scalar_one_or_none()
+        user = await UserRepository(db).get_by_email(email)
 
     if user is None or not bcrypt.checkpw(password.encode(), user.hashed_password.encode()):
         return render_login(request_id, "Invalid email or password.")
@@ -72,7 +69,7 @@ async def _process_login(request: Request, base_url: str) -> Response:
     session_id = str(uuid.uuid4())
     session_expires = datetime.now(_UTC) + timedelta(seconds=_LOGIN_SESSION_TTL)
     async with get_session() as db:
-        db.add(
+        await LoginSessionRepository(db).save(
             DBLoginSession(
                 session_id=session_id,
                 request_id=request_id,
@@ -107,7 +104,7 @@ async def _process_token_form(request: Request) -> Response:
         return render_token_form(session_id, "All fields are required.")
 
     async with get_session() as db:
-        login_sess = await db.get(DBLoginSession, session_id)
+        login_sess = await LoginSessionRepository(db).get(session_id)
 
     if login_sess is None:
         return render_token_form(session_id, "Session expired. Please start over.")
@@ -115,7 +112,7 @@ async def _process_token_form(request: Request) -> Response:
         return render_token_form(session_id, "Session expired. Please start over.")
 
     async with get_session() as db:
-        auth_req = await db.get(DBAuthRequest, login_sess.request_id)
+        auth_req = await AuthRequestRepository(db).get(login_sess.request_id)
 
     if auth_req is None:
         return render_token_form(session_id, "OAuth session expired. Please start over.")
@@ -126,27 +123,13 @@ async def _process_token_form(request: Request) -> Response:
     except ValueError as exc:
         return render_token_form(session_id, str(exc))
 
-    # Upsert Substack credentials
-    stmt = pg_insert(DBUserCredential).values(
-        user_id=login_sess.user_id, bearer=bearer, pub_url=pub_url
-    )
     async with get_session() as db:
-        await db.execute(
-            stmt.on_conflict_do_update(
-                index_elements=["user_id"],
-                set_={
-                    "bearer": stmt.excluded.bearer,
-                    "pub_url": stmt.excluded.pub_url,
-                    "updated_at": func.now(),
-                },
-            )
-        )
+        await UserCredentialRepository(db).upsert(login_sess.user_id, bearer, pub_url)
 
-    # Issue auth code and clean up transient rows atomically
     code = secrets.token_urlsafe(32)
     exp = time.time() + _AUTH_CODE_TTL
     async with get_session() as db:
-        db.add(
+        await AuthCodeRepository(db).save(
             DBAuthCode(
                 code=code,
                 client_id=auth_req.client_id,
@@ -159,14 +142,8 @@ async def _process_token_form(request: Request) -> Response:
                 user_id=login_sess.user_id,
             )
         )
-        await db.execute(
-            delete(DBLoginSession).where(DBLoginSession.session_id == session_id)
-        )
-        await db.execute(
-            delete(DBAuthRequest).where(
-                DBAuthRequest.request_id == login_sess.request_id
-            )
-        )
+        await LoginSessionRepository(db).delete(session_id)
+        await AuthRequestRepository(db).delete(login_sess.request_id)
 
     redirect_url = construct_redirect_uri(
         auth_req.redirect_uri, code=code, state=auth_req.state

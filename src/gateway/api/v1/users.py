@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from gateway.oauth.db import DBUser, get_session, init_db
+from gateway.oauth.repositories import UserRepository
 
 router = APIRouter(tags=["users"])
 
@@ -45,7 +46,7 @@ async def create_user(
 
     try:
         async with get_session() as session:
-            session.add(DBUser(email=email, hashed_password=hashed))
+            await UserRepository(session).save(DBUser(email=email, hashed_password=hashed))
     except Exception as exc:
         if "unique" in str(exc).lower():
             raise HTTPException(
