@@ -39,5 +39,5 @@ async def login_token_post(request: Request) -> Response:
     return await process_token_form(request)
 
 
-login_app = FastAPI()
-login_app.include_router(_router)
+oauth = FastAPI()
+oauth.include_router(_router)
