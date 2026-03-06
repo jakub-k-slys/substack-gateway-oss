@@ -1,7 +1,7 @@
-"""Two-phase login route handlers.
+"""Two-phase login handlers.
 
-Phase 1 (/login)       — email + password → login session
-Phase 2 (/login/token) — Substack cookie values → auth code + redirect
+Phase 1 (process_login)       — email + password → login session
+Phase 2 (process_token_form)  — Substack cookie values → auth code + redirect
 """
 
 from __future__ import annotations
@@ -31,13 +31,7 @@ _LOGIN_SESSION_TTL = 600  # seconds
 # ------------------------------------------------------------------
 
 
-async def handle_login(request: Request, base_url: str) -> Response:
-    if request.method == "GET":
-        return render_login(request.query_params.get("request_id", ""))
-    return await _process_login(request, base_url)
-
-
-async def _process_login(request: Request, base_url: str) -> Response:
+async def process_login(request: Request, token_form_url: str) -> Response:
     form = await request.form()
     request_id = str(form.get("request_id", "")).strip()
     email = str(form.get("email", "")).strip().lower()
@@ -68,7 +62,7 @@ async def _process_login(request: Request, base_url: str) -> Response:
             )
         )
 
-    redirect = f"{base_url.rstrip('/')}/login/token?session_id={session_id}"
+    redirect = f"{token_form_url}?session_id={session_id}"
     return RedirectResponse(url=redirect, status_code=302)
 
 
@@ -77,13 +71,7 @@ async def _process_login(request: Request, base_url: str) -> Response:
 # ------------------------------------------------------------------
 
 
-async def handle_token_form(request: Request) -> Response:
-    if request.method == "GET":
-        return render_token_form(request.query_params.get("session_id", ""))
-    return await _process_token_form(request)
-
-
-async def _process_token_form(request: Request) -> Response:
+async def process_token_form(request: Request) -> Response:
     form = await request.form()
     session_id = str(form.get("session_id", "")).strip()
     substack_sid = str(form.get("substack_sid", "")).strip()

@@ -4,7 +4,6 @@ import logging
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
-from functools import partial
 from typing import Any
 
 import jwt
@@ -18,7 +17,6 @@ from mcp.server.auth.provider import (
 from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl
-from starlette.routing import Route
 
 from gateway.oauth.bearer import _RefreshTokenWithJti
 from gateway.oauth.db import (
@@ -28,7 +26,6 @@ from gateway.oauth.db import (
     generate_opaque_token,
     hash_token,
 )
-from gateway.oauth.login import handle_login, handle_token_form
 from gateway.oauth.repositories import UnitOfWork
 
 _UTC = timezone.utc
@@ -40,12 +37,13 @@ _AUTH_REQUEST_TTL = 600  # seconds
 
 
 class NeonOAuthProvider(OAuthProvider):
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str, login_base_url: str) -> None:
         super().__init__(
             base_url=base_url,
             client_registration_options=ClientRegistrationOptions(enabled=True),
             revocation_options=RevocationOptions(enabled=True),
         )
+        self._login_base_url = login_base_url.rstrip("/")
 
     # ------------------------------------------------------------------
     # OAuthAuthorizationServerProvider interface
@@ -83,7 +81,7 @@ class NeonOAuthProvider(OAuthProvider):
                     expires_at=expires_at,
                 )
             )
-        return f"{str(self.base_url).rstrip('/')}/login?request_id={request_id}"
+        return f"{self._login_base_url}/login?request_id={request_id}"
 
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str
@@ -270,29 +268,6 @@ class NeonOAuthProvider(OAuthProvider):
                     if rt.access_jti:
                         await uow.access_tokens.revoke(rt.access_jti)
                     await uow.refresh_tokens.revoke(token_hash)
-
-    # ------------------------------------------------------------------
-    # Login routes (two-phase)
-    # ------------------------------------------------------------------
-
-    def get_routes(self, mcp_path: str | None = None) -> list[Any]:
-        routes = super().get_routes(mcp_path)
-        base_url = str(self.base_url)
-        routes.append(
-            Route(
-                "/login",
-                endpoint=partial(handle_login, base_url=base_url),
-                methods=["GET", "POST"],
-            )
-        )
-        routes.append(
-            Route(
-                "/login/token",
-                endpoint=handle_token_form,
-                methods=["GET", "POST"],
-            )
-        )
-        return routes
 
     # ------------------------------------------------------------------
     # Internal helpers

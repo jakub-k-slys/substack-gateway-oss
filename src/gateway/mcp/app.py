@@ -46,6 +46,7 @@ if settings.oauth_enabled:
 
     oauth_provider = NeonOAuthProvider(
         base_url=f"{settings.base_url}/mcp",
+        login_base_url=settings.base_url,
     )
 
 _mcp = FastMCP("substack-gateway", auth=oauth_provider)

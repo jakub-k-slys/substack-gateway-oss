@@ -15,9 +15,7 @@ import json
 
 import jwt
 import pytest
-from starlette.applications import Starlette
-from starlette.routing import Route
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 
 from gateway.oauth.bearer import _encode_bearer, _validate_bearer
 from gateway.oauth.provider import NeonOAuthProvider
@@ -33,19 +31,13 @@ _JWT_SECRET = "test-only-secret"
 @pytest.fixture()
 def provider(monkeypatch):
     monkeypatch.setattr("gateway.config.settings.jwt_secret", _JWT_SECRET)
-    return NeonOAuthProvider(base_url=_BASE_URL)
+    return NeonOAuthProvider(base_url=_BASE_URL, login_base_url="http://localhost")
 
 
 @pytest.fixture()
-def login_client(provider):
-    """Minimal Starlette app exposing only the /login and /login/token routes."""
-    all_routes = provider.get_routes()
-    routes = [
-        r
-        for r in all_routes
-        if isinstance(r, Route) and r.path in ("/login", "/login/token")
-    ]
-    app = Starlette(routes=routes)
+def login_client():
+    from main import app
+
     return TestClient(app, raise_server_exceptions=False)
 
 

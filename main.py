@@ -11,6 +11,7 @@ from starlette.routing import Mount
 from gateway import api, mcp
 from gateway.mcp.app import oauth_provider
 from gateway.oauth.db import init_db
+from gateway.oauth.router import login_app
 
 
 @contextlib.asynccontextmanager
@@ -31,6 +32,7 @@ app = Starlette(
     lifespan=_lifespan,
     routes=[
         *_well_known,
+        Mount("/login", app=login_app),
         Mount("/mcp", app=mcp),
         Mount("/api", app=api),
     ],
