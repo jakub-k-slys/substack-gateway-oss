@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.routing import Route
 
 from gateway import api, mcp
 from gateway.oauth.db import init_db
@@ -26,13 +27,16 @@ async def _mcp_no_trailing_slash(scope: Any, receive: Any, send: Any) -> None:
 
 
 app = FastAPI(lifespan=_lifespan, docs_url=None, openapi_url=None)
-app.add_route("/mcp", _mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"])
+app.routes.insert(
+    0,
+    Route("/mcp", _mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"]),
+)
 app.mount("/mcp", mcp)
 app.mount("/api", api)
 app.mount("/", oauth)
 
 app.add_middleware(
-    CORSMiddleware,
+    CORSMiddleware,  # type: ignore[arg-type]
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
