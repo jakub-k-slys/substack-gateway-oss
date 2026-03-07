@@ -22,7 +22,9 @@ if settings.oauth_enabled:
         login_base_url=settings.base_url,
     )
 
-well_known = Router(
+# ── Well-known discovery (RFC 8414 / RFC 9728) ────────────────────────────────
+
+_well_known = Router(
     routes=[
         Route(
             r.path.removeprefix("/.well-known"),
@@ -35,39 +37,44 @@ well_known = Router(
     ]
 )
 
-_router = APIRouter(tags=["oauth"])
+# ── Login flow ─────────────────────────────────────────────────────────────────
+
+_login_router = APIRouter(tags=["oauth"])
 
 
-# Routes at "/" and "/token" because this app is mounted at "/login" in main.py,
-# so Starlette strips the "/login" prefix before forwarding to this FastAPI app.
-
-
-@_router.get("/", response_class=HTMLResponse)
+@_login_router.get("/", response_class=HTMLResponse)
 async def login_get(request_id: str = "") -> Response:
     return render_login(request_id)
 
 
-@_router.post("/", response_class=HTMLResponse)
+@_login_router.post("/", response_class=HTMLResponse)
 async def login_post(request: Request) -> Response:
     from gateway.config import settings
 
     return await process_login(request, f"{settings.base_url}/login/token")
 
 
-@_router.get("/token", response_class=HTMLResponse)
+@_login_router.get("/token", response_class=HTMLResponse)
 async def login_token_get(session_id: str = "") -> Response:
     return render_token_form(session_id)
 
 
-@_router.post("/token", response_class=HTMLResponse)
+@_login_router.post("/token", response_class=HTMLResponse)
 async def login_token_post(request: Request) -> Response:
     return await process_token_form(request)
 
 
-oauth = FastAPI()
-oauth.include_router(_router)
-oauth.mount(
+_login = FastAPI()
+_login.include_router(_login_router)
+_login.mount(
     "/static",
     StaticFiles(directory=Path(__file__).parent / "static"),
     name="oauth-static",
 )
+
+# ── Top-level OAuth app (mounted at "/" in main.py) ───────────────────────────
+# Handles /.well-known/* and /login/* so all OAuth concerns live here.
+
+oauth = FastAPI()
+oauth.mount("/.well-known", _well_known)
+oauth.mount("/login", _login)
