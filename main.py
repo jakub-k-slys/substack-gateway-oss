@@ -6,7 +6,7 @@ from typing import Any
 
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
-from starlette.routing import Mount
+from starlette.routing import Mount, Route
 
 from gateway import api, mcp
 from gateway.oauth.db import init_db
@@ -20,9 +20,18 @@ async def _lifespan(app: Any) -> AsyncIterator[None]:
         yield
 
 
+async def _mcp_no_trailing_slash(scope: Any, receive: Any, send: Any) -> None:
+    """Forward /mcp (no trailing slash) to the MCP app as /mcp/."""
+    scope = dict(scope, path=scope["path"] + "/")
+    await mcp(scope, receive, send)
+
+
 app = Starlette(
     lifespan=_lifespan,
     routes=[
+        Route(
+            "/mcp", endpoint=_mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"]
+        ),
         Mount("/mcp", app=mcp),
         Mount("/api", app=api),
         Mount("/", app=oauth),
