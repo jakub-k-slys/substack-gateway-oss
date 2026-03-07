@@ -21,9 +21,15 @@ if settings.oauth_enabled:
         login_base_url=settings.base_url,
     )
 
-well_known_routes = (
+well_known = FastAPI()
+for _route in (
     oauth_provider.get_well_known_routes() if oauth_provider is not None else []
-)
+):
+    well_known.add_route(
+        _route.path.removeprefix("/.well-known"),
+        _route.endpoint,
+        methods=list(_route.methods) if _route.methods else None,
+    )
 
 _router = APIRouter(tags=["oauth"])
 
