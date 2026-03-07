@@ -18,3 +18,11 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     context.respx_mock.stop()
+
+    # Restore UnitOfWork and base_url if patched by OAuth steps
+    if hasattr(context, "_original_uow"):
+        import gateway.oauth.login as login_mod
+        from gateway.config import settings
+
+        login_mod.UnitOfWork = context._original_uow
+        settings.base_url = context._original_base_url

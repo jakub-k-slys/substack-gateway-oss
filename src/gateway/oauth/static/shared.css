@@ -16,6 +16,13 @@ button {
   font-weight: 600; cursor: pointer; transition: background .15s; margin-top: 12px;
 }
 button:hover { background: #e55c12; }
+.btn {
+  display: block; width: 100%; padding: 11px; background: #ff6719; color: #fff;
+  border: none; border-radius: 8px; font-size: 1rem;
+  font-weight: 600; cursor: pointer; transition: background .15s; margin-top: 12px;
+  text-align: center; text-decoration: none;
+}
+.btn:hover { background: #e55c12; }
 .error {
   color: #c0392b; font-size: .88rem; margin-bottom: 16px;
   padding: 10px 12px; background: #fdf3f3;
