@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     substack_connect_timeout_sec: float = Field(default=10.0, gt=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     gateway_key: str = "WW91IHNoYWxsIG5vdCBwYXNzCg=="
+    admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
 
     # OAuth 2.1 / Neon DB settings (all required for OAuth to be active)
     base_url: str | None = None

@@ -12,13 +12,7 @@ class _RefreshTokenWithJti(RefreshToken):
     access_jti: str | None = None
 
 
-def _encode_bearer(substack_sid: str, connect_sid: str) -> str:
-    """Encode Substack cookie values into the base64 bearer token format."""
-    payload = {"substack_sid": substack_sid, "connect_sid": connect_sid}
-    return base64.b64encode(json.dumps(payload).encode()).decode()
-
-
-def _validate_bearer(bearer: str) -> None:
+def validate_bearer(bearer: str) -> None:
     """Raise ValueError if the bearer token cannot be decoded correctly."""
     try:
         decoded = json.loads(base64.b64decode(bearer.encode()))

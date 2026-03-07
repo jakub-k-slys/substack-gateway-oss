@@ -1,7 +1,7 @@
 """Unit tests for gateway.oauth.provider.
 
 Covers:
-  - _encode_bearer / _validate_bearer helpers
+  - validate_bearer helper
   - _issue_jwt payload structure
   - Login form HTML rendering (no DB required)
   - Login form field-validation error paths (no DB required)
@@ -17,7 +17,7 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from gateway.oauth.bearer import _encode_bearer, _validate_bearer
+from gateway.oauth.bearer import validate_bearer
 from gateway.oauth.provider import NeonOAuthProvider
 
 # ---------------------------------------------------------------------------
@@ -42,62 +42,42 @@ def login_client():
 
 
 # ---------------------------------------------------------------------------
-# _encode_bearer
-# ---------------------------------------------------------------------------
-
-
-class TestEncodeBearer:
-    def test_produces_valid_base64_json(self):
-        bearer = _encode_bearer("sid-value", "csid-value")
-        decoded = json.loads(base64.b64decode(bearer))
-        assert decoded["substack_sid"] == "sid-value"
-        assert decoded["connect_sid"] == "csid-value"
-
-    def test_roundtrip_with_validate(self):
-        bearer = _encode_bearer("s", "c")
-        _validate_bearer(bearer)  # should not raise
-
-    def test_different_inputs_produce_different_tokens(self):
-        a = _encode_bearer("sid1", "csid1")
-        b = _encode_bearer("sid2", "csid2")
-        assert a != b
-
-
-# ---------------------------------------------------------------------------
-# _validate_bearer
+# validate_bearer
 # ---------------------------------------------------------------------------
 
 
 class TestValidateBearer:
     def test_valid_bearer_passes(self):
-        bearer = _encode_bearer("sid", "csid")
-        _validate_bearer(bearer)  # no exception
+        payload = base64.b64encode(
+            json.dumps({"substack_sid": "sid", "connect_sid": "csid"}).encode()
+        ).decode()
+        validate_bearer(payload)  # no exception
 
     def test_missing_substack_sid_raises(self):
         payload = base64.b64encode(json.dumps({"connect_sid": "x"}).encode()).decode()
         with pytest.raises(ValueError, match="substack_sid"):
-            _validate_bearer(payload)
+            validate_bearer(payload)
 
     def test_missing_connect_sid_raises(self):
         payload = base64.b64encode(json.dumps({"substack_sid": "x"}).encode()).decode()
         with pytest.raises(ValueError, match="connect_sid"):
-            _validate_bearer(payload)
+            validate_bearer(payload)
 
     def test_empty_substack_sid_raises(self):
         payload = base64.b64encode(
             json.dumps({"substack_sid": "", "connect_sid": "x"}).encode()
         ).decode()
         with pytest.raises(ValueError, match="substack_sid"):
-            _validate_bearer(payload)
+            validate_bearer(payload)
 
     def test_invalid_base64_raises(self):
         with pytest.raises(ValueError):
-            _validate_bearer("not-valid-base64!!!")
+            validate_bearer("not-valid-base64!!!")
 
     def test_non_json_raises(self):
         payload = base64.b64encode(b"hello world").decode()
         with pytest.raises(ValueError):
-            _validate_bearer(payload)
+            validate_bearer(payload)
 
 
 # ---------------------------------------------------------------------------
@@ -147,9 +127,9 @@ class TestLoginForm:
         response = login_client.get("/login?request_id=test-rid")
         assert response.status_code == 200
 
-    def test_form_shows_step_1_of_2(self, login_client):
+    def test_form_shows_step_1_of_3(self, login_client):
         response = login_client.get("/login?request_id=rid")
-        assert "Step 1 of 2" in response.text
+        assert "Step 1 of 3" in response.text
 
     def test_form_contains_email_and_password_fields(self, login_client):
         response = login_client.get("/login?request_id=rid")
@@ -195,14 +175,13 @@ class TestTokenForm:
         response = login_client.get("/login/token?session_id=test-sid")
         assert response.status_code == 200
 
-    def test_form_shows_step_2_of_2(self, login_client):
+    def test_form_shows_step_2_of_3(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
-        assert "Step 2 of 2" in response.text
+        assert "Step 2 of 3" in response.text
 
-    def test_form_contains_cookie_fields(self, login_client):
+    def test_form_contains_token_field(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
-        assert 'name="substack_sid"' in response.text
-        assert 'name="connect_sid"' in response.text
+        assert 'name="token"' in response.text
         assert 'name="pub_url"' in response.text
 
     def test_session_id_is_embedded_in_form(self, login_client):
@@ -212,12 +191,7 @@ class TestTokenForm:
     def test_post_with_empty_fields_shows_error(self, login_client):
         response = login_client.post(
             "/login/token",
-            data={
-                "session_id": "sid",
-                "substack_sid": "",
-                "connect_sid": "",
-                "pub_url": "",
-            },
+            data={"session_id": "sid", "token": "", "pub_url": ""},
         )
         assert response.status_code == 200
         assert "All fields are required" in response.text

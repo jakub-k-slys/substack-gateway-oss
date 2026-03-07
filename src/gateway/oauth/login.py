@@ -1,7 +1,8 @@
-"""Two-phase login handlers.
+"""Three-phase login handlers.
 
 Phase 1 (process_login)       — email + password → login session
-Phase 2 (process_token_form)  — Substack cookie values → auth code + redirect
+Phase 2 (process_token_form)  — base64-encoded Substack token → auth code + success page
+Phase 3                       — success page with JS redirect to OAuth callback
 """
 
 from __future__ import annotations
@@ -16,10 +17,10 @@ from mcp.server.auth.provider import construct_redirect_uri
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 
-from gateway.oauth.bearer import _encode_bearer, _validate_bearer
+from gateway.oauth.bearer import validate_bearer
 from gateway.oauth.db import DBAuthCode, DBLoginSession
 from gateway.oauth.repositories import UnitOfWork
-from gateway.oauth.templates import render_login, render_token_form
+from gateway.oauth.templates import render_login, render_success, render_token_form
 
 _UTC = timezone.utc
 _AUTH_CODE_TTL = 300  # seconds
@@ -76,12 +77,16 @@ async def process_login(request: Request, token_form_url: str) -> Response:
 async def process_token_form(request: Request) -> Response:
     form = await request.form()
     session_id = str(form.get("session_id", "")).strip()
-    substack_sid = str(form.get("substack_sid", "")).strip()
-    connect_sid = str(form.get("connect_sid", "")).strip()
+    token = str(form.get("token", "")).strip()
     pub_url = str(form.get("pub_url", "")).strip().rstrip("/")
 
-    if not (session_id and substack_sid and connect_sid and pub_url):
+    if not (session_id and token and pub_url):
         return render_token_form(session_id, "All fields are required.")
+
+    try:
+        validate_bearer(token)
+    except ValueError as exc:
+        return render_token_form(session_id, str(exc))
 
     async with UnitOfWork() as uow:
         login_sess = await uow.login_sessions.get(session_id)
@@ -96,13 +101,7 @@ async def process_token_form(request: Request) -> Response:
                 session_id, "OAuth session expired. Please start over."
             )
 
-        bearer = _encode_bearer(substack_sid, connect_sid)
-        try:
-            _validate_bearer(bearer)
-        except ValueError as exc:
-            return render_token_form(session_id, str(exc))
-
-        await uow.user_credentials.upsert(login_sess.user_id, bearer, pub_url)
+        await uow.user_credentials.upsert(login_sess.user_id, token, pub_url)
 
         code = secrets.token_urlsafe(32)
         exp = time.time() + _AUTH_CODE_TTL
@@ -125,4 +124,4 @@ async def process_token_form(request: Request) -> Response:
     redirect_url = construct_redirect_uri(
         auth_req.redirect_uri, code=code, state=auth_req.state
     )
-    return RedirectResponse(url=redirect_url, status_code=302)
+    return render_success(redirect_url)
