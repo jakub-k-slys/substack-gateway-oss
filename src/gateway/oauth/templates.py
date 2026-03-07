@@ -84,11 +84,11 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                 p(class_="step")["Step 2 of 2"],
                 h1["Connect your Substack"],
                 p(class_="sub")[
-                    "Enter your Substack session cookies so the gateway can act on your behalf"
+                    "Enter your base64-encoded Substack token so the gateway can act on your behalf"
                 ],
                 p(class_="error")[error] if error else None,
                 details[
-                    summary["How do I find these values?"],
+                    summary["How do I create the token?"],
                     div(class_="howto")[
                         ol(style="padding-left:18px")[
                             li["Open ", strong["substack.com"], " and sign in"],
@@ -102,29 +102,30 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                                 " and ",
                                 code["connect.sid"],
                             ],
+                            li[
+                                "Create JSON: ",
+                                code['{"substack_sid":"…","connect_sid":"…"}'],
+                            ],
+                            li["Base64-encode the JSON and paste it below"],
                         ],
                     ],
                 ],
                 form(method="post")[
                     input(type="hidden", name="session_id", value=session_id),
-                    label(for_="substack_sid")["substack.sid cookie"],
+                    label(for_="token")["Substack token"],
                     input(
                         type="password",
-                        id="substack_sid",
-                        name="substack_sid",
+                        id="token",
+                        name="token",
                         required=True,
-                        placeholder="s%3A…",
+                        placeholder="base64-encoded token",
                     ),
-                    p(class_="hint")["Value of the ", code["substack.sid"], " cookie"],
-                    label(for_="connect_sid")["connect.sid cookie"],
-                    input(
-                        type="password",
-                        id="connect_sid",
-                        name="connect_sid",
-                        required=True,
-                        placeholder="s%3A…",
-                    ),
-                    p(class_="hint")["Value of the ", code["connect.sid"], " cookie"],
+                    p(class_="hint")[
+                        "Base64-encoded JSON containing ",
+                        code["substack_sid"],
+                        " and ",
+                        code["connect_sid"],
+                    ],
                     label(for_="pub_url")["Publication URL"],
                     input(
                         type="url",
