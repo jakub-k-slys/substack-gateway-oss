@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from htpy import (
+    a,
     body,
     button,
     code,
@@ -19,7 +20,6 @@ from htpy import (
     meta,
     ol,
     p,
-    script,
     strong,
     summary,
     title,
@@ -28,7 +28,7 @@ from starlette.responses import HTMLResponse
 
 
 def _page(content) -> str:
-    return "<!doctype html>" + str(content)
+    return f"<!doctype html>{content}"
 
 
 def render_login(request_id: str, error: str = "") -> HTMLResponse:
@@ -153,15 +153,13 @@ def render_success(redirect_url: str) -> HTMLResponse:
             meta(name="viewport", content="width=device-width, initial-scale=1.0"),
             title["Substack Gateway — Done (3/3)"],
             link(rel="stylesheet", href="/login/static/token.css"),
-            script[f"window.location.replace({redirect_url!r});"],
         ],
         body[
             div(class_="card")[
                 p(class_="step")["Step 3 of 3"],
                 h1["All done!"],
-                p(class_="sub")[
-                    "Your Substack account has been connected. You can close this tab."
-                ],
+                p(class_="sub")["Your Substack account has been connected."],
+                a(href=redirect_url, class_="btn")["Complete setup →"],
             ],
         ],
     ]
