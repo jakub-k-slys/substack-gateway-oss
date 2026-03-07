@@ -6,6 +6,7 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import Response
+from starlette.routing import Route, Router
 
 from gateway.config import settings
 from gateway.oauth.login import process_login, process_token_form
@@ -21,15 +22,18 @@ if settings.oauth_enabled:
         login_base_url=settings.base_url,
     )
 
-well_known = FastAPI()
-for _route in (
-    oauth_provider.get_well_known_routes() if oauth_provider is not None else []
-):
-    well_known.add_route(
-        _route.path.removeprefix("/.well-known"),
-        _route.endpoint,
-        methods=list(_route.methods) if _route.methods else None,
-    )
+well_known = Router(
+    routes=[
+        Route(
+            r.path.removeprefix("/.well-known"),
+            r.endpoint,
+            methods=list(r.methods) if r.methods else None,
+        )
+        for r in (
+            oauth_provider.get_well_known_routes() if oauth_provider is not None else []
+        )
+    ]
+)
 
 _router = APIRouter(tags=["oauth"])
 
