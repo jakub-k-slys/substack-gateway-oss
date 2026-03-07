@@ -127,9 +127,9 @@ class TestLoginForm:
         response = login_client.get("/login?request_id=test-rid")
         assert response.status_code == 200
 
-    def test_form_shows_step_1_of_2(self, login_client):
+    def test_form_shows_step_1_of_3(self, login_client):
         response = login_client.get("/login?request_id=rid")
-        assert "Step 1 of 2" in response.text
+        assert "Step 1 of 3" in response.text
 
     def test_form_contains_email_and_password_fields(self, login_client):
         response = login_client.get("/login?request_id=rid")
@@ -175,9 +175,9 @@ class TestTokenForm:
         response = login_client.get("/login/token?session_id=test-sid")
         assert response.status_code == 200
 
-    def test_form_shows_step_2_of_2(self, login_client):
+    def test_form_shows_step_2_of_3(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
-        assert "Step 2 of 2" in response.text
+        assert "Step 2 of 3" in response.text
 
     def test_form_contains_token_field(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
