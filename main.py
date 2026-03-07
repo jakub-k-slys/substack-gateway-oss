@@ -20,18 +20,23 @@ async def _lifespan(app: Any) -> AsyncIterator[None]:
         yield
 
 
-async def _mcp_no_trailing_slash(scope: Any, receive: Any, send: Any) -> None:
-    """Forward /mcp (no trailing slash) to the MCP app as /mcp/."""
-    scope = dict(scope, path=scope["path"] + "/")
-    await mcp(scope, receive, send)
+class _McpTrailingSlash:
+    """ASGI app that adds a trailing slash and forwards to the MCP app.
+
+    Used as a Route app so /mcp is handled the same as /mcp/.
+    Starlette Route(endpoint=) wraps callables as HTTP endpoints (passing
+    Request), so we need a raw ASGI app instead.
+    """
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        scope = dict(scope, path="/")
+        await mcp(scope, receive, send)
 
 
 app = Starlette(
     lifespan=_lifespan,
     routes=[
-        Route(
-            "/mcp", endpoint=_mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"]
-        ),
+        Route("/mcp", _McpTrailingSlash(), methods=["GET", "POST", "DELETE"]),
         Mount("/mcp", app=mcp),
         Mount("/api", app=api),
         Mount("/", app=oauth),
