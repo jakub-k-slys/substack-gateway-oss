@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SUBSTACK_GATEWAY_")
 
     substack_base_url: str = "https://substack.com"
-    substack_timeout: float = Field(default=10.0, gt=0, le=60)
+    substack_timeout_sec: float = Field(default=30.0, gt=0)
+    substack_connect_timeout_sec: float = Field(default=10.0, gt=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     gateway_key: str = "WW91IHNoYWxsIG5vdCBwYXNzCg=="
 
