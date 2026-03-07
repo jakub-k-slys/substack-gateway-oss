@@ -13,4 +13,4 @@ Feature: Posts endpoints
   Scenario: Get post comments
     When I fetch the test post comments
     Then the response status is 200
-    And the response is a list
+    And the response field "items" is a list
