@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.responses import Response
 
 from gateway.config import settings
@@ -53,3 +56,8 @@ async def login_token_post(request: Request) -> Response:
 
 oauth = FastAPI()
 oauth.include_router(_router)
+oauth.mount(
+    "/static",
+    StaticFiles(directory=Path(__file__).parent / "static"),
+    name="oauth-static",
+)

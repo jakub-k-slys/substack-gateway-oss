@@ -1,0 +1,13 @@
+@import url("shared.css");
+
+.card {
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  padding: 40px 36px; width: 100%; max-width: 380px;
+}
+input[type=email], input[type=password] {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid #ddd; border-radius: 8px;
+  font-size: .95rem; outline: none; margin-bottom: 18px;
+  transition: border-color .15s;
+}
