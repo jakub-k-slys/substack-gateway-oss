@@ -4,9 +4,8 @@ import contextlib
 from collections.abc import AsyncIterator
 from typing import Any
 
-from starlette.applications import Starlette
-from starlette.middleware.cors import CORSMiddleware
-from starlette.routing import Mount, Route
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from gateway import api, mcp
 from gateway.oauth.db import init_db
@@ -26,20 +25,14 @@ async def _mcp_no_trailing_slash(scope: Any, receive: Any, send: Any) -> None:
     await mcp(scope, receive, send)
 
 
-app = Starlette(
-    lifespan=_lifespan,
-    routes=[
-        Route(
-            "/mcp", endpoint=_mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"]
-        ),
-        Mount("/mcp", app=mcp),
-        Mount("/api", app=api),
-        Mount("/", app=oauth),
-    ],
-)
+app = FastAPI(lifespan=_lifespan, docs_url=None, openapi_url=None)
+app.add_route("/mcp", _mcp_no_trailing_slash, methods=["GET", "POST", "DELETE"])
+app.mount("/mcp", mcp)
+app.mount("/api", api)
+app.mount("/", oauth)
 
 app.add_middleware(
-    CORSMiddleware,  # type: ignore[arg-type]
+    CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
