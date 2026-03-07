@@ -1,4 +1,4 @@
-"""HTML page renderers for the two-phase login flow, built with htpy."""
+"""HTML page renderers for the three-phase login flow, built with htpy."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from htpy import (
     meta,
     ol,
     p,
+    script,
     strong,
     summary,
     title,
@@ -35,12 +36,12 @@ def render_login(request_id: str, error: str = "") -> HTMLResponse:
         head[
             meta(charset="UTF-8"),
             meta(name="viewport", content="width=device-width, initial-scale=1.0"),
-            title["Substack Gateway — Sign in (1/2)"],
+            title["Substack Gateway — Sign in (1/3)"],
             link(rel="stylesheet", href="/login/static/login.css"),
         ],
         body[
             div(class_="card")[
-                p(class_="step")["Step 1 of 2"],
+                p(class_="step")["Step 1 of 3"],
                 h1["Substack Gateway"],
                 p(class_="sub")["Sign in with your account credentials"],
                 p(class_="error")[error] if error else None,
@@ -76,12 +77,12 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
         head[
             meta(charset="UTF-8"),
             meta(name="viewport", content="width=device-width, initial-scale=1.0"),
-            title["Substack Gateway — Connect Substack (2/2)"],
+            title["Substack Gateway — Connect Substack (2/3)"],
             link(rel="stylesheet", href="/login/static/token.css"),
         ],
         body[
             div(class_="card")[
-                p(class_="step")["Step 2 of 2"],
+                p(class_="step")["Step 2 of 3"],
                 h1["Connect your Substack"],
                 p(class_="sub")[
                     "Enter your base64-encoded Substack token so the gateway can act on your behalf"
@@ -138,6 +139,28 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                         "Your Substack publication URL (no trailing slash)"
                     ],
                     button(type="submit")["Authorize"],
+                ],
+            ],
+        ],
+    ]
+    return HTMLResponse(_page(doc))
+
+
+def render_success(redirect_url: str) -> HTMLResponse:
+    doc = html(lang="en")[
+        head[
+            meta(charset="UTF-8"),
+            meta(name="viewport", content="width=device-width, initial-scale=1.0"),
+            title["Substack Gateway — Done (3/3)"],
+            link(rel="stylesheet", href="/login/static/token.css"),
+            script[f"window.location.replace({redirect_url!r});"],
+        ],
+        body[
+            div(class_="card")[
+                p(class_="step")["Step 3 of 3"],
+                h1["All done!"],
+                p(class_="sub")[
+                    "Your Substack account has been connected. You can close this tab."
                 ],
             ],
         ],

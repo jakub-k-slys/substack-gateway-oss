@@ -1,7 +1,8 @@
-"""Two-phase login handlers.
+"""Three-phase login handlers.
 
 Phase 1 (process_login)       — email + password → login session
-Phase 2 (process_token_form)  — base64-encoded Substack token → auth code + redirect
+Phase 2 (process_token_form)  — base64-encoded Substack token → auth code + success page
+Phase 3                       — success page with JS redirect to OAuth callback
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from starlette.responses import RedirectResponse, Response
 from gateway.oauth.bearer import validate_bearer
 from gateway.oauth.db import DBAuthCode, DBLoginSession
 from gateway.oauth.repositories import UnitOfWork
-from gateway.oauth.templates import render_login, render_token_form
+from gateway.oauth.templates import render_login, render_success, render_token_form
 
 _UTC = timezone.utc
 _AUTH_CODE_TTL = 300  # seconds
@@ -123,4 +124,4 @@ async def process_token_form(request: Request) -> Response:
     redirect_url = construct_redirect_uri(
         auth_req.redirect_uri, code=code, state=auth_req.state
     )
-    return RedirectResponse(url=redirect_url, status_code=302)
+    return render_success(redirect_url)
