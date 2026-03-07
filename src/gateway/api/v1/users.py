@@ -6,16 +6,13 @@ import bcrypt
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from gateway.config import settings
 from gateway.oauth.db import DBUser, init_db
 from gateway.oauth.repositories import UnitOfWork
 
 router = APIRouter(tags=["users"])
 
 _log = logging.getLogger(__name__)
-
-_INIT_TOKEN = (
-    "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
-)
 
 
 class CreateUserRequest(BaseModel):
@@ -29,10 +26,8 @@ async def create_user(
     token: str = Query(...),
 ) -> dict[str, str]:
     """Create a gateway user (OAuth login credentials). Requires ?token."""
-    if token != _INIT_TOKEN:
+    if token != settings.admin_token:
         raise HTTPException(status_code=403, detail="Invalid token.")
-
-    from gateway.config import settings
 
     if not settings.oauth_enabled:
         raise HTTPException(
