@@ -56,11 +56,19 @@ async def get_credentials(request: Request = CurrentRequest()) -> BearerCredenti
     token = get_access_token()
     if token is not None:
         user_id = (token.claims or {}).get("user_id")
-        if user_id is not None:
-            creds = await _load_user_creds(int(user_id))
-            if creds is not None:
-                bearer_b64, _pub_url = creds
-                return decode_bearer_credentials(bearer_b64)
+        if user_id is None:
+            raise ToolError(
+                "OAuth token is missing the 'user_id' claim. "
+                "Please re-authenticate to obtain a valid token."
+            )
+        creds = await _load_user_creds(int(user_id))
+        if creds is None:
+            raise ToolError(
+                "No Substack credentials found for your account. "
+                "Please configure your credentials first."
+            )
+        bearer_b64, _pub_url = creds
+        return decode_bearer_credentials(bearer_b64)
     return _decode_bearer(request.headers.get("authorization", ""))
 
 
@@ -72,14 +80,22 @@ async def get_publication_client(
     token = get_access_token()
     if token is not None:
         user_id = (token.claims or {}).get("user_id")
-        if user_id is not None:
-            creds = await _load_user_creds(int(user_id))
-            if creds is not None:
-                _bearer_b64, pub_url = creds
-                _log.debug("Creating PublicationClient for publication: %s", pub_url)
-                async with make_publication_client(credentials, pub_url) as pub:
-                    yield pub
-                return
+        if user_id is None:
+            raise ToolError(
+                "OAuth token is missing the 'user_id' claim. "
+                "Please re-authenticate to obtain a valid token."
+            )
+        creds = await _load_user_creds(int(user_id))
+        if creds is None:
+            raise ToolError(
+                "No Substack credentials found for your account. "
+                "Please configure your credentials first."
+            )
+        _bearer_b64, pub_url = creds
+        _log.debug("Creating PublicationClient for publication: %s", pub_url)
+        async with make_publication_client(credentials, pub_url) as pub:
+            yield pub
+        return
     publication_url = request.headers.get("x-publication-url", "")
     if not publication_url:
         raise ToolError(f"Missing x-publication-url header. {_HEADER_HINT}")
