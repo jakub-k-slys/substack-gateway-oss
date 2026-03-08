@@ -1,4 +1,17 @@
-Feature: Notes lifecycle (e2e)
+Feature: Notes endpoints (e2e)
+
+  Scenario: List own notes
+    Given valid credentials
+    When I GET /api/v1/me/notes
+    Then the response status is 200
+    And the response field "items" is a list
+
+  Scenario: Get note by ID
+    Given valid credentials
+    And a test note ID
+    When I fetch the test note
+    Then the response status is 200
+    And the response has field "id"
 
   Scenario: Create, fetch, and delete a note
     Given valid credentials
@@ -15,10 +28,3 @@ Feature: Notes lifecycle (e2e)
     # 3) Delete the note
     When I delete the test note
     Then the response status is 204
-
-  Scenario: Get note by ID
-    Given valid credentials
-    And a test note ID
-    When I fetch the test note
-    Then the response status is 200
-    And the response has field "id"

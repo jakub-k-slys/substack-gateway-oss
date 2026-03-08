@@ -124,6 +124,45 @@ def step_delete_note(context):
     )
 
 
+@when('I create a draft with title "{title}" and body "{body}"')
+def step_create_draft(context, title, body):
+    context.response = context.client.post(
+        "/api/v1/drafts",
+        json={"title": title, "body": body},
+        headers=context.headers,
+    )
+
+
+@given("the created draft ID is saved")
+def step_save_created_draft_id(context):
+    data = context.response.json()
+    assert "id" in data, f"Expected 'id' in response, got: {list(data.keys())}"
+    context.draft_id = str(data["id"])
+
+
+@when("I fetch the test draft")
+def step_fetch_draft(context):
+    context.response = context.client.get(
+        f"/api/v1/drafts/{context.draft_id}", headers=context.headers
+    )
+
+
+@when('I update the test draft with title "{title}"')
+def step_update_draft(context, title):
+    context.response = context.client.put(
+        f"/api/v1/drafts/{context.draft_id}",
+        json={"title": title},
+        headers=context.headers,
+    )
+
+
+@when("I delete the test draft")
+def step_delete_draft(context):
+    context.response = context.client.delete(
+        f"/api/v1/drafts/{context.draft_id}", headers=context.headers
+    )
+
+
 @given("a test post ID")
 def step_post_id(context):
     post_id = os.environ.get("E2E_POST_ID", "")
