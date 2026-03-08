@@ -147,15 +147,6 @@ def step_fetch_draft(context):
     )
 
 
-@when('I update the test draft with title "{title}"')
-def step_update_draft(context, title):
-    context.response = context.client.put(
-        f"/api/v1/drafts/{context.draft_id}",
-        json={"title": title},
-        headers=context.headers,
-    )
-
-
 @when("I delete the test draft")
 def step_delete_draft(context):
     context.response = context.client.delete(

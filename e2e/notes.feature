@@ -1,4 +1,4 @@
-Feature: Notes endpoints (e2e)
+Feature: Notes endpoints
 
   Scenario: List own notes
     Given valid credentials
