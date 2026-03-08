@@ -101,6 +101,29 @@ def step_get_note(context):
     )
 
 
+@when('I create a note with content "{content}"')
+def step_create_note(context, content):
+    context.response = context.client.post(
+        "/api/v1/notes",
+        json={"content": content},
+        headers=context.headers,
+    )
+
+
+@given("the created note ID is saved")
+def step_save_created_note_id(context):
+    data = context.response.json()
+    assert "id" in data, f"Expected 'id' in response, got: {list(data.keys())}"
+    context.note_id = str(data["id"])
+
+
+@when("I delete the test note")
+def step_delete_note(context):
+    context.response = context.client.delete(
+        f"/api/v1/notes/{context.note_id}", headers=context.headers
+    )
+
+
 @given("a test post ID")
 def step_post_id(context):
     post_id = os.environ.get("E2E_POST_ID", "")
