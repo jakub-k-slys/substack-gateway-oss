@@ -7,9 +7,10 @@ from mcp.server.auth.provider import RefreshToken
 
 
 class _RefreshTokenWithJti(RefreshToken):
-    """RefreshToken extended with access_jti for cascade revocation."""
+    """RefreshToken extended with access_jti for cascade revocation and user_id propagation."""
 
     access_jti: str | None = None
+    user_id: int | None = None
 
 
 def validate_bearer(bearer: str) -> None:
