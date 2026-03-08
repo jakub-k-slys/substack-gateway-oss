@@ -1,0 +1,97 @@
+{
+  "item": {
+    "entity_key": "c-131719084",
+    "type": "comment",
+    "context": {
+      "fallbackReason": "",
+      "fallbackUrl": null,
+      "users": [],
+      "timestamp": "2025-07-03T14:23:06.424Z",
+      "type": "note",
+      "source": "db-note"
+    },
+    "publication": null,
+    "post": null,
+    "comment": {
+      "id": 131719084,
+      "body": "Hello world!",
+      "body_json": {
+        "content": [
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "Hello world!"
+              }
+            ],
+            "type": "paragraph"
+          }
+        ],
+        "type": "doc",
+        "attrs": {
+          "schemaVersion": "v1"
+        }
+      },
+      "publication_id": null,
+      "post_id": null,
+      "user_id": 254824415,
+      "type": "feed",
+      "date": "2025-07-03T14:23:06.424Z",
+      "edited_at": null,
+      "ancestor_path": "",
+      "reply_minimum_role": "everyone",
+      "media_clip_id": null,
+      "name": "Jakub Slys",
+      "photo_url": "https://substack-post-media.s3.amazonaws.com/public/images/4d17c584-3500-4a83-9db9-f826c356ee62_2000x2000.png",
+      "bio": "test bio",
+      "handle": "jakubslys",
+      "reaction_count": 0,
+      "reactions": {
+        "\u2764": 0
+      },
+      "restacks": 0,
+      "restacked": false,
+      "children_count": 0,
+      "attachments": [],
+      "user_bestseller_tier": null,
+      "user_primary_publication": {
+        "id": 2817779,
+        "subdomain": "slys",
+        "custom_domain": "iam.slys.dev",
+        "custom_domain_optional": false,
+        "name": "slys.dev",
+        "logo_url": "https://substack-post-media.s3.amazonaws.com/public/images/d3b67508-e73c-434b-89ae-fde2c72e8fa4_256x256.png",
+        "author_id": 254824415,
+        "user_id": 254824415,
+        "handles_enabled": false,
+        "explicit": false,
+        "is_personal_mode": false,
+        "payments_state": "enabled",
+        "pledges_enabled": false
+      }
+    },
+    "parentComments": [],
+    "isMuted": false,
+    "canReply": true,
+    "trackingParameters": {
+      "item_primary_entity_key": "c-131719084",
+      "item_entity_key": "c-131719084",
+      "item_type": "comment",
+      "item_comment_id": 131719084,
+      "item_content_user_id": 254824415,
+      "item_context_type": "note",
+      "item_context_type_bucket": "",
+      "item_context_timestamp": "2025-07-03T14:23:06.424Z",
+      "item_context_user_id": 254824415,
+      "item_context_user_ids": [],
+      "item_can_reply": true,
+      "item_last_impression_at": null,
+      "item_source": "db-note",
+      "impression_id": "b71bea28-53b9-4849-bc41-97c2e7f93d77",
+      "followed_user_count": 0,
+      "subscribed_publication_count": 0,
+      "is_following": false,
+      "is_explicitly_subscribed": false
+    }
+  }
+}
