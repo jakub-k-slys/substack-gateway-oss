@@ -6,7 +6,7 @@ Feature: Drafts endpoints
     Then the response status is 200
     And the response field "items" is a list
 
-  Scenario: Draft lifecycle — create, fetch, delete
+  Scenario: Draft lifecycle — create, fetch, update, delete
     Given valid credentials
     # 1) Create a new draft
     When I create a draft with title "e2e test draft" and body "Hello from e2e tests"
@@ -19,6 +19,9 @@ Feature: Drafts endpoints
     Then the response status is 200
     And the response has field "title"
     And the response has field "body"
-    # 3) Delete the draft
+    # 3) Update the draft title
+    When I update the test draft with title "updated e2e title"
+    Then the response status is 200
+    # 4) Delete the draft
     When I delete the test draft
     Then the response status is 204
