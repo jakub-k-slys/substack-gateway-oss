@@ -39,7 +39,7 @@ class UserRepository:
 
     async def delete_by_email(self, email: str) -> bool:
         result = await self._s.execute(delete(DBUser).where(DBUser.email == email))
-        return result.rowcount > 0
+        return int(result.rowcount or 0) > 0  # type: ignore[arg-type]
 
 
 class OAuthClientRepository:
