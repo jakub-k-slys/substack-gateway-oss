@@ -10,20 +10,16 @@ from __future__ import annotations
 import asyncio
 import time
 import types
-from unittest.mock import patch
 
 import jwt
-import pytest
 from behave import given, then, when
 from mcp.server.auth.provider import TokenError
-from mcp.server.auth.settings import ClientRegistrationOptions
-from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
+from mcp.shared.auth import OAuthClientInformationFull
 from pydantic import AnyHttpUrl
 
 from gateway.oauth.bearer import _RefreshTokenWithJti
 from gateway.oauth.db import DBAccessToken, DBAuthCode, DBRefreshToken
 from gateway.oauth.provider import NeonOAuthProvider
-
 
 # ---------------------------------------------------------------------------
 # In-memory store and mock repositories
@@ -69,7 +65,9 @@ class _MockRefreshTokens:
     async def save(self, token: DBRefreshToken) -> None:
         self._s.refresh_tokens[token.token_hash] = token
 
-    async def get_active(self, token_hash: str, client_id: str) -> DBRefreshToken | None:
+    async def get_active(
+        self, token_hash: str, client_id: str
+    ) -> DBRefreshToken | None:
         rec = self._s.refresh_tokens.get(token_hash)
         if rec and rec.client_id == client_id and not rec.revoked:
             return rec
@@ -173,7 +171,9 @@ def step_register_client(context, client_id):
     context.oauth_client = _make_client(client_id)
 
 
-@given('a valid auth code "{code}" for client "{client_id}" belonging to user {user_id:d}')
+@given(
+    'a valid auth code "{code}" for client "{client_id}" belonging to user {user_id:d}'
+)
 def step_add_auth_code(context, code, client_id, user_id):
     context.auth_code_str = code
     context.auth_code_obj = _make_auth_code(code, client_id, user_id)
@@ -272,9 +272,7 @@ def step_exchange_original_refresh_token_again(context, client_id):
         )
         return
     try:
-        _run(
-            context.provider.exchange_refresh_token(context.oauth_client, loaded, [])
-        )
+        _run(context.provider.exchange_refresh_token(context.oauth_client, loaded, []))
     except TokenError as exc:
         context.second_refresh_error = exc
 
@@ -349,9 +347,9 @@ def step_new_access_token_has_user_id(context, user_id):
 
 @then("the new refresh token is different from the original")
 def step_new_rt_differs(context):
-    assert context.refreshed_token_response.refresh_token != context.original_refresh_token, (
-        "New refresh token should differ from the original (token rotation)"
-    )
+    assert (
+        context.refreshed_token_response.refresh_token != context.original_refresh_token
+    ), "New refresh token should differ from the original (token rotation)"
 
 
 @then("the second refresh raises an invalid_grant error")
