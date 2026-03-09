@@ -140,6 +140,7 @@ class NeonOAuthProvider(OAuthProvider):
                     client_id=client.client_id,
                     scopes=" ".join(authorization_code.scopes),
                     access_jti=jti,
+                    user_id=user_id,
                 )
             )
 
@@ -169,6 +170,7 @@ class NeonOAuthProvider(OAuthProvider):
             scopes=record.scopes.split() if record.scopes else [],
             expires_at=record.expires_at,
             access_jti=record.access_jti,
+            user_id=record.user_id,
         )
 
     async def exchange_refresh_token(
@@ -187,6 +189,7 @@ class NeonOAuthProvider(OAuthProvider):
 
         old_hash = hash_token(refresh_token.token)
         old_jti = getattr(refresh_token, "access_jti", None)
+        user_id = getattr(refresh_token, "user_id", None)
         new_refresh_str = generate_opaque_token()
         new_refresh_hash = hash_token(new_refresh_str)
 
@@ -196,7 +199,7 @@ class NeonOAuthProvider(OAuthProvider):
                 await uow.access_tokens.revoke(old_jti)
 
             access_token_str, jti, exp = self._issue_jwt(
-                client.client_id, effective_scopes
+                client.client_id, effective_scopes, user_id
             )
             await uow.access_tokens.save(
                 DBAccessToken(
@@ -212,6 +215,7 @@ class NeonOAuthProvider(OAuthProvider):
                     client_id=client.client_id,
                     scopes=" ".join(effective_scopes),
                     access_jti=jti,
+                    user_id=user_id,
                 )
             )
 

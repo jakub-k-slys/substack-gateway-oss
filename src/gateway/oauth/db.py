@@ -132,6 +132,7 @@ class DBRefreshToken(Base):
         Boolean, nullable=False, server_default="false", default=False
     )
     access_jti: Mapped[str | None] = mapped_column(Text)
+    user_id: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), server_default="now()"
     )
