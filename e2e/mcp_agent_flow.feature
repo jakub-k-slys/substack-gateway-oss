@@ -8,15 +8,19 @@ Feature: MCP agent flow
   #   - SUBSTACK_GATEWAY_BASE_URL (e.g. http://localhost:5001)
   #   - SUBSTACK_TOKEN (base64-encoded Substack credentials)
   #   - SUBSTACK_PUBLICATION_URL (e.g. https://example.substack.com)
-  #   - E2E_OAUTH_EMAIL / E2E_OAUTH_PASSWORD (registered gateway user)
+  #   - SUBSTACK_GATEWAY_ADMIN_TOKEN (admin token for user management API)
   # OAuth must be enabled on the target server.
+  # A temporary test user is created via the admin API and deleted after each scenario.
+
+  Background:
+    Given OAuth is enabled on the gateway
+    And a temporary test user exists
 
   # ------------------------------------------------------------------
   # Flow 1: Connect → Authorize → Use token → Call tool
   # ------------------------------------------------------------------
 
   Scenario: Full MCP agent flow — OAuth, initialize, list tools, call tool
-    Given OAuth is enabled on the gateway
     # 1) Discover OAuth metadata
     When I discover the OAuth metadata
     Then the metadata contains token and authorization endpoints
@@ -49,7 +53,6 @@ Feature: MCP agent flow
   # ------------------------------------------------------------------
 
   Scenario: Token refresh flow — refresh and use new token
-    Given OAuth is enabled on the gateway
     # Setup: full OAuth handshake
     When I discover the OAuth metadata
     And I register as an OAuth client via the registration endpoint

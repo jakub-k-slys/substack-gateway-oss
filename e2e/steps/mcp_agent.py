@@ -4,9 +4,14 @@ Simulates a full MCP agent lifecycle: OAuth discovery → client registration �
 authorization → token exchange → MCP initialize → tool calls, all using raw
 HTTP against the gateway's streamable-http MCP transport.
 
-Required environment variables (on top of the standard e2e ones):
-  E2E_OAUTH_EMAIL    — registered gateway user email
-  E2E_OAUTH_PASSWORD — registered gateway user password
+A temporary test user is created via POST /api/v1/users before each scenario
+and deleted via DELETE /api/v1/users afterward — no pre-existing user needed.
+
+Required environment variables:
+  SUBSTACK_TOKEN           — base64-encoded Substack credentials
+  SUBSTACK_PUBLICATION_URL — publication URL (e.g. https://example.substack.com)
+
+  SUBSTACK_GATEWAY_ADMIN_TOKEN — admin token for user management API
 """
 
 from __future__ import annotations
@@ -86,23 +91,58 @@ def _generate_pkce() -> tuple[str, str]:
 
 @given("OAuth is enabled on the gateway")
 def step_oauth_enabled(context):
-    email = os.environ.get("E2E_OAUTH_EMAIL", "")
-    password = os.environ.get("E2E_OAUTH_PASSWORD", "")
     token = os.environ.get("SUBSTACK_TOKEN", "")
     pub_url = os.environ.get("SUBSTACK_PUBLICATION_URL", "")
-    if not all([email, password, token, pub_url]):
+    admin_token = os.environ.get("SUBSTACK_GATEWAY_ADMIN_TOKEN", "")
+    if not all([token, pub_url, admin_token]):
         context.scenario.skip(
-            "E2E_OAUTH_EMAIL, E2E_OAUTH_PASSWORD, SUBSTACK_TOKEN, "
-            "and SUBSTACK_PUBLICATION_URL are all required for MCP agent flow tests"
+            "SUBSTACK_TOKEN, SUBSTACK_PUBLICATION_URL, and "
+            "SUBSTACK_GATEWAY_ADMIN_TOKEN are all required "
+            "for MCP agent flow tests"
         )
         return
-    context.oauth_email = email
-    context.oauth_password = password
     context.substack_token = token
     context.publication_url = pub_url
+    context.admin_token = admin_token
     context.pkce_verifier, context.pkce_challenge = _generate_pkce()
     context.oauth_state = secrets.token_urlsafe(32)
     context.redirect_uri = "http://localhost:19876/callback"
+
+
+@given("a temporary test user exists")
+def step_create_temp_user(context):
+    # Generate unique credentials for this scenario
+    suffix = secrets.token_hex(8)
+    context.oauth_email = f"e2e-test-{suffix}@test.gateway.local"
+    context.oauth_password = secrets.token_urlsafe(24)
+
+    resp = context.client.post(
+        "/api/v1/users",
+        params={"token": context.admin_token},
+        json={
+            "email": context.oauth_email,
+            "password": context.oauth_password,
+        },
+    )
+    assert resp.status_code == 201, (
+        f"Failed to create test user: {resp.status_code} {resp.text}"
+    )
+
+    # Register cleanup so the user is deleted after the scenario
+    context.add_cleanup(_delete_temp_user, context)
+
+
+def _delete_temp_user(context):
+    """Cleanup callback — delete the temporary test user after the scenario."""
+    try:
+        context.client.request(
+            "DELETE",
+            "/api/v1/users",
+            params={"token": context.admin_token},
+            json={"email": context.oauth_email},
+        )
+    except Exception:
+        pass  # Best-effort cleanup
 
 
 # ---------------------------------------------------------------------------
