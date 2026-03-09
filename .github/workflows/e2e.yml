@@ -39,6 +39,7 @@ jobs:
           SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_TOKEN: ${{ secrets.SUBSTACK_TOKEN }}
           SUBSTACK_PUBLICATION_URL: ${{ secrets.SUBSTACK_PUBLICATION_URL }}
+          SUBSTACK_GATEWAY_ADMIN_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_ADMIN_TOKEN }}
           E2E_PROFILE_SLUG: ${{ secrets.E2E_PROFILE_SLUG }}
           E2E_NOTE_ID: ${{ secrets.E2E_NOTE_ID }}
           E2E_POST_ID: ${{ secrets.E2E_POST_ID }}
