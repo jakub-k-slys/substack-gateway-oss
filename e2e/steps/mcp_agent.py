@@ -111,10 +111,18 @@ def step_oauth_enabled(context):
 
 @given("a temporary test user exists")
 def step_create_temp_user(context):
-    # Generate unique credentials for this scenario
-    suffix = secrets.token_hex(8)
-    context.oauth_email = f"e2e-test-{suffix}@test.gateway.local"
+    # Fixed, clearly-test-only email — never collides with real users.
+    # Only the password is randomised (so concurrent runs don't share state).
+    context.oauth_email = "e2e-mcp-agent-test@test.gateway.local"
     context.oauth_password = secrets.token_urlsafe(24)
+
+    # Delete any leftover from a previous failed run before creating
+    context.client.request(
+        "DELETE",
+        "/api/v1/users",
+        params={"token": context.admin_token},
+        json={"email": context.oauth_email},
+    )
 
     resp = context.client.post(
         "/api/v1/users",
