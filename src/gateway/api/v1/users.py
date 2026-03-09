@@ -20,6 +20,10 @@ class CreateUserRequest(BaseModel):
     password: str
 
 
+class DeleteUserRequest(BaseModel):
+    email: str
+
+
 @router.post("/users", status_code=201)
 async def create_user(
     body: CreateUserRequest,
@@ -51,3 +55,28 @@ async def create_user(
         raise HTTPException(status_code=500, detail="Failed to create user.") from exc
 
     return {"email": email}
+
+
+@router.delete("/users", status_code=204)
+async def delete_user(
+    body: DeleteUserRequest,
+    token: str = Query(...),
+) -> None:
+    """Delete a gateway user by email. Requires ?token (admin token)."""
+    if token != settings.admin_token:
+        raise HTTPException(status_code=403, detail="Invalid token.")
+
+    if not settings.oauth_enabled:
+        raise HTTPException(
+            status_code=503, detail="OAuth is not configured on this server."
+        )
+
+    await init_db()
+
+    email = body.email.strip().lower()
+
+    async with UnitOfWork() as uow:
+        deleted = await uow.users.delete_by_email(email)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found.")
