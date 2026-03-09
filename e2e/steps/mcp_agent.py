@@ -248,7 +248,7 @@ def step_complete_login(context):
 
     # Phase 2: POST Substack token + publication URL
     resp = context.client.post(
-        "/login/token/",
+        "/login/token",
         data={
             "session_id": session_id,
             "token": context.substack_token,
