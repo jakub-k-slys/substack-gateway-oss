@@ -5,6 +5,8 @@ import re
 from collections.abc import Callable
 from typing import Any
 
+import markdownify
+
 # Substack note payload envelope constants
 _TAB_ID = "for-you"
 _SURFACE = "feed"
@@ -195,6 +197,26 @@ def _bold(node: dict[str, Any]) -> dict[str, Any]:
 
 def _paragraph(content: list[dict[str, Any]]) -> dict[str, Any]:
     return {"type": "paragraph", "content": content}
+
+
+# ------------------------------------------------------------------
+# HTML → Markdown converter
+# ------------------------------------------------------------------
+
+
+def html_to_markdown(html: str) -> str:
+    """Convert an HTML string to Markdown.
+
+    Uses markdownify with sensible defaults: ATX-style headings (#),
+    fenced code blocks, and blank lines between blocks.
+    """
+    return markdownify.markdownify(
+        html,
+        heading_style=markdownify.ATX,
+        bullets="-",
+        code_language_callback=None,
+        newline_style=markdownify.BACKSLASH,
+    ).strip()
 
 
 # ------------------------------------------------------------------

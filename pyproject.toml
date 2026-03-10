@@ -17,6 +17,7 @@ dependencies = [
   "asyncpg>=0.31.0",
   "htpy>=25.12.0",
   "aiofiles>=24.1.0",
+  "markdownify>=1.2.2",
 ]
 
 [build-system]

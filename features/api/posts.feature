@@ -10,6 +10,8 @@ Feature: Posts endpoints
     Then the response status code is 200
     And the response field "title" is "Sample Post Title"
     And the response field "slug" is "sample-post-title"
+    And the response field "html_body" is not null
+    And the response field "markdown" is not null
 
   Scenario: Post not found returns 404
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
