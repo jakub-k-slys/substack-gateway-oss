@@ -4,7 +4,11 @@ import logging
 
 from pydantic import BaseModel
 
-from gateway.converters.markdown import draft_body_to_markdown, markdown_to_draft_body
+from gateway.converters.markdown import (
+    draft_body_to_markdown,
+    html_to_markdown,
+    markdown_to_draft_body,
+)
 from gateway.models.substack import (
     SubstackComment,
     SubstackDraft,
@@ -169,6 +173,7 @@ class FullPostResponse(BaseModel):
     url: str
     published_at: str
     html_body: str | None = None
+    markdown: str | None = None
     truncated_body: str | None = None
     reactions: dict[str, int] | None = None
     restacks: int | None = None
@@ -177,6 +182,7 @@ class FullPostResponse(BaseModel):
 
     @classmethod
     def from_substack(cls, post: SubstackFullPost) -> FullPostResponse:
+        raw_html = post.body_html or post.html_body
         return cls(
             id=post.id,
             title=post.title,
@@ -184,7 +190,8 @@ class FullPostResponse(BaseModel):
             subtitle=post.subtitle,
             url=post.canonical_url,
             published_at=post.post_date,
-            html_body=post.body_html or post.html_body,
+            html_body=raw_html,
+            markdown=html_to_markdown(raw_html) if raw_html else None,
             truncated_body=post.truncated_body_text,
             reactions=post.reactions,
             restacks=post.restacks,
