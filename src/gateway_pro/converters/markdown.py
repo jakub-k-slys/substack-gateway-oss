@@ -323,7 +323,9 @@ def _prosemirror_node_to_md(node: dict[str, Any]) -> str | None:
     if node_type in ("blockquote", "pullquote"):
         prefix = "> " if node_type == "blockquote" else "|> "
         blank = ">" if node_type == "blockquote" else "|>"
-        inner_blocks = [_prosemirror_node_to_md(item) for item in node.get("content", [])]
+        inner_blocks = [
+            _prosemirror_node_to_md(item) for item in node.get("content", [])
+        ]
         inner_md = "\n\n".join(block for block in inner_blocks if block is not None)
         return "\n".join(
             f"{prefix}{line}" if line else blank for line in inner_md.splitlines()

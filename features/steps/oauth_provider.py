@@ -155,8 +155,8 @@ def step_configure_provider(context, secret):
     context.provider_store = _Store()
     context.provider = _make_provider()
 
-    # Patch UnitOfWork in provider module and settings.jwt_secret
-    import gateway.oauth.provider as provider_mod
+    # Patch UnitOfWork in the actual provider module (not the re-export wrapper)
+    import gateway_pro.oauth.provider as provider_mod
     from gateway.config import settings
 
     store = context.provider_store

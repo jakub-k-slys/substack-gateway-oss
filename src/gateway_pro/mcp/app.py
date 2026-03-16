@@ -247,7 +247,10 @@ def register_tools(mcp: FastMCP) -> None:
             idempotentHint=True,
             openWorldHint=True,
         ),
-        meta={"category": "profiles", "substack_endpoint": "GET /reader/feed/profile/{id}"},
+        meta={
+            "category": "profiles",
+            "substack_endpoint": "GET /reader/feed/profile/{id}",
+        },
     )(get_profile_notes)
     mcp.tool(
         description="Retrieve the full content of a Substack post by its numeric ID.",

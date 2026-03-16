@@ -171,8 +171,8 @@ def step_register_user(context, email, password):
         context.oauth_store = InMemoryStore()
     context.oauth_store.add_user(email, password)
 
-    # Patch UnitOfWork in login module
-    import gateway.oauth.login as login_mod
+    # Patch UnitOfWork in the actual login module (not the re-export wrapper)
+    import gateway_pro.oauth.login as login_mod
     from gateway.config import settings
 
     store = context.oauth_store
