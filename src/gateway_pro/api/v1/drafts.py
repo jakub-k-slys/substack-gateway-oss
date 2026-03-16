@@ -4,14 +4,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 
-from gateway.models.schemas import (
+from gateway_pro.api.deps import get_drafts_service, require_gateway_key
+from gateway_pro.models.schemas import (
     CreateDraftRequest,
     CreateDraftResponse,
     DraftResponse,
     DraftsListResponse,
     UpdateDraftRequest,
 )
-from gateway_pro.api.deps import get_drafts_service, require_gateway_key
 from gateway_pro.services.drafts import DraftsService
 
 router = APIRouter(tags=["drafts"])

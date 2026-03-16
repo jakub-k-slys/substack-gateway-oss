@@ -1,19 +1,15 @@
 from __future__ import annotations
 
 import logging
+from importlib import import_module
 
 from pydantic import BaseModel
 
 from gateway.converters.markdown import (
-    draft_body_to_markdown,
     html_to_markdown,
-    markdown_to_draft_body,
 )
 from gateway.models.substack import (
     SubstackComment,
-    SubstackDraft,
-    SubstackDraftCreated,
-    SubstackDraftSummary,
     SubstackFollowingUser,
     SubstackFullPost,
     SubstackNote,
@@ -22,8 +18,9 @@ from gateway.models.substack import (
     SubstackPreviewPost,
     SubstackProfilePostsPage,
     SubstackPublicProfile,
-    SubstackUpdateDraftPayload,
 )
+
+_pro_schemas = import_module("gateway_pro.models.schemas")
 
 _log = logging.getLogger(__name__)
 
@@ -267,75 +264,9 @@ class CreateNoteResponse(BaseModel):
 # ------------------------------------------------------------------
 
 
-class DraftSummaryResponse(BaseModel):
-    id: int
-    uuid: str
-    title: str | None = None
-    updated: str | None = None
-
-    @classmethod
-    def from_substack(cls, draft: SubstackDraftSummary) -> DraftSummaryResponse:
-        return cls(
-            id=draft.id,
-            uuid=draft.uuid,
-            title=draft.draft_title,
-            updated=draft.draft_updated_at,
-        )
-
-
-class DraftsListResponse(BaseModel):
-    items: list[DraftSummaryResponse]
-
-    @classmethod
-    def from_substack(cls, drafts: list[SubstackDraftSummary]) -> DraftsListResponse:
-        return cls(items=[DraftSummaryResponse.from_substack(d) for d in drafts])
-
-
-class CreateDraftRequest(BaseModel):
-    title: str | None = None
-    subtitle: str | None = None
-    body: str | None = None
-
-
-class UpdateDraftRequest(BaseModel):
-    title: str | None = None
-    subtitle: str | None = None
-    body: str | None = None
-
-    def to_substack_payload(self) -> SubstackUpdateDraftPayload:
-        """Build a Substack payload containing only the fields explicitly provided."""
-        field_map = {
-            "title": "draft_title",
-            "subtitle": "draft_subtitle",
-            "body": "draft_body",
-        }
-        kwargs: dict[str, str | None] = {}
-        for f in self.model_fields_set:
-            value = getattr(self, f)
-            if f == "body" and value is not None:
-                value = markdown_to_draft_body(value)
-            kwargs[field_map[f]] = value
-        return SubstackUpdateDraftPayload(**kwargs)
-
-
-class CreateDraftResponse(BaseModel):
-    id: int
-    uuid: str
-
-    @classmethod
-    def from_substack(cls, draft: SubstackDraftCreated) -> CreateDraftResponse:
-        return cls(id=draft.id, uuid=draft.uuid)
-
-
-class DraftResponse(BaseModel):
-    title: str | None = None
-    subtitle: str | None = None
-    body: str | None = None
-
-    @classmethod
-    def from_substack(cls, draft: SubstackDraft) -> DraftResponse:
-        return cls(
-            title=draft.draft_title,
-            subtitle=draft.draft_subtitle,
-            body=draft_body_to_markdown(draft.draft_body) if draft.draft_body else None,
-        )
+DraftSummaryResponse = _pro_schemas.DraftSummaryResponse
+DraftsListResponse = _pro_schemas.DraftsListResponse
+CreateDraftRequest = _pro_schemas.CreateDraftRequest
+UpdateDraftRequest = _pro_schemas.UpdateDraftRequest
+CreateDraftResponse = _pro_schemas.CreateDraftResponse
+DraftResponse = _pro_schemas.DraftResponse

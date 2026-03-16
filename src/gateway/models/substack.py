@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from importlib import import_module
+
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
+
+_pro_substack = import_module("gateway_pro.models.substack")
 
 
 class HandleOption(BaseModel):
@@ -201,48 +205,9 @@ class SubstackUserSettingsResponse(BaseModel):
     qualifies_for_badge: bool | None = None
 
 
-# ------------------------------------------------------------------
-# Drafts
-# ------------------------------------------------------------------
-
-
-class SubstackDraftByline(BaseModel):
-    id: int
-    is_guest: bool = False
-
-
-class SubstackDraftPayload(BaseModel):
-    draft_title: str = ""
-    draft_subtitle: str = ""
-    draft_podcast_url: str | None = None
-    draft_podcast_duration: str | None = None
-    draft_body: str = ""
-    section_chosen: bool = False
-    draft_section_id: int | None = None
-    draft_bylines: list[SubstackDraftByline]
-    audience: str = "only_paid"
-    type: str = "newsletter"
-
-
-class SubstackDraftCreated(BaseModel):
-    id: int
-    uuid: str
-
-
-class SubstackDraftSummary(BaseModel):
-    id: int
-    uuid: str
-    draft_title: str | None = None
-    draft_updated_at: str | None = None
-
-
-class SubstackDraft(BaseModel):
-    draft_title: str | None = None
-    draft_subtitle: str | None = None
-    draft_body: str | None = None
-
-
-class SubstackUpdateDraftPayload(BaseModel):
-    draft_title: str | None = None
-    draft_subtitle: str | None = None
-    draft_body: str | None = None
+SubstackDraftByline = _pro_substack.SubstackDraftByline
+SubstackDraftPayload = _pro_substack.SubstackDraftPayload
+SubstackDraftCreated = _pro_substack.SubstackDraftCreated
+SubstackDraftSummary = _pro_substack.SubstackDraftSummary
+SubstackDraft = _pro_substack.SubstackDraft
+SubstackUpdateDraftPayload = _pro_substack.SubstackUpdateDraftPayload

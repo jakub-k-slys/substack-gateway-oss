@@ -4,8 +4,8 @@ import logging
 
 from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
-from gateway.converters.markdown import markdown_to_draft_body
-from gateway.models.substack import (
+from gateway_pro.converters.markdown import markdown_to_draft_body
+from gateway_pro.models.substack import (
     SubstackDraft,
     SubstackDraftByline,
     SubstackDraftCreated,

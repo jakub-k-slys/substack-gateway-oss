@@ -7,23 +7,25 @@ from fastmcp.dependencies import Depends
 from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
-from gateway.converters.markdown import markdown_to_draft_body
 from gateway.mcp.deps import get_notes_service, get_posts_service, get_profiles_service
 from gateway.models.schemas import (
     CommentsResponse,
-    CreateDraftResponse,
     CreateNoteResponse,
-    DraftResponse,
-    DraftsListResponse,
     FullPostResponse,
     NotesPageResponse,
     PostsPageResponse,
 )
-from gateway.models.substack import SubstackUpdateDraftPayload
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
+from gateway_pro.converters.markdown import markdown_to_draft_body
 from gateway_pro.mcp.deps import get_drafts_service
+from gateway_pro.models.schemas import (
+    CreateDraftResponse,
+    DraftResponse,
+    DraftsListResponse,
+)
+from gateway_pro.models.substack import SubstackUpdateDraftPayload
 from gateway_pro.services.drafts import DraftsService
 
 
