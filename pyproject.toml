@@ -25,7 +25,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/gateway"]
+packages = ["src/gateway", "src/gateway_pro"]
 
 [dependency-groups]
 dev = [

@@ -17,7 +17,6 @@ from gateway.auth import (
 from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
 from gateway.models.schemas import BearerCredentials
-from gateway.services.drafts import DraftsService
 from gateway.services.following import FollowingService
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
@@ -45,7 +44,10 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
 
 async def _load_user_creds(user_id: int) -> tuple[str, str] | None:
     """Return (bearer_b64, pub_url) from user_credentials, or None."""
-    from gateway.oauth.repositories import UnitOfWork
+    try:
+        from gateway_pro.oauth.repositories import UnitOfWork
+    except ImportError:
+        return None
 
     async with UnitOfWork() as uow:
         record = await uow.user_credentials.get(user_id)
@@ -118,13 +120,6 @@ async def get_notes_service(
     sub: SubstackClient = Depends(get_substack_client),
 ) -> NotesService:
     return NotesService(pub, sub)
-
-
-async def get_drafts_service(
-    pub: PublicationClient = Depends(get_publication_client),
-    sub: SubstackClient = Depends(get_substack_client),
-) -> DraftsService:
-    return DraftsService(pub, sub)
 
 
 async def get_posts_service(

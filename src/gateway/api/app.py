@@ -8,6 +8,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.routing import APIRouter
 from starlette.responses import Response
 
 from gateway.api.v1 import router as v1_router
@@ -123,3 +124,15 @@ async def substack_api_error_handler(
 
 
 api.include_router(v1_router, prefix="/v1")
+
+
+def _load_pro_router() -> APIRouter | None:
+    try:
+        from gateway_pro.api.v1 import router as pro_router
+    except ImportError:
+        return None
+    return pro_router
+
+
+if pro_router := _load_pro_router():
+    api.include_router(pro_router, prefix="/v1")

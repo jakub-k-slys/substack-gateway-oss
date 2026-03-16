@@ -245,7 +245,7 @@ class TestCreateUserEndpoint:
         import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        users_mod = importlib.import_module("gateway.api.v1.users")
+        users_mod = importlib.import_module("gateway_pro.api.v1.users")
         from gateway.config import settings
 
         class MockUnitOfWork:
@@ -278,7 +278,7 @@ class TestCreateUserEndpoint:
         import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        users_mod = importlib.import_module("gateway.api.v1.users")
+        users_mod = importlib.import_module("gateway_pro.api.v1.users")
         from gateway.config import settings
 
         class MockFailingUnitOfWork:
