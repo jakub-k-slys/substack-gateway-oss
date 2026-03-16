@@ -1,0 +1,36 @@
+These instructions apply to the entire repository unless a deeper `AGENTS.md` overrides them.
+- `substack-gateway` is a Python 3.10+ FastAPI service that proxies authenticated requests to Substack.
+- The main application code lives in `src/gateway/`.
+- `main.py` is the local entry point.
+- The project also exposes MCP-related code under `src/gateway/mcp/` and OAuth flows under `src/gateway/oauth/`.
+- Install dependencies with `uv sync --dev`.
+- Run the app locally with `uv run main.py`.
+- Lint with `uv run ruff check .`.
+- Check formatting with `uv run ruff format --check .`.
+- Type-check with `uv run ty check .`.
+- Run unit tests with `uv run pytest`.
+- Run BDD tests with `uv run behave features/`.
+- Prefer targeted validation for the area you changed before running broader suites.
+- `src/gateway/api/`: FastAPI app wiring and request dependencies.
+- `src/gateway/client/`: HTTP clients and upstream error handling.
+- `src/gateway/services/`: business logic for drafts, notes, posts, profiles, and following.
+- `src/gateway/models/`: Pydantic schemas and upstream response models.
+- `src/gateway/converters/markdown.py`: Markdown/Substack document conversion.
+- `src/gateway/oauth/`: OAuth provider, DB access, login flow, and router.
+- `src/gateway/mcp/`: MCP app and dependency wiring.
+- `tests/`: focused pytest coverage.
+- `features/`: Behave feature coverage and step definitions.
+- `samples/`: example Substack payloads used as reference fixtures.
+- Match the existing Python style: async-first, typed code, Pydantic models, and small focused functions.
+- Keep changes surgical. Fix the root cause instead of layering workarounds.
+- Reuse existing service and dependency boundaries rather than moving logic into route handlers.
+- Keep external API behavior stable unless the task explicitly requires a contract change.
+- Use double quotes and keep Ruff clean.
+- Avoid adding new dependencies unless they are clearly justified.
+- Add or update the smallest relevant tests for behavior changes.
+- For API behavior, prefer Behave coverage in `features/` when similar scenarios already exist.
+- For pure logic changes, prefer `pytest` tests in `tests/`.
+- When touching Markdown conversion, OAuth, or model translation, check for both unit and feature-level coverage nearby before adding new tests.
+- There are generated/cache directories in the repo already; do not commit new generated artifacts.
+- Respect existing user changes in the working tree. Do not revert unrelated modifications.
+- If a task affects auth, cookies, bearer decoding, or gateway key checks, verify error handling paths as well as success paths.
