@@ -17,9 +17,9 @@ from mcp.server.auth.provider import TokenError
 from mcp.shared.auth import OAuthClientInformationFull
 from pydantic import AnyHttpUrl
 
-from gateway.oauth.bearer import _RefreshTokenWithJti
-from gateway.oauth.db import DBAccessToken, DBAuthCode, DBRefreshToken
-from gateway.oauth.provider import NeonOAuthProvider
+from gateway_pro.oauth.bearer import _RefreshTokenWithJti
+from gateway_pro.oauth.db import DBAccessToken, DBAuthCode, DBRefreshToken
+from gateway_pro.oauth.provider import NeonOAuthProvider
 
 # ---------------------------------------------------------------------------
 # In-memory store and mock repositories
@@ -231,7 +231,7 @@ def step_load_refresh_token(context, client_id):
 
 @when("the refresh token is revoked")
 def step_revoke_refresh_token(context):
-    from gateway.oauth.db import hash_token
+    from gateway_pro.oauth.db import hash_token
 
     rt = context.token_response.refresh_token
     context.provider_store.refresh_tokens[hash_token(rt)].revoked = True

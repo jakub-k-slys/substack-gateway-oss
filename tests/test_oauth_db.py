@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 
-from gateway.oauth.db import generate_opaque_token, hash_token
+from gateway_pro.oauth.db import generate_opaque_token, hash_token
 
 
 class TestHashToken:
@@ -51,7 +51,7 @@ def test_init_db_noop_without_database_url(monkeypatch):
     import asyncio
     from unittest.mock import patch
 
-    import gateway.oauth.db as db_module
+    import gateway_pro.oauth.db as db_module
     from gateway.config import settings
 
     monkeypatch.setattr(settings, "database_url", None)

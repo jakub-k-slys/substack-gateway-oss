@@ -207,15 +207,3 @@ def html_to_markdown(html: str) -> str:
         code_language_callback=None,
         newline_style=markdownify.BACKSLASH,
     ).strip()
-
-
-def markdown_to_draft_body(markdown: str) -> str:
-    from gateway_pro.converters.markdown import markdown_to_draft_body as impl
-
-    return impl(markdown)
-
-
-def draft_body_to_markdown(body: str) -> str:
-    from gateway_pro.converters.markdown import draft_body_to_markdown as impl
-
-    return impl(body)

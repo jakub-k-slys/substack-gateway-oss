@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-from importlib import import_module
-
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
-
-_pro_substack = import_module("gateway_pro.models.substack")
 
 
 class HandleOption(BaseModel):
@@ -203,11 +199,3 @@ class SubstackUserSettingsResponse(BaseModel):
 
     user_settings: list[SubstackUserSetting]
     qualifies_for_badge: bool | None = None
-
-
-SubstackDraftByline = _pro_substack.SubstackDraftByline
-SubstackDraftPayload = _pro_substack.SubstackDraftPayload
-SubstackDraftCreated = _pro_substack.SubstackDraftCreated
-SubstackDraftSummary = _pro_substack.SubstackDraftSummary
-SubstackDraft = _pro_substack.SubstackDraft
-SubstackUpdateDraftPayload = _pro_substack.SubstackUpdateDraftPayload

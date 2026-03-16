@@ -17,8 +17,8 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from gateway.oauth.bearer import validate_bearer
-from gateway.oauth.provider import NeonOAuthProvider
+from gateway_pro.oauth.bearer import validate_bearer
+from gateway_pro.oauth.provider import NeonOAuthProvider
 
 # ---------------------------------------------------------------------------
 # Fixtures

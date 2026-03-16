@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from importlib import import_module
 
 from pydantic import BaseModel
 
@@ -19,8 +18,6 @@ from gateway.models.substack import (
     SubstackProfilePostsPage,
     SubstackPublicProfile,
 )
-
-_pro_schemas = import_module("gateway_pro.models.schemas")
 
 _log = logging.getLogger(__name__)
 
@@ -257,16 +254,3 @@ class CreateNoteResponse(BaseModel):
     @classmethod
     def from_substack(cls, note: SubstackNoteCreated) -> CreateNoteResponse:
         return cls(id=note.id)
-
-
-# ------------------------------------------------------------------
-# Draft creation
-# ------------------------------------------------------------------
-
-
-DraftSummaryResponse = _pro_schemas.DraftSummaryResponse
-DraftsListResponse = _pro_schemas.DraftsListResponse
-CreateDraftRequest = _pro_schemas.CreateDraftRequest
-UpdateDraftRequest = _pro_schemas.UpdateDraftRequest
-CreateDraftResponse = _pro_schemas.CreateDraftResponse
-DraftResponse = _pro_schemas.DraftResponse
