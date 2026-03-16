@@ -12,6 +12,9 @@ dependencies = [
   "markdownify>=1.2.2",
 ]
 
+[project.scripts]
+gateway = "gateway.main:app"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

@@ -1,4 +1,8 @@
-from gateway.main import app  # noqa: F401
+from __future__ import annotations
+
+from gateway.app_factory import create_app
+
+app = create_app()
 
 if __name__ == "__main__":
     import uvicorn
