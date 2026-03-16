@@ -4,7 +4,6 @@ import logging
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
-
 from gateway.api.deps import (
     get_credentials,
     get_publication_client,
@@ -14,6 +13,7 @@ from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
 from gateway.config import settings
 from gateway.models.schemas import BearerCredentials
+
 from gateway_pro.services.drafts import DraftsService
 
 _log = logging.getLogger(__name__)

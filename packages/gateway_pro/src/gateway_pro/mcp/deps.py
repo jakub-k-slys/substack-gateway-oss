@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from fastmcp.dependencies import Depends
-
 from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
 from gateway.mcp.deps import get_publication_client, get_substack_client
+
 from gateway_pro.services.drafts import DraftsService
 
 

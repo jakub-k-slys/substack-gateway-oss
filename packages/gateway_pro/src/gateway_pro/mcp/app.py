@@ -4,9 +4,6 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
-from mcp.types import ToolAnnotations
-from starlette.responses import JSONResponse
-
 from gateway.mcp.deps import get_notes_service, get_posts_service, get_profiles_service
 from gateway.models.schemas import (
     CommentsResponse,
@@ -18,6 +15,9 @@ from gateway.models.schemas import (
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
+from mcp.types import ToolAnnotations
+from starlette.responses import JSONResponse
+
 from gateway_pro.converters.markdown import markdown_to_draft_body
 from gateway_pro.mcp.deps import get_drafts_service
 from gateway_pro.models.schemas import (

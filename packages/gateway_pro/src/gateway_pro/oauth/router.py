@@ -5,10 +5,10 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from gateway.config import settings
 from starlette.responses import Response
 from starlette.routing import Route, Router
 
-from gateway.config import settings
 from gateway_pro.oauth.login import process_login, process_token_form
 from gateway_pro.oauth.templates import render_login, render_token_form
 
