@@ -48,4 +48,4 @@ summary = true
 default_format = "pretty"
 
 [tool.ty.src]
-exclude = ["features/", "e2e/"]
+exclude = ["features/", "e2e/", "packages/gateway_pro/features/", "packages/gateway/features/"]

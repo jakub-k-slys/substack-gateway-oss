@@ -1,4 +1,4 @@
-"""Behave step definitions for MCP tool testing.
+"""Behave step definitions for OSS MCP tool testing.
 
 MCP tools are async functions, so each When step calls asyncio.run() to
 execute the coroutine from synchronous behave.  The respx mock started in
@@ -6,8 +6,10 @@ environment.py patches httpx at the class level, so it remains active
 across asyncio.run() boundaries.
 
 The valid-token Given step also writes context.headers["x-publication-url"]
-so that the shared Substack mock Given steps (drafts.py, reader.py,
-notes_create.py) can derive the correct URL to register mocks against.
+so that the shared Substack mock Given steps (reader.py, notes_create.py)
+can derive the correct URL to register mocks against.
+
+Pro-only draft MCP steps live in packages/gateway_pro/features/steps/mcp_drafts.py.
 """
 
 from __future__ import annotations
@@ -27,11 +29,8 @@ from gateway.auth import (
 from gateway.client.publication import PublicationClient
 from gateway.client.substack import SubstackClient
 from gateway.mcp.app import (
-    create_draft,
     create_note,
-    delete_draft,
     delete_note,
-    get_draft,
     get_me,
     get_my_following,
     get_my_notes,
@@ -42,13 +41,11 @@ from gateway.mcp.app import (
     get_profile,
     get_profile_notes,
     get_profile_posts,
-    list_drafts,
 )
 from gateway.services.following import FollowingService
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
-from gateway_pro.services.drafts import DraftsService
 
 # ------------------------------------------------------------------
 # Given — authentication
@@ -128,47 +125,6 @@ def step_call_delete_note(context, note_id):
     async def run():
         async with _clients(context) as (pub, sub):
             return await delete_note(note_id=note_id, notes=NotesService(pub, sub))
-
-    _call(context, run())
-
-
-# ------------------------------------------------------------------
-# When — drafts
-# ------------------------------------------------------------------
-
-
-@when("I call the MCP tool list_drafts")
-def step_call_list_drafts(context):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await list_drafts(drafts=DraftsService(pub, sub))
-
-    _call(context, run())
-
-
-@when("I call the MCP tool get_draft with draft_id {draft_id:d}")
-def step_call_get_draft(context, draft_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_draft(draft_id=draft_id, drafts=DraftsService(pub, sub))
-
-    _call(context, run())
-
-
-@when('I call the MCP tool create_draft with title "{title}"')
-def step_call_create_draft(context, title):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await create_draft(title=title, drafts=DraftsService(pub, sub))
-
-    _call(context, run())
-
-
-@when("I call the MCP tool delete_draft with draft_id {draft_id:d}")
-def step_call_delete_draft(context, draft_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await delete_draft(draft_id=draft_id, drafts=DraftsService(pub, sub))
 
     _call(context, run())
 

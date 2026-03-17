@@ -22,11 +22,17 @@ uv run ruff format --check .
 # Type-check
 uv run ty check .
 
-# Run all integration tests
+# Run OSS integration tests
 uv run behave features/
 
+# Run pro-only integration tests (OAuth, drafts, draft-body converter)
+uv run behave packages/gateway_pro/features/
+
+# Run both suites together
+uv run behave features/ packages/gateway_pro/features/
+
 # Run a single test feature
-uv run behave features/health.feature
+uv run behave features/api/health.feature
 ```
 
 CI runs: build (`uv build`), lint, format check, and type-check. No tests in CI currently.
