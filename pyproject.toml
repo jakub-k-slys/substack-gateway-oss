@@ -9,6 +9,9 @@ dependencies = [
   "uvloop>=0.22.1",
 ]
 
+[project.scripts]
+app = "gateway.main:app"
+
 [tool.uv.workspace]
 members = ["packages/*"]
 

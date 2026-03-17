@@ -1,14 +1,8 @@
 {
-  "builds": [
-    {
-      "src": "packages/gateway/src/gateway/main.py",
-      "use": "@vercel/python"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{tests/**,features/**,samples/**,e2e/**,packages/*/tests/**}"
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "packages/gateway/src/gateway/main.py"
-    }
-  ]
+  }
 }
