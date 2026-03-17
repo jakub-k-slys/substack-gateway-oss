@@ -326,7 +326,7 @@ uv run uvicorn gateway.main:app --host 0.0.0.0 --port 5001 --reload
 ## Testing
 
 ```bash
-uv run behave features/
+uv run behave packages/gateway_oss/features/
 ```
 
 ## Linting & Type Checking

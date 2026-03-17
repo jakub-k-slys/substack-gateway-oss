@@ -3,7 +3,11 @@ from __future__ import annotations
 import httpx
 from behave import given
 
-from features.steps.common import load_sample, pub_url, public_profile_url
+from packages.gateway_oss.features.steps.common import (
+    load_sample,
+    pub_url,
+    public_profile_url,
+)
 
 _PROFILE_NOTES_PATH = "/api/v1/reader/feed/profile/{profile_id}"
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import httpx
 from behave import given
 
-from features.steps.common import SUBSTACK_BASE, load_sample
+from packages.gateway_oss.features.steps.common import SUBSTACK_BASE, load_sample
 
 _CREATE_NOTE_URL = f"{SUBSTACK_BASE}/api/v1/comment/feed/"
 _CREATE_ATTACHMENT_URL = f"{SUBSTACK_BASE}/api/v1/comment/attachment/"

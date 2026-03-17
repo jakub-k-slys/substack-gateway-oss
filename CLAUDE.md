@@ -23,16 +23,16 @@ uv run ruff format --check .
 uv run ty check .
 
 # Run OSS integration tests
-uv run behave features/
+uv run behave packages/gateway_oss/features/
 
 # Run pro-only integration tests (OAuth, drafts, draft-body converter)
 uv run behave packages/gateway_pro/features/
 
 # Run both suites together
-uv run behave features/ packages/gateway_pro/features/
+uv run behave packages/gateway_oss/features/ packages/gateway_pro/features/
 
 # Run a single test feature
-uv run behave features/api/health.feature
+uv run behave packages/gateway_oss/features/api/health.feature
 ```
 
 CI runs: build (`uv build`), lint, format check, and type-check. No tests in CI currently.
@@ -71,9 +71,9 @@ gateway.main  →  api/v1/{health,me,notes,posts,profiles,drafts}.py
 
 Uses Behave (BDD) with Gherkin `.feature` files. Tests use `respx` to mock Substack HTTP responses and FastAPI's `TestClient`.
 
-- `features/*.feature` — Gherkin scenarios
-- `features/steps/` — Step implementations
-- `features/environment.py` — Test setup/teardown hooks
+- `packages/gateway_oss/features/*.feature` — OSS Gherkin scenarios
+- `packages/gateway_oss/features/steps/` — OSS step implementations
+- `packages/gateway_oss/features/environment.py` — OSS test setup/teardown hooks
 
 ## Endpoints
 
@@ -102,7 +102,7 @@ Uses Behave (BDD) with Gherkin `.feature` files. Tests use `respx` to mock Subst
 
 - Python >=3.10, async throughout
 - Ruff: line-length 88, double quotes, rules E/F/I/UP (E501 ignored)
-- Type checker `ty` excludes `features/` directory
+- Type checker `ty` excludes package feature directories
 - All route handlers are async; all HTTP calls use `httpx.AsyncClient`
 - Pydantic `BaseModel` for all data structures
 - Delta updates: use `model_fields_set` + `model_dump(exclude_unset=True)` to send only explicitly provided fields to Substack

@@ -102,7 +102,7 @@ jobs:
         run: uv sync --dev --package gateway_oss
 
       - name: Run OSS unit tests (pytest)
-        run: uv run pytest tests/ --junit-xml=pytest-reports/results.xml
+        run: uv run pytest packages/gateway_oss/tests/ --junit-xml=pytest-reports/results.xml
 
       - name: Write test summary
         if: always()
@@ -216,7 +216,7 @@ jobs:
         run: uv sync --dev --package gateway_oss
 
       - name: Run OSS integration tests (behave)
-        run: uv run behave features/ --junit --junit-directory behave-reports/
+        run: uv run behave packages/gateway_oss/features/ --junit --junit-directory behave-reports/
 
       - name: Write test summary
         if: always()
