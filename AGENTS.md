@@ -1,10 +1,10 @@
 These instructions apply to the entire repository unless a deeper `AGENTS.md` overrides them.
 - `substack-gateway` is a Python 3.10+ FastAPI service that proxies authenticated requests to Substack.
 - The main application code lives in `src/gateway/`.
-- `main.py` is the local entry point.
+- `gateway.main:app` is the application entry point.
 - The project also exposes MCP-related code under `src/gateway/mcp/` and OAuth flows under `src/gateway/oauth/`.
 - Install dependencies with `uv sync --dev`.
-- Run the app locally with `uv run main.py`.
+- Run the app locally with `uv run uvicorn gateway.main:app --host 0.0.0.0 --port 5001 --reload`.
 - Lint with `uv run ruff check .`.
 - Check formatting with `uv run ruff format --check .`.
 - Type-check with `uv run ty check .`.

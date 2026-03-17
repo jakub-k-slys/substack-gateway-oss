@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import respx
+from gateway.main import app
 from starlette.testclient import TestClient
-
-from main import app
 
 
 def before_scenario(context, scenario):
