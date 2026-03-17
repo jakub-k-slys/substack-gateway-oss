@@ -146,7 +146,7 @@ class DBRefreshToken(Base):
 def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
-        from gateway.config import settings
+        from gateway_oss.config import settings
 
         if not settings.database_url:
             raise RuntimeError("DATABASE_URL is not configured")
@@ -175,7 +175,7 @@ async def get_session() -> AsyncIterator[AsyncSession]:
 
 async def init_db() -> None:
     """Create all tables and run migrations. Idempotent."""
-    from gateway.config import settings
+    from gateway_oss.config import settings
 
     if not settings.database_url:
         return

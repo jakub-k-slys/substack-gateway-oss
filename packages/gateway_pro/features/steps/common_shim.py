@@ -7,4 +7,4 @@ from __future__ import annotations
 #
 # Importing the module causes behave to register all @given/@when/@then steps
 # defined there into the current run's step registry.
-from features.steps.common import *  # noqa: F401, F403
+from packages.gateway_oss.features.steps.common import *  # noqa: F401, F403

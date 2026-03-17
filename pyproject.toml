@@ -3,21 +3,21 @@ name = "substack-gateway"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "gateway",
-  "gateway-pro",
+  "gateway_oss",
+  "gateway_pro",
   "uvicorn>=0.41.0",
   "uvloop>=0.22.1",
 ]
 
-[project.scripts]
-app = "gateway.main:app"
-
 [tool.uv.workspace]
 members = ["packages/*"]
 
+[tool.uv]
+package = false
+
 [tool.uv.sources]
-gateway = { workspace = true }
-gateway-pro = { workspace = true }
+gateway_oss = { workspace = true }
+gateway_pro = { workspace = true }
 
 [dependency-groups]
 dev = [
@@ -42,10 +42,13 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.behave]
-paths = ["features/"]
+paths = ["packages/gateway_oss/features/", "packages/gateway_pro/features/"]
 show_timings = true
 summary = true
 default_format = "pretty"
 
+[tool.pytest.ini_options]
+testpaths = ["packages/gateway_oss/tests", "packages/gateway_pro/tests"]
+
 [tool.ty.src]
-exclude = ["features/", "e2e/", "packages/gateway_pro/features/", "packages/gateway/features/"]
+exclude = ["e2e/", "packages/gateway_oss/features/", "packages/gateway_pro/features/"]

@@ -228,7 +228,7 @@ class NeonOAuthProvider(OAuthProvider):
         )
 
     async def load_access_token(self, token: str) -> AccessToken | None:
-        from gateway.config import settings
+        from gateway_oss.config import settings
 
         if not settings.jwt_secret:
             return None
@@ -257,7 +257,7 @@ class NeonOAuthProvider(OAuthProvider):
 
     async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
         if isinstance(token, AccessToken):
-            from gateway.config import settings
+            from gateway_oss.config import settings
 
             if not settings.jwt_secret:
                 return
@@ -291,7 +291,7 @@ class NeonOAuthProvider(OAuthProvider):
         scopes: list[str],
         user_id: int | None = None,
     ) -> tuple[str, str, int]:
-        from gateway.config import settings
+        from gateway_oss.config import settings
 
         assert settings.jwt_secret, "JWT_SECRET must be configured"
         jti = str(uuid.uuid4())

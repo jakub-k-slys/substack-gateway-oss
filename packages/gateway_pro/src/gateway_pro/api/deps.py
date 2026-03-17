@@ -4,15 +4,15 @@ import logging
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
-from gateway.api.deps import (
+from gateway_oss.api.deps import (
     get_credentials,
     get_publication_client,
     get_substack_client,
 )
-from gateway.client.publication import PublicationClient
-from gateway.client.substack import SubstackClient
-from gateway.config import settings
-from gateway.models.schemas import BearerCredentials
+from gateway_oss.client.publication import PublicationClient
+from gateway_oss.client.substack import SubstackClient
+from gateway_oss.config import settings
+from gateway_oss.models.schemas import BearerCredentials
 
 from gateway_pro.services.drafts import DraftsService
 

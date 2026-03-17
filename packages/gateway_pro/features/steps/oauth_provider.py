@@ -156,7 +156,7 @@ def step_configure_provider(context, secret):
 
     # Patch UnitOfWork in the actual provider module (not the re-export wrapper)
     import gateway_pro.oauth.provider as provider_mod
-    from gateway.config import settings
+    from gateway_oss.config import settings
 
     store = context.provider_store
     context._orig_provider_uow = provider_mod.UnitOfWork

@@ -3,7 +3,7 @@ from __future__ import annotations
 import httpx
 from behave import given
 
-from features.steps.common import SUBSTACK_BASE, load_sample
+from packages.gateway_oss.features.steps.common import SUBSTACK_BASE, load_sample
 
 
 def _draft_url(context, draft_id: int | None = None) -> str:

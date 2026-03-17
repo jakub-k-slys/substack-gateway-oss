@@ -9,7 +9,7 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - Check formatting with `uv run ruff format --check .`.
 - Type-check with `uv run ty check .`.
 - Run unit tests with `uv run pytest`.
-- Run BDD tests with `uv run behave features/`.
+- Run BDD tests with `uv run behave packages/gateway_oss/features/`.
 - Prefer targeted validation for the area you changed before running broader suites.
 - `src/gateway/api/`: FastAPI app wiring and request dependencies.
 - `src/gateway/client/`: HTTP clients and upstream error handling.
@@ -18,8 +18,8 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - `src/gateway/converters/markdown.py`: Markdown/Substack document conversion.
 - `src/gateway/oauth/`: OAuth provider, DB access, login flow, and router.
 - `src/gateway/mcp/`: MCP app and dependency wiring.
-- `tests/`: focused pytest coverage.
-- `features/`: Behave feature coverage and step definitions.
+- `packages/gateway_oss/tests/`: OSS-focused pytest coverage.
+- `packages/gateway_oss/features/`: OSS Behave coverage and step definitions.
 - `samples/`: example Substack payloads used as reference fixtures.
 - Match the existing Python style: async-first, typed code, Pydantic models, and small focused functions.
 - Keep changes surgical. Fix the root cause instead of layering workarounds.
@@ -28,8 +28,8 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - Use double quotes and keep Ruff clean.
 - Avoid adding new dependencies unless they are clearly justified.
 - Add or update the smallest relevant tests for behavior changes.
-- For API behavior, prefer Behave coverage in `features/` when similar scenarios already exist.
-- For pure logic changes, prefer `pytest` tests in `tests/`.
+- For API behavior, prefer Behave coverage in `packages/gateway_oss/features/` when similar scenarios already exist.
+- For pure logic changes, prefer `pytest` tests in `packages/gateway_oss/tests/`.
 - When touching Markdown conversion, OAuth, or model translation, check for both unit and feature-level coverage nearby before adding new tests.
 - There are generated/cache directories in the repo already; do not commit new generated artifacts.
 - Respect existing user changes in the working tree. Do not revert unrelated modifications.

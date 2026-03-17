@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from gateway.config import settings
+from gateway_oss.config import settings
 from starlette.responses import Response
 from starlette.routing import Route, Router
 
@@ -49,7 +49,7 @@ async def login_get(request_id: str = "") -> Response:
 
 @_login_router.post("/", response_class=HTMLResponse)
 async def login_post(request: Request) -> Response:
-    from gateway.config import settings
+    from gateway_oss.config import settings
 
     return await process_login(request, f"{settings.base_url}/login/token")
 

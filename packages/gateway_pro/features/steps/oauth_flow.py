@@ -172,7 +172,7 @@ def step_register_user(context, email, password):
 
     # Patch UnitOfWork in the actual login module (not the re-export wrapper)
     import gateway_pro.oauth.login as login_mod
-    from gateway.config import settings
+    from gateway_oss.config import settings
 
     store = context.oauth_store
     context._original_uow = getattr(login_mod, "UnitOfWork")
