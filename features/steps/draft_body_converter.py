@@ -4,7 +4,6 @@ import json
 import textwrap
 
 from behave import then, when
-
 from gateway_pro.converters.markdown import (
     draft_body_to_markdown,
     markdown_to_draft_body,

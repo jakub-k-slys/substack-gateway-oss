@@ -13,13 +13,12 @@ import types
 
 import jwt
 from behave import given, then, when
-from mcp.server.auth.provider import TokenError
-from mcp.shared.auth import OAuthClientInformationFull
-from pydantic import AnyHttpUrl
-
 from gateway_pro.oauth.bearer import _RefreshTokenWithJti
 from gateway_pro.oauth.db import DBAccessToken, DBAuthCode, DBRefreshToken
 from gateway_pro.oauth.provider import NeonOAuthProvider
+from mcp.server.auth.provider import TokenError
+from mcp.shared.auth import OAuthClientInformationFull
+from pydantic import AnyHttpUrl
 
 # ---------------------------------------------------------------------------
 # In-memory store and mock repositories

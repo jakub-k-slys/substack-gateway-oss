@@ -19,7 +19,6 @@ import json
 from collections.abc import AsyncIterator
 
 from behave import given, then, when
-
 from gateway.auth import (
     decode_bearer_credentials,
     make_publication_client,

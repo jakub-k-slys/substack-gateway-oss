@@ -13,7 +13,6 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from behave import given, then, when
-
 from gateway_pro.oauth.db import (
     DBAuthCode,
     DBAuthRequest,
