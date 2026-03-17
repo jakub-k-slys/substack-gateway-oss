@@ -30,7 +30,7 @@ jobs:
         run: uv sync --dev
 
       - name: Build
-        run: uv build
+        run: uv build --package gateway && uv build --package gateway-pro
 
   lint:
     name: Lint

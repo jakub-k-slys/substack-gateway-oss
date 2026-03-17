@@ -16,9 +16,8 @@ import json
 import jwt
 import pytest
 from fastapi.testclient import TestClient
-
-from gateway.oauth.bearer import validate_bearer
-from gateway.oauth.provider import NeonOAuthProvider
+from gateway_pro.oauth.bearer import validate_bearer
+from gateway_pro.oauth.provider import NeonOAuthProvider
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -36,7 +35,7 @@ def provider(monkeypatch):
 
 @pytest.fixture()
 def login_client():
-    from main import app
+    from gateway.main import app
 
     return TestClient(app, raise_server_exceptions=False)
 
@@ -212,7 +211,7 @@ _VALID_INIT_TOKEN = (
 
 @pytest.fixture(scope="module")
 def api_client():
-    from main import app
+    from gateway.main import app
 
     return TestClient(app, raise_server_exceptions=False)
 
@@ -245,7 +244,7 @@ class TestCreateUserEndpoint:
         import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        users_mod = importlib.import_module("gateway.api.v1.users")
+        users_mod = importlib.import_module("gateway_pro.api.v1.users")
         from gateway.config import settings
 
         class MockUnitOfWork:
@@ -263,7 +262,7 @@ class TestCreateUserEndpoint:
         monkeypatch.setattr(users_mod, "UnitOfWork", MockUnitOfWork)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 
-        from main import app
+        from gateway.main import app
 
         client = TestClient(app, raise_server_exceptions=False)
         response = client.post(
@@ -278,7 +277,7 @@ class TestCreateUserEndpoint:
         import importlib
         from unittest.mock import AsyncMock, MagicMock
 
-        users_mod = importlib.import_module("gateway.api.v1.users")
+        users_mod = importlib.import_module("gateway_pro.api.v1.users")
         from gateway.config import settings
 
         class MockFailingUnitOfWork:
@@ -296,7 +295,7 @@ class TestCreateUserEndpoint:
         monkeypatch.setattr(users_mod, "UnitOfWork", MockFailingUnitOfWork)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 
-        from main import app
+        from gateway.main import app
 
         client = TestClient(app, raise_server_exceptions=False)
         response = client.post(

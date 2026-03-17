@@ -8,7 +8,6 @@ without going through the HTTP/BDD stack.
 from __future__ import annotations
 
 import pytest
-
 from gateway.converters.markdown import markdown_to_doc, markdown_to_note_payload
 
 # ---------------------------------------------------------------------------

@@ -3,29 +3,21 @@ name = "substack-gateway"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "fastapi>=0.135.1",
+  "gateway",
+  "gateway-pro",
   "uvicorn>=0.41.0",
-  "httpx>=0.28.0",
-  "pydantic>=2.0",
-  "pydantic-settings>=2.0",
-  "async-lru>=2.0",
   "uvloop>=0.22.1",
-  "fastmcp>=3.0.2",
-  "pyjwt>=2.11.0",
-  "bcrypt>=5.0.0",
-  "sqlalchemy>=2.0.48",
-  "asyncpg>=0.31.0",
-  "htpy>=25.12.0",
-  "aiofiles>=24.1.0",
-  "markdownify>=1.2.2",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[project.scripts]
+app = "gateway.main:app"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/gateway"]
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+gateway = { workspace = true }
+gateway-pro = { workspace = true }
 
 [dependency-groups]
 dev = [

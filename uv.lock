@@ -2,6 +2,13 @@ version = 1
 revision = 3
 requires-python = ">=3.10"
 
+[manifest]
+members = [
+    "gateway",
+    "gateway-pro",
+    "substack-gateway",
+]
+
 [[package]]
 name = "aiofile"
 version = "3.9.0"
@@ -617,6 +624,56 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/11/6b/1a7ec89727797fb07ec0928e9070fa2f45e7b35718e1fe01633a34c35e45/fastmcp-3.0.2.tar.gz", hash = "sha256:6bd73b4a3bab773ee6932df5249dcbcd78ed18365ed0aeeb97bb42702a7198d7", size = 17239351, upload-time = "2026-02-22T16:32:28.843Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/5a/f410a9015cfde71adf646dab4ef2feae49f92f34f6050fcfb265eb126b30/fastmcp-3.0.2-py3-none-any.whl", hash = "sha256:f513d80d4b30b54749fe8950116b1aab843f3c293f5cb971fc8665cb48dbb028", size = 606268, upload-time = "2026-02-22T16:32:30.992Z" },
+]
+
+[[package]]
+name = "gateway"
+version = "0.1.0"
+source = { editable = "packages/gateway" }
+dependencies = [
+    { name = "async-lru" },
+    { name = "fastapi" },
+    { name = "fastmcp" },
+    { name = "httpx" },
+    { name = "markdownify" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "async-lru", specifier = ">=2.0" },
+    { name = "fastapi", specifier = ">=0.135.1" },
+    { name = "fastmcp", specifier = ">=3.0.2" },
+    { name = "httpx", specifier = ">=0.28.0" },
+    { name = "markdownify", specifier = ">=1.2.2" },
+    { name = "pydantic", specifier = ">=2.0" },
+    { name = "pydantic-settings", specifier = ">=2.0" },
+]
+
+[[package]]
+name = "gateway-pro"
+version = "0.1.0"
+source = { editable = "packages/gateway_pro" }
+dependencies = [
+    { name = "aiofiles" },
+    { name = "asyncpg" },
+    { name = "bcrypt" },
+    { name = "gateway" },
+    { name = "htpy" },
+    { name = "pyjwt" },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiofiles", specifier = ">=24.1.0" },
+    { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "bcrypt", specifier = ">=5.0.0" },
+    { name = "gateway", editable = "packages/gateway" },
+    { name = "htpy", specifier = ">=25.12.0" },
+    { name = "pyjwt", specifier = ">=2.11.0" },
+    { name = "sqlalchemy", specifier = ">=2.0.48" },
 ]
 
 [[package]]
@@ -1785,21 +1842,10 @@ wheels = [
 [[package]]
 name = "substack-gateway"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
-    { name = "aiofiles" },
-    { name = "async-lru" },
-    { name = "asyncpg" },
-    { name = "bcrypt" },
-    { name = "fastapi" },
-    { name = "fastmcp" },
-    { name = "htpy" },
-    { name = "httpx" },
-    { name = "markdownify" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pyjwt" },
-    { name = "sqlalchemy" },
+    { name = "gateway" },
+    { name = "gateway-pro" },
     { name = "uvicorn" },
     { name = "uvloop" },
 ]
@@ -1816,19 +1862,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiofiles", specifier = ">=24.1.0" },
-    { name = "async-lru", specifier = ">=2.0" },
-    { name = "asyncpg", specifier = ">=0.31.0" },
-    { name = "bcrypt", specifier = ">=5.0.0" },
-    { name = "fastapi", specifier = ">=0.135.1" },
-    { name = "fastmcp", specifier = ">=3.0.2" },
-    { name = "htpy", specifier = ">=25.12.0" },
-    { name = "httpx", specifier = ">=0.28.0" },
-    { name = "markdownify", specifier = ">=1.2.2" },
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "pydantic-settings", specifier = ">=2.0" },
-    { name = "pyjwt", specifier = ">=2.11.0" },
-    { name = "sqlalchemy", specifier = ">=2.0.48" },
+    { name = "gateway", editable = "packages/gateway" },
+    { name = "gateway-pro", editable = "packages/gateway_pro" },
     { name = "uvicorn", specifier = ">=0.41.0" },
     { name = "uvloop", specifier = ">=0.22.1" },
 ]
