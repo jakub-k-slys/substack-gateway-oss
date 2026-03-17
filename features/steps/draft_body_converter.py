@@ -5,7 +5,10 @@ import textwrap
 
 from behave import then, when
 
-from gateway.converters.markdown import draft_body_to_markdown, markdown_to_draft_body
+from gateway_pro.converters.markdown import (
+    draft_body_to_markdown,
+    markdown_to_draft_body,
+)
 
 
 @when('I convert draft markdown "{markdown}"')

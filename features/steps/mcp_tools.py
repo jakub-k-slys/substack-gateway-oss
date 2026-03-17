@@ -45,11 +45,11 @@ from gateway.mcp.app import (
     get_profile_posts,
     list_drafts,
 )
-from gateway.services.drafts import DraftsService
 from gateway.services.following import FollowingService
 from gateway.services.notes import NotesService
 from gateway.services.posts import PostsService
 from gateway.services.profiles import ProfilesService
+from gateway_pro.services.drafts import DraftsService
 
 # ------------------------------------------------------------------
 # Given — authentication

@@ -320,7 +320,7 @@ uv sync --dev
 Start the development server on http://0.0.0.0:5001 (auto-reloads on changes):
 
 ```bash
-uv run main.py
+uv run uvicorn gateway.main:app --host 0.0.0.0 --port 5001 --reload
 ```
 
 ## Testing

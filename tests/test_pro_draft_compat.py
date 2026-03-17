@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from gateway.models.schemas import DraftResponse, UpdateDraftRequest
-from gateway.models.substack import SubstackUpdateDraftPayload
 from gateway_pro.converters.markdown import (
     draft_body_to_markdown,
     markdown_to_draft_body,
 )
-from gateway_pro.models.substack import SubstackDraft
+from gateway_pro.models.schemas import DraftResponse, UpdateDraftRequest
+from gateway_pro.models.substack import SubstackDraft, SubstackUpdateDraftPayload
 
 
 def test_shared_update_draft_request_uses_pro_payload_and_converter() -> None:
