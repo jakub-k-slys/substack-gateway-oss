@@ -42,10 +42,13 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.behave]
-paths = ["features/"]
+paths = ["features/", "packages/gateway_pro/features/"]
 show_timings = true
 summary = true
 default_format = "pretty"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "packages/gateway_pro/tests"]
 
 [tool.ty.src]
 exclude = ["features/", "e2e/", "packages/gateway_pro/features/", "packages/gateway/features/"]

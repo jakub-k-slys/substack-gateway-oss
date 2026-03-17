@@ -10,7 +10,7 @@ from gateway_oss.auth import (
     make_publication_client,
     make_substack_client,
 )
-from gateway_oss.mcp.app import (
+from gateway_pro.mcp.app import (
     create_draft,
     delete_draft,
     get_draft,

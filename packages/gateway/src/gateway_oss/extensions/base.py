@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import Callable, Sequence
+from contextlib import AbstractAsyncContextManager
 from dataclasses import dataclass
 from typing import Any, Protocol, runtime_checkable
 
@@ -10,9 +11,7 @@ from starlette.applications import Starlette
 
 from gateway_oss.config import Settings
 
-
-class LifespanHook(Protocol):
-    def __call__(self, app: Any) -> AsyncIterator[None]: ...
+LifespanHook = Callable[[Any], AbstractAsyncContextManager[None, bool | None]]
 
 
 class CredentialProvider(Protocol):
