@@ -5,12 +5,12 @@ from __future__ import annotations
 import asyncio
 
 from behave import when
-from gateway.auth import (
+from gateway_oss.auth import (
     decode_bearer_credentials,
     make_publication_client,
     make_substack_client,
 )
-from gateway.mcp.app import (
+from gateway_oss.mcp.app import (
     create_draft,
     delete_draft,
     get_draft,

@@ -21,14 +21,14 @@ import json
 from collections.abc import AsyncIterator
 
 from behave import given, then, when
-from gateway.auth import (
+from gateway_oss.auth import (
     decode_bearer_credentials,
     make_publication_client,
     make_substack_client,
 )
-from gateway.client.publication import PublicationClient
-from gateway.client.substack import SubstackClient
-from gateway.mcp.app import (
+from gateway_oss.client.publication import PublicationClient
+from gateway_oss.client.substack import SubstackClient
+from gateway_oss.mcp.app import (
     create_note,
     delete_note,
     get_me,
@@ -42,10 +42,10 @@ from gateway.mcp.app import (
     get_profile_notes,
     get_profile_posts,
 )
-from gateway.services.following import FollowingService
-from gateway.services.notes import NotesService
-from gateway.services.posts import PostsService
-from gateway.services.profiles import ProfilesService
+from gateway_oss.services.following import FollowingService
+from gateway_oss.services.notes import NotesService
+from gateway_oss.services.posts import PostsService
+from gateway_oss.services.profiles import ProfilesService
 
 # ------------------------------------------------------------------
 # Given — authentication

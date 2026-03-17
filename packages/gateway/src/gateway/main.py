@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from gateway.app_factory import create_app
+import gateway_oss.main as gateway_oss_main
 
-app = create_app()
+app = gateway_oss_main.app
 
 if __name__ == "__main__":
     import uvicorn

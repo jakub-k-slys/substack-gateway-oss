@@ -3,21 +3,21 @@ name = "substack-gateway"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "gateway",
-  "gateway-pro",
+  "gateway_oss",
+  "gateway_pro",
   "uvicorn>=0.41.0",
   "uvloop>=0.22.1",
 ]
 
-[project.scripts]
-app = "gateway.main:app"
-
 [tool.uv.workspace]
 members = ["packages/*"]
 
+[tool.uv]
+package = false
+
 [tool.uv.sources]
-gateway = { workspace = true }
-gateway-pro = { workspace = true }
+gateway_oss = { workspace = true }
+gateway_pro = { workspace = true }
 
 [dependency-groups]
 dev = [

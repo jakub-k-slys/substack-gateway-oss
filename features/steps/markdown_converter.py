@@ -3,7 +3,7 @@ from __future__ import annotations
 import textwrap
 
 from behave import then, when
-from gateway.converters.markdown import markdown_to_note_payload
+from gateway_oss.converters.markdown import markdown_to_note_payload
 
 
 @when('I convert the markdown "{markdown}"')

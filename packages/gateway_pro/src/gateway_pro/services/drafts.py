@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 
-from gateway.client.publication import PublicationClient
-from gateway.client.substack import SubstackClient
+from gateway_oss.client.publication import PublicationClient
+from gateway_oss.client.substack import SubstackClient
 
 from gateway_pro.converters.markdown import markdown_to_draft_body
 from gateway_pro.models.substack import (

@@ -1,5 +1,5 @@
 [project]
-name = "gateway"
+name = "gateway_oss"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
@@ -13,11 +13,11 @@ dependencies = [
 ]
 
 [project.scripts]
-gateway = "gateway.main:app"
+gateway_oss = "gateway_oss.main:app"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/gateway"]
+packages = ["src/gateway", "src/gateway_oss"]

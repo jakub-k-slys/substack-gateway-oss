@@ -4,7 +4,7 @@ import logging
 
 import bcrypt
 from fastapi import APIRouter, HTTPException, Query
-from gateway.config import settings
+from gateway_oss.config import settings
 from pydantic import BaseModel
 
 from gateway_pro.oauth.db import DBUser, init_db

@@ -1,9 +1,9 @@
 [project]
-name = "gateway-pro"
+name = "gateway_pro"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "gateway",
+  "gateway_oss",
   "pyjwt>=2.11.0",
   "bcrypt>=5.0.0",
   "sqlalchemy>=2.0.48",
@@ -13,7 +13,10 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-gateway = { workspace = true }
+gateway_oss = { workspace = true }
+
+[project.entry-points."substack_gateway_oss.extensions"]
+gateway_pro = "gateway_pro.extension:get_extension"
 
 [build-system]
 requires = ["hatchling"]
