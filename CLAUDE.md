@@ -13,7 +13,7 @@ Substack Gateway is a stateless FastAPI REST API that proxies authenticated requ
 uv sync --dev
 
 # Run dev server (http://0.0.0.0:5001, auto-reloads)
-uv run uvicorn gateway.main:app --host 0.0.0.0 --port 5001 --reload
+uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload
 
 # Lint & format
 uv run ruff check .
@@ -51,7 +51,7 @@ All error responses expose only a generic `"Invalid credentials"` message. The s
 ## Architecture
 
 ```
-gateway.main  →  api/v1/{health,me,notes,posts,profiles,drafts}.py
+gateway_oss.main  →  api/v1/{health,me,notes,posts,profiles,drafts}.py
                     ↓
               api/deps.py  →  client/substack.py  →  Substack API
                     ↕                  ↕
