@@ -14,5 +14,6 @@ from packages.gateway_oss.features.steps.common import *  # noqa: F401, F403
 
 SAMPLES_DIR = pathlib.Path(__file__).resolve().parents[2] / "samples"
 
+
 def load_sample(path: str):
     return json.loads((SAMPLES_DIR / path).read_text())
