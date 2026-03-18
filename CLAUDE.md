@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Substack Gateway is a stateless FastAPI REST API that proxies authenticated requests to the Substack API. It decodes a base64-encoded JSON credentials object from the `Authorization: Bearer` header and a publication URL from the `x-publication-url` header, then forwards requests to Substack using session cookies. Deployable to Vercel.
+Substack Gateway is a monorepo containing two packages:
+
+- **`packages/gateway_oss`** — the core OSS Starlette app. Exposes a FastAPI REST API (`/api/v1/*`) and a FastMCP MCP server (`/mcp`). Proxies authenticated requests to the Substack API using session cookies decoded from a base64 Bearer token.
+- **`packages/gateway_pro`** — a pro extension that plugs into gateway_oss via the extension system. Adds OAuth 2.1 (with Neon DB persistence), a draft management API, and extended MCP tools. Deployable to Vercel.
 
 ## Commands
 
@@ -13,7 +16,7 @@ Substack Gateway is a stateless FastAPI REST API that proxies authenticated requ
 uv sync --dev
 
 # Run dev server (http://0.0.0.0:5001, auto-reloads)
-uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload
+uv run python -m gateway_oss.main
 
 # Lint & format
 uv run ruff check .
@@ -22,58 +25,93 @@ uv run ruff format --check .
 # Type-check
 uv run ty check .
 
-# Run OSS integration tests
+# Run unit tests (pytest)
+uv run pytest packages/gateway_pro/tests/
+
+# Run OSS BDD integration tests
 uv run behave packages/gateway_oss/features/
 
-# Run pro-only integration tests (OAuth, drafts, draft-body converter)
+# Run pro-only BDD integration tests (OAuth, drafts, MCP)
 uv run behave packages/gateway_pro/features/
 
-# Run both suites together
+# Run both BDD suites
 uv run behave packages/gateway_oss/features/ packages/gateway_pro/features/
 
-# Run a single test feature
+# Run a single feature
 uv run behave packages/gateway_oss/features/api/health.feature
 ```
 
-CI runs: build (`uv build`), lint, format check, and type-check. No tests in CI currently.
-
-## Authentication
-
-Every request (except `GET /api/v1/health/live`) requires:
-
-- `Authorization: Bearer <base64-encoded-json>` — the JSON must contain `substack_sid` and `connect_sid` (and optionally `gateway_key`).
-- `x-publication-url` — your Substack publication URL.
-
-The `gateway_key` is required for draft endpoints. The default key is `WW91IHNoYWxsIG5vdCBwYXNzCg==` (configured in `config.py` via `settings.gateway_key`). Requests with a missing or incorrect key receive a `403`.
-
-All error responses expose only a generic `"Invalid credentials"` message. The specific reason (missing prefix, bad base64, missing fields, wrong gateway_key) is logged at WARNING level only.
+CI runs: `uv build`, lint, format check, and type-check. No tests in CI currently.
 
 ## Architecture
 
 ```
-gateway_oss.main  →  api/v1/{health,me,notes,posts,profiles,drafts}.py
-                    ↓
-              api/deps.py  →  client/substack.py  →  Substack API
-                    ↕                  ↕
-             models/schemas.py   models/substack.py
+Client request
+  → Starlette app (app_factory.py)
+    → /api/v1/* → FastAPI (api/app.py) → api/deps.py → Services → HTTP clients
+    → /mcp      → FastMCP (mcp/app.py) → mcp/deps.py → Services → HTTP clients
+    → /.well-known/* and /login/* → gateway_pro OAuth app (mounted at "/")
 ```
 
-- **`api/deps.py`** — Decodes the base64 Bearer token into a `BearerCredentials` Pydantic model, validates `x-publication-url`, creates a `SubstackClient` per request. Exposes `get_credentials`, `require_gateway_key`, and `get_substack_client` as FastAPI dependencies.
-- **`client/substack.py`** — Async HTTP client using `httpx`. Passes `substack.sid` and `connect.sid` cookies to Substack. Two base URLs: `_pub_base` (publication-specific) and `_sub_base` (global `substack.com`). Uses `alru_cache` for per-request profile caching.
-- **`client/exceptions.py`** — `SubstackAuthError` (maps to 401/403) and `SubstackAPIError` (maps to 502).
-- **`models/substack.py`** — Pydantic models for Substack API responses. Uses `model_validate()`. Key models: `SubstackPublicProfile`, `SubstackNote`, `SubstackFullPost`, `SubstackDraft`, `SubstackDraftPayload`, `SubstackUserSettingsResponse`.
-- **`models/schemas.py`** — API response and request schemas. Key models: `BearerCredentials`, `HealthResponse`, `ProfileResponse`, `NoteResponse`, `FullPostResponse`, `CreateDraftRequest`, `UpdateDraftRequest`, `DraftResponse`.
-- **`config.py`** — App settings via `pydantic-settings`. Includes `gateway_key` for protecting draft endpoints.
-- **`converters/markdown.py`** — Two converters: `markdown_to_note_payload` (Markdown → Substack note ProseMirror payload) and `markdown_to_draft_body` / `draft_body_to_markdown` (Markdown ↔ ProseMirror JSON string for draft `body` field). Supports headings, lists, fenced code blocks, blockquotes, pull quotes, bold, italic, inline code, strikethrough, and links.
-- **`samples/`** — Real Substack API response JSON files used as test fixtures and model design reference.
+### HTTP Clients (`client/`)
 
-## Testing
+- `SubstackHTTPBase` (`client/base.py`) — shared async httpx layer. Raises `SubstackAuthError` (401/403) or `SubstackAPIError` (all other failures).
+- `SubstackClient` (`client/substack.py`) — talks to `https://substack.com/api/v1/*` (global: user settings, handles, profiles, following). Uses `alru_cache` for per-request profile caching.
+- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL is passed via `x-publication-url` header.
 
-Uses Behave (BDD) with Gherkin `.feature` files. Tests use `respx` to mock Substack HTTP responses and FastAPI's `TestClient`.
+Most API endpoints need both clients. `ProfilesService` only needs `SubstackClient`.
 
-- `packages/gateway_oss/features/*.feature` — OSS Gherkin scenarios
-- `packages/gateway_oss/features/steps/` — OSS step implementations
-- `packages/gateway_oss/features/environment.py` — OSS test setup/teardown hooks
+### Services (`services/`)
+
+Thin domain classes (`NotesService`, `PostsService`, `ProfilesService`, `FollowingService`) that coordinate calls across the two HTTP clients. Instantiated per-request via FastAPI/FastMCP dependency injection.
+
+### Authentication
+
+Two auth paths:
+
+1. **Bearer token** — Every request (except `GET /api/v1/health/live`) passes `Authorization: Bearer <base64-encoded-json>` where the JSON must contain `substack_sid` and `connect_sid`. Decoded in `auth.py`; `api/deps.py` and `mcp/deps.py` construct per-request HTTP clients from it.
+2. **OAuth (pro only)** — When `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, and `SUBSTACK_GATEWAY_JWT_SECRET` are all set, the MCP layer authenticates via OAuth 2.1 and looks up credentials from the Neon DB via the `CredentialProvider` interface instead of reading request headers.
+
+The `gateway_key` (default `WW91IHNoYWxsIG5vdCBwYXNzCg==`) must also be present in the Bearer JSON to access draft endpoints; missing/wrong key → 403. All error responses show only a generic `"Invalid credentials"` message; the specific reason is logged at WARNING level.
+
+### Extension System (`extensions/`)
+
+Extensions plug in extra routes, MCP tools, lifespan hooks, and credential/auth providers without touching core code. Loaded from:
+1. `substack_gateway_oss.extensions` entry-points (installed packages).
+2. `GATEWAY_EXTENSION_MODULES` env var (comma-separated `module:attr` strings).
+
+Each extension implements the `GatewayExtension` protocol (`extensions/base.py`): `register_api`, `register_app`, `register_mcp`, `get_lifespan_hooks`, `get_credential_provider`, `get_mcp_auth_provider`. Only one `CredentialProvider` and one MCP auth provider may be active at a time.
+
+`gateway_pro` registers itself as an extension via its `ProExtension` class (`packages/gateway_pro/src/gateway_pro/extension.py`), wiring in the OAuth router, pro API routes, and pro MCP tools.
+
+### Models
+
+- `models/substack.py` — Pydantic models mirroring raw Substack API responses. Key models: `SubstackPublicProfile`, `SubstackNote`, `SubstackFullPost`, `SubstackDraft`.
+- `models/schemas.py` — Outward-facing API/MCP response and request models with `.from_substack()` factory methods. Key models: `BearerCredentials`, `HealthResponse`, `ProfileResponse`, `NoteResponse`, `FullPostResponse`, `CreateDraftRequest`, `UpdateDraftRequest`, `DraftResponse`.
+- `models/pagination.py` — Shared pagination helpers.
+
+### Converters (`converters/markdown.py`)
+
+Two separate concerns:
+1. `markdown_to_note_payload` — Markdown → Substack ProseMirror JSON (used when creating notes).
+2. `markdown_to_draft_body` / `draft_body_to_markdown` — Markdown ↔ ProseMirror JSON string for the draft `body` field. In pro: `html_to_markdown` converts Substack post HTML to Markdown via `markdownify`.
+
+### Configuration (`config.py`)
+
+`pydantic-settings` with `SUBSTACK_GATEWAY_` env prefix. Key settings:
+
+| Env var | Default | Purpose |
+|---|---|---|
+| `SUBSTACK_GATEWAY_GATEWAY_KEY` | `WW91...` | Protects draft endpoints |
+| `SUBSTACK_GATEWAY_ADMIN_TOKEN` | `WW91...` | Admin operations |
+| `SUBSTACK_GATEWAY_BASE_URL` | `None` | Required for OAuth |
+| `SUBSTACK_GATEWAY_DATABASE_URL` | `None` | Required for OAuth (Neon DB) |
+| `SUBSTACK_GATEWAY_JWT_SECRET` | `None` | Required for OAuth |
+
+### Testing
+
+- **pytest** (`packages/gateway_pro/tests/`) — unit tests for OAuth DB, provider, and draft compatibility.
+- **behave** — BDD integration tests using `respx` to mock Substack HTTP responses and FastAPI's `TestClient`. Step definitions in `features/steps/`; setup in `features/environment.py`. Fixture JSON files live in `packages/gateway_oss/samples/` (referenced by OSS tests) and equivalents for pro.
 
 ## Endpoints
 
@@ -97,6 +135,8 @@ Uses Behave (BDD) with Gherkin `.feature` files. Tests use `respx` to mock Subst
 | `GET` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Fetch a draft (body returned as Markdown) |
 | `PUT` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delta-update a draft (body accepts Markdown) |
 | `DELETE` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delete a draft by ID |
+
+OAuth endpoints (pro, when OAuth enabled): `GET /login/`, `POST /login/`, `GET /login/token`, `POST /login/token`, and `/.well-known/*` discovery routes.
 
 ## Code Conventions
 
