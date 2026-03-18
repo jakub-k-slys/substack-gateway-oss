@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-
 from packages.gateway_oss.features.steps.common import SUBSTACK_BASE
 
 _FEED_FOLLOWING_URL = f"{SUBSTACK_BASE}/api/v1/feed/following"

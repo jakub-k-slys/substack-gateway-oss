@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import respx
-from gateway_oss.main import app
 from starlette.testclient import TestClient
+
+from gateway_oss.main import app
 
 
 def before_scenario(context, scenario):
@@ -21,6 +22,7 @@ def after_scenario(context, scenario):
     # Restore UnitOfWork and base_url if patched by login-flow OAuth steps
     if hasattr(context, "_original_uow"):
         import gateway_pro.oauth.login as login_mod
+
         from gateway_oss.config import settings
 
         login_mod.UnitOfWork = context._original_uow
@@ -29,6 +31,7 @@ def after_scenario(context, scenario):
     # Restore UnitOfWork and jwt_secret if patched by provider token-flow steps
     if hasattr(context, "_orig_provider_uow"):
         import gateway_pro.oauth.provider as provider_mod
+
         from gateway_oss.config import settings
 
         provider_mod.UnitOfWork = context._orig_provider_uow

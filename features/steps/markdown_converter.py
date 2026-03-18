@@ -3,6 +3,7 @@ from __future__ import annotations
 import textwrap
 
 from behave import then, when
+
 from gateway_oss.converters.markdown import markdown_to_note_payload
 
 
