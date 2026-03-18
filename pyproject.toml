@@ -10,10 +10,13 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["packages/gateway_oss", "packages/gateway_pro"]
 
 [tool.uv]
 package = false
+
+[tool.setuptools.packages.find]
+where = ["packages"]
 
 [tool.uv.sources]
 gateway_oss = { workspace = true }
