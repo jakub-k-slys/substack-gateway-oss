@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-from packages.gateway_oss.features.steps.common import load_sample, pub_url
+from common import load_sample, pub_url
 
 
 def _reader_comment_url(context, comment_id: int) -> str:

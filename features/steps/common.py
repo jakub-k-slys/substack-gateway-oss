@@ -8,7 +8,7 @@ from behave import given, then, when
 
 # Shared constants used across step files
 SUBSTACK_BASE = "https://substack.com"
-SAMPLES_DIR = pathlib.Path(__file__).resolve().parents[4] / "samples"
+SAMPLES_DIR = pathlib.Path(__file__).resolve().parents[2] / "samples"
 
 _USER_SETTING_PATH = "/api/v1/user-settings"
 _PUBLIC_PROFILE_PATH = "/api/v1/user/{slug}/public_profile"

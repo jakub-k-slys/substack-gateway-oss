@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-from packages.gateway_oss.features.steps.common import (
+from common import (
     load_sample,
     pub_url,
     public_profile_url,
