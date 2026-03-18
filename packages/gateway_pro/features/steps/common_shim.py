@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import pathlib
+
 # Re-export all shared step definitions from the root features/steps/common.py
 # so that pro-only feature files can use them when run as a separate suite:
 #

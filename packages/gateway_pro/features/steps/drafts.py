@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-
 from common_shim import SUBSTACK_BASE, load_sample
 
 
