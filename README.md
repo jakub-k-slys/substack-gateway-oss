@@ -1,7 +1,6 @@
 # Substack Gateway OSS
 
 [![CI](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml)
-[![E2E Tests](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/e2e.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/e2e.yml)
 
 A stateless gateway for [Substack](https://substack.com) that exposes two interfaces:
 
