@@ -13,6 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
+app = "gateway_oss.main:app"
 gateway_oss = "gateway_oss.main:app"
 
 [build-system]
@@ -55,3 +56,9 @@ testpaths = ["tests/"]
 
 [tool.ty.src]
 exclude = ["features/"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+commit_message = "chore(release): {version}"
+tag_format = "{version}"

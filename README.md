@@ -134,31 +134,11 @@ Returns paginated notes for a profile. Query params: `cursor`.
 
 ---
 
-### Drafts
+### Comments
 
-All draft endpoints require a valid `gateway_key` in the credentials. Requests without it are rejected with `403`.
+#### `GET /api/v1/comments/{comment_id}`
 
-#### `POST /api/v1/drafts`
-
-Creates a new post draft. `body` accepts Markdown.
-
-```json
-{ "title": "My Draft", "subtitle": "A subtitle", "body": "Hello **world**." }
-```
-
-Returns `201 Created` with `{ "id": 189531629, "uuid": "..." }`.
-
-#### `GET /api/v1/drafts/{draft_id}`
-
-Returns a draft by ID. `body` is returned as Markdown.
-
-#### `PUT /api/v1/drafts/{draft_id}`
-
-Delta-updates a draft. Only included fields are updated. `body` accepts Markdown.
-
-#### `DELETE /api/v1/drafts/{draft_id}`
-
-Deletes a draft by ID. Returns `204 No Content`.
+Returns a single comment by ID.
 
 ---
 
