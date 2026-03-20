@@ -47,3 +47,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Upload artifacts to GitHub Release
+        if: steps.semantic.outputs.released == 'true'
+        uses: python-semantic-release/publish-action@v9
+        with:
+          github_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          tag: ${{ steps.semantic.outputs.tag }}
