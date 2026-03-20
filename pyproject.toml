@@ -60,5 +60,6 @@ exclude = ["features/"]
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
 branch = "main"
+commit_author = "Jakub Slys <jakub@slys.dev>"
 commit_message = "chore(release): {version}"
 tag_format = "{version}"
