@@ -42,12 +42,6 @@ jobs:
         if: steps.semantic.outputs.released == 'true'
         run: uv build
 
-      - name: Publish to PyPI
-        if: steps.semantic.outputs.released == 'true'
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_TOKEN }}
-
       - name: Upload artifacts to GitHub Release
         if: steps.semantic.outputs.released == 'true'
         uses: python-semantic-release/publish-action@v9
