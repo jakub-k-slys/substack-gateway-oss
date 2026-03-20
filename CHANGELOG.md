@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.0.1 (2026-03-20)
+
+### Bug Fixes
+
+- Deployment
+  ([`db778c9`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/db778c990236d33e17e9906f12ccbfe0c4fac93c))
+
+- Deployment ([#2](https://github.com/jakub-k-slys/substack-gateway-oss/pull/2),
+  [`e3823ef`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/e3823efa45dff0932c4e4e9a4f5f707bf0938bb4))
+
+
 ## v0.0.0 (2026-03-20)
 
 ### Continuous Integration
