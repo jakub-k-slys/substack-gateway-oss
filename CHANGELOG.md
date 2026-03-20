@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.0.2 (2026-03-20)
+
+### Bug Fixes
+
+- Update commiter
+  ([`1fd9314`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/1fd931487134d6fea6715a4526ae3090299dcd45))
+
+### Continuous Integration
+
+- Bump GHA versions
+  ([`a41ecfc`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/a41ecfc171b9576533175fd894b4d788f551f216))
+
+- Bump GHA versions
+  ([`1885091`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/188509193d3e48428318b5364a3e3d5fe57f96e0))
+
+- Update production GHA
+  ([`367b05c`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/367b05c713cb6f782263b2d7b64887597f8a6a23))
+
+
 ## v0.0.1 (2026-03-20)
 
 ### Bug Fixes
