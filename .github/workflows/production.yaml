@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout released tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
           fetch-depth: 0
