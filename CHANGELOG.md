@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.0.3 (2026-03-20)
+
+### Bug Fixes
+
+- Update commit author
+  ([`0a8e4d2`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/0a8e4d22fc4d970aa3a12801c6c1264499bb122f))
+
+- Update commit author
+  ([`5587752`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/55877527d795a78b2a7c37b3adda63d548d9d280))
+
+- Update commit author
+  ([`909706d`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/909706d16b2600b97cac65c1c061ffd15272b7a2))
+
+
 ## v0.0.2 (2026-03-20)
 
 ### Bug Fixes
