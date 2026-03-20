@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-gateway_oss = "gateway_oss.main:app"
+app = "gateway_oss.main:app"
 
 [build-system]
 requires = ["hatchling"]
