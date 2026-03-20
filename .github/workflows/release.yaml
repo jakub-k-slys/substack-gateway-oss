@@ -7,8 +7,6 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    env:
-      GIT_COMMIT_AUTHOR: Jakub Slys <jakub@slys.dev>
     strategy:
       fail-fast: false
     steps:
