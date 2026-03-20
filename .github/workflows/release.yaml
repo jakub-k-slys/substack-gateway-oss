@@ -7,6 +7,11 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    env:
+      GIT_AUTHOR_NAME: Jakub Slys
+      GIT_AUTHOR_EMAIL: jakub@slys.dev
+      GIT_COMMITTER_NAME: Jakub Slys
+      GIT_COMMITTER_EMAIL: jakub@slys.dev
     strategy:
       fail-fast: false
     steps:
