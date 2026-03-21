@@ -6,6 +6,7 @@ from gateway_oss.app_factory import create_app
 
 app = create_app()
 
+
 def main() -> None:
     import uvicorn
 
