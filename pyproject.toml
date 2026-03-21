@@ -1,5 +1,5 @@
 [project]
-name = "gateway_pro"
+name = "substack-gateway"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
