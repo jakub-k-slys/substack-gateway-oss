@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
+from gateway_oss import __version__
 from gateway_oss.api.v1 import router as v1_router
 from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
 from gateway_oss.config import settings
@@ -54,7 +55,7 @@ _PASSTHROUGH_CODES = {404, 429}
 api = FastAPI(
     title="Substack Gateway",
     description="REST API gateway for Substack",
-    version="1.0.0",
+    version=__version__,
 )
 
 

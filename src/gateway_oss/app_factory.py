@@ -7,8 +7,10 @@ from typing import Any
 
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
+from gateway_oss import __version__
 from gateway_oss.api.app import api
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.mcp.app import mcp
@@ -32,8 +34,13 @@ class _McpTrailingSlash:
         await mcp(scope, receive, send)
 
 
+async def _root(_: Any) -> JSONResponse:
+    return JSONResponse({"gateway": __version__})
+
+
 def create_app() -> Starlette:
     routes: list[Any] = [
+        Route("/", _root),
         Route("/mcp", _McpTrailingSlash(), methods=["GET", "POST", "DELETE"]),
         Mount("/mcp", app=mcp),
         Mount("/api", app=api),
