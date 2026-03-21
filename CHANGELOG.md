@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.0.4 (2026-03-21)
+
+### Bug Fixes
+
+- Add uvloop dep
+  ([`066da64`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/066da6448fe517c70b133ac84b2a362d3db2a85f))
+
+- App startup
+  ([`ebf67e9`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/ebf67e95ce11a7226d172eaee2791017e51e024a))
+
+- Linter
+  ([`e4dbde2`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/e4dbde2915e9fec9f33c78ba56abc46e5b652584))
+
+
 ## v0.0.3 (2026-03-20)
 
 ### Bug Fixes
