@@ -15,6 +15,9 @@ dependencies = [
 [tool.uv.sources]
 gateway_oss = { workspace = true }
 
+[project.scripts]
+gateway_pro = "gateway_pro.main:main"
+
 [project.entry-points."substack_gateway_oss.extensions"]
 gateway_pro = "gateway_pro.extension:get_extension"
 
