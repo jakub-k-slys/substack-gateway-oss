@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
-__all__ = ["api", "mcp", "create_app"]
+try:
+    __version__ = version("gateway_oss")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
+
+__all__ = ["api", "mcp", "create_app", "__version__"]
 
 
 def __getattr__(name: str) -> Any:
