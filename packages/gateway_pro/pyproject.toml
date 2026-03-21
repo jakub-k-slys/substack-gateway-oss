@@ -27,3 +27,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gateway_pro"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+commit_author = "Jakub Slys <jakub@slys.dev>"
+commit_message = "chore(release): {version}"
+tag_format = "{version}"

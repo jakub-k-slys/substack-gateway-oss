@@ -1,5 +1,5 @@
 [project]
-name = "substack-gateway"
+name = "gateway_pro"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
@@ -55,3 +55,10 @@ testpaths = ["packages/gateway_oss/tests", "packages/gateway_pro/tests"]
 
 [tool.ty.src]
 exclude = ["e2e/", "packages/gateway_oss/features/", "packages/gateway_pro/features/"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+commit_author = "Jakub Slys <jakub@slys.dev>"
+commit_message = "chore(release): {version}"
+tag_format = "{version}"
