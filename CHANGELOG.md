@@ -43,6 +43,12 @@ https://claude.ai/code/session_01Q67ac3YRNupaRFNHPxt2Ks
 - Update commiter
   ([`1fd9314`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/1fd931487134d6fea6715a4526ae3090299dcd45))
 
+- Version
+  ([`432907c`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/432907c3f9f8a1a7e1c3003c44125e215f8b9401))
+
+- Version
+  ([`5edb590`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/5edb590a72596ac2146685068eb495b5f9970c27))
+
 ### Chores
 
 - **deps**: Bump async-lru from 2.2.0 to 2.3.0
@@ -813,24 +819,6 @@ You can trigger Dependabot actions by commenting on this PR: - `@dependabot reba
   this dependency (unless you reopen the PR or upgrade to it yourself)
 
 </details>
-
-- **release**: 0.0.0
-  ([`4d0ecfb`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/4d0ecfb6605824d4d5ed7695cb7ad4108a0b67c3))
-
-- **release**: 0.0.1
-  ([`c3f8683`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/c3f868322b58c8c7e33dc39de6b3595b124cd875))
-
-- **release**: 0.0.2
-  ([`69a2b7a`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/69a2b7a499d8bb6152949a6f2a4600412220998c))
-
-- **release**: 0.0.3
-  ([`e184011`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/e184011b559b2bfa382a04e91b5b8541660d23da))
-
-- **release**: 0.0.4
-  ([`c4883de`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/c4883deb2a7ea625d45b7a882c73683e8c5a8593))
-
-- **release**: 0.1.0
-  ([`168eea1`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/168eea1836af5b75fa9a6ce7efa747f2f595ed5c))
 
 ### Continuous Integration
 
