@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.0 (2026-03-21)
+
+### Features
+
+- Provide version on endpoint
+  ([`a08534f`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/a08534f8019472c9a40f81e1f35d790c47622bf9))
+
+
 ## v0.0.4 (2026-03-21)
 
 ### Bug Fixes
