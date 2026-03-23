@@ -99,13 +99,17 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                             ],
                             li[
                                 "Copy the values for ",
+                                code["publication_url"],
+                                ", ",
                                 code["substack.sid"],
                                 " and ",
                                 code["connect.sid"],
                             ],
                             li[
                                 "Create JSON: ",
-                                code['{"substack_sid":"…","connect_sid":"…"}'],
+                                code[
+                                    '{"publication_url":"https://yourname.substack.com","substack_sid":"…","connect_sid":"…"}'
+                                ],
                             ],
                             li["Base64-encode the JSON and paste it below"],
                         ],
@@ -123,20 +127,11 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
                     ),
                     p(class_="hint")[
                         "Base64-encoded JSON containing ",
+                        code["publication_url"],
+                        ", ",
                         code["substack_sid"],
                         " and ",
                         code["connect_sid"],
-                    ],
-                    label(for_="pub_url")["Publication URL"],
-                    input(
-                        type="url",
-                        id="pub_url",
-                        name="pub_url",
-                        required=True,
-                        placeholder="https://yourname.substack.com",
-                    ),
-                    p(class_="hint")[
-                        "Your Substack publication URL (no trailing slash)"
                     ],
                     button(type="submit")["Authorize"],
                 ],

@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncGenerator
 from typing import Annotated
-from urllib.parse import urlparse
 
 from fastapi import Depends, Header, HTTPException, Request
 
@@ -53,19 +52,14 @@ def get_credentials(
 async def get_publication_client(
     request: Request,
     credentials: Annotated[BearerCredentials, Depends(get_credentials)],
-    x_publication_url: Annotated[str, Header()],
 ) -> AsyncGenerator[PublicationClient, None]:
-    _parsed = urlparse(x_publication_url)
-    if _parsed.scheme not in ("http", "https") or not _parsed.netloc:
-        _log.warning("Rejected: invalid x-publication-url %r", x_publication_url)
-        raise HTTPException(
-            status_code=400,
-            detail="x-publication-url must be a valid HTTP or HTTPS URL",
-        )
+    assert credentials.publication_url is not None
     request_id: str | None = getattr(request.state, "request_id", None)
-    _log.debug("Creating PublicationClient for publication: %s", x_publication_url)
+    _log.debug(
+        "Creating PublicationClient for publication: %s", credentials.publication_url
+    )
     async with make_publication_client(
-        credentials, x_publication_url, request_id
+        credentials, credentials.publication_url, request_id
     ) as client:
         yield client
 

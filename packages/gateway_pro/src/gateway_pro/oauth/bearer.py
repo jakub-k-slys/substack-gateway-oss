@@ -19,6 +19,6 @@ def validate_bearer(bearer: str) -> None:
         decoded = json.loads(base64.b64decode(bearer.encode()))
     except Exception as exc:
         raise ValueError("Could not decode bearer token.") from exc
-    for field in ("substack_sid", "connect_sid"):
+    for field in ("publication_url", "substack_sid", "connect_sid"):
         if not decoded.get(field):
             raise ValueError(f"Missing required field: {field}")

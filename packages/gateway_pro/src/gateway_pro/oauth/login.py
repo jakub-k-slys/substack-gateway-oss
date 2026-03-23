@@ -13,6 +13,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
+from gateway_oss.auth import decode_bearer_credentials
 from mcp.server.auth.provider import construct_redirect_uri
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
@@ -78,13 +79,13 @@ async def process_token_form(request: Request) -> Response:
     form = await request.form()
     session_id = str(form.get("session_id", "")).strip()
     token = str(form.get("token", "")).strip()
-    pub_url = str(form.get("pub_url", "")).strip().rstrip("/")
 
-    if not (session_id and token and pub_url):
+    if not (session_id and token):
         return render_token_form(session_id, "All fields are required.")
 
     try:
         validate_bearer(token)
+        credentials = decode_bearer_credentials(token)
     except ValueError as exc:
         return render_token_form(session_id, str(exc))
 
@@ -101,7 +102,10 @@ async def process_token_form(request: Request) -> Response:
                 session_id, "OAuth session expired. Please start over."
             )
 
-        await uow.user_credentials.upsert(login_sess.user_id, token, pub_url)
+        assert credentials.publication_url is not None
+        await uow.user_credentials.upsert(
+            login_sess.user_id, token, credentials.publication_url
+        )
 
         code = secrets.token_urlsafe(32)
         exp = time.time() + _AUTH_CODE_TTL

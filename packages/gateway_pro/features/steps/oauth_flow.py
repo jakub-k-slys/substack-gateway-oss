@@ -24,7 +24,13 @@ from gateway_pro.oauth.db import (
 _UTC = timezone.utc
 
 _VALID_TOKEN = base64.b64encode(
-    json.dumps({"substack_sid": "sid-val", "connect_sid": "csid-val"}).encode()
+    json.dumps(
+        {
+            "publication_url": "https://test.substack.com",
+            "substack_sid": "sid-val",
+            "connect_sid": "csid-val",
+        }
+    ).encode()
 ).decode()
 
 
@@ -241,28 +247,24 @@ def step_submit_login_empty(context, request_id):
     )
 
 
-@when(
-    'I submit the token form with a valid Substack token and publication URL "{pub_url}"'
-)
-def step_submit_valid_token(context, pub_url):
+@when("I submit the token form with a valid Substack token")
+def step_submit_valid_token(context):
     context.response = context.client.post(
         "/login/token/",
         data={
             "session_id": context.session_id,
             "token": _VALID_TOKEN,
-            "pub_url": pub_url,
         },
     )
 
 
-@when('I submit the token form with token "{token}" and publication URL "{pub_url}"')
-def step_submit_custom_token(context, token, pub_url):
+@when('I submit the token form with token "{token}"')
+def step_submit_custom_token(context, token):
     context.response = context.client.post(
         "/login/token/",
         data={
             "session_id": context.session_id,
             "token": token,
-            "pub_url": pub_url,
         },
     )
 

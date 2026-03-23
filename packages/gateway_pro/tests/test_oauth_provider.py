@@ -43,23 +43,50 @@ def login_client():
 class TestValidateBearer:
     def test_valid_bearer_passes(self):
         payload = base64.b64encode(
-            json.dumps({"substack_sid": "sid", "connect_sid": "csid"}).encode()
+            json.dumps(
+                {
+                    "publication_url": "https://example.substack.com",
+                    "substack_sid": "sid",
+                    "connect_sid": "csid",
+                }
+            ).encode()
         ).decode()
         validate_bearer(payload)  # no exception
 
+    def test_missing_publication_url_raises(self):
+        payload = base64.b64encode(
+            json.dumps({"substack_sid": "sid", "connect_sid": "csid"}).encode()
+        ).decode()
+        with pytest.raises(ValueError, match="publication_url"):
+            validate_bearer(payload)
+
     def test_missing_substack_sid_raises(self):
-        payload = base64.b64encode(json.dumps({"connect_sid": "x"}).encode()).decode()
+        payload = base64.b64encode(
+            json.dumps(
+                {"publication_url": "https://example.substack.com", "connect_sid": "x"}
+            ).encode()
+        ).decode()
         with pytest.raises(ValueError, match="substack_sid"):
             validate_bearer(payload)
 
     def test_missing_connect_sid_raises(self):
-        payload = base64.b64encode(json.dumps({"substack_sid": "x"}).encode()).decode()
+        payload = base64.b64encode(
+            json.dumps(
+                {"publication_url": "https://example.substack.com", "substack_sid": "x"}
+            ).encode()
+        ).decode()
         with pytest.raises(ValueError, match="connect_sid"):
             validate_bearer(payload)
 
     def test_empty_substack_sid_raises(self):
         payload = base64.b64encode(
-            json.dumps({"substack_sid": "", "connect_sid": "x"}).encode()
+            json.dumps(
+                {
+                    "publication_url": "https://example.substack.com",
+                    "substack_sid": "",
+                    "connect_sid": "x",
+                }
+            ).encode()
         ).decode()
         with pytest.raises(ValueError, match="substack_sid"):
             validate_bearer(payload)
@@ -171,7 +198,7 @@ class TestTokenForm:
     def test_form_contains_token_field(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
         assert 'name="token"' in response.text
-        assert 'name="pub_url"' in response.text
+        assert 'name="pub_url"' not in response.text
 
     def test_session_id_is_embedded_in_form(self, login_client):
         response = login_client.get("/login/token?session_id=my-session-id")
@@ -180,7 +207,7 @@ class TestTokenForm:
     def test_post_with_empty_fields_shows_error(self, login_client):
         response = login_client.post(
             "/login/token",
-            data={"session_id": "sid", "token": "", "pub_url": ""},
+            data={"session_id": "sid", "token": ""},
         )
         assert response.status_code == 200
         assert "All fields are required" in response.text

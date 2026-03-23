@@ -13,27 +13,28 @@ Both share the same service layer and HTTP clients. Deployable to [Vercel](https
 
 ## Authentication
 
-Every request (except `GET /api/v1/health/live`) requires two headers:
+Every request (except `GET /api/v1/health/live`) requires one header:
 
 | Header | Description |
 |--------|-------------|
 | `Authorization` | `Bearer <token>` where `<token>` is a base64-encoded JSON credentials object |
-| `x-publication-url` | Your publication URL, e.g. `https://example.substack.com` |
 
 The credentials object must contain:
 
 ```json
 {
+  "publication_url": "https://example.substack.com",
   "substack_sid": "<your substack.sid cookie value>",
-  "connect_sid": "<your connect.sid cookie value>",
-  "gateway_key": "<gateway key for protected endpoints>"
+  "connect_sid": "<your connect.sid cookie value>"
 }
 ```
+
+For protected endpoints such as drafts, include `gateway_key` in the same JSON object.
 
 Encode credentials:
 
 ```bash
-echo '{"substack_sid":"s%3A...","connect_sid":"s%3A...","gateway_key":"WW91IHNoYWxsIG5vdCBwYXNzCg=="}' | base64
+echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A...","gateway_key":"WW91IHNoYWxsIG5vdCBwYXNzCg=="}' | base64
 ```
 
 Pass the result as `Authorization: Bearer <base64string>`.
@@ -186,7 +187,7 @@ The MCP server is available at `/mcp` (streamable-http transport). It exposes th
 | `delete_draft` | Delete a draft by ID (pro) |
 
 The MCP server supports two authentication modes:
-1. **Header-based** — pass `Authorization` and `x-publication-url` headers on each request (same as the REST API).
+1. **Header-based** — pass `Authorization` with a base64-encoded credentials object that includes `publication_url` (same as the REST API).
 2. **OAuth** — enabled when `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, and `SUBSTACK_GATEWAY_JWT_SECRET` are all set; credentials are looked up via the active `CredentialProvider`.
 
 ---

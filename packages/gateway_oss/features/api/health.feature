@@ -31,6 +31,7 @@ Feature: Health check endpoints
     Then the response status code is 200
     And the response field "connected" is true
     And the response field "tokens" is not null
+    And the response nested field "tokens.publication_url" is "https://example.substack.com"
     And the response nested field "tokens.substack_sid" is "test-token"
     And the response nested field "tokens.connect_sid" is "test-token"
     And the response nested field "tokens.gateway_key" is "test"

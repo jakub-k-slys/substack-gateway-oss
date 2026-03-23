@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-from common_shim import SUBSTACK_BASE, load_sample
+from common_shim import SUBSTACK_BASE, load_sample, pub_url
 
 
 def _draft_url(context, draft_id: int | None = None) -> str:
-    pub = context.headers.get("x-publication-url")
+    pub = pub_url(context)
     if not pub:
-        raise RuntimeError("x-publication-url not set — missing a Given step?")
-    base = f"{pub.rstrip('/')}/api/v1/drafts"
+        raise RuntimeError("publication URL not set — missing a Given step?")
+    base = f"{pub}/api/v1/drafts"
     return f"{base}/{draft_id}" if draft_id is not None else base
 
 

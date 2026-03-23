@@ -34,11 +34,5 @@ async def health_ready(
     connected = await client.check_connectivity()
     return HealthResponse(
         connected=connected,
-        tokens=TokensInfo(
-            substack_sid=credentials.substack_sid,
-            connect_sid=credentials.connect_sid,
-            gateway_key=credentials.gateway_key,
-        )
-        if show
-        else None,
+        tokens=TokensInfo.model_validate(credentials.model_dump()) if show else None,
     )
