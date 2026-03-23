@@ -43,6 +43,17 @@ uv run behave packages/gateway_oss/features/api/health.feature
 
 CI runs: `uv build`, lint, format check, and type-check. No tests in CI currently.
 
+When introducing changes, validate them before finishing the task. Prefer targeted runs first, but the expected validation set is:
+- `uv run ruff check .`
+- `uv run ruff format --check .`
+- `uv run ty check .`
+- `uv build`
+- `uv run pytest`
+- `uv run behave packages/gateway_oss/features/`
+- `uv run behave packages/gateway_pro/features/`
+
+Behave is currently run separately for OSS and PRO. In this monorepo, run the suite for the package you changed, and run both when the change spans OSS and PRO.
+
 ## Architecture
 
 ```
@@ -57,7 +68,7 @@ Client request
 
 - `SubstackHTTPBase` (`client/base.py`) — shared async httpx layer. Raises `SubstackAuthError` (401/403) or `SubstackAPIError` (all other failures).
 - `SubstackClient` (`client/substack.py`) — talks to `https://substack.com/api/v1/*` (global: user settings, handles, profiles, following). Uses `alru_cache` for per-request profile caching.
-- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL is passed via `x-publication-url` header.
+- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL is decoded from the Bearer token's `publication_url` field.
 
 Most API endpoints need both clients. `ProfilesService` only needs `SubstackClient`.
 
@@ -69,7 +80,7 @@ Thin domain classes (`NotesService`, `PostsService`, `ProfilesService`, `Followi
 
 Two auth paths:
 
-1. **Bearer token** — Every request (except `GET /api/v1/health/live`) passes `Authorization: Bearer <base64-encoded-json>` where the JSON must contain `substack_sid` and `connect_sid`. Decoded in `auth.py`; `api/deps.py` and `mcp/deps.py` construct per-request HTTP clients from it.
+1. **Bearer token** — Every request (except `GET /api/v1/health/live`) passes `Authorization: Bearer <base64-encoded-json>` where the JSON must contain `publication_url`, `substack_sid`, and `connect_sid`. Decoded in `auth.py`; `api/deps.py` and `mcp/deps.py` construct per-request HTTP clients from it.
 2. **OAuth (pro only)** — When `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, and `SUBSTACK_GATEWAY_JWT_SECRET` are all set, the MCP layer authenticates via OAuth 2.1 and looks up credentials from the Neon DB via the `CredentialProvider` interface instead of reading request headers.
 
 The `gateway_key` (default `WW91IHNoYWxsIG5vdCBwYXNzCg==`) must also be present in the Bearer JSON to access draft endpoints; missing/wrong key → 403. All error responses show only a generic `"Invalid credentials"` message; the specific reason is logged at WARNING level.
@@ -136,7 +147,7 @@ Two separate concerns:
 | `PUT` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delta-update a draft (body accepts Markdown) |
 | `DELETE` | `/api/v1/drafts/{draft_id}` | Bearer + gateway_key | Delete a draft by ID |
 
-OAuth endpoints (pro, when OAuth enabled): `GET /login/`, `POST /login/`, `GET /login/token`, `POST /login/token`, and `/.well-known/*` discovery routes.
+OAuth endpoints (pro, when OAuth enabled): `GET /login/`, `POST /login/`, `GET /login/token`, `POST /login/token`, and `/.well-known/*` discovery routes. The phase-2 token form expects the publication URL to already be embedded in the submitted base64 token.
 
 ## Code Conventions
 

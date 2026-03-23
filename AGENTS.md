@@ -1,8 +1,10 @@
 These instructions apply to the entire repository unless a deeper `AGENTS.md` overrides them.
 - `substack-gateway` is a Python 3.10+ FastAPI service that proxies authenticated requests to Substack.
-- The main application code lives in `src/gateway/`.
+- The monorepo is split into `packages/gateway_oss/` and `packages/gateway_pro/`.
 - `gateway_oss.main:app` is the application entry point.
-- The project also exposes MCP-related code under `src/gateway/mcp/` and OAuth flows under `src/gateway/oauth/`.
+- The OSS app code lives in `packages/gateway_oss/src/gateway_oss/`.
+- Pro-only OAuth code lives in `packages/gateway_pro/src/gateway_pro/oauth/`.
+- Authenticated requests use `Authorization: Bearer <base64-json>`, where the decoded JSON now contains `publication_url`, `substack_sid`, `connect_sid`, and optionally `gateway_key`.
 - Install dependencies with `uv sync --dev`.
 - Run the app locally with `uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload`.
 - Lint with `uv run ruff check .`.
@@ -11,13 +13,22 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - Run unit tests with `uv run pytest`.
 - Run BDD tests with `uv run behave packages/gateway_oss/features/`.
 - Prefer targeted validation for the area you changed before running broader suites.
-- `src/gateway/api/`: FastAPI app wiring and request dependencies.
-- `src/gateway/client/`: HTTP clients and upstream error handling.
-- `src/gateway/services/`: business logic for drafts, notes, posts, profiles, and following.
-- `src/gateway/models/`: Pydantic schemas and upstream response models.
-- `src/gateway/converters/markdown.py`: Markdown/Substack document conversion.
-- `src/gateway/oauth/`: OAuth provider, DB access, login flow, and router.
-- `src/gateway/mcp/`: MCP app and dependency wiring.
+- When introducing changes, validate them before finishing the task. At minimum, run the relevant combination of:
+  `uv run ruff check .`,
+  `uv run ruff format --check .`,
+  `uv run ty check .`,
+  `uv build`,
+  `uv run pytest`,
+  `uv run behave packages/gateway_oss/features/`,
+  `uv run behave packages/gateway_pro/features/`.
+- Behave is currently run separately for OSS and PRO. In the monorepo, run the suite for the package you changed, and run both when the change crosses the package boundary.
+- `packages/gateway_oss/src/gateway_oss/api/`: FastAPI app wiring and request dependencies.
+- `packages/gateway_oss/src/gateway_oss/client/`: HTTP clients and upstream error handling.
+- `packages/gateway_oss/src/gateway_oss/services/`: business logic for drafts, notes, posts, profiles, and following.
+- `packages/gateway_oss/src/gateway_oss/models/`: Pydantic schemas and upstream response models.
+- `packages/gateway_oss/src/gateway_oss/converters/markdown.py`: Markdown/Substack document conversion.
+- `packages/gateway_oss/src/gateway_oss/mcp/`: MCP app and dependency wiring.
+- `packages/gateway_pro/src/gateway_pro/oauth/`: OAuth provider, DB access, login flow, and router.
 - `packages/gateway_oss/tests/`: OSS-focused pytest coverage.
 - `packages/gateway_oss/features/`: OSS Behave coverage and step definitions.
 - `samples/`: example Substack payloads used as reference fixtures.
@@ -33,4 +44,4 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - When touching Markdown conversion, OAuth, or model translation, check for both unit and feature-level coverage nearby before adding new tests.
 - There are generated/cache directories in the repo already; do not commit new generated artifacts.
 - Respect existing user changes in the working tree. Do not revert unrelated modifications.
-- If a task affects auth, cookies, bearer decoding, or gateway key checks, verify error handling paths as well as success paths.
+- If a task affects auth, cookies, bearer decoding, embedded `publication_url`, or gateway key checks, verify error handling paths as well as success paths.
