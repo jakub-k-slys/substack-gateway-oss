@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-from common import SUBSTACK_BASE, load_sample
+from common import SUBSTACK_BASE, load_sample, pub_url
 
 _CREATE_NOTE_URL = f"{SUBSTACK_BASE}/api/v1/comment/feed/"
 _CREATE_ATTACHMENT_URL = f"{SUBSTACK_BASE}/api/v1/comment/attachment/"
 
 
 def _delete_note_url(context, note_id: int) -> str:
-    pub = context.headers.get("x-publication-url")
+    pub = pub_url(context)
     if not pub:
-        raise RuntimeError("x-publication-url not set — missing a Given step?")
-    return f"{pub.rstrip('/')}/api/v1/comment/{note_id}"
+        raise RuntimeError("publication URL not set — missing a Given step?")
+    return f"{pub}/api/v1/comment/{note_id}"
 
 
 @given("the Substack create-note endpoint returns the sample response")

@@ -27,8 +27,7 @@ _log = logging.getLogger(__name__)
 
 _HEADER_HINT = (
     "Configure your MCP client to send the following HTTP headers: "
-    "'Authorization: Bearer <base64-credentials>' and "
-    "'x-publication-url: <your-publication-url>'."
+    "'Authorization: Bearer <base64-credentials>'."
 )
 
 
@@ -74,7 +73,6 @@ async def get_credentials(request: Request = CurrentRequest()) -> BearerCredenti
 @contextlib.asynccontextmanager
 async def get_publication_client(
     credentials: BearerCredentials = Depends(get_credentials),
-    request: Request = CurrentRequest(),
 ) -> AsyncIterator[PublicationClient]:
     token = get_access_token()
     if token is not None:
@@ -95,11 +93,12 @@ async def get_publication_client(
         async with make_publication_client(credentials, pub_url) as pub:
             yield pub
         return
-    publication_url = request.headers.get("x-publication-url", "")
-    if not publication_url:
-        raise ToolError(f"Missing x-publication-url header. {_HEADER_HINT}")
-    _log.debug("Creating PublicationClient for publication: %s", publication_url)
-    async with make_publication_client(credentials, publication_url) as pub:
+    if not credentials.publication_url:
+        raise ToolError("Token must contain publication_url.")
+    _log.debug(
+        "Creating PublicationClient for publication: %s", credentials.publication_url
+    )
+    async with make_publication_client(credentials, credentials.publication_url) as pub:
         yield pub
 
 

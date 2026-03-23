@@ -5,10 +5,6 @@ execute the coroutine from synchronous behave.  The respx mock started in
 environment.py patches httpx at the class level, so it remains active
 across asyncio.run() boundaries.
 
-The valid-token Given step also writes context.headers["x-publication-url"]
-so that the shared Substack mock Given steps (reader.py, notes_create.py)
-can derive the correct URL to register mocks against.
-
 Pro-only draft MCP steps live in packages/gateway_pro/features/steps/mcp_drafts.py.
 """
 
@@ -55,19 +51,22 @@ from gateway_oss.services.profiles import ProfilesService
 
 @given('a valid MCP token and publication URL "{pub_url_}"')
 def step_valid_mcp_token(context, pub_url_):
-    credentials = {"substack_sid": "test-token", "connect_sid": "test-token"}
+    credentials = {
+        "publication_url": pub_url_,
+        "substack_sid": "test-token",
+        "connect_sid": "test-token",
+    }
     encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.mcp_token = encoded
     context.mcp_pub_url = pub_url_
-    # Keep headers in sync so existing Substack mock Given steps work.
-    context.headers["x-publication-url"] = pub_url_
+    context.publication_url = pub_url_
 
 
 @given('an invalid MCP token and publication URL "{pub_url_}"')
 def step_invalid_mcp_token(context, pub_url_):
     context.mcp_token = "not-valid-base64!!!"
     context.mcp_pub_url = pub_url_
-    context.headers["x-publication-url"] = pub_url_
+    context.publication_url = pub_url_
 
 
 # ------------------------------------------------------------------
