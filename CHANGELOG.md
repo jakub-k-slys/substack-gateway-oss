@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-03-23)
+
+### Features
+
+- Move publication url into bearer token
+  ([`fb5848c`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/fb5848c5743935f48c65ccda76fafec3ae4b60ac))
+
+
 ## v0.2.0 (2026-03-23)
 
 ### Chores
