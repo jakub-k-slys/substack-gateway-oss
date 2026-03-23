@@ -9,6 +9,7 @@ from gateway_oss.extensions.base import GatewayExtension
 
 ENTRYPOINT_GROUP = "substack_gateway_oss.extensions"
 ENV_VAR = "GATEWAY_EXTENSION_MODULES"
+DISABLE_ENTRYPOINTS_ENV_VAR = "SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS"
 
 
 def _coerce_extension(candidate: Any) -> GatewayExtension:
@@ -17,6 +18,13 @@ def _coerce_extension(candidate: Any) -> GatewayExtension:
 
 
 def _load_from_entrypoints() -> list[GatewayExtension]:
+    if os.getenv(DISABLE_ENTRYPOINTS_ENV_VAR, "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        return []
     extensions: list[GatewayExtension] = []
     for entrypoint in importlib.metadata.entry_points(group=ENTRYPOINT_GROUP):
         extensions.append(_coerce_extension(entrypoint.load()))

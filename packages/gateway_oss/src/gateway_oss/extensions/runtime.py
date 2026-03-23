@@ -7,6 +7,7 @@ from typing import Any, TypeVar
 
 from gateway_oss.config import settings
 from gateway_oss.extensions.base import (
+    ApplicationInfo,
     CredentialProvider,
     GatewayExtension,
     GatewayExtensionContext,
@@ -24,6 +25,7 @@ class GatewayRuntime:
     lifespan_hooks: list[LifespanHook]
     credential_provider: CredentialProvider | None
     mcp_auth_provider: Any | None
+    application_info: ApplicationInfo | None
 
 
 def _single_provider(label: str, providers: Sequence[T | None]) -> T | None:
@@ -50,10 +52,15 @@ def get_runtime() -> GatewayRuntime:
         "MCP auth provider",
         [extension.get_mcp_auth_provider(context) for extension in extensions],
     )
+    application_info = _single_provider(
+        "application info provider",
+        [extension.get_application_info(context) for extension in extensions],
+    )
     return GatewayRuntime(
         context=context,
         extensions=extensions,
         lifespan_hooks=lifespan_hooks,
         credential_provider=credential_provider,
         mcp_auth_provider=mcp_auth_provider,
+        application_info=application_info,
     )

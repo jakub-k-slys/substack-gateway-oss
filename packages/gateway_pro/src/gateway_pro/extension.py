@@ -7,6 +7,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastmcp import FastMCP
 from gateway_oss.extensions.base import (
+    ApplicationInfo,
     CredentialProvider,
     GatewayExtension,
     GatewayExtensionContext,
@@ -14,6 +15,8 @@ from gateway_oss.extensions.base import (
 )
 from starlette.applications import Starlette
 from starlette.routing import Mount
+
+from gateway_pro import __version__ as pro_version
 
 
 class ProCredentialProvider(CredentialProvider):
@@ -60,6 +63,15 @@ class ProExtension(GatewayExtension):
         from gateway_pro.oauth.router import oauth_provider
 
         return oauth_provider
+
+    def get_application_info(
+        self, context: GatewayExtensionContext
+    ) -> ApplicationInfo | None:
+        return ApplicationInfo(
+            application="substack-gateway",
+            tier="pro",
+            version=pro_version,
+        )
 
     @contextlib.asynccontextmanager
     async def _init_db(self, app: Any) -> AsyncIterator[None]:
