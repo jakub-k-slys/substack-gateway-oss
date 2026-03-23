@@ -38,4 +38,5 @@ def after_scenario(context, scenario):
         provider_mod.UnitOfWork = context._orig_provider_uow
         settings.jwt_secret = context._orig_jwt_secret
 
+
 __all__ = ["before_scenario", "after_scenario"]
