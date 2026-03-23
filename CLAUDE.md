@@ -37,6 +37,14 @@ uv run behave features/api/notes.feature
 uv build
 ```
 
+When introducing changes, validate them before finishing the task. Prefer targeted runs first, but the expected OSS validation set is:
+- `uv run ruff check .`
+- `uv run ruff format --check .`
+- `uv run ty check .`
+- `uv build`
+- `uv run pytest tests/`
+- `uv run behave features/`
+
 ## Architecture
 
 This is a **Starlette-based gateway** that wraps the Substack private API and exposes two interfaces:
@@ -57,7 +65,7 @@ Client request
 
 ### Authentication
 
-Requests carry a **base64-encoded JSON Bearer token** containing `substack_sid` and `connect_sid` cookies (Substack session cookies). The `auth.py` module decodes this token; `api/deps.py` and `mcp/deps.py` use it to construct per-request HTTP clients.
+Requests carry a **base64-encoded JSON Bearer token** containing `publication_url`, `substack_sid`, and `connect_sid` (Substack session cookies plus the target publication URL). The `auth.py` module decodes this token; `api/deps.py` and `mcp/deps.py` use it to construct per-request HTTP clients.
 
 The MCP layer has a second path: if OAuth is active (all three of `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, `SUBSTACK_GATEWAY_JWT_SECRET` are set), `mcp/deps.py` will look up credentials via the `CredentialProvider` interface instead of reading request headers.
 
@@ -65,7 +73,7 @@ The MCP layer has a second path: if OAuth is active (all three of `SUBSTACK_GATE
 
 - `SubstackHTTPBase` (`client/base.py`) — shared async httpx layer, raises `SubstackAuthError` (401/403) or `SubstackAPIError` (all other failures).
 - `SubstackClient` — talks to `https://substack.com/api/v1/*` (global API: user settings, handles, profiles, following).
-- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL is passed per-request via the `x-publication-url` header.
+- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL comes from the Bearer token's `publication_url` field.
 
 Most API endpoints need **both** clients; `ProfilesService` only needs `SubstackClient`.
 
@@ -94,7 +102,7 @@ An extension implements the `GatewayExtension` protocol (`extensions/base.py`). 
 
 ### Configuration
 
-All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `gateway_key`, `admin_token`, and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`).
+All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `gateway_key`, `admin_token`, and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is not a header anymore; it is carried in the Bearer token's `publication_url`.
 
 ### Tests
 
