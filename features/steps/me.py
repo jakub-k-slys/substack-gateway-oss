@@ -5,6 +5,7 @@ from behave import given
 from common import (
     SUBSTACK_BASE,
     load_sample,
+    pub_url,
     public_profile_url,
     user_setting_url,
 )
@@ -17,10 +18,10 @@ def _handle_options_url() -> str:
 
 
 def _notes_url(context) -> str:
-    pub = context.headers.get("x-publication-url")
+    pub = pub_url(context)
     if not pub:
-        raise RuntimeError("x-publication-url not set — missing a Given step?")
-    return f"{pub.rstrip('/')}/api/v1/notes"
+        raise RuntimeError("publication URL not set — missing a Given step?")
+    return f"{pub}/api/v1/notes"
 
 
 def _profile_posts_url() -> str:
@@ -28,10 +29,10 @@ def _profile_posts_url() -> str:
 
 
 def _subscriber_lists_url(context, user_id: int) -> str:
-    pub = context.headers.get("x-publication-url")
+    pub = pub_url(context)
     if not pub:
-        raise RuntimeError("x-publication-url not set — missing a Given step?")
-    return f"{pub.rstrip('/')}/api/v1/user/{user_id}/subscriber-lists"
+        raise RuntimeError("publication URL not set — missing a Given step?")
+    return f"{pub}/api/v1/user/{user_id}/subscriber-lists"
 
 
 @given("the Substack handles endpoint returns the sample response")

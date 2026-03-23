@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import httpx
 from behave import given
-from common import SUBSTACK_BASE, load_sample
+from common import SUBSTACK_BASE, load_sample, pub_url
 
 
 def _full_post_url(post_id: int) -> str:
@@ -10,8 +10,7 @@ def _full_post_url(post_id: int) -> str:
 
 
 def _post_comments_url(context, post_id: int) -> str:
-    pub_url = context.headers.get("x-publication-url", "").rstrip("/")
-    return f"{pub_url}/api/v1/post/{post_id}/comments"
+    return f"{pub_url(context)}/api/v1/post/{post_id}/comments"
 
 
 @given(

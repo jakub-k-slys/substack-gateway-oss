@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import contextlib
 from collections.abc import AsyncIterator
+from urllib.parse import urlparse
 
 from pydantic import ValidationError
 
@@ -19,7 +20,7 @@ def decode_bearer_credentials(raw: str) -> BearerCredentials:
 
     Raises:
         ValueError: If the token is not valid base64-encoded JSON credentials,
-            or if ``substack_sid`` / ``connect_sid`` are absent.
+            or if required fields are absent or malformed.
     """
     try:
         decoded = base64.b64decode(raw).decode()
@@ -28,6 +29,11 @@ def decode_bearer_credentials(raw: str) -> BearerCredentials:
         raise ValueError(
             "Invalid token: expected base64-encoded JSON credentials"
         ) from exc
+    if not credentials.publication_url:
+        raise ValueError("Token must contain publication_url")
+    parsed = urlparse(credentials.publication_url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise ValueError("Token must contain a valid HTTP or HTTPS publication_url")
     if not credentials.substack_sid or not credentials.connect_sid:
         raise ValueError("Token must contain substack_sid and connect_sid")
     return credentials

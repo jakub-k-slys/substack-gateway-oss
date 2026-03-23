@@ -19,7 +19,11 @@ def load_sample(path: str):
 
 
 def pub_url(context) -> str:
-    return context.headers.get("x-publication-url", "").rstrip("/")
+    return getattr(context, "publication_url", "").rstrip("/")
+
+
+def _encode_credentials(credentials: dict[str, str]) -> str:
+    return base64.b64encode(json.dumps(credentials).encode()).decode()
 
 
 def user_setting_url() -> str:
@@ -32,12 +36,14 @@ def public_profile_url(slug: str) -> str:
 
 @given('a valid bearer token "{token}" and publication URL "{pub_url_}"')
 def step_valid_auth(context, token, pub_url_):
-    credentials = {"substack_sid": token, "connect_sid": token, "gateway_key": "test"}
-    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
-    context.headers = {
-        "Authorization": f"Bearer {encoded}",
-        "x-publication-url": pub_url_,
+    credentials = {
+        "publication_url": pub_url_,
+        "substack_sid": token,
+        "connect_sid": token,
+        "gateway_key": "test",
     }
+    context.publication_url = pub_url_
+    context.headers = {"Authorization": f"Bearer {_encode_credentials(credentials)}"}
 
 
 @given(
@@ -45,36 +51,32 @@ def step_valid_auth(context, token, pub_url_):
 )
 def step_valid_auth_with_gateway_key(context, gateway_key, pub_url_):
     credentials = {
+        "publication_url": pub_url_,
         "substack_sid": "test-token",
         "connect_sid": "test-token",
         "gateway_key": gateway_key,
     }
-    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
-    context.headers = {
-        "Authorization": f"Bearer {encoded}",
-        "x-publication-url": pub_url_,
-    }
+    context.publication_url = pub_url_
+    context.headers = {"Authorization": f"Bearer {_encode_credentials(credentials)}"}
 
 
 @given('a malformed authorization header and publication URL "{pub_url_}"')
 def step_malformed_auth(context, pub_url_):
-    context.headers = {
-        "Authorization": "not-a-bearer-token",
-        "x-publication-url": pub_url_,
-    }
+    context.publication_url = pub_url_
+    context.headers = {"Authorization": "not-a-bearer-token"}
 
 
 @given('a bearer token with extra whitespace and publication URL "{pub_url_}"')
 def step_whitespace_token(context, pub_url_):
     credentials = {
+        "publication_url": pub_url_,
         "substack_sid": "test-token",
         "connect_sid": "test-token",
         "gateway_key": "test",
     }
-    encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
+    context.publication_url = pub_url_
     context.headers = {
-        "Authorization": f"Bearer   {encoded}   ",
-        "x-publication-url": pub_url_,
+        "Authorization": f"Bearer   {_encode_credentials(credentials)}   "
     }
 
 
