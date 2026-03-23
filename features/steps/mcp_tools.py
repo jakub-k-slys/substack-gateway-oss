@@ -1,11 +1,7 @@
-"""Behave step definitions for OSS MCP tool testing.
+"""Behave step definitions for OSS and PRO MCP tool testing.
 
-MCP tools are async functions, so each When step calls asyncio.run() to
-execute the coroutine from synchronous behave.  The respx mock started in
-environment.py patches httpx at the class level, so it remains active
-across asyncio.run() boundaries.
-
-Pro-only draft MCP steps live in packages/gateway_pro/features/steps/mcp_drafts.py.
+Public OSS tools run without credentials. PRO-only personal/write tools still
+use the authenticated helper path.
 """
 
 from __future__ import annotations
@@ -104,11 +100,7 @@ async def _clients(
 
 @when("I call the MCP tool get_note with note_id {note_id:d}")
 def step_call_get_note(context, note_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_note(note_id=note_id, notes=NotesService(pub, sub))
-
-    _call(context, run())
+    _call(context, get_note(note_id=note_id))
 
 
 @when('I call the MCP tool create_note with content "{content}"')
@@ -165,22 +157,12 @@ def step_call_get_my_posts(context):
 
 @when("I call the MCP tool get_post with post_id {post_id:d}")
 def step_call_get_post(context, post_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_post(post_id=post_id, posts=PostsService(pub, sub))
-
-    _call(context, run())
+    _call(context, get_post(post_id=post_id))
 
 
 @when("I call the MCP tool get_post_comments with post_id {post_id:d}")
 def step_call_get_post_comments(context, post_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_post_comments(
-                post_id=post_id, posts=PostsService(pub, sub)
-            )
-
-    _call(context, run())
+    _call(context, get_post_comments(post_id=post_id))
 
 
 @when("I call the MCP tool get_my_following")
@@ -199,37 +181,17 @@ def step_call_get_my_following(context):
 
 @when('I call the MCP tool get_profile with slug "{slug}"')
 def step_call_get_profile(context, slug):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_profile(slug=slug, profiles=ProfilesService(sub))
-
-    _call(context, run())
+    _call(context, get_profile(slug=slug))
 
 
 @when('I call the MCP tool get_profile_posts with slug "{slug}"')
 def step_call_get_profile_posts(context, slug):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_profile_posts(
-                slug=slug,
-                profiles=ProfilesService(sub),
-                posts=PostsService(pub, sub),
-            )
-
-    _call(context, run())
+    _call(context, get_profile_posts(slug=slug))
 
 
 @when('I call the MCP tool get_profile_notes with slug "{slug}"')
 def step_call_get_profile_notes(context, slug):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_profile_notes(
-                slug=slug,
-                profiles=ProfilesService(sub),
-                posts=PostsService(pub, sub),
-            )
-
-    _call(context, run())
+    _call(context, get_profile_notes(slug=slug))
 
 
 # ------------------------------------------------------------------

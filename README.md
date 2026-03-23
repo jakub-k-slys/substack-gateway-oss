@@ -145,26 +145,18 @@ Returns a single comment by ID.
 
 ## MCP Server
 
-The MCP server is available at `/mcp` (streamable-http transport). It exposes the same operations as the REST API as MCP tools:
+The MCP server is available at `/mcp` (streamable-http transport). In OSS it is read-only and does not require a bearer token or `publication_url` for public tools:
 
 | Tool | Description |
 |------|-------------|
 | `get_note` | Retrieve a single note by ID |
-| `create_note` | Publish a new note from Markdown |
-| `delete_note` | Delete a note by ID |
-| `get_me` | Get the authenticated user's profile |
-| `get_my_notes` | Get the authenticated user's notes |
-| `get_my_posts` | Get the authenticated user's posts |
-| `get_my_following` | Get the list of followed profiles |
 | `get_post` | Retrieve a full post by ID |
 | `get_post_comments` | Retrieve comments for a post |
 | `get_profile` | Retrieve a public profile by handle |
 | `get_profile_posts` | Get paginated posts for a profile |
 | `get_profile_notes` | Get paginated notes for a profile |
 
-The MCP server supports two authentication modes:
-1. **Header-based** — pass `Authorization` with a base64-encoded credentials object that includes `publication_url` (same as the REST API).
-2. **OAuth** — enabled when `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, and `SUBSTACK_GATEWAY_JWT_SECRET` are all set; credentials are looked up via the active `CredentialProvider`.
+Authenticated MCP tools such as personal endpoints or writes are provided by PRO, not OSS.
 
 ---
 
