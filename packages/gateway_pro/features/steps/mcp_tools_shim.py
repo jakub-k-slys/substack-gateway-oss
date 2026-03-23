@@ -6,3 +6,5 @@ from __future__ import annotations
 #   uv run behave packages/gateway_pro/features/
 #
 from packages.gateway_oss.features.steps.mcp_tools import *  # noqa: F401, F403
+from packages.gateway_oss.features.steps.me import *  # noqa: F401, F403
+from packages.gateway_oss.features.steps.notes_create import *  # noqa: F401, F403

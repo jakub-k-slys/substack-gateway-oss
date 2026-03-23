@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import json
 import pathlib
 import sys
@@ -16,6 +17,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from packages.gateway_oss.features.steps.common import *  # noqa: E402, F401, F403
+
+sys.modules.setdefault(
+    "common", importlib.import_module("packages.gateway_oss.features.steps.common")
+)
 
 SAMPLES_DIR = pathlib.Path(__file__).resolve().parents[2] / "samples"
 

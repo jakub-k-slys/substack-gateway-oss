@@ -4,6 +4,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from gateway_oss.mcp.app import register_authenticated_tools
 from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
@@ -74,6 +75,7 @@ async def health_check(request) -> JSONResponse:
 
 
 def register_tools(mcp: FastMCP) -> None:
+    register_authenticated_tools(mcp)
     mcp.tool(
         description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each.",
         tags={"drafts", "read"},
