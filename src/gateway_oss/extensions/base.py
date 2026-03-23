@@ -24,6 +24,13 @@ class GatewayExtensionContext:
     settings: Settings
 
 
+@dataclass(slots=True, frozen=True)
+class ApplicationInfo:
+    application: str
+    tier: str
+    version: str
+
+
 @runtime_checkable
 class GatewayExtension(Protocol):
     name: str
@@ -49,3 +56,8 @@ class GatewayExtension(Protocol):
 
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None:
         """Return an MCP auth provider, if the extension exposes one."""
+
+    def get_application_info(
+        self, context: GatewayExtensionContext
+    ) -> ApplicationInfo | None:
+        """Return application metadata for the root endpoint, if overridden."""

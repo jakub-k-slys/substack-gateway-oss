@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+
 import respx
 from starlette.testclient import TestClient
+
+os.environ["SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS"] = "1"
 
 from gateway_oss.main import app
 
