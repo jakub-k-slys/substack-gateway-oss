@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.4.0 (2026-03-23)
+
+### Features
+
+- Make oss mcp read only
+  ([`5259f60`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/5259f60b355a4d6b308506e1482eaa6c0069ca19))
+
+- Require full validation for code changes
+  ([`47882d4`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/47882d4d33a0a7e8284b0df17f1f5bb73ec72b80))
+
+
 ## v0.3.0 (2026-03-23)
 
 ### Features
