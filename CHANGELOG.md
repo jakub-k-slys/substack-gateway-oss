@@ -1,6 +1,120 @@
 # CHANGELOG
 
 
+## v0.2.0 (2026-03-23)
+
+### Chores
+
+- **deps**: Bump uvicorn from 0.41.0 to 0.42.0
+  ([`2ed5bd0`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/2ed5bd02b5d75d839eda6c89c6a719743be532a3))
+
+Bumps [uvicorn](https://github.com/Kludex/uvicorn) from 0.41.0 to 0.42.0. - [Release
+  notes](https://github.com/Kludex/uvicorn/releases) -
+  [Changelog](https://github.com/Kludex/uvicorn/blob/main/docs/release-notes.md) -
+  [Commits](https://github.com/Kludex/uvicorn/compare/0.41.0...0.42.0)
+
+--- updated-dependencies: - dependency-name: uvicorn dependency-version: 0.42.0
+
+dependency-type: direct:production
+
+update-type: version-update:semver-minor ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump uvicorn from 0.41.0 to 0.42.0
+  ([#51](https://github.com/jakub-k-slys/substack-gateway-pro/pull/51),
+  [`06aaad6`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/06aaad60990469bc7461ec503f22843a145c8ff0))
+
+Bumps [uvicorn](https://github.com/Kludex/uvicorn) from 0.41.0 to 0.42.0. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/Kludex/uvicorn/releases">uvicorn's
+  releases</a>.</em></p> <blockquote> <h2>Version 0.42.0</h2> <h2>Changed</h2> <ul> <li>Use
+  <code>bytearray</code> for request body accumulation to avoid O(n^2) allocation on fragmented
+  bodies (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2845">#2845</a>)</li> </ul>
+  <h2>Fixed</h2> <ul> <li>Escape brackets and backslash in httptools <code>HEADER_RE</code> regex
+  (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2824">#2824</a>)</li> <li>Fix multiple
+  issues in websockets sans-io implementation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2825">#2825</a>)</li> </ul> <hr /> <h2>New
+  Contributors</h2> <ul> <li><a href="https://github.com/bysiber"><code>@​bysiber</code></a> made
+  their first contribution in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2825">Kludex/uvicorn#2825</a></li> </ul> <hr
+  /> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/uvicorn/compare/0.41.0...0.42.0">https://github.com/Kludex/uvicorn/compare/0.41.0...0.42.0</a></p>
+  </blockquote> </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/Kludex/uvicorn/blob/main/docs/release-notes.md">uvicorn's
+  changelog</a>.</em></p> <blockquote> <h2>0.42.0 (March 16, 2026)</h2> <h3>Changed</h3> <ul>
+  <li>Use <code>bytearray</code> for request body accumulation to avoid O(n^2) allocation on
+  fragmented bodies (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2845">#2845</a>)</li> </ul> <h3>Fixed</h3>
+  <ul> <li>Escape brackets and backslash in httptools <code>HEADER_RE</code> regex (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2824">#2824</a>)</li> <li>Fix multiple
+  issues in websockets sans-io implementation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2825">#2825</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/02bed6f8c38e74f684bb0e572977a9bfdc1f6fea"><code>02bed6f</code></a>
+  Version 0.42.0 (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2852">#2852</a>)</li>
+  <li><a
+  href="https://github.com/Kludex/uvicorn/commit/d8f25013161d8206e129e39bf48432d3a85e1744"><code>d8f2501</code></a>
+  chore: pre-create Config objects in benchmarks to measure protocol hot paths ...</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/9dbb7836bb0fdb446d083ecd8dc5a2a95bb96b98"><code>9dbb783</code></a>
+  Add WebSocket protocol benchmarks for wsproto and websockets-sansio (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2849">#2849</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/b3c69da8c1a36e1834e614abe38243671e156077"><code>b3c69da</code></a>
+  Use bytearray for request body accumulation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2845">#2845</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/3f3ebee20f46504a3f7279dd72f9c24ce9070b11"><code>3f3ebee</code></a>
+  Disable <code>pytest-xdist</code> for CodSpeed benchmark runs (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2847">#2847</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/d072de754f825bee4710363dd49d41efd5285dcc"><code>d072de7</code></a>
+  Add fragmented body benchmark for chunked body accumulation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2846">#2846</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/e300c2c75d71bea6f8d1799ca6f182f1e5583aaa"><code>e300c2c</code></a>
+  Add CodSpeed benchmark suite for HTTP protocol hot paths (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2844">#2844</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/1fa697651bacf10d72f74de104ead814ce6fcdc0"><code>1fa6976</code></a>
+  Escape brackets and backslash in httptools HEADER_RE regex (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2824">#2824</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/59ec1de7a4f07afbd139812f033f3af8b784de74"><code>59ec1de</code></a>
+  Fix multiple issues in websockets sansio implementation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2825">#2825</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/2fc0efcdd958abd3adbe6ea19682408d6b2e1b18"><code>2fc0efc</code></a>
+  Clarify Windows asyncio event loop selection in docs (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2843">#2843</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/Kludex/uvicorn/compare/0.41.0...0.42.0">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=uvicorn&package-manager=uv&previous-version=0.41.0&new-version=0.42.0)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+### Features
+
+- Add tier-specific root metadata
+  ([`5d2116f`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/5d2116fc7ed105786f1d97976b9e2cef95322616))
+
+- Format pro feature environment
+  ([`34eb44c`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/34eb44ceb9f821bb4906770bbd83ed844f9f1cf6))
+
+
 ## v0.1.0 (2026-03-21)
 
 ### Bug Fixes
