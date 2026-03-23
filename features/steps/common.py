@@ -19,7 +19,7 @@ def load_sample(path: str):
 
 
 def pub_url(context) -> str:
-    return getattr(context, "publication_url", "").rstrip("/")
+    return getattr(context, "publication_url", SUBSTACK_BASE).rstrip("/")
 
 
 def _encode_credentials(credentials: dict[str, str]) -> str:

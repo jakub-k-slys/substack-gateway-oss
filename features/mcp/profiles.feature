@@ -4,21 +4,18 @@ Feature: MCP profile tools
   So that I can read any user's posts and notes programmatically
 
   Scenario: get_profile returns profile data
-    Given a valid MCP token and publication URL "https://example.substack.com"
-    And the Substack public profile endpoint returns the sample response for "jakubslys"
+    Given the Substack public profile endpoint returns the sample response for "jakubslys"
     When I call the MCP tool get_profile with slug "jakubslys"
     Then the MCP result field "handle" is "jakubslys"
 
   Scenario: get_profile_posts returns posts page
-    Given a valid MCP token and publication URL "https://example.substack.com"
-    And the Substack public profile endpoint returns the sample response for "jakubslys"
+    Given the Substack public profile endpoint returns the sample response for "jakubslys"
     And the Substack posts endpoint returns the sample response for user 254824415
     When I call the MCP tool get_profile_posts with slug "jakubslys"
     Then the MCP result field "items" is not null
 
   Scenario: get_profile_notes returns notes page
-    Given a valid MCP token and publication URL "https://example.substack.com"
-    And the Substack public profile endpoint returns the sample response for "jakubslys"
+    Given the Substack public profile endpoint returns the sample response for "jakubslys"
     And the Substack profile notes endpoint returns the sample response for user 254824415
     When I call the MCP tool get_profile_notes with slug "jakubslys"
     Then the MCP result field "items" is not null
