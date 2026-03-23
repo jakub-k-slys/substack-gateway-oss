@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-03-23)
+
+### Features
+
+- Move publication url into bearer token
+  ([`e87dea9`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/e87dea915d9cc726e489f780ceaf74de928c84eb))
+
+
 ## v0.2.0 (2026-03-23)
 
 ### Chores
