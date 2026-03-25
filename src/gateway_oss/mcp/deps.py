@@ -6,7 +6,7 @@ from collections.abc import AsyncIterator
 
 from fastmcp.dependencies import Depends
 from fastmcp.exceptions import ToolError
-from fastmcp.server.dependencies import CurrentRequest, get_access_token
+from fastmcp.server.dependencies import CurrentRequest
 from starlette.requests import Request
 
 from gateway_oss.auth import (
@@ -16,7 +16,6 @@ from gateway_oss.auth import (
 )
 from gateway_oss.client.publication import PublicationClient
 from gateway_oss.client.substack import SubstackClient
-from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import BearerCredentials
 from gateway_oss.services.following import FollowingService
 from gateway_oss.services.notes import NotesService
@@ -42,31 +41,7 @@ def _decode_bearer(authorization: str) -> BearerCredentials:
         raise ToolError(f"Invalid Authorization header: {exc}") from exc
 
 
-async def _load_user_creds(user_id: int) -> tuple[str, str] | None:
-    """Return (bearer_b64, pub_url) from user_credentials, or None."""
-    provider = get_runtime().credential_provider
-    if provider is None:
-        return None
-    return await provider.get_bearer_for_user(user_id)
-
-
 async def get_credentials(request: Request = CurrentRequest()) -> BearerCredentials:
-    token = get_access_token()
-    if token is not None:
-        user_id = (token.claims or {}).get("user_id")
-        if user_id is None:
-            raise ToolError(
-                "OAuth token is missing the 'user_id' claim. "
-                "Please re-authenticate to obtain a valid token."
-            )
-        creds = await _load_user_creds(int(user_id))
-        if creds is None:
-            raise ToolError(
-                "No Substack credentials provider is configured for your account. "
-                "Please configure your credentials first."
-            )
-        bearer_b64, _pub_url = creds
-        return decode_bearer_credentials(bearer_b64)
     return _decode_bearer(request.headers.get("authorization", ""))
 
 
@@ -74,25 +49,6 @@ async def get_credentials(request: Request = CurrentRequest()) -> BearerCredenti
 async def get_publication_client(
     credentials: BearerCredentials = Depends(get_credentials),
 ) -> AsyncIterator[PublicationClient]:
-    token = get_access_token()
-    if token is not None:
-        user_id = (token.claims or {}).get("user_id")
-        if user_id is None:
-            raise ToolError(
-                "OAuth token is missing the 'user_id' claim. "
-                "Please re-authenticate to obtain a valid token."
-            )
-        creds = await _load_user_creds(int(user_id))
-        if creds is None:
-            raise ToolError(
-                "No Substack credentials provider is configured for your account. "
-                "Please configure your credentials first."
-            )
-        _bearer_b64, pub_url = creds
-        _log.debug("Creating PublicationClient for publication: %s", pub_url)
-        async with make_publication_client(credentials, pub_url) as pub:
-            yield pub
-        return
     if not credentials.publication_url:
         raise ToolError("Token must contain publication_url.")
     _log.debug(

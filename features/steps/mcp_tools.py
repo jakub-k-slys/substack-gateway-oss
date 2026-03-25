@@ -8,19 +8,10 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import contextlib
 import json
-from collections.abc import AsyncIterator
 
 from behave import given, then, when
 
-from gateway_oss.auth import (
-    decode_bearer_credentials,
-    make_publication_client,
-    make_substack_client,
-)
-from gateway_oss.client.publication import PublicationClient
-from gateway_oss.client.substack import SubstackClient
 from gateway_oss.mcp.app import (
     create_note,
     delete_note,
@@ -35,10 +26,6 @@ from gateway_oss.mcp.app import (
     get_profile_notes,
     get_profile_posts,
 )
-from gateway_oss.services.following import FollowingService
-from gateway_oss.services.notes import NotesService
-from gateway_oss.services.posts import PostsService
-from gateway_oss.services.profiles import ProfilesService
 
 # ------------------------------------------------------------------
 # Given — authentication
@@ -51,6 +38,7 @@ def step_valid_mcp_token(context, pub_url_):
         "publication_url": pub_url_,
         "substack_sid": "test-token",
         "connect_sid": "test-token",
+        "gateway_key": "test",
     }
     encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.mcp_token = encoded
@@ -80,24 +68,6 @@ def _call(context, coro):
         context.mcp_error = exc
 
 
-@contextlib.asynccontextmanager
-async def _clients(
-    context,
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
-    """Create and enter authenticated pub + sub clients from test context."""
-    creds = decode_bearer_credentials(context.mcp_token)
-    async with (
-        make_publication_client(creds, context.mcp_pub_url) as pub,
-        make_substack_client(creds) as sub,
-    ):
-        yield pub, sub
-
-
-# ------------------------------------------------------------------
-# When — notes
-# ------------------------------------------------------------------
-
-
 @when("I call the MCP tool get_note with note_id {note_id:d}")
 def step_call_get_note(context, note_id):
     _call(context, get_note(note_id=note_id))
@@ -105,20 +75,12 @@ def step_call_get_note(context, note_id):
 
 @when('I call the MCP tool create_note with content "{content}"')
 def step_call_create_note(context, content):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await create_note(content=content, notes=NotesService(pub, sub))
-
-    _call(context, run())
+    _call(context, create_note(content=content, token=context.mcp_token))
 
 
 @when("I call the MCP tool delete_note with note_id {note_id:d}")
 def step_call_delete_note(context, note_id):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await delete_note(note_id=note_id, notes=NotesService(pub, sub))
-
-    _call(context, run())
+    _call(context, delete_note(note_id=note_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------
@@ -128,31 +90,17 @@ def step_call_delete_note(context, note_id):
 
 @when("I call the MCP tool get_me")
 def step_call_get_me(context):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_me(profiles=ProfilesService(sub))
-
-    _call(context, run())
+    _call(context, get_me(token=context.mcp_token))
 
 
 @when("I call the MCP tool get_my_notes")
 def step_call_get_my_notes(context):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_my_notes(notes=NotesService(pub, sub))
-
-    _call(context, run())
+    _call(context, get_my_notes(token=context.mcp_token))
 
 
 @when("I call the MCP tool get_my_posts")
 def step_call_get_my_posts(context):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_my_posts(
-                profiles=ProfilesService(sub), posts=PostsService(pub, sub)
-            )
-
-    _call(context, run())
+    _call(context, get_my_posts(token=context.mcp_token))
 
 
 @when("I call the MCP tool get_post with post_id {post_id:d}")
@@ -167,11 +115,7 @@ def step_call_get_post_comments(context, post_id):
 
 @when("I call the MCP tool get_my_following")
 def step_call_get_my_following(context):
-    async def run():
-        async with _clients(context) as (pub, sub):
-            return await get_my_following(following=FollowingService(pub, sub))
-
-    _call(context, run())
+    _call(context, get_my_following(token=context.mcp_token))
 
 
 # ------------------------------------------------------------------
