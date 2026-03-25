@@ -3,13 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.dependencies import Depends
-from gateway_oss.mcp.app import register_authenticated_tools
+from gateway_oss.mcp.app import _authenticated_clients, register_authenticated_tools
 from mcp.types import ToolAnnotations
 from starlette.responses import JSONResponse
 
 from gateway_pro.converters.markdown import markdown_to_draft_body
-from gateway_pro.mcp.deps import get_drafts_service
 from gateway_pro.models.schemas import (
     CreateDraftResponse,
     DraftResponse,
@@ -20,33 +18,40 @@ from gateway_pro.services.drafts import DraftsService
 
 
 async def list_drafts(
-    drafts: DraftsService = Depends(get_drafts_service),
+    token: str,
 ) -> dict[str, Any]:
-    result = await drafts.list_drafts()
+    async with _authenticated_clients(token) as (publication, substack):
+        result = await DraftsService(publication, substack).list_drafts()
     return DraftsListResponse.from_substack(result).model_dump()
 
 
 async def get_draft(
     draft_id: int,
-    drafts: DraftsService = Depends(get_drafts_service),
+    token: str,
 ) -> dict[str, Any]:
-    draft = await drafts.get_draft(draft_id)
+    async with _authenticated_clients(token) as (publication, substack):
+        draft = await DraftsService(publication, substack).get_draft(draft_id)
     return DraftResponse.from_substack(draft).model_dump()
 
 
 async def create_draft(
-    drafts: DraftsService = Depends(get_drafts_service),
+    token: str,
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
 ) -> dict[str, Any]:
-    draft = await drafts.create_draft(title=title, subtitle=subtitle, body=body)
+    async with _authenticated_clients(token) as (publication, substack):
+        draft = await DraftsService(publication, substack).create_draft(
+            title=title,
+            subtitle=subtitle,
+            body=body,
+        )
     return CreateDraftResponse.from_substack(draft).model_dump()
 
 
 async def update_draft(
     draft_id: int,
-    drafts: DraftsService = Depends(get_drafts_service),
+    token: str,
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
@@ -58,15 +63,19 @@ async def update_draft(
         kwargs["draft_subtitle"] = subtitle
     if body is not None:
         kwargs["draft_body"] = markdown_to_draft_body(body)
-    draft = await drafts.update_draft(draft_id, SubstackUpdateDraftPayload(**kwargs))
+    async with _authenticated_clients(token) as (publication, substack):
+        draft = await DraftsService(publication, substack).update_draft(
+            draft_id, SubstackUpdateDraftPayload(**kwargs)
+        )
     return DraftResponse.from_substack(draft).model_dump()
 
 
 async def delete_draft(
     draft_id: int,
-    drafts: DraftsService = Depends(get_drafts_service),
+    token: str,
 ) -> str:
-    await drafts.delete_draft(draft_id)
+    async with _authenticated_clients(token) as (publication, substack):
+        await DraftsService(publication, substack).delete_draft(draft_id)
     return f"Draft {draft_id} deleted successfully."
 
 
@@ -77,7 +86,7 @@ async def health_check(request) -> JSONResponse:
 def register_tools(mcp: FastMCP) -> None:
     register_authenticated_tools(mcp)
     mcp.tool(
-        description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each.",
+        description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each. Requires a base64-encoded Substack credentials token.",
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="List Drafts",
@@ -89,7 +98,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /drafts"},
     )(list_drafts)
     mcp.tool(
-        description="Fetch a Substack post draft by ID. The body is returned as Markdown.",
+        description="Fetch a Substack post draft by ID. The body is returned as Markdown. Requires a base64-encoded Substack credentials token.",
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get Draft",
@@ -101,7 +110,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
     )(get_draft)
     mcp.tool(
-        description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown.",
+        description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown. Requires a base64-encoded Substack credentials token.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Create Draft",
@@ -113,7 +122,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "POST /drafts"},
     )(create_draft)
     mcp.tool(
-        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown.",
+        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. Requires a base64-encoded Substack credentials token.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Update Draft",
@@ -125,7 +134,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "PUT /drafts/{draft_id}"},
     )(update_draft)
     mcp.tool(
-        description="Permanently delete a Substack post draft by its numeric ID.",
+        description="Permanently delete a Substack post draft by its numeric ID. Requires a base64-encoded Substack credentials token.",
         tags={"drafts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Draft",

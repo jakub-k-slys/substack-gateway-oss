@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import types
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,6 @@ from gateway_pro.oauth.db import (
     DBOAuthClient,
     DBRefreshToken,
     DBUser,
-    DBUserCredential,
     get_session,
 )
 
@@ -90,29 +89,6 @@ class LoginSessionRepository:
     async def delete(self, session_id: str) -> None:
         await self._s.execute(
             delete(DBLoginSession).where(DBLoginSession.session_id == session_id)
-        )
-
-
-class UserCredentialRepository:
-    def __init__(self, session: AsyncSession) -> None:
-        self._s = session
-
-    async def get(self, user_id: int) -> DBUserCredential | None:
-        return await self._s.get(DBUserCredential, user_id)
-
-    async def upsert(self, user_id: int, bearer: str, pub_url: str) -> None:
-        stmt = pg_insert(DBUserCredential).values(
-            user_id=user_id, bearer=bearer, pub_url=pub_url
-        )
-        await self._s.execute(
-            stmt.on_conflict_do_update(
-                index_elements=["user_id"],
-                set_={
-                    "bearer": stmt.excluded.bearer,
-                    "pub_url": stmt.excluded.pub_url,
-                    "updated_at": func.now(),
-                },
-            )
         )
 
 
@@ -195,7 +171,6 @@ class UnitOfWork:
     oauth_clients: OAuthClientRepository
     auth_requests: AuthRequestRepository
     login_sessions: LoginSessionRepository
-    user_credentials: UserCredentialRepository
     auth_codes: AuthCodeRepository
     access_tokens: AccessTokenRepository
     refresh_tokens: RefreshTokenRepository
@@ -207,7 +182,6 @@ class UnitOfWork:
         self.oauth_clients = OAuthClientRepository(session)
         self.auth_requests = AuthRequestRepository(session)
         self.login_sessions = LoginSessionRepository(session)
-        self.user_credentials = UserCredentialRepository(session)
         self.auth_codes = AuthCodeRepository(session)
         self.access_tokens = AccessTokenRepository(session)
         self.refresh_tokens = RefreshTokenRepository(session)

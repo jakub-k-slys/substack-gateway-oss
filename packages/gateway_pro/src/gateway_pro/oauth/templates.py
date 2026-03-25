@@ -6,8 +6,6 @@ from htpy import (
     a,
     body,
     button,
-    code,
-    details,
     div,
     form,
     h1,
@@ -15,13 +13,9 @@ from htpy import (
     html,
     input,
     label,
-    li,
     link,
     meta,
-    ol,
     p,
-    strong,
-    summary,
     title,
 )
 from starlette.responses import HTMLResponse
@@ -77,61 +71,22 @@ def render_token_form(session_id: str, error: str = "") -> HTMLResponse:
         head[
             meta(charset="UTF-8"),
             meta(name="viewport", content="width=device-width, initial-scale=1.0"),
-            title["Substack Gateway — Connect Substack (2/3)"],
+            title["Substack Gateway — Authorize App (2/3)"],
             link(rel="stylesheet", href="/login/static/token.css"),
         ],
         body[
             div(class_="card")[
                 p(class_="step")["Step 2 of 3"],
-                h1["Connect your Substack"],
+                h1["Authorize access"],
                 p(class_="sub")[
-                    "Enter your base64-encoded Substack token so the gateway can act on your behalf"
+                    "Confirm that this gateway client may access your account."
                 ],
                 p(class_="error")[error] if error else None,
-                details[
-                    summary["How do I create the token?"],
-                    div(class_="howto")[
-                        ol(style="padding-left:18px")[
-                            li["Open ", strong["substack.com"], " and sign in"],
-                            li[
-                                "Open DevTools → Application → Cookies → ",
-                                code["https://substack.com"],
-                            ],
-                            li[
-                                "Copy the values for ",
-                                code["publication_url"],
-                                ", ",
-                                code["substack.sid"],
-                                " and ",
-                                code["connect.sid"],
-                            ],
-                            li[
-                                "Create JSON: ",
-                                code[
-                                    '{"publication_url":"https://yourname.substack.com","substack_sid":"…","connect_sid":"…"}'
-                                ],
-                            ],
-                            li["Base64-encode the JSON and paste it below"],
-                        ],
-                    ],
-                ],
                 form(method="post")[
                     input(type="hidden", name="session_id", value=session_id),
-                    label(for_="token")["Substack token"],
-                    input(
-                        type="password",
-                        id="token",
-                        name="token",
-                        required=True,
-                        placeholder="base64-encoded token",
-                    ),
                     p(class_="hint")[
-                        "Base64-encoded JSON containing ",
-                        code["publication_url"],
-                        ", ",
-                        code["substack_sid"],
-                        " and ",
-                        code["connect_sid"],
+                        "This step authorizes the gateway user account only. "
+                        "MCP tool calls provide Substack credentials explicitly."
                     ],
                     button(type="submit")["Authorize"],
                 ],
@@ -153,7 +108,7 @@ def render_success(redirect_url: str) -> HTMLResponse:
             div(class_="card")[
                 p(class_="step")["Step 3 of 3"],
                 h1["All done!"],
-                p(class_="sub")["Your Substack account has been connected."],
+                p(class_="sub")["Gateway access has been authorized."],
                 a(href=redirect_url, class_="btn")["Complete setup →"],
             ],
         ],

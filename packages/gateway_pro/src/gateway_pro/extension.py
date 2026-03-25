@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from fastmcp import FastMCP
 from gateway_oss.extensions.base import (
     ApplicationInfo,
-    CredentialProvider,
     GatewayExtension,
     GatewayExtensionContext,
     LifespanHook,
@@ -17,15 +16,6 @@ from starlette.applications import Starlette
 from starlette.routing import Mount
 
 from gateway_pro import __version__ as pro_version
-
-
-class ProCredentialProvider(CredentialProvider):
-    async def get_bearer_for_user(self, user_id: int) -> tuple[str, str] | None:
-        from gateway_pro.oauth.repositories import UnitOfWork
-
-        async with UnitOfWork() as uow:
-            record = await uow.user_credentials.get(user_id)
-        return (record.bearer, record.pub_url) if record is not None else None
 
 
 class ProExtension(GatewayExtension):
@@ -51,13 +41,6 @@ class ProExtension(GatewayExtension):
         self, context: GatewayExtensionContext
     ) -> Sequence[LifespanHook]:
         return [self._init_db]
-
-    def get_credential_provider(
-        self, context: GatewayExtensionContext
-    ) -> CredentialProvider | None:
-        if not context.settings.oauth_enabled:
-            return None
-        return ProCredentialProvider()
 
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None:
         from gateway_pro.oauth.router import oauth_provider

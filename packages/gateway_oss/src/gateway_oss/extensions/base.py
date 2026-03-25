@@ -14,11 +14,6 @@ from gateway_oss.config import Settings
 LifespanHook = Callable[[Any], AbstractAsyncContextManager[None, bool | None]]
 
 
-class CredentialProvider(Protocol):
-    async def get_bearer_for_user(self, user_id: int) -> tuple[str, str] | None:
-        """Return (bearer_b64, publication_url) or None."""
-
-
 @dataclass(slots=True)
 class GatewayExtensionContext:
     settings: Settings
@@ -48,11 +43,6 @@ class GatewayExtension(Protocol):
         self, context: GatewayExtensionContext
     ) -> Sequence[LifespanHook]:
         """Return lifespan hooks that should be entered when the app starts."""
-
-    def get_credential_provider(
-        self, context: GatewayExtensionContext
-    ) -> CredentialProvider | None:
-        """Return a credential provider for OAuth-backed requests."""
 
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None:
         """Return an MCP auth provider, if the extension exposes one."""

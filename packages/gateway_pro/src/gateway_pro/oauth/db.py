@@ -78,15 +78,6 @@ class DBLoginSession(Base):
     )
 
 
-class DBUserCredential(Base):
-    __tablename__ = "user_credentials"
-
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    bearer: Mapped[str] = mapped_column(Text, nullable=False)
-    pub_url: Mapped[str] = mapped_column(Text, nullable=False)
-    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-
-
 class DBAuthCode(Base):
     __tablename__ = "auth_codes"
 

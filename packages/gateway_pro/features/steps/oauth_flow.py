@@ -6,33 +6,14 @@ is required.
 
 from __future__ import annotations
 
-import base64
-import json
 import types
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from behave import given, then, when
-from gateway_pro.oauth.db import (
-    DBAuthCode,
-    DBAuthRequest,
-    DBLoginSession,
-    DBUser,
-    DBUserCredential,
-)
+from gateway_pro.oauth.db import DBAuthCode, DBAuthRequest, DBLoginSession, DBUser
 
 _UTC = timezone.utc
-
-_VALID_TOKEN = base64.b64encode(
-    json.dumps(
-        {
-            "publication_url": "https://test.substack.com",
-            "substack_sid": "sid-val",
-            "connect_sid": "csid-val",
-        }
-    ).encode()
-).decode()
-
 
 # ---------------------------------------------------------------------------
 # In-memory store and mock repositories
@@ -45,7 +26,6 @@ class InMemoryStore:
         self.users_by_email: dict[str, DBUser] = {}
         self.auth_requests: dict[str, DBAuthRequest] = {}
         self.login_sessions: dict[str, DBLoginSession] = {}
-        self.user_credentials: dict[int, DBUserCredential] = {}
         self.auth_codes: dict[str, DBAuthCode] = {}
         self._user_seq = 0
 
@@ -113,19 +93,6 @@ class _MockLoginSessions:
         self._s.login_sessions.pop(session_id, None)
 
 
-class _MockUserCredentials:
-    def __init__(self, s: InMemoryStore) -> None:
-        self._s = s
-
-    async def get(self, user_id: int) -> DBUserCredential | None:
-        return self._s.user_credentials.get(user_id)
-
-    async def upsert(self, user_id: int, bearer: str, pub_url: str) -> None:
-        self._s.user_credentials[user_id] = DBUserCredential(
-            user_id=user_id, bearer=bearer, pub_url=pub_url
-        )
-
-
 class _MockAuthCodes:
     def __init__(self, s: InMemoryStore) -> None:
         self._s = s
@@ -152,7 +119,6 @@ class MockUnitOfWork:
         self.users = _MockUsers(self._store)
         self.auth_requests = _MockAuthRequests(self._store)
         self.login_sessions = _MockLoginSessions(self._store)
-        self.user_credentials = _MockUserCredentials(self._store)
         self.auth_codes = _MockAuthCodes(self._store)
         return self
 
@@ -247,24 +213,22 @@ def step_submit_login_empty(context, request_id):
     )
 
 
-@when("I submit the token form with a valid Substack token")
+@when("I submit the authorization form")
 def step_submit_valid_token(context):
     context.response = context.client.post(
         "/login/token/",
         data={
             "session_id": context.session_id,
-            "token": _VALID_TOKEN,
         },
     )
 
 
-@when('I submit the token form with token "{token}"')
-def step_submit_custom_token(context, token):
+@when("I submit the authorization form without a session")
+def step_submit_custom_token(context):
     context.response = context.client.post(
         "/login/token/",
         data={
-            "session_id": context.session_id,
-            "token": token,
+            "session_id": "",
         },
     )
 
@@ -317,15 +281,6 @@ def step_has_btn(context):
     body = context.response.text
     assert 'class="btn"' in body, "Expected a .btn link in the success page"
     assert "href=" in body, "Expected an href in the success page"
-
-
-@then('the user credentials are stored with publication URL "{pub_url}"')
-def step_credentials_stored(context, pub_url):
-    creds = context.oauth_store.user_credentials
-    assert len(creds) >= 1, "No credentials stored"
-    cred = next(iter(creds.values()))
-    assert cred.bearer == _VALID_TOKEN
-    assert cred.pub_url == pub_url
 
 
 @then('an auth code is created for client "{client_id}"')
