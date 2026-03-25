@@ -68,7 +68,9 @@ async def _authenticated_clients(
     credentials = decode_bearer_credentials(token)
     assert credentials.publication_url is not None
     async with (
-        make_publication_client(credentials, credentials.publication_url) as publication,
+        make_publication_client(
+            credentials, credentials.publication_url
+        ) as publication,
         make_substack_client(credentials) as substack,
     ):
         yield publication, substack
@@ -144,9 +146,7 @@ async def get_my_posts(
         profiles = ProfilesService(substack)
         posts = PostsService(publication, substack)
         profile = await profiles.get_own_profile()
-        page = await posts.get_posts_for_profile(
-            profile.id, limit=limit, offset=offset
-        )
+        page = await posts.get_posts_for_profile(profile.id, limit=limit, offset=offset)
     return PostsPageResponse.from_substack(page).model_dump()
 
 

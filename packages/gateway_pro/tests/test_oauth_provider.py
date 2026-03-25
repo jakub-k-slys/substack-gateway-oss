@@ -199,7 +199,9 @@ class TestTokenForm:
         response = login_client.get("/login/token?session_id=sid")
         assert 'name="session_id"' in response.text
         assert 'name="token"' not in response.text
-        assert "MCP tool calls provide Substack credentials explicitly." in response.text
+        assert (
+            "MCP tool calls provide Substack credentials explicitly." in response.text
+        )
 
     def test_session_id_is_embedded_in_form(self, login_client):
         response = login_client.get("/login/token?session_id=my-session-id")
