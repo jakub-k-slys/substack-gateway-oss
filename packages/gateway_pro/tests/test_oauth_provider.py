@@ -1,4 +1,4 @@
-"""Unit tests for gateway_oss.oauth.provider.
+"""Unit tests for gateway_pro OAuth surfaces.
 
 Covers:
   - validate_bearer helper
@@ -195,22 +195,23 @@ class TestTokenForm:
         response = login_client.get("/login/token?session_id=sid")
         assert "Step 2 of 3" in response.text
 
-    def test_form_contains_token_field(self, login_client):
+    def test_form_contains_only_session_field(self, login_client):
         response = login_client.get("/login/token?session_id=sid")
-        assert 'name="token"' in response.text
-        assert 'name="pub_url"' not in response.text
+        assert 'name="session_id"' in response.text
+        assert 'name="token"' not in response.text
+        assert "MCP tool calls provide Substack credentials explicitly." in response.text
 
     def test_session_id_is_embedded_in_form(self, login_client):
         response = login_client.get("/login/token?session_id=my-session-id")
         assert "my-session-id" in response.text
 
-    def test_post_with_empty_fields_shows_error(self, login_client):
+    def test_post_with_empty_session_id_shows_error(self, login_client):
         response = login_client.post(
             "/login/token",
-            data={"session_id": "sid", "token": ""},
+            data={"session_id": ""},
         )
         assert response.status_code == 200
-        assert "All fields are required" in response.text
+        assert "Session expired. Please start over." in response.text
 
     def test_xss_in_session_id_is_escaped(self, login_client):
         response = login_client.get("/login/token?session_id=<script>alert(1)</script>")
