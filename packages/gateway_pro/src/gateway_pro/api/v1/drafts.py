@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
+from gateway_oss.api.deps import get_credentials
 
-from gateway_pro.api.deps import get_drafts_service, require_gateway_key
+from gateway_pro.api.deps import get_drafts_service
 from gateway_pro.models.schemas import (
     CreateDraftRequest,
     CreateDraftResponse,
@@ -20,7 +21,7 @@ router = APIRouter(tags=["drafts"])
 @router.get(
     "/drafts",
     response_model=DraftsListResponse,
-    dependencies=[Depends(require_gateway_key)],
+    dependencies=[Depends(get_credentials)],
 )
 async def list_drafts(
     service: Annotated[DraftsService, Depends(get_drafts_service)],
@@ -33,7 +34,7 @@ async def list_drafts(
 @router.get(
     "/drafts/{draft_id}",
     response_model=DraftResponse,
-    dependencies=[Depends(require_gateway_key)],
+    dependencies=[Depends(get_credentials)],
 )
 async def get_draft(
     draft_id: Annotated[int, Path(gt=0)],
@@ -47,7 +48,7 @@ async def get_draft(
 @router.put(
     "/drafts/{draft_id}",
     response_model=DraftResponse,
-    dependencies=[Depends(require_gateway_key)],
+    dependencies=[Depends(get_credentials)],
 )
 async def update_draft(
     draft_id: Annotated[int, Path(gt=0)],
@@ -62,7 +63,7 @@ async def update_draft(
 @router.delete(
     "/drafts/{draft_id}",
     status_code=204,
-    dependencies=[Depends(require_gateway_key)],
+    dependencies=[Depends(get_credentials)],
 )
 async def delete_draft(
     draft_id: Annotated[int, Path(gt=0)],
@@ -76,7 +77,7 @@ async def delete_draft(
     "/drafts",
     response_model=CreateDraftResponse,
     status_code=201,
-    dependencies=[Depends(require_gateway_key)],
+    dependencies=[Depends(get_credentials)],
 )
 async def create_draft(
     body: CreateDraftRequest,

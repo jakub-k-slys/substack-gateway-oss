@@ -29,12 +29,10 @@ The credentials object must contain:
 }
 ```
 
-For protected endpoints such as drafts, include `gateway_key` in the same JSON object.
-
 Encode credentials:
 
 ```bash
-echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A...","gateway_key":"WW91IHNoYWxsIG5vdCBwYXNzCg=="}' | base64
+echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
 ```
 
 Pass the result as `Authorization: Bearer <base64string>`.
@@ -137,8 +135,6 @@ Returns paginated notes for a profile. Query params: `cursor`.
 
 ### Drafts
 
-All draft endpoints require a valid `gateway_key` in the credentials. Requests without it are rejected with `403`.
-
 #### `POST /api/v1/drafts`
 
 Creates a new post draft. `body` accepts Markdown.
@@ -191,9 +187,7 @@ PRO adds authenticated personal and write tools on top of OSS:
 | `update_draft` | Delta-update a draft (pro) |
 | `delete_draft` | Delete a draft by ID (pro) |
 
-For PRO-only MCP tools, authentication still works in two modes:
-1. **Header-based** — pass `Authorization` with the same base64-encoded credentials object used by the REST API.
-2. **OAuth** — enabled when `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, and `SUBSTACK_GATEWAY_JWT_SECRET` are all set; credentials are looked up via the active `CredentialProvider`.
+For PRO-only MCP tools, pass the same base64-encoded credentials object as an explicit `token` tool argument. OAuth, when enabled, authorizes gateway users but does not store or inject Substack credentials.
 
 ---
 
@@ -204,7 +198,6 @@ All settings use the `SUBSTACK_GATEWAY_` env prefix:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSTACK_GATEWAY_LOG_LEVEL` | `INFO` | Log level |
-| `SUBSTACK_GATEWAY_GATEWAY_KEY` | (built-in default) | Key required for draft endpoints |
 | `SUBSTACK_GATEWAY_ADMIN_TOKEN` | (built-in default) | Admin token |
 | `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL` | `https://substack.com` | Substack API base URL |
 | `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC` | `30.0` | Request timeout (seconds) |
@@ -217,7 +210,7 @@ All settings use the `SUBSTACK_GATEWAY_` env prefix:
 
 ## Extension System
 
-Extensions plug in extra routes, MCP tools, lifespan hooks, and credential/auth providers without modifying core code. Loaded from:
+Extensions plug in extra routes, MCP tools, lifespan hooks, and auth providers without modifying core code. Loaded from:
 
 1. `substack_gateway_oss.extensions` entry-points (installed packages).
 2. `GATEWAY_EXTENSION_MODULES` env var (comma-separated `module:attr` strings).
@@ -231,11 +224,10 @@ class GatewayExtension(Protocol):
     def register_app(self, app: Starlette, context: GatewayExtensionContext) -> None: ...
     def register_mcp(self, mcp: FastMCP, context: GatewayExtensionContext) -> None: ...
     def get_lifespan_hooks(self, context: GatewayExtensionContext) -> Sequence[LifespanHook]: ...
-    def get_credential_provider(self, context: GatewayExtensionContext) -> CredentialProvider | None: ...
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None: ...
 ```
 
-Only one `CredentialProvider` and one MCP auth provider may be active at a time.
+Only one MCP auth provider may be active at a time.
 
 ---
 
@@ -245,7 +237,6 @@ Only one `CredentialProvider` and one MCP auth provider may be active at a time.
 |--------|---------|
 | `400` | Bad request (e.g. invalid publication URL) |
 | `401` | Invalid credentials |
-| `403` | Invalid or missing gateway key |
 | `422` | Missing required headers or malformed request |
 | `502` | Substack API error or unreachable |
 

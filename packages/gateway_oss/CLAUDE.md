@@ -67,7 +67,7 @@ Client request
 
 Requests carry a **base64-encoded JSON Bearer token** containing `publication_url`, `substack_sid`, and `connect_sid` (Substack session cookies plus the target publication URL). The `auth.py` module decodes this token; `api/deps.py` and `mcp/deps.py` use it to construct per-request HTTP clients.
 
-The MCP layer has a second path: if OAuth is active (all three of `SUBSTACK_GATEWAY_BASE_URL`, `SUBSTACK_GATEWAY_DATABASE_URL`, `SUBSTACK_GATEWAY_JWT_SECRET` are set), `mcp/deps.py` will look up credentials via the `CredentialProvider` interface instead of reading request headers.
+The MCP layer no longer resolves Substack credentials through OAuth. PRO-only authenticated MCP tools take an explicit `token` argument instead.
 
 ### HTTP clients
 
@@ -94,15 +94,15 @@ Most API endpoints need **both** clients; `ProfilesService` only needs `Substack
 
 ### Extension system
 
-Extensions allow plugging in extra routes, MCP tools, lifespan hooks, and credential/auth providers without modifying core code. They are loaded from:
+Extensions allow plugging in extra routes, MCP tools, lifespan hooks, and auth providers without modifying core code. They are loaded from:
 1. `substack_gateway_oss.extensions` entry-points (installed packages).
 2. `GATEWAY_EXTENSION_MODULES` env var (comma-separated `module:attr` strings).
 
-An extension implements the `GatewayExtension` protocol (`extensions/base.py`). Only one `CredentialProvider` and one MCP auth provider may be active at a time.
+An extension implements the `GatewayExtension` protocol (`extensions/base.py`). Only one MCP auth provider may be active at a time.
 
 ### Configuration
 
-All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `gateway_key`, `admin_token`, and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is not a header anymore; it is carried in the Bearer token's `publication_url`.
+All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `admin_token` and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is not a header anymore; it is carried in the Bearer token's `publication_url`.
 
 ### Tests
 

@@ -4,7 +4,7 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - `gateway_oss.main:app` is the application entry point.
 - The OSS app code lives in `packages/gateway_oss/src/gateway_oss/`.
 - Pro-only OAuth code lives in `packages/gateway_pro/src/gateway_pro/oauth/`.
-- Authenticated requests use `Authorization: Bearer <base64-json>`, where the decoded JSON now contains `publication_url`, `substack_sid`, `connect_sid`, and optionally `gateway_key`.
+- Authenticated requests use `Authorization: Bearer <base64-json>`, where the decoded JSON contains `publication_url`, `substack_sid`, and `connect_sid`.
 - Install dependencies with `uv sync --dev`.
 - Run the app locally with `uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload`.
 - Lint with `uv run ruff check .`.
@@ -44,4 +44,4 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - When touching Markdown conversion, OAuth, or model translation, check for both unit and feature-level coverage nearby before adding new tests.
 - There are generated/cache directories in the repo already; do not commit new generated artifacts.
 - Respect existing user changes in the working tree. Do not revert unrelated modifications.
-- If a task affects auth, cookies, bearer decoding, embedded `publication_url`, or gateway key checks, verify error handling paths as well as success paths.
+- If a task affects auth, cookies, bearer decoding, or embedded `publication_url`, verify error handling paths as well as success paths.

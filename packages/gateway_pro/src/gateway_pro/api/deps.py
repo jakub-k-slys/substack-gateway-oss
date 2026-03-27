@@ -1,32 +1,13 @@
 from __future__ import annotations
 
-import logging
 from typing import Annotated
 
-from fastapi import Depends, HTTPException
-from gateway_oss.api.deps import (
-    get_credentials,
-    get_publication_client,
-    get_substack_client,
-)
+from fastapi import Depends
+from gateway_oss.api.deps import get_publication_client, get_substack_client
 from gateway_oss.client.publication import PublicationClient
 from gateway_oss.client.substack import SubstackClient
-from gateway_oss.config import settings
-from gateway_oss.models.schemas import BearerCredentials
 
 from gateway_pro.services.drafts import DraftsService
-
-_log = logging.getLogger(__name__)
-
-_INVALID_CREDENTIALS = "Invalid credentials"
-
-
-def require_gateway_key(
-    credentials: Annotated[BearerCredentials, Depends(get_credentials)],
-) -> None:
-    if credentials.gateway_key != settings.gateway_key:
-        _log.warning("Rejected: invalid or missing gateway_key")
-        raise HTTPException(status_code=403, detail=_INVALID_CREDENTIALS)
 
 
 def get_drafts_service(
