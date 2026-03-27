@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack
-from typing import Any
+from typing import Any, cast
 
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
@@ -60,7 +60,7 @@ def create_app() -> Starlette:
     ]
     app = Starlette(lifespan=_lifespan, routes=routes)
     app.add_middleware(
-        CORSMiddleware,  # type: ignore[arg-type]
+        cast(Any, CORSMiddleware),
         allow_origins=["*"],
         allow_methods=["*"],
         allow_headers=["*"],
