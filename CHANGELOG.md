@@ -1,6 +1,574 @@
 # CHANGELOG
 
 
+## v0.5.0 (2026-03-27)
+
+### Chores
+
+- **deps**: Bump fastapi from 0.135.1 to 0.135.2
+  ([`18ec27f`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/18ec27fd7ef45b003c26a9e27867ebfc17557682))
+
+Bumps [fastapi](https://github.com/fastapi/fastapi) from 0.135.1 to 0.135.2. - [Release
+  notes](https://github.com/fastapi/fastapi/releases) -
+  [Commits](https://github.com/fastapi/fastapi/compare/0.135.1...0.135.2)
+
+--- updated-dependencies: - dependency-name: fastapi dependency-version: 0.135.2
+
+dependency-type: direct:production
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump fastapi from 0.135.1 to 0.135.2
+  ([#7](https://github.com/jakub-k-slys/substack-gateway-pro/pull/7),
+  [`d37eeb5`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/d37eeb55864ef7756aa3f26aac97d3b216522db6))
+
+Bumps [fastapi](https://github.com/fastapi/fastapi) from 0.135.1 to 0.135.2. <details>
+  <summary>Release notes</summary> <p><em>Sourced from <a
+  href="https://github.com/fastapi/fastapi/releases">fastapi's releases</a>.</em></p> <blockquote>
+  <h2>0.135.2</h2> <h3>Upgrades</h3> <ul> <li>⬆️ Increase lower bound to <code>pydantic
+  &gt;=2.9.0.</code> and fix the test suite. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15139">#15139</a> by <a
+  href="https://github.com/svlandeg"><code>@​svlandeg</code></a>.</li> </ul> <h3>Docs</h3> <ul>
+  <li>📝 Add missing last release notes dates. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15202">#15202</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>📝 Update docs for
+  contributors and team members regarding translation PRs. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15200">#15200</a> by <a
+  href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> <li>💄 Fix code blocks in
+  reference docs overflowing table width. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15094">#15094</a> by <a
+  href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> <li>📝 Fix duplicated
+  words in docstrings. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15116">#15116</a> by <a
+  href="https://github.com/AhsanSheraz"><code>@​AhsanSheraz</code></a>.</li> <li>📝 Add docs for
+  <code>pyproject.toml</code> with <code>entrypoint</code>. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15075">#15075</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>📝 Update links in docs to
+  no longer use the classes external-link and internal-link. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15061">#15061</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🔨 Add JS and CSS handling
+  for automatic <code>target=_blank</code> for links in docs. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15063">#15063</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>💄 Update styles for
+  internal and external links in new tab. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15058">#15058</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>📝 Add documentation for
+  the FastAPI VS Code extension. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15008">#15008</a> by <a
+  href="https://github.com/savannahostrowski"><code>@​savannahostrowski</code></a>.</li> <li>📝 Fix
+  doctrings for <code>max_digits</code> and <code>decimal_places</code>. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/14944">#14944</a> by <a
+  href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> <li>📝 Add dates to
+  release notes. PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15001">#15001</a> by
+  <a href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> </ul>
+  <h3>Translations</h3> <ul> <li>🌐 Update translations for zh (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15177">#15177</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  zh-hant (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15178">#15178</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  zh-hant (add-missing). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15176">#15176</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  zh (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15175">#15175</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for ja (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15171">#15171</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  ko (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15170">#15170</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  tr (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15172">#15172</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  ko (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15168">#15168</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for ja (add-missing). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15167">#15167</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  tr (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15169">#15169</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for fr (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15165">#15165</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  fr (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15163">#15163</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for uk (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15160">#15160</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  uk (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15158">#15158</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for pt (add-missing). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15157">#15157</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  pt (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15159">#15159</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  es (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15155">#15155</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  es (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15154">#15154</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update
+  translations for de (update-outdated). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15156">#15156</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  ru (update-and-add). PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15152">#15152</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>🌐 Update translations for
+  de (add-missing). PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15153">#15153</a>
+  by <a href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> </ul> <h3>Internal</h3>
+  <ul> <li>🔨 Exclude spam comments from statistics in <code>scripts/people.py</code>. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15088">#15088</a> by <a
+  href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> <li>⬆ Bump authlib from
+  1.6.7 to 1.6.9. PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15128">#15128</a> by
+  <a href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>⬆ Bump
+  pyasn1 from 0.6.2 to 0.6.3. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15143">#15143</a> by <a
+  href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>⬆ Bump
+  ujson from 5.11.0 to 5.12.0. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15150">#15150</a> by <a
+  href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>🔨 Tweak
+  translation workflow and translation fixer tool. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15166">#15166</a> by <a
+  href="https://github.com/YuriiMotov"><code>@​YuriiMotov</code></a>.</li> </ul> <!-- raw HTML
+  omitted --> </blockquote> <p>... (truncated)</p> </details> <details> <summary>Commits</summary>
+  <ul> <li><a
+  href="https://github.com/fastapi/fastapi/commit/25a3697cedc6e7dfb84e93c8ff965801486f00f4"><code>25a3697</code></a>
+  🔖 Release version 0.135.2</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/ab125daa4034435777853a2c5a6c47451414f9aa"><code>ab125da</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/122b6d490f844b6f716855d55a3e11237b7fb61f"><code>122b6d4</code></a>
+  📝 Add missing last release notes dates (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15202">#15202</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/68ac0ab91e9b14c418013790fc0e420a827686b5"><code>68ac0ab</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/ea6e287eb398afe6a82c3ef71780e8451813f674"><code>ea6e287</code></a>
+  📝 Update docs for contributors and team members regarding translation PRs (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/1">#1</a>...</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/d0a6f208c5cb5daaa1de5ea5187729e3789d1dce"><code>d0a6f20</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/fd9e192cf4fae399c0d51dd23e2a137052eb6087"><code>fd9e192</code></a>
+  💄 Fix code blocks in reference docs overflowing table width (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15094">#15094</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/fce9460f865928eb7d0393d8809bbc472e0c21cd"><code>fce9460</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/0227991a01e61bf5cdd93cc00e9e243f52b47a4a"><code>0227991</code></a>
+  🔨 Exclude spam comments from statistics in <code>scripts/people.py</code> (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15088">#15088</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/cbd64b09a32681d3b0ea097608bc62eb0d1587e0"><code>cbd64b0</code></a>
+  📝 Update release notes</li> <li>Additional commits viewable in <a
+  href="https://github.com/fastapi/fastapi/compare/0.135.1...0.135.2">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=fastapi&package-manager=uv&previous-version=0.135.1&new-version=0.135.2)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ty from 0.0.24 to 0.0.25
+  ([`f4c67dc`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/f4c67dc5257f76659862c4d03e44640b0048fa3a))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.24 to 0.0.25. - [Release
+  notes](https://github.com/astral-sh/ty/releases) -
+  [Changelog](https://github.com/astral-sh/ty/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ty/compare/0.0.24...0.0.25)
+
+--- updated-dependencies: - dependency-name: ty dependency-version: 0.0.25
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ty from 0.0.24 to 0.0.25
+  ([`25c93aa`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/25c93aabb7a647cc23365fd4a4a92c013bef3dec))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.24 to 0.0.25. - [Release
+  notes](https://github.com/astral-sh/ty/releases) -
+  [Changelog](https://github.com/astral-sh/ty/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ty/compare/0.0.24...0.0.25)
+
+--- updated-dependencies: - dependency-name: ty dependency-version: 0.0.25
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ty from 0.0.24 to 0.0.25
+  ([#53](https://github.com/jakub-k-slys/substack-gateway-pro/pull/53),
+  [`55b5910`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/55b5910e7d1060fd6437a7d0b6053aa7d2d6e55a))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.24 to 0.0.25. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ty/releases">ty's
+  releases</a>.</em></p> <blockquote> <h2>0.0.25</h2> <h2>Release Notes</h2> <p>Released on
+  2026-03-24.</p> <h3>Breaking changes</h3> <ul> <li>Support <code>type:ignore[ty:code]</code>
+  suppressions (<a href="https://redirect.github.com/astral-sh/ruff/pull/24096">#24096</a>)</li>
+  </ul> <h3>Bug fixes</h3> <ul> <li>Avoid eager TypedDict diagnostics in <code>TypedDict |
+  dict</code> unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24151">#24151</a>)</li> <li>Fix Salsa panic
+  propagation (<a href="https://redirect.github.com/astral-sh/ruff/pull/24141">#24141</a>)</li>
+  <li>Fix folding ranges of comments separated by statements (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24132">#24132</a>)</li> <li>Fix loop-header
+  reachability cycles in conditional unpacking (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24006">#24006</a>)</li> <li>Fix subtyping of
+  intersections containing <code>NewType</code>s of unions vs. unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24087">#24087</a>)</li> <li>Fix untracked
+  reads in Salsa queries that can lead to backdating panics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24051">#24051</a>)</li> <li>Prevent tainted
+  loop bindings in cycle normalization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24143">#24143</a>)</li> <li>Simplify an
+  intersection of <code>N &amp; ~T</code> to <code>Never</code> if <code>B &amp; ~T</code> would
+  simplify to <code>Never</code>, where <code>B</code> is the concrete base type of a
+  <code>NewType</code> <code>N</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24086">#24086</a>)</li> </ul> <h3>LSP</h3>
+  <ul> <li>Preserve blank lines between comments and imports in add-import action (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24066">#24066</a>)</li> </ul> <h3>Type
+  checking</h3> <ul> <li>Add diagnostic hint for invalid assignments involving invariant generics
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24032">#24032</a>)</li> <li>Add
+  precisely-typed overloads for <code>TypedDict</code> update (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24101">#24101</a>)</li> <li>Disallow
+  read-only fields in <code>TypedDict</code> updates (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24128">#24128</a>)</li> <li>Expand bounded
+  typevars to their upper bounds when evaluating truthiness comparisons between intersections and
+  literal types (<a href="https://redirect.github.com/astral-sh/ruff/pull/24082">#24082</a>)</li>
+  <li>Emit <code>reveal_type</code> diagnostics in unreachable code (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24070">#24070</a>)</li> <li>Improve
+  <code>isinstance()</code> reachability analysis (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24077">#24077</a>)</li> <li>Improve keyword
+  argument narrowing for nested dictionaries (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24010">#24010</a>)</li> <li>Infer
+  <code>yield</code> expression types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23796">#23796</a>)</li> <li>Reduce
+  diagnostic range for <code>invalid-metaclass</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24145">#24145</a>)</li> <li>Support
+  narrowing for extended walrus targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24129">#24129</a>)</li>
+  <li>Unions/intersections of gradual types should be assignable to <code>Never</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24056">#24056</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/ibraheemdev"><code>@​ibraheemdev</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/mvanhorn"><code>@​mvanhorn</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> <h2>Install ty 0.0.25</h2>
+  <!-- raw HTML omitted --> </blockquote> <p>... (truncated)</p> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ty/blob/main/CHANGELOG.md">ty's changelog</a>.</em></p>
+  <blockquote> <h2>0.0.25</h2> <p>Released on 2026-03-24.</p> <h3>Breaking changes</h3> <ul>
+  <li>Support <code>type:ignore[ty:code]</code> suppressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24096">#24096</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>Avoid eager TypedDict diagnostics in <code>TypedDict | dict</code> unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24151">#24151</a>)</li> <li>Fix Salsa panic
+  propagation (<a href="https://redirect.github.com/astral-sh/ruff/pull/24141">#24141</a>)</li>
+  <li>Fix folding ranges of comments separated by statements (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24132">#24132</a>)</li> <li>Fix loop-header
+  reachability cycles in conditional unpacking (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24006">#24006</a>)</li> <li>Fix subtyping of
+  intersections containing <code>NewType</code>s of unions vs. unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24087">#24087</a>)</li> <li>Fix untracked
+  reads in Salsa queries that can lead to backdating panics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24051">#24051</a>)</li> <li>Prevent tainted
+  loop bindings in cycle normalization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24143">#24143</a>)</li> <li>Simplify an
+  intersection of <code>N &amp; ~T</code> to <code>Never</code> if <code>B &amp; ~T</code> would
+  simplify to <code>Never</code>, where <code>B</code> is the concrete base type of a
+  <code>NewType</code> <code>N</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24086">#24086</a>)</li> </ul> <h3>LSP</h3>
+  <ul> <li>Preserve blank lines between comments and imports in add-import action (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24066">#24066</a>)</li> </ul> <h3>Type
+  checking</h3> <ul> <li>Add diagnostic hint for invalid assignments involving invariant generics
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24032">#24032</a>)</li> <li>Add
+  precisely-typed overloads for <code>TypedDict</code> update (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24101">#24101</a>)</li> <li>Disallow
+  read-only fields in <code>TypedDict</code> updates (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24128">#24128</a>)</li> <li>Expand bounded
+  typevars to their upper bounds when evaluating truthiness comparisons between intersections and
+  literal types (<a href="https://redirect.github.com/astral-sh/ruff/pull/24082">#24082</a>)</li>
+  <li>Emit <code>reveal_type</code> diagnostics in unreachable code (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24070">#24070</a>)</li> <li>Improve
+  <code>isinstance()</code> reachability analysis (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24077">#24077</a>)</li> <li>Improve keyword
+  argument narrowing for nested dictionaries (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24010">#24010</a>)</li> <li>Infer
+  <code>yield</code> expression types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23796">#23796</a>)</li> <li>Reduce
+  diagnostic range for <code>invalid-metaclass</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24145">#24145</a>)</li> <li>Support
+  narrowing for extended walrus targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24129">#24129</a>)</li>
+  <li>Unions/intersections of gradual types should be assignable to <code>Never</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24056">#24056</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/ibraheemdev"><code>@​ibraheemdev</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/mvanhorn"><code>@​mvanhorn</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> </blockquote> </details>
+  <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/astral-sh/ty/commit/d60899a14f6fe368e477c17f4205483aebdf84a8"><code>d60899a</code></a>
+  Bump version to 0.0.25 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3125">#3125</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/db65b3e118a705be2694032fd2df613ea11565f1"><code>db65b3e</code></a>
+  Update documentation to reflect <code>type:ignore</code> changes (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3121">#3121</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/9e464322e6a00a651861ec63af09f4e82fc903be"><code>9e46432</code></a>
+  Use ty in Emacs with Eglot (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3107">#3107</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/1f30d7c82c0ce9d99533cd5924180a4365941c06"><code>1f30d7c</code></a>
+  Update artifact github actions dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3113">#3113</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/255ef63825d35fb03f2755f05f2fd66b96a2c873"><code>255ef63</code></a>
+  Revert &quot;Update Artifact GitHub Actions dependencies&quot; (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3112">#3112</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/5fe54ca92587d69ac83fc5614b4e9566f692ae34"><code>5fe54ca</code></a>
+  Update Artifact GitHub Actions dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3108">#3108</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/a0cf1e7f3cacec90225b6b99d239ca43739d2800"><code>a0cf1e7</code></a>
+  Update Swatinem/rust-cache action to v2.9.1 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3110">#3110</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/fd2acb44500fb65fa33e1e6b6c27daeaed382467"><code>fd2acb4</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3109">#3109</a>)</li> <li>See full diff in
+  <a href="https://github.com/astral-sh/ty/compare/0.0.24...0.0.25">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ty&package-manager=uv&previous-version=0.0.24&new-version=0.0.25)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ty from 0.0.24 to 0.0.25
+  ([#6](https://github.com/jakub-k-slys/substack-gateway-pro/pull/6),
+  [`0772e21`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/0772e219caf3bfec9ca9c3053f75a3de0a61fa50))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.24 to 0.0.25. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ty/releases">ty's
+  releases</a>.</em></p> <blockquote> <h2>0.0.25</h2> <h2>Release Notes</h2> <p>Released on
+  2026-03-24.</p> <h3>Breaking changes</h3> <ul> <li>Support <code>type:ignore[ty:code]</code>
+  suppressions (<a href="https://redirect.github.com/astral-sh/ruff/pull/24096">#24096</a>)</li>
+  </ul> <h3>Bug fixes</h3> <ul> <li>Avoid eager TypedDict diagnostics in <code>TypedDict |
+  dict</code> unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24151">#24151</a>)</li> <li>Fix Salsa panic
+  propagation (<a href="https://redirect.github.com/astral-sh/ruff/pull/24141">#24141</a>)</li>
+  <li>Fix folding ranges of comments separated by statements (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24132">#24132</a>)</li> <li>Fix loop-header
+  reachability cycles in conditional unpacking (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24006">#24006</a>)</li> <li>Fix subtyping of
+  intersections containing <code>NewType</code>s of unions vs. unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24087">#24087</a>)</li> <li>Fix untracked
+  reads in Salsa queries that can lead to backdating panics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24051">#24051</a>)</li> <li>Prevent tainted
+  loop bindings in cycle normalization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24143">#24143</a>)</li> <li>Simplify an
+  intersection of <code>N &amp; ~T</code> to <code>Never</code> if <code>B &amp; ~T</code> would
+  simplify to <code>Never</code>, where <code>B</code> is the concrete base type of a
+  <code>NewType</code> <code>N</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24086">#24086</a>)</li> </ul> <h3>LSP</h3>
+  <ul> <li>Preserve blank lines between comments and imports in add-import action (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24066">#24066</a>)</li> </ul> <h3>Type
+  checking</h3> <ul> <li>Add diagnostic hint for invalid assignments involving invariant generics
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24032">#24032</a>)</li> <li>Add
+  precisely-typed overloads for <code>TypedDict</code> update (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24101">#24101</a>)</li> <li>Disallow
+  read-only fields in <code>TypedDict</code> updates (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24128">#24128</a>)</li> <li>Expand bounded
+  typevars to their upper bounds when evaluating truthiness comparisons between intersections and
+  literal types (<a href="https://redirect.github.com/astral-sh/ruff/pull/24082">#24082</a>)</li>
+  <li>Emit <code>reveal_type</code> diagnostics in unreachable code (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24070">#24070</a>)</li> <li>Improve
+  <code>isinstance()</code> reachability analysis (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24077">#24077</a>)</li> <li>Improve keyword
+  argument narrowing for nested dictionaries (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24010">#24010</a>)</li> <li>Infer
+  <code>yield</code> expression types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23796">#23796</a>)</li> <li>Reduce
+  diagnostic range for <code>invalid-metaclass</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24145">#24145</a>)</li> <li>Support
+  narrowing for extended walrus targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24129">#24129</a>)</li>
+  <li>Unions/intersections of gradual types should be assignable to <code>Never</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24056">#24056</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/ibraheemdev"><code>@​ibraheemdev</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/mvanhorn"><code>@​mvanhorn</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> <h2>Install ty 0.0.25</h2>
+  <!-- raw HTML omitted --> </blockquote> <p>... (truncated)</p> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ty/blob/main/CHANGELOG.md">ty's changelog</a>.</em></p>
+  <blockquote> <h2>0.0.25</h2> <p>Released on 2026-03-24.</p> <h3>Breaking changes</h3> <ul>
+  <li>Support <code>type:ignore[ty:code]</code> suppressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24096">#24096</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>Avoid eager TypedDict diagnostics in <code>TypedDict | dict</code> unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24151">#24151</a>)</li> <li>Fix Salsa panic
+  propagation (<a href="https://redirect.github.com/astral-sh/ruff/pull/24141">#24141</a>)</li>
+  <li>Fix folding ranges of comments separated by statements (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24132">#24132</a>)</li> <li>Fix loop-header
+  reachability cycles in conditional unpacking (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24006">#24006</a>)</li> <li>Fix subtyping of
+  intersections containing <code>NewType</code>s of unions vs. unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24087">#24087</a>)</li> <li>Fix untracked
+  reads in Salsa queries that can lead to backdating panics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24051">#24051</a>)</li> <li>Prevent tainted
+  loop bindings in cycle normalization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24143">#24143</a>)</li> <li>Simplify an
+  intersection of <code>N &amp; ~T</code> to <code>Never</code> if <code>B &amp; ~T</code> would
+  simplify to <code>Never</code>, where <code>B</code> is the concrete base type of a
+  <code>NewType</code> <code>N</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24086">#24086</a>)</li> </ul> <h3>LSP</h3>
+  <ul> <li>Preserve blank lines between comments and imports in add-import action (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24066">#24066</a>)</li> </ul> <h3>Type
+  checking</h3> <ul> <li>Add diagnostic hint for invalid assignments involving invariant generics
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24032">#24032</a>)</li> <li>Add
+  precisely-typed overloads for <code>TypedDict</code> update (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24101">#24101</a>)</li> <li>Disallow
+  read-only fields in <code>TypedDict</code> updates (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24128">#24128</a>)</li> <li>Expand bounded
+  typevars to their upper bounds when evaluating truthiness comparisons between intersections and
+  literal types (<a href="https://redirect.github.com/astral-sh/ruff/pull/24082">#24082</a>)</li>
+  <li>Emit <code>reveal_type</code> diagnostics in unreachable code (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24070">#24070</a>)</li> <li>Improve
+  <code>isinstance()</code> reachability analysis (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24077">#24077</a>)</li> <li>Improve keyword
+  argument narrowing for nested dictionaries (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24010">#24010</a>)</li> <li>Infer
+  <code>yield</code> expression types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23796">#23796</a>)</li> <li>Reduce
+  diagnostic range for <code>invalid-metaclass</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24145">#24145</a>)</li> <li>Support
+  narrowing for extended walrus targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24129">#24129</a>)</li>
+  <li>Unions/intersections of gradual types should be assignable to <code>Never</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24056">#24056</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/ibraheemdev"><code>@​ibraheemdev</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/mvanhorn"><code>@​mvanhorn</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> </blockquote> </details>
+  <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/astral-sh/ty/commit/d60899a14f6fe368e477c17f4205483aebdf84a8"><code>d60899a</code></a>
+  Bump version to 0.0.25 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3125">#3125</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/db65b3e118a705be2694032fd2df613ea11565f1"><code>db65b3e</code></a>
+  Update documentation to reflect <code>type:ignore</code> changes (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3121">#3121</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/9e464322e6a00a651861ec63af09f4e82fc903be"><code>9e46432</code></a>
+  Use ty in Emacs with Eglot (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3107">#3107</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/1f30d7c82c0ce9d99533cd5924180a4365941c06"><code>1f30d7c</code></a>
+  Update artifact github actions dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3113">#3113</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/255ef63825d35fb03f2755f05f2fd66b96a2c873"><code>255ef63</code></a>
+  Revert &quot;Update Artifact GitHub Actions dependencies&quot; (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3112">#3112</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/5fe54ca92587d69ac83fc5614b4e9566f692ae34"><code>5fe54ca</code></a>
+  Update Artifact GitHub Actions dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3108">#3108</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/a0cf1e7f3cacec90225b6b99d239ca43739d2800"><code>a0cf1e7</code></a>
+  Update Swatinem/rust-cache action to v2.9.1 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3110">#3110</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/fd2acb44500fb65fa33e1e6b6c27daeaed382467"><code>fd2acb4</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3109">#3109</a>)</li> <li>See full diff in
+  <a href="https://github.com/astral-sh/ty/compare/0.0.24...0.0.25">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ty&package-manager=uv&previous-version=0.0.24&new-version=0.0.25)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+### Features
+
+- Add tier-specific root metadata
+  ([`ed5dbc5`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/ed5dbc5b689a40aaf80576e6f6f2fedc44ff0843))
+
+- Make oss mcp read only
+  ([`bba485b`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/bba485b623b7fc9a6a2b2a3b1ba1fdd1e1f9bbd1))
+
+- Move publication url into bearer token
+  ([`fb5848c`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/fb5848c5743935f48c65ccda76fafec3ae4b60ac))
+
+- Require full validation for code changes
+  ([`298b0c8`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/298b0c89e5ef18ee59f1c0db4f0373f169a6dfc2))
+
+
 ## v0.4.0 (2026-03-23)
 
 ### Features
