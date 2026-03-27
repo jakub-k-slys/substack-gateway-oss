@@ -30,7 +30,6 @@ class BearerCredentials(BaseModel):
     publication_url: str | None = None
     substack_sid: str | None = None
     connect_sid: str | None = None
-    gateway_key: str | None = None
 
 
 TokensInfo = BearerCredentials

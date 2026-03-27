@@ -29,12 +29,10 @@ The credentials object must contain:
 }
 ```
 
-For protected endpoints such as drafts, include `gateway_key` in the same JSON object.
-
 Encode credentials:
 
 ```bash
-echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A...","gateway_key":"WW91IHNoYWxsIG5vdCBwYXNzCg=="}' | base64
+echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
 ```
 
 Pass the result as `Authorization: Bearer <base64string>`.
@@ -167,7 +165,6 @@ All settings use the `SUBSTACK_GATEWAY_` env prefix:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SUBSTACK_GATEWAY_LOG_LEVEL` | `INFO` | Log level |
-| `SUBSTACK_GATEWAY_GATEWAY_KEY` | (built-in default) | Key required for protected endpoints (drafts) |
 | `SUBSTACK_GATEWAY_ADMIN_TOKEN` | (built-in default) | Admin token |
 | `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL` | `https://substack.com` | Substack API base URL |
 | `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC` | `30.0` | Request timeout (seconds) |
@@ -180,7 +177,7 @@ All settings use the `SUBSTACK_GATEWAY_` env prefix:
 
 ## Extension System
 
-Extensions plug in extra routes, MCP tools, lifespan hooks, and credential/auth providers without modifying core code. They are loaded from:
+Extensions plug in extra routes, MCP tools, lifespan hooks, and auth providers without modifying core code. They are loaded from:
 
 1. `substack_gateway_oss.extensions` entry-points (installed packages).
 2. `GATEWAY_EXTENSION_MODULES` env var (comma-separated `module:attr` strings).
@@ -194,11 +191,10 @@ class GatewayExtension(Protocol):
     def register_app(self, app: Starlette, context: GatewayExtensionContext) -> None: ...
     def register_mcp(self, mcp: FastMCP, context: GatewayExtensionContext) -> None: ...
     def get_lifespan_hooks(self, context: GatewayExtensionContext) -> Sequence[LifespanHook]: ...
-    def get_credential_provider(self, context: GatewayExtensionContext) -> CredentialProvider | None: ...
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None: ...
 ```
 
-Only one `CredentialProvider` and one MCP auth provider may be active at a time.
+Only one MCP auth provider may be active at a time.
 
 ---
 
@@ -208,7 +204,6 @@ Only one `CredentialProvider` and one MCP auth provider may be active at a time.
 |--------|---------|
 | `400` | Bad request (e.g. invalid publication URL) |
 | `401` | Invalid credentials |
-| `403` | Invalid or missing gateway key |
 | `422` | Missing required headers or malformed request |
 | `502` | Substack API error or unreachable |
 
