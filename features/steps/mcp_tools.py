@@ -38,7 +38,6 @@ def step_valid_mcp_token(context, pub_url_):
         "publication_url": pub_url_,
         "substack_sid": "test-token",
         "connect_sid": "test-token",
-        "gateway_key": "test",
     }
     encoded = base64.b64encode(json.dumps(credentials).encode()).decode()
     context.mcp_token = encoded

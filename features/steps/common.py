@@ -40,21 +40,6 @@ def step_valid_auth(context, token, pub_url_):
         "publication_url": pub_url_,
         "substack_sid": token,
         "connect_sid": token,
-        "gateway_key": "test",
-    }
-    context.publication_url = pub_url_
-    context.headers = {"Authorization": f"Bearer {_encode_credentials(credentials)}"}
-
-
-@given(
-    'a bearer token authorized by gateway key "{gateway_key}" and publication URL "{pub_url_}"'
-)
-def step_valid_auth_with_gateway_key(context, gateway_key, pub_url_):
-    credentials = {
-        "publication_url": pub_url_,
-        "substack_sid": "test-token",
-        "connect_sid": "test-token",
-        "gateway_key": gateway_key,
     }
     context.publication_url = pub_url_
     context.headers = {"Authorization": f"Bearer {_encode_credentials(credentials)}"}
@@ -72,7 +57,6 @@ def step_whitespace_token(context, pub_url_):
         "publication_url": pub_url_,
         "substack_sid": "test-token",
         "connect_sid": "test-token",
-        "gateway_key": "test",
     }
     context.publication_url = pub_url_
     context.headers = {

@@ -34,7 +34,6 @@ Feature: Health check endpoints
     And the response nested field "tokens.publication_url" is "https://example.substack.com"
     And the response nested field "tokens.substack_sid" is "test-token"
     And the response nested field "tokens.connect_sid" is "test-token"
-    And the response nested field "tokens.gateway_key" is "test"
 
   Scenario: Gateway cannot reach Substack
     Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
