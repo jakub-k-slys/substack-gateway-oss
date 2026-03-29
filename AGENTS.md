@@ -4,7 +4,8 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - `gateway_oss.main:app` is the application entry point.
 - The OSS app code lives in `packages/gateway_oss/src/gateway_oss/`.
 - Pro-only OAuth code lives in `packages/gateway_pro/src/gateway_pro/oauth/`.
-- Authenticated requests use `Authorization: Bearer <base64-json>`, where the decoded JSON contains `publication_url`, `substack_sid`, and `connect_sid`.
+- Gateway authentication and Substack authentication are separate concerns.
+- Authenticated REST requests pass Substack credentials in the `x-gateway-token` header, whose value is a base64-encoded JSON object containing `publication_url`, `substack_sid`, and `connect_sid`.
 - Install dependencies with `uv sync --dev`.
 - Run the app locally with `uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload`.
 - Lint with `uv run ruff check .`.

@@ -60,26 +60,26 @@ Both share the same service layer and HTTP clients, wired together by `app_facto
 Client request
   → Starlette app (app_factory.py)
     → /api/v1/* → FastAPI (api/app.py) → deps.py → Services → HTTP clients
-    → /mcp      → FastMCP (mcp/app.py) → mcp/deps.py → Services → HTTP clients
+    → /mcp      → FastMCP (mcp/app.py) → tool helpers → Services → HTTP clients
 ```
 
 ### Authentication
 
-Requests carry a **base64-encoded JSON Bearer token** containing `publication_url`, `substack_sid`, and `connect_sid` (Substack session cookies plus the target publication URL). The `auth.py` module decodes this token; `api/deps.py` and `mcp/deps.py` use it to construct per-request HTTP clients.
+Gateway authentication and Substack authentication are separate concerns. REST requests carry an `x-gateway-token` header whose value is a **base64-encoded JSON token** containing `publication_url`, `substack_sid`, and `connect_sid` (Substack session cookies plus the target publication URL). The `auth.py` module decodes this token; `api/deps.py` uses it to construct per-request HTTP clients.
 
-The MCP layer no longer resolves Substack credentials through OAuth. PRO-only authenticated MCP tools take an explicit `token` argument instead.
+The MCP layer no longer resolves Substack credentials through OAuth. Authenticated MCP tools take an explicit `token` argument carrying the same base64-encoded Substack credentials object. In PRO, OAuth may still authorize access to the gateway itself, but it does not store or inject Substack credentials.
 
 ### HTTP clients
 
 - `SubstackHTTPBase` (`client/base.py`) — shared async httpx layer, raises `SubstackAuthError` (401/403) or `SubstackAPIError` (all other failures).
 - `SubstackClient` — talks to `https://substack.com/api/v1/*` (global API: user settings, handles, profiles, following).
-- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL comes from the Bearer token's `publication_url` field.
+- `PublicationClient` (`client/publication.py`) — talks to a per-publication subdomain URL (notes, posts, comments). The publication URL comes from the gateway token's `publication_url` field.
 
-Most API endpoints need **both** clients; `ProfilesService` only needs `SubstackClient`.
+Most API endpoints and authenticated MCP tools need **both** clients; `ProfilesService` only needs `SubstackClient`.
 
 ### Services
 
-`services/` contains thin domain classes (`NotesService`, `PostsService`, `ProfilesService`, `FollowingService`) that coordinate calls across the two HTTP clients. They are instantiated per-request via FastAPI/FastMCP dependency injection.
+`services/` contains thin domain classes (`NotesService`, `PostsService`, `ProfilesService`, `FollowingService`) that coordinate calls across the two HTTP clients. REST instantiates them via FastAPI dependencies; MCP instantiates them in tool helpers.
 
 ### Models
 
@@ -102,7 +102,7 @@ An extension implements the `GatewayExtension` protocol (`extensions/base.py`). 
 
 ### Configuration
 
-All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `admin_token` and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is not a header anymore; it is carried in the Bearer token's `publication_url`.
+All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`). Key settings: `admin_token` and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is carried in the `x-gateway-token` header's `publication_url` field.
 
 ### Tests
 

@@ -25,28 +25,23 @@ _log = logging.getLogger(__name__)
 _INVALID_CREDENTIALS = "Invalid credentials"
 
 
-def _decode_bearer(authorization: str) -> BearerCredentials:
-    """Decode a base64 Bearer token and return parsed credentials."""
-    if not authorization.startswith("Bearer "):
-        _log.warning(
-            "Rejected: malformed Authorization header (missing 'Bearer ' prefix)"
-        )
-        raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
-    raw = authorization.removeprefix("Bearer ").strip()
+def _decode_gateway_token(token: str) -> BearerCredentials:
+    """Decode a base64 gateway token and return parsed credentials."""
+    raw = token.strip()
     if not raw:
-        _log.warning("Rejected: empty Bearer token in Authorization header")
+        _log.warning("Rejected: empty x-gateway-token header")
         raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
     try:
         return decode_bearer_credentials(raw)
     except ValueError:
-        _log.warning("Rejected: Bearer token is not valid base64-encoded JSON")
+        _log.warning("Rejected: x-gateway-token is not valid base64-encoded JSON")
         raise HTTPException(status_code=401, detail=_INVALID_CREDENTIALS)
 
 
 def get_credentials(
-    authorization: Annotated[str, Header()],
+    x_gateway_token: Annotated[str, Header(alias="x-gateway-token")],
 ) -> BearerCredentials:
-    return _decode_bearer(authorization)
+    return _decode_gateway_token(x_gateway_token)
 
 
 async def get_publication_client(

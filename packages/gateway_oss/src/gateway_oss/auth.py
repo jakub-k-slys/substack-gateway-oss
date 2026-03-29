@@ -13,7 +13,7 @@ from gateway_oss.models.schemas import BearerCredentials
 
 
 def decode_bearer_credentials(raw: str) -> BearerCredentials:
-    """Decode a base64-encoded JSON Bearer token into BearerCredentials.
+    """Decode a base64-encoded JSON gateway token into BearerCredentials.
 
     Args:
         raw: Token string with any ``"Bearer "`` prefix already stripped.

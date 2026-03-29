@@ -34,7 +34,7 @@ def public_profile_url(slug: str) -> str:
     return f"{SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
 
 
-@given('a valid bearer token "{token}" and publication URL "{pub_url_}"')
+@given('a valid gateway token "{token}" and publication URL "{pub_url_}"')
 def step_valid_auth(context, token, pub_url_):
     credentials = {
         "publication_url": pub_url_,
@@ -42,16 +42,16 @@ def step_valid_auth(context, token, pub_url_):
         "connect_sid": token,
     }
     context.publication_url = pub_url_
-    context.headers = {"Authorization": f"Bearer {_encode_credentials(credentials)}"}
+    context.headers = {"x-gateway-token": _encode_credentials(credentials)}
 
 
-@given('a malformed authorization header and publication URL "{pub_url_}"')
+@given('a malformed x-gateway-token header and publication URL "{pub_url_}"')
 def step_malformed_auth(context, pub_url_):
     context.publication_url = pub_url_
-    context.headers = {"Authorization": "not-a-bearer-token"}
+    context.headers = {"x-gateway-token": "not-valid-base64!!!"}
 
 
-@given('a bearer token with extra whitespace and publication URL "{pub_url_}"')
+@given('a gateway token with extra whitespace and publication URL "{pub_url_}"')
 def step_whitespace_token(context, pub_url_):
     credentials = {
         "publication_url": pub_url_,
@@ -59,9 +59,7 @@ def step_whitespace_token(context, pub_url_):
         "connect_sid": "test-token",
     }
     context.publication_url = pub_url_
-    context.headers = {
-        "Authorization": f"Bearer   {_encode_credentials(credentials)}   "
-    }
+    context.headers = {"x-gateway-token": f"  {_encode_credentials(credentials)}   "}
 
 
 @when("I send GET {path}")

@@ -86,7 +86,7 @@ async def health_check(request) -> JSONResponse:
 def register_tools(mcp: FastMCP) -> None:
     register_authenticated_tools(mcp)
     mcp.tool(
-        description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each. Requires a base64-encoded Substack credentials token.",
+        description="List all Substack post drafts for the publication, returning id, uuid, title, and last-updated timestamp for each. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="List Drafts",
@@ -98,7 +98,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /drafts"},
     )(list_drafts)
     mcp.tool(
-        description="Fetch a Substack post draft by ID. The body is returned as Markdown. Requires a base64-encoded Substack credentials token.",
+        description="Fetch a Substack post draft by ID. The body is returned as Markdown. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get Draft",
@@ -110,7 +110,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
     )(get_draft)
     mcp.tool(
-        description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown. Requires a base64-encoded Substack credentials token.",
+        description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Create Draft",
@@ -122,7 +122,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "POST /drafts"},
     )(create_draft)
     mcp.tool(
-        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. Requires a base64-encoded Substack credentials token.",
+        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Update Draft",
@@ -134,7 +134,7 @@ def register_tools(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "PUT /drafts/{draft_id}"},
     )(update_draft)
     mcp.tool(
-        description="Permanently delete a Substack post draft by its numeric ID. Requires a base64-encoded Substack credentials token.",
+        description="Permanently delete a Substack post draft by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"drafts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Draft",

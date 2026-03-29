@@ -13,13 +13,18 @@ Both share the same service layer and HTTP clients. Deployable to [Vercel](https
 
 ## Authentication
 
-Every request (except `GET /api/v1/health/live`) requires one header:
+Gateway authentication and Substack authentication are separate concerns:
+
+- Gateway authentication authorizes access to the gateway itself. In PRO, MCP can use OAuth for this.
+- Substack authentication provides the publication URL plus Substack session cookies needed to call Substack.
+
+REST requests that need Substack authentication use one header:
 
 | Header | Description |
 |--------|-------------|
-| `Authorization` | `Bearer <token>` where `<token>` is a base64-encoded JSON credentials object |
+| `x-gateway-token` | Base64-encoded JSON credentials object |
 
-The credentials object must contain:
+The Substack credentials object must contain:
 
 ```json
 {
@@ -35,7 +40,7 @@ Encode credentials:
 echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
 ```
 
-Pass the result as `Authorization: Bearer <base64string>`.
+Pass the result as `x-gateway-token: <base64string>`.
 
 ---
 
@@ -161,7 +166,7 @@ Deletes a draft by ID. Returns `204 No Content`.
 
 ## MCP Server
 
-The OSS MCP server is available at `/mcp` (streamable-http transport) and is read-only. It does not require a bearer token or `publication_url` for public tools:
+The OSS MCP server is available at `/mcp` (streamable-http transport) and is read-only. Public tools do not require gateway auth or Substack credentials:
 
 | Tool | Description |
 |------|-------------|
@@ -187,7 +192,7 @@ PRO adds authenticated personal and write tools on top of OSS:
 | `update_draft` | Delta-update a draft (pro) |
 | `delete_draft` | Delete a draft by ID (pro) |
 
-For PRO-only MCP tools, pass the same base64-encoded credentials object as an explicit `token` tool argument. OAuth, when enabled, authorizes gateway users but does not store or inject Substack credentials.
+For authenticated MCP tools, pass the same base64-encoded Substack credentials object as an explicit `token` tool argument. In PRO, OAuth may authorize access to the MCP server itself, but it does not store, derive, or inject Substack credentials.
 
 ---
 
