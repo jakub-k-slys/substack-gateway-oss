@@ -13,13 +13,18 @@ Both share the same service layer and HTTP clients.
 
 ## Authentication
 
-Every request (except `GET /api/v1/health/live`) requires one header:
+Gateway authentication and Substack authentication are separate concerns:
+
+- Gateway authentication authorizes access to the gateway itself.
+- Substack authentication provides the publication URL plus Substack session cookies needed to call Substack.
+
+REST requests that need Substack authentication use one header:
 
 | Header | Description |
 |--------|-------------|
-| `Authorization` | `Bearer <token>` where `<token>` is a base64-encoded JSON credentials object |
+| `x-gateway-token` | Base64-encoded JSON credentials object |
 
-The credentials object must contain:
+The Substack credentials object must contain:
 
 ```json
 {
@@ -35,7 +40,7 @@ Encode credentials:
 echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
 ```
 
-Pass the result as `Authorization: Bearer <base64string>`.
+Pass the result as `x-gateway-token: <base64string>`.
 
 ---
 
@@ -143,7 +148,7 @@ Returns a single comment by ID.
 
 ## MCP Server
 
-The MCP server is available at `/mcp` (streamable-http transport). In OSS it is read-only and does not require a bearer token or `publication_url` for public tools:
+The MCP server is available at `/mcp` (streamable-http transport). In OSS it is read-only and public tools do not require gateway auth or Substack credentials:
 
 | Tool | Description |
 |------|-------------|
@@ -154,7 +159,7 @@ The MCP server is available at `/mcp` (streamable-http transport). In OSS it is 
 | `get_profile_posts` | Get paginated posts for a profile |
 | `get_profile_notes` | Get paginated notes for a profile |
 
-Authenticated MCP tools such as personal endpoints or writes are provided by PRO, not OSS.
+Authenticated MCP tools such as personal endpoints or writes are provided by PRO, not OSS. When present, they take an explicit `token` tool argument carrying the base64-encoded Substack credentials object; that token is separate from any gateway-level auth.
 
 ---
 
