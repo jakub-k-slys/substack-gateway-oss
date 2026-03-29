@@ -17,7 +17,7 @@ Feature: Health check endpoints
   # ------------------------------------------------------------------
 
   Scenario: Gateway is connected to Substack
-    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack API is reachable
     When I send GET /api/v1/health/ready
     Then the response status code is 200
@@ -25,7 +25,7 @@ Feature: Health check endpoints
     And the response field "tokens" is absent
 
   Scenario: Tokens are returned when show=true
-    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack API is reachable
     When I send GET /api/v1/health/ready?show=true
     Then the response status code is 200
@@ -36,37 +36,37 @@ Feature: Health check endpoints
     And the response nested field "tokens.connect_sid" is "test-token"
 
   Scenario: Gateway cannot reach Substack
-    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack API is unreachable
     When I send GET /api/v1/health/ready
     Then the response status code is 200
     And the response field "connected" is false
 
   Scenario: Substack API timeout is treated as unreachable
-    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack API times out
     When I send GET /api/v1/health/ready
     Then the response status code is 200
     And the response field "connected" is false
 
   Scenario: Expired token still reports connected (service is reachable)
-    Given a valid bearer token "test-token" and publication URL "https://example.substack.com"
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack feed/following endpoint returns status 401
     When I send GET /api/v1/health/ready
     Then the response status code is 200
     And the response field "connected" is true
 
-  Scenario: Missing authorization header returns 422
+  Scenario: Missing x-gateway-token header returns 422
     When I send GET /api/v1/health/ready
     Then the response status code is 422
 
-  Scenario: Malformed authorization header returns 401
-    Given a malformed authorization header and publication URL "https://example.substack.com"
+  Scenario: Malformed x-gateway-token header returns 401
+    Given a malformed x-gateway-token header and publication URL "https://example.substack.com"
     When I send GET /api/v1/health/ready
     Then the response status code is 401
 
-  Scenario: Bearer token with extra surrounding whitespace is accepted
-    Given a bearer token with extra whitespace and publication URL "https://example.substack.com"
+  Scenario: Gateway token with extra surrounding whitespace is accepted
+    Given a gateway token with extra whitespace and publication URL "https://example.substack.com"
     And the Substack API is reachable
     When I send GET /api/v1/health/ready
     Then the response status code is 200

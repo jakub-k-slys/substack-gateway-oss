@@ -289,7 +289,7 @@ async def get_profile_notes(
 
 def register_authenticated_tools(mcp: FastMCP) -> None:
     mcp.tool(
-        description="Publish a new note to Substack from Markdown content, with an optional link attachment. Requires a base64-encoded Substack credentials token.",
+        description="Publish a new note to Substack from Markdown content, with an optional link attachment. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Create Note",
@@ -301,7 +301,7 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
     )(create_note)
     mcp.tool(
-        description="Permanently delete a Substack note by its numeric ID. Requires a base64-encoded Substack credentials token.",
+        description="Permanently delete a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"notes", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Note",
@@ -313,7 +313,7 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
     )(delete_note)
     mcp.tool(
-        description="Retrieve the authenticated user's own Substack public profile using an explicit base64-encoded Substack credentials token.",
+        description="Retrieve the authenticated user's own Substack public profile using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"me", "profile", "read"},
         annotations=ToolAnnotations(
             title="Get My Profile",
@@ -325,7 +325,7 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "me", "substack_endpoint": "GET /user/{slug}/public_profile"},
     )(get_me)
     mcp.tool(
-        description="Retrieve the authenticated user's own notes, paginated via an optional cursor. Requires a base64-encoded Substack credentials token.",
+        description="Retrieve the authenticated user's own notes, paginated via an optional cursor. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"me", "notes", "read"},
         annotations=ToolAnnotations(
             title="Get My Notes",
@@ -337,7 +337,7 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "me", "substack_endpoint": "GET /notes"},
     )(get_my_notes)
     mcp.tool(
-        description="Retrieve the authenticated user's own posts, paginated via limit and offset. Requires a base64-encoded Substack credentials token.",
+        description="Retrieve the authenticated user's own posts, paginated via limit and offset. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"me", "posts", "read"},
         annotations=ToolAnnotations(
             title="Get My Posts",
@@ -349,7 +349,7 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
     )(get_my_posts)
     mcp.tool(
-        description="Retrieve the list of Substack profiles that the authenticated user follows using an explicit base64-encoded Substack credentials token.",
+        description="Retrieve the list of Substack profiles that the authenticated user follows using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"me", "following", "read"},
         annotations=ToolAnnotations(
             title="Get My Following",
