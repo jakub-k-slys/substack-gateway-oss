@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.0 (2026-04-06)
+
+### Features
+
+- Profile feed ([#59](https://github.com/jakub-k-slys/substack-gateway-pro/pull/59),
+  [`149e840`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/149e8404ecf2651b70bd5eb9c55d1c47abc5eb7b))
+
+
 ## v0.7.0 (2026-04-06)
 
 ### Features
