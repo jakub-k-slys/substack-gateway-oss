@@ -67,3 +67,11 @@ def step_response_content_type_starts_with(context, value):
     assert actual.startswith(value), (
         f'Expected content-type to start with "{value}", got "{actual}"'
     )
+
+
+@then('the response body contains exactly {count:d} "{marker}" markers')
+def step_response_body_contains_exact_marker_count(context, count, marker):
+    actual = context.response.text.count(marker)
+    assert actual == count, (
+        f'Expected response body to contain {count} "{marker}" markers, got {actual}'
+    )

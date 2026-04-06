@@ -15,7 +15,7 @@ Feature: Profile feed endpoint
     And the response body contains "<feed"
     And the response body contains "Sample Post Title"
     And the response body contains "tag:substack-gateway,note:"
-    And the response body contains "notes_cursor="
+    And the response body contains "limit=50"
 
   Scenario: Fetch only post entries
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
@@ -35,6 +35,15 @@ Feature: Profile feed endpoint
     Then the response status code is 200
     And the response body contains "tag:substack-gateway,note:"
     And the response body does not contain "tag:substack-gateway,post:"
+
+  Scenario: Limit caps returned entries
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack public profile endpoint returns the sample response for "jakubslys"
+    And the Substack profile feed-notes endpoint returns the sample response for user 254824415
+    When I send GET /api/v1/profiles/jakubslys/feed?type=note&limit=3
+    Then the response status code is 200
+    And the response body contains "limit=3"
+    And the response body contains exactly 3 "<entry>" markers
 
   Scenario: Profile not found returns 404
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

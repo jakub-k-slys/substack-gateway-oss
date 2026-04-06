@@ -69,7 +69,7 @@ class ProfileFeedService:
         feed_type: Literal["mixed", "post", "note"] = "mixed",
         notes_cursor: str | None = None,
         posts_cursor: str | None = None,
-        limit: int = 25,
+        limit: int = 50,
         feed_url: str,
     ) -> AtomFeedPage:
         profile = await self._profiles.get_profile_by_slug(slug)
@@ -97,6 +97,7 @@ class ProfileFeedService:
             feed_type=feed_type,
         )
         entries.sort(key=lambda entry: entry.updated_at, reverse=True)
+        entries = entries[:limit]
         updated_at = (
             entries[0].updated_at if entries else (profile.profile_set_up_at or "")
         )
