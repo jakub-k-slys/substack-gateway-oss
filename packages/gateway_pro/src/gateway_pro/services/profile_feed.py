@@ -47,6 +47,13 @@ class AtomFeedPage:
     entries: list[AtomFeedEntry]
 
 
+@dataclass(slots=True)
+class AtomFeedEntriesPage:
+    entries: list[AtomFeedEntry]
+    next_notes_cursor: str | None
+    next_posts_cursor: str | None
+
+
 class SubstackCursorPostsPage(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(populate_by_name=True)
 
@@ -70,31 +77,20 @@ class ProfileFeedService:
         feed_url: str,
     ) -> AtomFeedPage:
         profile = await self._profiles.get_profile_by_slug(slug)
-        notes_page = await self._get_notes_page(
-            profile.id,
-            feed_type=feed_type,
-            cursor=notes_cursor,
-        )
-        posts_page = await self._get_posts_page(
-            profile.id,
-            feed_type=feed_type,
-            cursor=posts_cursor,
-            limit=limit,
-        )
-
         author = AtomFeedAuthor(
             name=profile.name,
             handle=profile.handle,
             avatar_url=profile.photo_url or "",
         )
-        entries = await self._build_entries(
-            author,
-            notes_page,
-            posts_page.posts,
+        entries_page = await self.get_entries_for_profile(
+            profile.id,
+            fallback_author=author,
             feed_type=feed_type,
+            notes_cursor=notes_cursor,
+            posts_cursor=posts_cursor,
+            limit=limit,
         )
-        entries.sort(key=lambda entry: entry.updated_at, reverse=True)
-        entries = entries[:limit]
+        entries = entries_page.entries
         updated_at = (
             entries[0].updated_at if entries else (profile.profile_set_up_at or "")
         )
@@ -117,11 +113,45 @@ class ProfileFeedService:
             next_url=self._build_next_url(
                 feed_url,
                 feed_type,
-                notes_page.next_cursor,
-                posts_page.next_cursor,
+                entries_page.next_notes_cursor,
+                entries_page.next_posts_cursor,
                 limit,
             ),
             entries=entries,
+        )
+
+    async def get_entries_for_profile(
+        self,
+        profile_id: int,
+        *,
+        fallback_author: AtomFeedAuthor,
+        feed_type: Literal["mixed", "post", "note"] = "mixed",
+        notes_cursor: str | None = None,
+        posts_cursor: str | None = None,
+        limit: int = 50,
+    ) -> AtomFeedEntriesPage:
+        notes_page = await self._get_notes_page(
+            profile_id,
+            feed_type=feed_type,
+            cursor=notes_cursor,
+        )
+        posts_page = await self._get_posts_page(
+            profile_id,
+            feed_type=feed_type,
+            cursor=posts_cursor,
+            limit=limit,
+        )
+        entries = await self._build_entries(
+            fallback_author,
+            notes_page,
+            posts_page.posts,
+            feed_type=feed_type,
+        )
+        entries.sort(key=lambda entry: entry.updated_at, reverse=True)
+        return AtomFeedEntriesPage(
+            entries=entries[:limit],
+            next_notes_cursor=notes_page.next_cursor,
+            next_posts_cursor=posts_page.next_cursor,
         )
 
     async def _build_entries(
