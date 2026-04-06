@@ -12,6 +12,7 @@ from gateway_pro.mcp.app import (
     like_note,
     like_post,
     list_drafts,
+    restack_post,
     unlike_note,
     unlike_post,
 )
@@ -64,3 +65,8 @@ def step_call_like_post(context, post_id):
 @when("I call the MCP tool unlike_post with post_id {post_id:d}")
 def step_call_unlike_post(context, post_id):
     _call(context, unlike_post(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool restack_post with post_id {post_id:d}")
+def step_call_restack_post(context, post_id):
+    _call(context, restack_post(post_id=post_id, token=context.mcp_token))

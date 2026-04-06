@@ -17,6 +17,7 @@ from gateway_pro.models.substack import SubstackUpdateDraftPayload
 from gateway_pro.services.drafts import DraftsService
 from gateway_pro.services.note_reactions import NoteReactionsService
 from gateway_pro.services.post_reactions import PostReactionsService
+from gateway_pro.services.post_restacks import PostRestacksService
 
 
 async def list_drafts(
@@ -115,6 +116,15 @@ async def unlike_post(
     async with _authenticated_clients(token) as (_, substack):
         await PostReactionsService(substack).unlike_post(post_id)
     return f"Post {post_id} unliked successfully."
+
+
+async def restack_post(
+    post_id: int,
+    token: str,
+) -> str:
+    async with _authenticated_clients(token) as (_, substack):
+        await PostRestacksService(substack).restack_post(post_id)
+    return f"Post {post_id} restacked successfully."
 
 
 async def health_check(request) -> JSONResponse:
@@ -243,6 +253,21 @@ def register_tools(mcp: FastMCP) -> None:
             "substack_endpoint": "DELETE /posts/{post_id}/like",
         },
     )(unlike_post)
+    mcp.tool(
+        description="Restack a Substack post into the authenticated user's feed by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"posts", "write"},
+        annotations=ToolAnnotations(
+            title="Restack Post",
+            readOnlyHint=False,
+            destructiveHint=False,
+            idempotentHint=False,
+            openWorldHint=True,
+        ),
+        meta={
+            "category": "posts",
+            "substack_endpoint": "POST /posts/{post_id}/restack",
+        },
+    )(restack_post)
 
 
 def register_routes(mcp: FastMCP) -> None:
