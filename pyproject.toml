@@ -5,11 +5,13 @@ requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.135.1",
   "httpx>=0.28.0",
+  "pyrate-limiter>=3.7.0",
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
   "async-lru>=2.0",
   "fastmcp>=3.0.2",
   "markdownify>=1.2.2",
+  "tenacity>=9.1.2",
   "uvloop>=0.22.1",
 ]
 
