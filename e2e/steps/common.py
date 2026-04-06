@@ -8,10 +8,8 @@ from behave import given, then, when
 
 @given("valid credentials")
 def step_valid_credentials(context):
-    token = os.environ["SUBSTACK_TOKEN"]
-    pub_url = os.environ["SUBSTACK_PUBLICATION_URL"]
-    context.headers["Authorization"] = f"Bearer {token}"
-    context.headers["x-publication-url"] = pub_url
+    token = os.environ.get("SUBSTACK_GATEWAY_TOKEN") or os.environ["SUBSTACK_TOKEN"]
+    context.headers["x-gateway-token"] = token
 
 
 @given("a valid publication URL")
