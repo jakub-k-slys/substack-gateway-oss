@@ -46,3 +46,26 @@ def test_render_atom_feed_includes_next_link_and_escaped_content() -> None:
     assert 'rel="next"' in xml
     assert "Summary &lt;with&gt; chars" in xml
     assert "&lt;p&gt;Hello &amp; welcome&lt;/p&gt;" in xml
+
+
+def test_render_atom_feed_keeps_type_in_pagination_link() -> None:
+    page = AtomFeedPage(
+        feed_id="tag:substack-gateway,profile:1",
+        title="Example Feed",
+        subtitle=None,
+        author=AtomFeedAuthor(
+            name="Example Author",
+            handle="example",
+            avatar_url="https://substack.com/img/avatar.jpg",
+        ),
+        updated_at="2024-01-15T10:00:00.000Z",
+        icon_url=None,
+        alternate_url="https://substack.com/@example",
+        self_url="/api/v1/profiles/example/feed?limit=25&type=note",
+        next_url="/api/v1/profiles/example/feed?limit=25&type=note&notes_cursor=abc",
+        entries=[],
+    )
+
+    xml = render_atom_feed(page)
+
+    assert "type=note" in xml

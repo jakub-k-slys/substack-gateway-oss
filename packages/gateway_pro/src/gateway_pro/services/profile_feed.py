@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 from urllib.parse import urlencode
 
 import pydantic
@@ -65,15 +66,21 @@ class ProfileFeedService:
         self,
         slug: str,
         *,
+        feed_type: Literal["mixed", "post", "note"] = "mixed",
         notes_cursor: str | None = None,
         posts_cursor: str | None = None,
         limit: int = 25,
         feed_url: str,
     ) -> AtomFeedPage:
         profile = await self._profiles.get_profile_by_slug(slug)
-        notes_page = await self._get_notes_for_profile(profile.id, cursor=notes_cursor)
-        posts_page = await self._get_posts_for_profile(
+        notes_page = await self._get_notes_page(
             profile.id,
+            feed_type=feed_type,
+            cursor=notes_cursor,
+        )
+        posts_page = await self._get_posts_page(
+            profile.id,
+            feed_type=feed_type,
             cursor=posts_cursor,
             limit=limit,
         )
@@ -83,7 +90,12 @@ class ProfileFeedService:
             handle=profile.handle,
             avatar_url=profile.photo_url or "",
         )
-        entries = await self._build_entries(author, notes_page, posts_page.posts)
+        entries = await self._build_entries(
+            author,
+            notes_page,
+            posts_page.posts,
+            feed_type=feed_type,
+        )
         entries.sort(key=lambda entry: entry.updated_at, reverse=True)
         updated_at = (
             entries[0].updated_at if entries else (profile.profile_set_up_at or "")
@@ -99,12 +111,14 @@ class ProfileFeedService:
             alternate_url=f"https://substack.com/@{profile.handle}",
             self_url=self._build_feed_url(
                 feed_url,
+                feed_type=feed_type,
                 notes_cursor=notes_cursor,
                 posts_cursor=posts_cursor,
                 limit=limit,
             ),
             next_url=self._build_next_url(
                 feed_url,
+                feed_type,
                 notes_page.next_cursor,
                 posts_page.next_cursor,
                 limit,
@@ -117,16 +131,22 @@ class ProfileFeedService:
         author: AtomFeedAuthor,
         notes_page: SubstackNotesPage,
         posts: list[SubstackPreviewPost],
+        *,
+        feed_type: Literal["mixed", "post", "note"],
     ) -> list[AtomFeedEntry]:
-        entries = [
-            self._note_to_entry(note, fallback_author=author)
-            for note in notes_page.items
-        ]
+        entries: list[AtomFeedEntry] = []
+        if feed_type in {"mixed", "note"}:
+            entries.extend(
+                self._note_to_entry(note, fallback_author=author)
+                for note in notes_page.items
+            )
 
-        hydrated_posts = await self._hydrate_posts(posts)
-        entries.extend(
-            self._post_to_entry(post, fallback_author=author) for post in hydrated_posts
-        )
+        if feed_type in {"mixed", "post"}:
+            hydrated_posts = await self._hydrate_posts(posts)
+            entries.extend(
+                self._post_to_entry(post, fallback_author=author)
+                for post in hydrated_posts
+            )
         return entries
 
     async def _hydrate_posts(
@@ -148,6 +168,17 @@ class ProfileFeedService:
         )
         return SubstackNotesPage.model_validate(response.json())
 
+    async def _get_notes_page(
+        self,
+        profile_id: int,
+        *,
+        feed_type: Literal["mixed", "post", "note"],
+        cursor: str | None,
+    ) -> SubstackNotesPage:
+        if feed_type == "post":
+            return SubstackNotesPage()
+        return await self._get_notes_for_profile(profile_id, cursor=cursor)
+
     async def _get_posts_for_profile(
         self, profile_id: int, *, cursor: str | None, limit: int
     ) -> SubstackCursorPostsPage:
@@ -159,6 +190,18 @@ class ProfileFeedService:
             params["next_cursor"] = cursor
         response = await self._sub.get("profile/posts", params=params)
         return SubstackCursorPostsPage.model_validate(response.json())
+
+    async def _get_posts_page(
+        self,
+        profile_id: int,
+        *,
+        feed_type: Literal["mixed", "post", "note"],
+        cursor: str | None,
+        limit: int,
+    ) -> SubstackCursorPostsPage:
+        if feed_type == "note":
+            return SubstackCursorPostsPage()
+        return await self._get_posts_for_profile(profile_id, cursor=cursor, limit=limit)
 
     async def _get_post_by_id(self, post_id: int) -> SubstackFullPost:
         response = await self._sub.get(f"posts/by-id/{post_id}")
@@ -212,6 +255,7 @@ class ProfileFeedService:
     def _build_next_url(
         self,
         feed_url: str,
+        feed_type: Literal["mixed", "post", "note"],
         notes_cursor: str | None,
         posts_cursor: str | None,
         limit: int,
@@ -220,6 +264,7 @@ class ProfileFeedService:
             return None
         return self._build_feed_url(
             feed_url,
+            feed_type=feed_type,
             notes_cursor=notes_cursor,
             posts_cursor=posts_cursor,
             limit=limit,
@@ -229,12 +274,14 @@ class ProfileFeedService:
         self,
         feed_url: str,
         *,
+        feed_type: Literal["mixed", "post", "note"],
         notes_cursor: str | None,
         posts_cursor: str | None,
         limit: int,
     ) -> str:
         query = {
             "limit": str(limit),
+            "type": feed_type,
         }
         if notes_cursor:
             query["notes_cursor"] = notes_cursor

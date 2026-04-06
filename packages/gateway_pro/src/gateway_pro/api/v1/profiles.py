@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 from gateway_oss.api.deps import get_credentials
@@ -20,12 +20,14 @@ async def get_profile_feed(
     request: Request,
     slug: str,
     service: Annotated[ProfileFeedService, Depends(get_profile_feed_service)],
+    type: Annotated[Literal["mixed", "post", "note"], Query()] = "mixed",
     notes_cursor: Annotated[str | None, Query()] = None,
     posts_cursor: Annotated[str | None, Query()] = None,
     limit: Annotated[int, Query(gt=0, le=100)] = 25,
 ) -> Response:
     page = await service.get_feed_page(
         slug,
+        feed_type=type,
         notes_cursor=notes_cursor,
         posts_cursor=posts_cursor,
         limit=limit,
