@@ -9,6 +9,10 @@ def _note_reaction_url(note_id: int) -> str:
     return f"{SUBSTACK_BASE}/api/v1/comment/{note_id}/reaction"
 
 
+def _post_reaction_url(post_id: int) -> str:
+    return f"{SUBSTACK_BASE}/api/v1/post/{post_id}/reaction"
+
+
 @given("the Substack like-note endpoint returns status {status:d} for note {note_id:d}")
 def step_like_note_returns_status(context, status, note_id):
     context.respx_mock.post(_note_reaction_url(note_id)).mock(
@@ -21,6 +25,22 @@ def step_like_note_returns_status(context, status, note_id):
 )
 def step_unlike_note_returns_status(context, status, note_id):
     context.respx_mock.delete(_note_reaction_url(note_id)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
+@given("the Substack like-post endpoint returns status {status:d} for post {post_id:d}")
+def step_like_post_returns_status(context, status, post_id):
+    context.respx_mock.post(_post_reaction_url(post_id)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
+@given(
+    "the Substack unlike-post endpoint returns status {status:d} for post {post_id:d}"
+)
+def step_unlike_post_returns_status(context, status, post_id):
+    context.respx_mock.delete(_post_reaction_url(post_id)).mock(
         return_value=httpx.Response(status)
     )
 
