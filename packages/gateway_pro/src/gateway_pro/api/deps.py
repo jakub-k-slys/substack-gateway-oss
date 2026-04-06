@@ -11,6 +11,7 @@ from gateway_pro.services.drafts import DraftsService
 from gateway_pro.services.note_reactions import NoteReactionsService
 from gateway_pro.services.post_reactions import PostReactionsService
 from gateway_pro.services.post_restacks import PostRestacksService
+from gateway_pro.services.profile_feed import ProfileFeedService
 
 
 def get_drafts_service(
@@ -36,3 +37,9 @@ def get_post_restacks_service(
     sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> PostRestacksService:
     return PostRestacksService(sub)
+
+
+def get_profile_feed_service(
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> ProfileFeedService:
+    return ProfileFeedService(sub)
