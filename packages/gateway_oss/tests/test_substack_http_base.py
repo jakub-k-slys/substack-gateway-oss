@@ -16,8 +16,10 @@ class _TestClient(SubstackHTTPBase):
 
 
 class _NoopRateLimiter:
-    async def acquire(self) -> None:
-        return None
+    def try_acquire(
+        self, name: str = "substack_api", weight: int = 1, blocking: bool = True
+    ) -> bool:
+        return True
 
 
 @pytest.fixture
@@ -34,7 +36,7 @@ def _reset_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         base,
         "_RATE_LIMITER",
-        base._RequestRateLimiter(settings.substack_requests_per_second),
+        base._build_rate_limiter(),
     )
 
 
@@ -57,7 +59,7 @@ async def test_request_retries_retryable_status_then_succeeds(
         sleeps.append(delay)
 
     monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(base, "_sleep", fake_sleep)
     monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
 
     async with _TestClient("sid", "connect") as client:
@@ -87,7 +89,7 @@ async def test_request_retries_transport_error_then_succeeds(
         sleeps.append(delay)
 
     monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(base, "_sleep", fake_sleep)
     monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
 
     async with _TestClient("sid", "connect") as client:
@@ -136,7 +138,7 @@ async def test_request_raises_after_retry_budget_exhausted(
         sleeps.append(delay)
 
     monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(base, "_sleep", fake_sleep)
     monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
 
     async with _TestClient("sid", "connect") as client:
@@ -148,11 +150,15 @@ async def test_request_raises_after_retry_budget_exhausted(
 
 @pytest.mark.anyio
 async def test_rate_limiter_delays_subsequent_calls() -> None:
-    limiter = base._RequestRateLimiter(100.0)
+    limiter = base.Limiter(base.Rate(1, base.Duration.SECOND))
 
     start = time.monotonic()
-    await limiter.acquire()
-    await limiter.acquire()
+    acquired = limiter.try_acquire("substack_api", blocking=True)
+    if hasattr(acquired, "__await__"):
+        await acquired
+    acquired = limiter.try_acquire("substack_api", blocking=True)
+    if hasattr(acquired, "__await__"):
+        await acquired
     elapsed = time.monotonic() - start
 
-    assert elapsed >= 0.009
+    assert elapsed >= 0.9
