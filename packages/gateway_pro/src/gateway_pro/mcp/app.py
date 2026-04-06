@@ -15,6 +15,7 @@ from gateway_pro.models.schemas import (
 )
 from gateway_pro.models.substack import SubstackUpdateDraftPayload
 from gateway_pro.services.drafts import DraftsService
+from gateway_pro.services.note_reactions import NoteReactionsService
 
 
 async def list_drafts(
@@ -77,6 +78,24 @@ async def delete_draft(
     async with _authenticated_clients(token) as (publication, substack):
         await DraftsService(publication, substack).delete_draft(draft_id)
     return f"Draft {draft_id} deleted successfully."
+
+
+async def like_note(
+    note_id: int,
+    token: str,
+) -> str:
+    async with _authenticated_clients(token) as (_, substack):
+        await NoteReactionsService(substack).like_note(note_id)
+    return f"Note {note_id} liked successfully."
+
+
+async def unlike_note(
+    note_id: int,
+    token: str,
+) -> str:
+    async with _authenticated_clients(token) as (_, substack):
+        await NoteReactionsService(substack).unlike_note(note_id)
+    return f"Note {note_id} unliked successfully."
 
 
 async def health_check(request) -> JSONResponse:
@@ -145,6 +164,36 @@ def register_tools(mcp: FastMCP) -> None:
         ),
         meta={"category": "drafts", "substack_endpoint": "DELETE /drafts/{draft_id}"},
     )(delete_draft)
+    mcp.tool(
+        description="Add a heart like to a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"notes", "write"},
+        annotations=ToolAnnotations(
+            title="Like Note",
+            readOnlyHint=False,
+            destructiveHint=False,
+            idempotentHint=True,
+            openWorldHint=True,
+        ),
+        meta={
+            "category": "notes",
+            "substack_endpoint": "PUT /notes/{note_id}/like",
+        },
+    )(like_note)
+    mcp.tool(
+        description="Remove a heart like from a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"notes", "write", "delete"},
+        annotations=ToolAnnotations(
+            title="Unlike Note",
+            readOnlyHint=False,
+            destructiveHint=True,
+            idempotentHint=True,
+            openWorldHint=True,
+        ),
+        meta={
+            "category": "notes",
+            "substack_endpoint": "DELETE /notes/{note_id}/like",
+        },
+    )(unlike_note)
 
 
 def register_routes(mcp: FastMCP) -> None:

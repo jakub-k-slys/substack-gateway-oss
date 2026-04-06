@@ -9,7 +9,9 @@ from gateway_pro.mcp.app import (
     create_draft,
     delete_draft,
     get_draft,
+    like_note,
     list_drafts,
+    unlike_note,
 )
 
 
@@ -40,3 +42,13 @@ def step_call_create_draft(context, title):
 @when("I call the MCP tool delete_draft with draft_id {draft_id:d}")
 def step_call_delete_draft(context, draft_id):
     _call(context, delete_draft(draft_id=draft_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool like_note with note_id {note_id:d}")
+def step_call_like_note(context, note_id):
+    _call(context, like_note(note_id=note_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool unlike_note with note_id {note_id:d}")
+def step_call_unlike_note(context, note_id):
+    _call(context, unlike_note(note_id=note_id, token=context.mcp_token))

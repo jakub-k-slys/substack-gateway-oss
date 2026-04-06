@@ -8,6 +8,7 @@ from gateway_oss.client.publication import PublicationClient
 from gateway_oss.client.substack import SubstackClient
 
 from gateway_pro.services.drafts import DraftsService
+from gateway_pro.services.note_reactions import NoteReactionsService
 
 
 def get_drafts_service(
@@ -15,3 +16,9 @@ def get_drafts_service(
     sub: Annotated[SubstackClient, Depends(get_substack_client)],
 ) -> DraftsService:
     return DraftsService(pub, sub)
+
+
+def get_note_reactions_service(
+    sub: Annotated[SubstackClient, Depends(get_substack_client)],
+) -> NoteReactionsService:
+    return NoteReactionsService(sub)
