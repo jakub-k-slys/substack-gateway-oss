@@ -21,6 +21,18 @@ class _NoopRateLimiter:
     ) -> bool:
         return True
 
+    def as_decorator(self, *, name: str = "substack_api", weight: int = 1):
+        def _decorate(func):
+            async def _wrapped(*args, **kwargs):
+                acquired = self.try_acquire(name=name, weight=weight, blocking=True)
+                if hasattr(acquired, "__await__"):
+                    await acquired
+                return await func(*args, **kwargs)
+
+            return _wrapped
+
+        return _decorate
+
 
 @pytest.fixture
 def anyio_backend() -> str:
