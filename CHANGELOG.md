@@ -1,6 +1,48 @@
 # CHANGELOG
 
 
+## v0.7.0 (2026-04-06)
+
+### Features
+
+- Add Pro note and post like APIs plus MCP tools
+  ([#58](https://github.com/jakub-k-slys/substack-gateway-pro/pull/58),
+  [`40b39e2`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/40b39e24e405394ff84a3e9051c8a2f7aae39782))
+
+Adds Pro-only like/unlike support for Substack notes and posts across both REST and MCP surfaces.
+
+## REST API
+
+Added Pro-only endpoints:
+
+- `PUT /api/v1/notes/{note_id}/like` - `DELETE /api/v1/notes/{note_id}/like` - `PUT
+  /api/v1/posts/{post_id}/like` - `DELETE /api/v1/posts/{post_id}/like`
+
+All endpoints return `204 No Content`.
+
+## MCP
+
+Added Pro-only MCP tools:
+
+- `like_note(note_id, token)` - `unlike_note(note_id, token)` - `like_post(post_id, token)` -
+  `unlike_post(post_id, token)`
+
+The MCP tools return simple confirmation messages.
+
+## Upstream mapping
+
+Notes: - like: `POST /api/v1/comment/{id}/reaction` - unlike: `DELETE /api/v1/comment/{id}/reaction`
+  - hardcoded note unlike payload includes `tabId: "for-you"`
+
+Posts: - like: `POST /api/v1/post/{id}/reaction` - unlike: `DELETE /api/v1/post/{id}/reaction` -
+  post like uses `{"reaction":"❤","surface":"reader"}` - post unlike uses `{}`
+
+### Testing
+
+- Fix e2e gateway token auth
+  ([`c0a1c13`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/c0a1c138ae3efe4fb71f00626d5c3e73d3e271b4))
+
+
 ## v0.6.0 (2026-04-04)
 
 ### Chores
