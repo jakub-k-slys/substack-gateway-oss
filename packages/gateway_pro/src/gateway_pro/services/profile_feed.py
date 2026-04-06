@@ -5,13 +5,10 @@ from typing import Literal
 from urllib.parse import urlencode
 
 import pydantic
-from gateway_oss.client.exceptions import SubstackAPIError
 from gateway_oss.client.substack import SubstackClient
 from gateway_oss.models.substack import (
-    SubstackFullPost,
     SubstackNote,
     SubstackNotesPage,
-    SubstackPostResponse,
     SubstackPreviewPost,
 )
 from gateway_oss.services.profiles import ProfilesService
@@ -143,20 +140,10 @@ class ProfileFeedService:
             )
 
         if feed_type in {"mixed", "post"}:
-            hydrated_posts = await self._hydrate_posts(posts)
             entries.extend(
-                self._post_to_entry(post, fallback_author=author)
-                for post in hydrated_posts
+                self._post_to_entry(post, fallback_author=author) for post in posts
             )
         return entries
-
-    async def _hydrate_posts(
-        self, posts: list[SubstackPreviewPost]
-    ) -> list[SubstackFullPost]:
-        hydrated: list[SubstackFullPost] = []
-        for post in posts:
-            hydrated.append(await self._get_post_by_id(post.id))
-        return hydrated
 
     async def _get_notes_for_profile(
         self, profile_id: int, *, cursor: str | None
@@ -204,15 +191,6 @@ class ProfileFeedService:
             return SubstackCursorPostsPage()
         return await self._get_posts_for_profile(profile_id, cursor=cursor, limit=limit)
 
-    async def _get_post_by_id(self, post_id: int) -> SubstackFullPost:
-        response = await self._sub.get(f"posts/by-id/{post_id}")
-        try:
-            return SubstackPostResponse.model_validate(response.json()).post
-        except pydantic.ValidationError as exc:
-            raise SubstackAPIError(
-                502, f"Substack post response invalid: {exc}"
-            ) from exc
-
     def _note_to_entry(
         self, note: SubstackNote, *, fallback_author: AtomFeedAuthor
     ) -> AtomFeedEntry:
@@ -239,17 +217,16 @@ class ProfileFeedService:
         )
 
     def _post_to_entry(
-        self, post: SubstackFullPost, *, fallback_author: AtomFeedAuthor
+        self, post: SubstackPreviewPost, *, fallback_author: AtomFeedAuthor
     ) -> AtomFeedEntry:
-        raw_html = post.body_html or post.html_body
         return AtomFeedEntry(
             entry_id=f"tag:substack-gateway,post:{post.id}",
             title=post.title,
-            url=post.canonical_url,
+            url=f"https://substack.com/@{fallback_author.handle}",
             published_at=post.post_date,
             updated_at=post.post_date,
             summary=post.subtitle or post.truncated_body_text,
-            content_html=raw_html,
+            content_html=None,
             author=fallback_author,
         )
 

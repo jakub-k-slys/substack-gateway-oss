@@ -8,7 +8,6 @@ Feature: Profile feed endpoint
     And the Substack public profile endpoint returns the sample response for "jakubslys"
     And the Substack profile feed-notes endpoint returns the sample response for user 254824415
     And the Substack profile feed-posts endpoint returns the sample response for user 254824415
-    And the Substack full post endpoint returns the sample response for post 987654
     When I send GET /api/v1/profiles/jakubslys/feed
     Then the response status code is 200
     And the response content type starts with "application/atom+xml"
@@ -21,7 +20,6 @@ Feature: Profile feed endpoint
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack public profile endpoint returns the sample response for "jakubslys"
     And the Substack profile feed-posts endpoint returns the sample response for user 254824415
-    And the Substack full post endpoint returns the sample response for post 987654
     When I send GET /api/v1/profiles/jakubslys/feed?type=post
     Then the response status code is 200
     And the response body contains "tag:substack-gateway,post:"
