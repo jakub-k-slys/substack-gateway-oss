@@ -225,7 +225,10 @@ class ProfileFeedService:
         self, note: SubstackNote, *, fallback_author: AtomFeedAuthor
     ) -> AtomFeedEntry:
         if note.type == "post" and note.post is not None:
-            return self._post_to_entry(note.post, fallback_author=fallback_author)
+            return self._post_to_entry(
+                note.post,
+                fallback_author=self._post_author(note, fallback_author),
+            )
 
         user = note.context.users[0] if note.context.users else None
         comment = note.comment
@@ -273,6 +276,18 @@ class ProfileFeedService:
             summary=post.subtitle or post.truncated_body_text,
             content_html=None,
             author=fallback_author,
+        )
+
+    def _post_author(
+        self, note: SubstackNote, fallback_author: AtomFeedAuthor
+    ) -> AtomFeedAuthor:
+        publication = note.publication
+        if publication is None:
+            return fallback_author
+        return AtomFeedAuthor(
+            name=publication.author_name or fallback_author.name,
+            handle=publication.author_handle or fallback_author.handle,
+            avatar_url=publication.author_photo_url or fallback_author.avatar_url,
         )
 
     def _entity_numeric_id(self, entity_key: str) -> int:

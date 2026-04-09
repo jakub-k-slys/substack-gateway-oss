@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from gateway_oss.models.substack import (
+    SubstackFeedPublication,
     SubstackNote,
     SubstackNoteComment,
     SubstackNoteContext,
@@ -141,6 +142,11 @@ def test_feed_item_to_entry_uses_post_identity_for_post_items() -> None:
                 timestamp="2025-07-01T16:36:39.842Z",
                 users=[],
             ),
+            publication=SubstackFeedPublication(
+                author_name="Jenny Ouyang",
+                author_handle="jennyouyang",
+                author_photo_url="https://example.com/jenny.jpg",
+            ),
             post=SubstackPreviewPost(
                 id=167278092,
                 title="openai is coming to steal your clients",
@@ -157,3 +163,8 @@ def test_feed_item_to_entry_uses_post_identity_for_post_items() -> None:
 
     assert entry.entry_id == "post:167278092"
     assert entry.url == "https://angelsant.substack.com/p/openai-is-coming-to-steal-your-clients"
+    assert entry.author == AtomFeedAuthor(
+        name="Jenny Ouyang",
+        handle="jennyouyang",
+        avatar_url="https://example.com/jenny.jpg",
+    )
