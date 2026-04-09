@@ -139,9 +139,7 @@ def _with_rate_limit(func: Callable[..., Any]) -> Callable[..., Any]:
 
 def _with_substack_retries(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    async def _wrapped(
-        self: SubstackHTTPBase, method: str, url: str, **kwargs: Any
-    ) -> Any:
+    async def _wrapped(self: SubstackHTTPBase, method: str, url: str, **kwargs: Any) -> Any:
         decorated = retry(
             stop=stop_after_attempt(settings.substack_retry_attempts),
             wait=wait_exponential(
