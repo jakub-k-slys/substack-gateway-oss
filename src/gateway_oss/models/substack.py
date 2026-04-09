@@ -39,6 +39,12 @@ class SubstackPreviewPost(BaseModel):
     canonical_url: str | None = None
 
 
+class SubstackFeedPublication(BaseModel):
+    author_name: str | None = None
+    author_handle: str | None = None
+    author_photo_url: str | None = None
+
+
 # ------------------------------------------------------------------
 # Notes
 # ------------------------------------------------------------------
@@ -71,6 +77,7 @@ class SubstackNote(BaseModel):
     entity_key: str
     type: str | None = None
     context: SubstackNoteContext
+    publication: SubstackFeedPublication | None = None
     post: SubstackPreviewPost | None = None
     comment: SubstackNoteComment | None = None
     parent_comments: list[SubstackNoteComment] = Field(
