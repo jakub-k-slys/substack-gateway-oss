@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import cast
+
+from gateway_oss.client.substack import SubstackClient
 from gateway_oss.models.substack import (
     SubstackFeedPublication,
     SubstackNote,
@@ -103,7 +106,7 @@ def test_render_atom_feed_keeps_limit_in_pagination_link() -> None:
 
 
 def test_feed_item_to_entry_normalizes_note_ids_and_urls() -> None:
-    service = ProfileFeedService(sub=None)  # type: ignore[arg-type]
+    service = ProfileFeedService(sub=cast(SubstackClient, object()))
 
     entry = service._feed_item_to_entry(
         SubstackNote(
@@ -132,7 +135,7 @@ def test_feed_item_to_entry_normalizes_note_ids_and_urls() -> None:
 
 
 def test_feed_item_to_entry_uses_post_identity_for_post_items() -> None:
-    service = ProfileFeedService(sub=None)  # type: ignore[arg-type]
+    service = ProfileFeedService(sub=cast(SubstackClient, object()))
 
     entry = service._feed_item_to_entry(
         SubstackNote(
