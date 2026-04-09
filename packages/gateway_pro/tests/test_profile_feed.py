@@ -165,7 +165,10 @@ def test_feed_item_to_entry_uses_post_identity_for_post_items() -> None:
     )
 
     assert entry.entry_id == "post:167278092"
-    assert entry.url == "https://angelsant.substack.com/p/openai-is-coming-to-steal-your-clients"
+    assert (
+        entry.url
+        == "https://angelsant.substack.com/p/openai-is-coming-to-steal-your-clients"
+    )
     assert entry.author == AtomFeedAuthor(
         name="Jenny Ouyang",
         handle="jennyouyang",
