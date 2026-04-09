@@ -20,7 +20,7 @@ async def test_get_following_feed_page_merges_entries_from_followed_profiles() -
         AtomFeedEntriesPage(
             entries=[
                 profile_feed_entry(
-                    entry_id="tag:substack-gateway,post:1",
+                    entry_id="post:1",
                     updated_at="2024-01-02T10:00:00.000Z",
                     author_handle="alice",
                 )
@@ -31,7 +31,7 @@ async def test_get_following_feed_page_merges_entries_from_followed_profiles() -
         AtomFeedEntriesPage(
             entries=[
                 profile_feed_entry(
-                    entry_id="tag:substack-gateway,note:2",
+                    entry_id="note:2",
                     updated_at="2024-01-03T10:00:00.000Z",
                     author_handle="bob",
                 )
@@ -49,8 +49,8 @@ async def test_get_following_feed_page_merges_entries_from_followed_profiles() -
     )
 
     assert [entry.entry_id for entry in page.entries] == [
-        "tag:substack-gateway,note:2",
-        "tag:substack-gateway,post:1",
+        "note:2",
+        "post:1",
     ]
     assert [entry.author.handle for entry in page.entries] == ["bob", "alice"]
     assert page.self_url == (

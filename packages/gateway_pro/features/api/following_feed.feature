@@ -17,7 +17,7 @@ Feature: Following feed endpoint
     And the response body contains "<feed"
     And the response body contains "Another User Post"
     And the response body contains "Bob Post"
-    And the response body contains "tag:substack-gateway,note:"
+    And the response body contains "note:"
     And the response body contains "limit=3"
     And the response body contains exactly 3 "<entry>" markers
 

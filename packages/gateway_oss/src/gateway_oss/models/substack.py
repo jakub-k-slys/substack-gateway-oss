@@ -29,6 +29,16 @@ class SubstackPublicProfile(BaseModel):
     profile_disabled: bool | None = None
 
 
+class SubstackPreviewPost(BaseModel):
+    id: int
+    title: str
+    post_date: str
+    subtitle: str | None = None
+    truncated_body_text: str | None = None
+    slug: str | None = None
+    canonical_url: str | None = None
+
+
 # ------------------------------------------------------------------
 # Notes
 # ------------------------------------------------------------------
@@ -49,6 +59,9 @@ class SubstackNoteContext(BaseModel):
 class SubstackNoteComment(BaseModel):
     id: int
     body: str
+    name: str | None = None
+    handle: str | None = None
+    photo_url: str | None = None
     reaction_count: int | None = None
 
 
@@ -56,7 +69,9 @@ class SubstackNote(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     entity_key: str
+    type: str | None = None
     context: SubstackNoteContext
+    post: SubstackPreviewPost | None = None
     comment: SubstackNoteComment | None = None
     parent_comments: list[SubstackNoteComment] = Field(
         alias="parentComments", default=[]
@@ -73,14 +88,6 @@ class SubstackNotesPage(BaseModel):
 # ------------------------------------------------------------------
 # Posts
 # ------------------------------------------------------------------
-
-
-class SubstackPreviewPost(BaseModel):
-    id: int
-    title: str
-    post_date: str
-    subtitle: str | None = None
-    truncated_body_text: str | None = None
 
 
 class SubstackProfilePostsPage(BaseModel):

@@ -12,8 +12,9 @@ Feature: Profile feed endpoint
     Then the response status code is 200
     And the response content type starts with "application/atom+xml"
     And the response body contains "<feed"
+    And the response body contains "<id>profile:254824415</id>"
     And the response body contains "Sample Post Title"
-    And the response body contains "tag:substack-gateway,note:"
+    And the response body contains "note:"
     And the response body contains "limit=50"
 
   Scenario: Fetch only post entries
@@ -22,8 +23,8 @@ Feature: Profile feed endpoint
     And the Substack profile feed-posts endpoint returns the sample response for user 254824415
     When I send GET /api/v1/profiles/jakubslys/feed?type=post
     Then the response status code is 200
-    And the response body contains "tag:substack-gateway,post:"
-    And the response body does not contain "tag:substack-gateway,note:"
+    And the response body contains "post:"
+    And the response body does not contain "note:"
 
   Scenario: Fetch only note entries
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
@@ -31,8 +32,8 @@ Feature: Profile feed endpoint
     And the Substack profile feed-notes endpoint returns the sample response for user 254824415
     When I send GET /api/v1/profiles/jakubslys/feed?type=note
     Then the response status code is 200
-    And the response body contains "tag:substack-gateway,note:"
-    And the response body does not contain "tag:substack-gateway,post:"
+    And the response body contains "note:"
+    And the response body does not contain "post:"
 
   Scenario: Limit caps returned entries
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

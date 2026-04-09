@@ -96,7 +96,7 @@ class ProfileFeedService:
         )
 
         return AtomFeedPage(
-            feed_id=f"tag:substack-gateway,profile:{profile.id}",
+            feed_id=f"profile:{profile.id}",
             title=f"{profile.name} on Substack",
             subtitle=profile.bio,
             author=author,
@@ -165,7 +165,7 @@ class ProfileFeedService:
         entries: list[AtomFeedEntry] = []
         if feed_type in {"mixed", "note"}:
             entries.extend(
-                self._note_to_entry(note, fallback_author=author)
+                self._feed_item_to_entry(note, fallback_author=author)
                 for note in notes_page.items
             )
 
@@ -221,24 +221,39 @@ class ProfileFeedService:
             return SubstackCursorPostsPage()
         return await self._get_posts_for_profile(profile_id, cursor=cursor, limit=limit)
 
-    def _note_to_entry(
+    def _feed_item_to_entry(
         self, note: SubstackNote, *, fallback_author: AtomFeedAuthor
     ) -> AtomFeedEntry:
+        if note.type == "post" and note.post is not None:
+            return self._post_to_entry(note.post, fallback_author=fallback_author)
+
         user = note.context.users[0] if note.context.users else None
         comment = note.comment
+        author_name = fallback_author.name
+        author_handle = fallback_author.handle
+        author_avatar_url = fallback_author.avatar_url
+
+        if user is not None:
+            author_name = user.name
+            author_handle = user.handle
+            author_avatar_url = user.photo_url or author_avatar_url
+
+        if comment is not None:
+            author_name = comment.name or author_name
+            author_handle = comment.handle or author_handle
+            author_avatar_url = comment.photo_url or author_avatar_url
+
         author = AtomFeedAuthor(
-            name=user.name if user else fallback_author.name,
-            handle=user.handle if user else fallback_author.handle,
-            avatar_url=user.photo_url
-            if user and user.photo_url
-            else fallback_author.avatar_url,
+            name=author_name,
+            handle=author_handle,
+            avatar_url=author_avatar_url,
         )
-        note_id = comment.id if comment else note.entity_key
+        note_id = comment.id if comment else self._entity_numeric_id(note.entity_key)
         body = comment.body if comment else ""
         return AtomFeedEntry(
-            entry_id=f"tag:substack-gateway,note:{note_id}",
+            entry_id=f"note:{note_id}",
             title=f"Note by {author.name}",
-            url=f"https://substack.com/@{author.handle}",
+            url=self._build_note_url(author.handle, note_id),
             published_at=note.context.timestamp,
             updated_at=note.context.timestamp,
             summary=body,
@@ -250,15 +265,29 @@ class ProfileFeedService:
         self, post: SubstackPreviewPost, *, fallback_author: AtomFeedAuthor
     ) -> AtomFeedEntry:
         return AtomFeedEntry(
-            entry_id=f"tag:substack-gateway,post:{post.id}",
+            entry_id=f"post:{post.id}",
             title=post.title,
-            url=f"https://substack.com/@{fallback_author.handle}",
+            url=self._build_post_url(post, fallback_author.handle),
             published_at=post.post_date,
             updated_at=post.post_date,
             summary=post.subtitle or post.truncated_body_text,
             content_html=None,
             author=fallback_author,
         )
+
+    def _entity_numeric_id(self, entity_key: str) -> int:
+        _, _, raw_id = entity_key.partition("-")
+        return int(raw_id)
+
+    def _build_note_url(self, handle: str, note_id: int) -> str:
+        return f"https://substack.com/@{handle}/note/c-{note_id}"
+
+    def _build_post_url(self, post: SubstackPreviewPost, handle: str) -> str:
+        if post.canonical_url:
+            return post.canonical_url
+        if post.slug:
+            return f"https://substack.com/@{handle}/p/{post.slug}"
+        return f"https://substack.com/@{handle}/p/{post.id}"
 
     def _build_next_url(
         self,
