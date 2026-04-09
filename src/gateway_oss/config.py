@@ -11,11 +11,11 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SUBSTACK_GATEWAY_")
 
     substack_base_url: str = "https://substack.com"
-    substack_timeout_sec: float = Field(default=30.0, gt=0)
-    substack_connect_timeout_sec: float = Field(default=10.0, gt=0)
-    substack_requests_per_second: float = Field(default=5.0, gt=0)
-    substack_retry_attempts: int = Field(default=3, ge=1)
-    substack_retry_min_wait_sec: float = Field(default=1.0, gt=0)
+    substack_timeout_sec: float = Field(default=120.0, gt=0)
+    substack_connect_timeout_sec: float = Field(default=120.0, gt=0)
+    substack_requests_per_second: float = Field(default=3.0, gt=0)
+    substack_retry_attempts: int = Field(default=10, ge=1)
+    substack_retry_min_wait_sec: float = Field(default=10.0, gt=0)
     substack_retry_max_wait_sec: float = Field(default=60.0, gt=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
