@@ -9,3 +9,7 @@ Feature: Root endpoint
     And the response field "application" is "substack-gateway"
     And the response field "tier" is "oss"
     And the response field "version" matches the OSS package version
+    And the response list "features" contains "api:notes:create"
+    And the response list "features" contains "api:profiles:posts:list"
+    And the response list "features" contains "mcp:notes:create"
+    And the response list "features" contains "mcp:posts:get"

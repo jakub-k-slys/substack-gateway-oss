@@ -24,6 +24,7 @@ class ApplicationInfo:
     application: str
     tier: str
     version: str
+    features: tuple[str, ...] = ()
 
 
 @runtime_checkable

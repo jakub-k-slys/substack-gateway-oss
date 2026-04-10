@@ -9,3 +9,7 @@ Feature: Root endpoint
     And the response field "application" is "substack-gateway"
     And the response field "tier" is "pro"
     And the response field "version" matches the PRO package version
+    And the response list "features" contains "api:drafts:create"
+    And the response list "features" contains "api:me:following:feed"
+    And the response list "features" contains "mcp:drafts:create"
+    And the response list "features" contains "mcp:posts:restack"

@@ -12,6 +12,7 @@ from starlette.routing import Mount, Route
 
 from gateway_oss import __version__
 from gateway_oss.api.app import api
+from gateway_oss.application_features import build_oss_features
 from gateway_oss.extensions.base import ApplicationInfo
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.mcp.app import mcp
@@ -41,12 +42,14 @@ async def _root(_: Any) -> JSONResponse:
         application="substack-gateway",
         tier="oss",
         version=__version__,
+        features=build_oss_features(),
     )
     return JSONResponse(
         {
             "application": info.application,
             "tier": info.tier,
             "version": info.version,
+            "features": sorted(set(info.features)),
         }
     )
 

@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastmcp import FastMCP
+from gateway_oss.application_features import build_pro_features
 from gateway_oss.extensions.base import (
     ApplicationInfo,
     GatewayExtension,
@@ -54,6 +55,7 @@ class ProExtension(GatewayExtension):
             application="substack-gateway",
             tier="pro",
             version=pro_version,
+            features=build_pro_features(oauth_enabled=context.settings.oauth_enabled),
         )
 
     @contextlib.asynccontextmanager
