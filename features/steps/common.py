@@ -144,6 +144,13 @@ def step_list_count_plural(context, field, count):
     step_list_count_singular(context, field, count)
 
 
+@then('the response list "{field}" contains "{value}"')
+def step_list_contains_string(context, field, value):
+    body = context.response.json()
+    items = body[field]
+    assert value in items, f'Expected "{field}" to contain "{value}", got {items!r}'
+
+
 @then('the response nested field "{parent}.{child}" is "{value}"')
 def step_nested_field_string(context, parent, child, value):
     body = context.response.json()
