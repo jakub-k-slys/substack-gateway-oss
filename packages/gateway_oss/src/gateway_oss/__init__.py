@@ -1,17 +1,11 @@
 from __future__ import annotations
 
-from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
-try:
-    __version__ = version("gateway_oss")
-except PackageNotFoundError:
-    __version__ = "0.0.0"
+from gateway_oss.versioning import get_application_version, get_package_version
 
-try:
-    __app_version__ = version("substack-gateway")
-except PackageNotFoundError:
-    __app_version__ = __version__
+__version__ = get_package_version("gateway_oss")
+__app_version__ = get_application_version(fallback=__version__)
 
 __all__ = ["api", "mcp", "create_app", "__version__", "__app_version__"]
 

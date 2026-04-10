@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack
 from typing import Any, cast
@@ -17,6 +18,24 @@ from gateway_oss.extensions.base import ApplicationInfo
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.mcp.app import mcp
 
+_log = logging.getLogger(__name__)
+
+
+def _get_application_info() -> ApplicationInfo:
+    runtime = get_runtime()
+    info = runtime.application_info or ApplicationInfo(
+        application="substack-gateway",
+        tier="oss",
+        version=__app_version__,
+        features=build_oss_features(),
+    )
+    return ApplicationInfo(
+        application=info.application,
+        tier=info.tier,
+        version=info.version,
+        features=tuple(sorted(set(info.features))),
+    )
+
 
 @contextlib.asynccontextmanager
 async def _lifespan(app: Any) -> AsyncIterator[None]:
@@ -25,6 +44,14 @@ async def _lifespan(app: Any) -> AsyncIterator[None]:
         for hook in runtime.lifespan_hooks:
             await stack.enter_async_context(hook(app))
         async with mcp.lifespan(app):
+            info = _get_application_info()
+            _log.info(
+                "Starting %s tier=%s version=%s features=%s",
+                info.application,
+                info.tier,
+                info.version,
+                ",".join(info.features),
+            )
             yield
 
 
@@ -37,19 +64,13 @@ class _McpTrailingSlash:
 
 
 async def _root(_: Any) -> JSONResponse:
-    runtime = get_runtime()
-    info = runtime.application_info or ApplicationInfo(
-        application="substack-gateway",
-        tier="oss",
-        version=__app_version__,
-        features=build_oss_features(),
-    )
+    info = _get_application_info()
     return JSONResponse(
         {
             "application": info.application,
             "tier": info.tier,
             "version": info.version,
-            "features": sorted(set(info.features)),
+            "features": list(info.features),
         }
     )
 
