@@ -45,6 +45,10 @@ When introducing changes, validate them before finishing the task. Prefer target
 - `uv run pytest tests/`
 - `uv run behave features/`
 
+Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
+
+Commit and PR titles must use Conventional Commits / semver-style prefixes such as `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, or `ci:`. Prefer the narrowest correct prefix and keep the subject concise and imperative. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
+
 ## Architecture
 
 This is a **Starlette-based gateway** that wraps the Substack private API and exposes two interfaces:

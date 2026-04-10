@@ -15,6 +15,7 @@ Quality checks:
 - `uv run behave features/` runs BDD and integration scenarios.
 
 When introducing changes, run the relevant validation before finishing the task. Prefer targeted checks for the touched area first, but the default OSS validation bar is lint, format, type-check, build, pytest, and behave.
+Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
 
 ## Coding Style & Naming Conventions
 Target Python `3.10+` and keep code compatible with the `src/` layout. Ruff enforces 4-space indentation, double quotes, import sorting, and an 88-character line length. Prefer explicit module names like `posts.py`, `profiles.py`, and `markdown.py`; use `snake_case` for functions, variables, and files, and `PascalCase` for Pydantic models and other classes. Keep route handlers thin and move reusable logic into `services/` or `client/`.
@@ -24,6 +25,7 @@ Place fast unit tests in `tests/test_*.py`. Add behavior coverage in `features/*
 
 ## Commit & Pull Request Guidelines
 Follow Conventional Commits. Recent history uses prefixes such as `ci:`, and release automation depends on semantic commit messages. Keep commits scoped and imperative, for example `feat: add profile notes pagination`. PR titles must also follow Conventional Commits. Include a short description, linked issue if applicable, config or env changes, and example requests/responses when API behavior changes.
+Use semver-style prefixes consistently for commit titles, for example `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, and `ci:`. Prefer the narrowest correct prefix. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
 
 ## Configuration & Security
 Configuration is environment-driven via the `SUBSTACK_GATEWAY_` prefix. Do not commit real Substack cookies, publication URLs, or JWT secrets. When adding settings, document them in `README.md` and keep authenticated endpoints aligned with the existing Bearer-token auth model, where `publication_url` is embedded in the base64 JSON credentials.
