@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     substack_timeout_sec: float = Field(default=120.0, gt=0)
     substack_connect_timeout_sec: float = Field(default=120.0, gt=0)
     substack_requests_per_second: float = Field(default=3.0, gt=0)
+    substack_max_connections: int = Field(default=20, ge=1)
+    substack_max_keepalive_connections: int = Field(default=5, ge=0)
     substack_retry_attempts: int = Field(default=10, ge=1)
     substack_retry_min_wait_sec: float = Field(default=10.0, gt=0)
     substack_retry_max_wait_sec: float = Field(default=60.0, gt=0)
@@ -45,6 +47,11 @@ class Settings(BaseSettings):
             raise ValueError(
                 "substack_retry_max_wait_sec must be greater than or equal to "
                 "substack_retry_min_wait_sec"
+            )
+        if self.substack_max_keepalive_connections > self.substack_max_connections:
+            raise ValueError(
+                "substack_max_keepalive_connections must be less than or equal to "
+                "substack_max_connections"
             )
         return self
 

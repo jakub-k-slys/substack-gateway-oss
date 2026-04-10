@@ -10,6 +10,34 @@ os.environ.pop("SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS", None)
 from gateway_oss.config import settings
 from gateway_oss.main import app
 
+_BEHAVE_SUBSTACK_REQUESTS_PER_SECOND = 100.0
+_BEHAVE_SUBSTACK_MAX_CONNECTIONS = 100
+_BEHAVE_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS = 100
+_BEHAVE_SUBSTACK_RETRY_ATTEMPTS = 1
+_BEHAVE_SUBSTACK_RETRY_WAIT_SEC = 1.0
+
+
+def before_all(context):
+    context._original_substack_requests_per_second = (
+        settings.substack_requests_per_second
+    )
+    context._original_substack_max_connections = settings.substack_max_connections
+    context._original_substack_max_keepalive_connections = (
+        settings.substack_max_keepalive_connections
+    )
+    context._original_substack_retry_attempts = settings.substack_retry_attempts
+    context._original_substack_retry_min_wait_sec = settings.substack_retry_min_wait_sec
+    context._original_substack_retry_max_wait_sec = settings.substack_retry_max_wait_sec
+
+    settings.substack_requests_per_second = _BEHAVE_SUBSTACK_REQUESTS_PER_SECOND
+    settings.substack_max_connections = _BEHAVE_SUBSTACK_MAX_CONNECTIONS
+    settings.substack_max_keepalive_connections = (
+        _BEHAVE_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS
+    )
+    settings.substack_retry_attempts = _BEHAVE_SUBSTACK_RETRY_ATTEMPTS
+    settings.substack_retry_min_wait_sec = _BEHAVE_SUBSTACK_RETRY_WAIT_SEC
+    settings.substack_retry_max_wait_sec = _BEHAVE_SUBSTACK_RETRY_WAIT_SEC
+
 
 def before_scenario(context, scenario):
     context.client = TestClient(app, raise_server_exceptions=False)
@@ -39,4 +67,17 @@ def after_scenario(context, scenario):
         settings.jwt_secret = context._orig_jwt_secret
 
 
-__all__ = ["before_scenario", "after_scenario"]
+def after_all(context):
+    settings.substack_requests_per_second = (
+        context._original_substack_requests_per_second
+    )
+    settings.substack_max_connections = context._original_substack_max_connections
+    settings.substack_max_keepalive_connections = (
+        context._original_substack_max_keepalive_connections
+    )
+    settings.substack_retry_attempts = context._original_substack_retry_attempts
+    settings.substack_retry_min_wait_sec = context._original_substack_retry_min_wait_sec
+    settings.substack_retry_max_wait_sec = context._original_substack_retry_max_wait_sec
+
+
+__all__ = ["before_all", "before_scenario", "after_scenario", "after_all"]

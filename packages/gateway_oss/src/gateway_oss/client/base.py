@@ -29,7 +29,6 @@ _TIMEOUT = httpx.Timeout(
     timeout=settings.substack_timeout_sec,
     connect=settings.substack_connect_timeout_sec,
 )
-_LIMITS = httpx.Limits(max_connections=20, max_keepalive_connections=5)
 _RETRYABLE_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
 
 
@@ -49,6 +48,27 @@ class RetryableTransportError(Exception):
 
 async def _sleep(seconds: float) -> None:
     await asyncio.sleep(seconds)
+
+
+def _build_limits() -> httpx.Limits:
+    return httpx.Limits(
+        max_connections=settings.substack_max_connections,
+        max_keepalive_connections=settings.substack_max_keepalive_connections,
+    )
+
+
+_LIMITS = _build_limits()
+
+
+def _get_limits() -> httpx.Limits:
+    global _LIMITS
+    if (
+        _LIMITS.max_connections != settings.substack_max_connections
+        or _LIMITS.max_keepalive_connections
+        != settings.substack_max_keepalive_connections
+    ):
+        _LIMITS = _build_limits()
+    return _LIMITS
 
 
 def _build_rate_limiter() -> Limiter:
@@ -189,7 +209,7 @@ class SubstackHTTPBase:
 
     async def __aenter__(self) -> Self:
         self._http = httpx.AsyncClient(
-            cookies=self._cookies, timeout=_TIMEOUT, limits=_LIMITS
+            cookies=self._cookies, timeout=_TIMEOUT, limits=_get_limits()
         )
         return self
 
