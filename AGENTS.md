@@ -14,6 +14,7 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - Run unit tests with `uv run pytest`.
 - Run BDD tests with `uv run behave packages/gateway_oss/features/`.
 - Prefer targeted validation for the area you changed before running broader suites.
+- Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
 - When introducing changes, validate them before finishing the task. At minimum, run the relevant combination of:
   `uv run ruff check .`,
   `uv run ruff format --check .`,
@@ -46,3 +47,4 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 - There are generated/cache directories in the repo already; do not commit new generated artifacts.
 - Respect existing user changes in the working tree. Do not revert unrelated modifications.
 - If a task affects auth, cookies, bearer decoding, or embedded `publication_url`, verify error handling paths as well as success paths.
+- Commit titles must use Conventional Commits / semver-style prefixes such as `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, or `ci:`. Prefer the narrowest correct prefix and keep the subject concise and imperative. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
