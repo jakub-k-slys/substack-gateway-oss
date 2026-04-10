@@ -1,6 +1,141 @@
 # CHANGELOG
 
 
+## v0.11.0 (2026-04-10)
+
+### Bug Fixes
+
+- Speed up behave Substack client settings
+  ([`0be52d8`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/0be52d88ad21805298df31a2e3da9aa55bd6e313))
+
+### Chores
+
+- **deps-dev**: Bump respx from 0.22.0 to 0.23.1
+  ([`4c75dfe`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/4c75dfe156c9342eda83d6264ea65f9c403fe69e))
+
+Bumps [respx](https://github.com/lundberg/respx) from 0.22.0 to 0.23.1. - [Release
+  notes](https://github.com/lundberg/respx/releases) -
+  [Changelog](https://github.com/lundberg/respx/blob/master/CHANGELOG.md) -
+  [Commits](https://github.com/lundberg/respx/compare/0.22.0...0.23.1)
+
+--- updated-dependencies: - dependency-name: respx dependency-version: 0.23.1
+
+dependency-type: direct:development
+
+update-type: version-update:semver-minor ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump respx from 0.22.0 to 0.23.1
+  ([#64](https://github.com/jakub-k-slys/substack-gateway-pro/pull/64),
+  [`791f07f`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/791f07f4ebd6b6619c5847e3db63795b7820be9a))
+
+Bumps [respx](https://github.com/lundberg/respx) from 0.22.0 to 0.23.1. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/lundberg/respx/releases">respx's
+  releases</a>.</em></p> <blockquote> <h2>Version 0.23.1</h2> <h2>0.23.1 (8th April 2026)</h2>
+  <h3>Fixed</h3> <ul> <li>Fix regression causing <code>params</code> pattern to stop working under
+  some conditions, by doing a strict detection of <code>ANY</code> in multi items patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/313">#313</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Update workflows actions (<a
+  href="https://redirect.github.com/lundberg/respx/issues/310">#310</a>)</li> </ul> <h2>Version
+  0.23.0</h2> <h2>0.23.0 (7th April 2026)</h2> <h3>Fixed</h3> <ul> <li>Fix <code>data</code> pattern
+  with list value (<a href="https://redirect.github.com/lundberg/respx/issues/264">#264</a>)</li>
+  <li>Fix and enhance incorrect documentations about iterable side effects (<a
+  href="https://redirect.github.com/lundberg/respx/issues/287">#287</a>)</li> <li>Fix documentation
+  typo, thanks <a href="https://github.com/markhobson"><code>@​markhobson</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/298">#298</a>)</li> <li>Fix support for
+  multiple slashes <code>//</code> in URL path by not using <code>urljoin</code> when prepending
+  path, thanks <a href="https://github.com/lewiscollard"><code>@​lewiscollard</code></a> and <a
+  href="https://github.com/Skeen"><code>@​Skeen</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/302">#302</a>)</li> <li>Type Route.respond
+  json as <code>Any</code> to align with HTTPX, thanks <a
+  href="https://github.com/JacobHayes"><code>@​JacobHayes</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li>Properly handle
+  <code>ANY</code> in <code>MuitiItems</code> patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Fix test warnings (<a
+  href="https://redirect.github.com/lundberg/respx/issues/267">#267</a>)</li> <li>Add Python 3.14 to
+  test matrix, thanks <a
+  href="https://github.com/carlosdorneles-mb"><code>@​carlosdorneles-mb</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/300">#300</a>)</li> <li>Update nix flake,
+  mypy target and workflows (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>, <a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/lundberg/respx/blob/master/CHANGELOG.md">respx's changelog</a>.</em></p>
+  <blockquote> <h2>[0.23.1] - 2026-04-08</h2> <h3>Fixed</h3> <ul> <li>Fix regression causing
+  <code>params</code> pattern to stop working under some conditions, by doing a strict detection of
+  <code>ANY</code> in multi items patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/313">#313</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Update workflows actions (<a
+  href="https://redirect.github.com/lundberg/respx/issues/310">#310</a>)</li> </ul> <h2>[0.23.0] -
+  2026-04-07</h2> <h3>Fixed</h3> <ul> <li>Fix <code>data</code> pattern with list value (<a
+  href="https://redirect.github.com/lundberg/respx/issues/264">#264</a>)</li> <li>Fix and enhance
+  incorrect documentations about iterable side effects (<a
+  href="https://redirect.github.com/lundberg/respx/issues/287">#287</a>)</li> <li>Fix documentation
+  typo, thanks <a href="https://github.com/markhobson"><code>@​markhobson</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/298">#298</a>)</li> <li>Fix support for
+  multiple slashes <code>//</code> in URL path by not using <code>urljoin</code> when prepending
+  path, thanks <a href="https://github.com/lewiscollard"><code>@​lewiscollard</code></a> and <a
+  href="https://github.com/Skeen"><code>@​Skeen</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/302">#302</a>)</li> <li>Type Route.respond
+  json as <code>Any</code> to align with HTTPX, thanks <a
+  href="https://github.com/JacobHayes"><code>@​JacobHayes</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li>Properly handle
+  <code>ANY</code> in <code>MuitiItems</code> patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Fix test warnings (<a
+  href="https://redirect.github.com/lundberg/respx/issues/267">#267</a>)</li> <li>Add Python 3.14 to
+  test matrix, thanks <a
+  href="https://github.com/carlosdorneles-mb"><code>@​carlosdorneles-mb</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/300">#300</a>)</li> <li>Update nix flake,
+  mypy target and workflows (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>, <a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/lundberg/respx/commit/fc8b43bc74a69d07a6bdccf61522069b12bb8fad"><code>fc8b43b</code></a>
+  Release <code>0.23.1</code></li> <li><a
+  href="https://github.com/lundberg/respx/commit/1da5d2ff487122de3648efd4ad8d33ae9a1a5393"><code>1da5d2f</code></a>
+  Strict detection of <code>ANY</code> in multi items patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/313">#313</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/6f1bf70576eb7a024272c82cd84fb523d50fe9e9"><code>6f1bf70</code></a>
+  Bump checkout and python actions (<a
+  href="https://redirect.github.com/lundberg/respx/issues/310">#310</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/62aaeabf2d55c9dcafa74ec086885850194e0dda"><code>62aaeab</code></a>
+  Release <code>0.23.0</code></li> <li><a
+  href="https://github.com/lundberg/respx/commit/d8edf3db92c4e6830301a4f4e51fe56b743e0ed9"><code>d8edf3d</code></a>
+  Adjust badges</li> <li><a
+  href="https://github.com/lundberg/respx/commit/b3a193d3a443472c9f0241599f02d89f4a3f33f9"><code>b3a193d</code></a>
+  Add downloads badge to docs</li> <li><a
+  href="https://github.com/lundberg/respx/commit/9961e9b79641635f3c891d8ded5c7e5aa3d8f049"><code>9961e9b</code></a>
+  Handle multiple routes using <code>MuitiItems</code> pattern with <code>ANY</code> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/e51c2a6ffad066c78dedb0fc0e2fa27257f686f2"><code>e51c2a6</code></a>
+  Update Route.respond json type hint to Any to match HTTPX (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/a499260e28520ad6f19b06539f3321aa67f3f3b3"><code>a499260</code></a>
+  Bump less-action/reusables from 8 to 10 (<a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/7b44b512c8e44db460bbafaddb382444660c55f4"><code>7b44b51</code></a>
+  Update nix flake and mypy target (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>)</li> <li>Additional commits
+  viewable in <a href="https://github.com/lundberg/respx/compare/0.22.0...0.23.1">compare
+  view</a></li> </ul> </details> <br />
+
+### Documentation
+
+- Clarify validation and semver commit rules
+  ([`1384c35`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/1384c355201224a679d6a3dc18c97c8d7e1cc0ee))
+
+### Features
+
+- Mark partial following feeds in responses
+  ([`f4a17d0`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/f4a17d055df4c217185b0aeb67db1f595c708130))
+
+- Update feed limits and sample fixtures
+  ([`0738947`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/0738947f14349667b940d3ad2a313c892f2ac483))
+
+
 ## v0.10.0 (2026-04-09)
 
 ### Bug Fixes
