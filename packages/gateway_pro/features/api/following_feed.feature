@@ -25,3 +25,17 @@ Feature: Following feed endpoint
   Scenario: Missing x-gateway-token header returns 422
     When I send GET /api/v1/me/following/feed
     Then the response status code is 422
+
+  Scenario: Returns partial feed when one followed profile fetch fails
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack user-settings endpoint returns user id 254824415
+    And the Substack subscriber-lists endpoint returns the sample response for user 254824415
+    And the Substack followed profile notes endpoint returns a sample response for user 111111 with handle "anotheruser"
+    And the Substack followed profile posts endpoint returns a sample response for user 111111 with title "Another User Post"
+    And the Substack followed profile notes endpoint returns status 404 for user 222222
+    And the Substack followed profile posts endpoint returns a sample response for user 222222 with title "Bob Post"
+    When I send GET /api/v1/me/following/feed?limit=3&total=3
+    Then the response status code is 200
+    And the response header "X-Partial-Data" is "true"
+    And the response body contains "Another User Post"
+    And the response body contains "Bob Post"

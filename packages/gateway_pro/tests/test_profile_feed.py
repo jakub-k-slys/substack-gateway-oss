@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import cast
 
+import pytest
 from gateway_oss.client.substack import SubstackClient
 from gateway_oss.models.substack import (
     SubstackFeedPublication,
@@ -16,6 +17,7 @@ from gateway_pro.services.profile_feed import (
     AtomFeedEntry,
     AtomFeedPage,
     ProfileFeedService,
+    SubstackCursorPostsPage,
 )
 
 
@@ -173,4 +175,49 @@ def test_feed_item_to_entry_uses_post_identity_for_post_items() -> None:
         name="Jenny Ouyang",
         handle="jennyouyang",
         avatar_url="https://example.com/jenny.jpg",
+    )
+
+
+@pytest.mark.anyio
+async def test_get_entries_for_profile_best_effort_keeps_posts_when_notes_fail(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    class BestEffortTestProfileFeedService(ProfileFeedService):
+        async def _get_notes_for_profile(  # type: ignore[override]
+            self, profile_id: int, *, cursor: str | None
+        ):
+            raise RuntimeError("notes failed")
+
+        async def _get_posts_for_profile(  # type: ignore[override]
+            self, profile_id: int, *, cursor: str | None, limit: int
+        ) -> SubstackCursorPostsPage:
+            return SubstackCursorPostsPage(
+                posts=[
+                    SubstackPreviewPost(
+                        id=123,
+                        title="Post survives",
+                        post_date="2024-01-03T10:00:00.000Z",
+                        canonical_url="https://example.com/p/post-survives",
+                    )
+                ]
+            )
+
+    service = BestEffortTestProfileFeedService(sub=cast(SubstackClient, object()))
+    caplog.set_level("WARNING")
+
+    page = await service.get_entries_for_profile_best_effort(
+        111111,
+        fallback_author=AtomFeedAuthor(
+            name="alice",
+            handle="alice",
+            avatar_url="",
+        ),
+        feed_type="mixed",
+        limit=10,
+    )
+
+    assert [entry.entry_id for entry in page.entries] == ["post:123"]
+    assert (
+        "Failed to fetch notes for followed profile_id=111111 handle=alice"
+        in caplog.text
     )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Literal
 from urllib.parse import urlencode
@@ -12,6 +13,8 @@ from gateway_oss.models.substack import (
     SubstackPreviewPost,
 )
 from gateway_oss.services.profiles import ProfilesService
+
+_log = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -45,6 +48,7 @@ class AtomFeedPage:
     self_url: str
     next_url: str | None
     entries: list[AtomFeedEntry]
+    partial: bool = False
 
 
 @dataclass(slots=True)
@@ -52,6 +56,7 @@ class AtomFeedEntriesPage:
     entries: list[AtomFeedEntry]
     next_notes_cursor: str | None
     next_posts_cursor: str | None
+    partial: bool = False
 
 
 class SubstackCursorPostsPage(pydantic.BaseModel):
@@ -152,6 +157,65 @@ class ProfileFeedService:
             entries=entries[:limit],
             next_notes_cursor=notes_page.next_cursor,
             next_posts_cursor=posts_page.next_cursor,
+        )
+
+    async def get_entries_for_profile_best_effort(
+        self,
+        profile_id: int,
+        *,
+        fallback_author: AtomFeedAuthor,
+        feed_type: Literal["mixed", "post", "note"] = "mixed",
+        notes_cursor: str | None = None,
+        posts_cursor: str | None = None,
+        limit: int = 10,
+    ) -> AtomFeedEntriesPage:
+        notes_page = SubstackNotesPage()
+        posts_page = SubstackCursorPostsPage()
+        partial = False
+
+        if feed_type != "post":
+            try:
+                notes_page = await self._get_notes_for_profile(
+                    profile_id,
+                    cursor=notes_cursor,
+                )
+            except Exception:
+                partial = True
+                _log.warning(
+                    "Failed to fetch notes for followed profile_id=%d handle=%s",
+                    profile_id,
+                    fallback_author.handle,
+                    exc_info=True,
+                )
+
+        if feed_type != "note":
+            try:
+                posts_page = await self._get_posts_for_profile(
+                    profile_id,
+                    cursor=posts_cursor,
+                    limit=limit,
+                )
+            except Exception:
+                partial = True
+                _log.warning(
+                    "Failed to fetch posts for followed profile_id=%d handle=%s",
+                    profile_id,
+                    fallback_author.handle,
+                    exc_info=True,
+                )
+
+        entries = await self._build_entries(
+            fallback_author,
+            notes_page,
+            posts_page.posts,
+            feed_type=feed_type,
+        )
+        entries.sort(key=lambda entry: entry.updated_at, reverse=True)
+        return AtomFeedEntriesPage(
+            entries=entries[:limit],
+            next_notes_cursor=notes_page.next_cursor,
+            next_posts_cursor=posts_page.next_cursor,
+            partial=partial,
         )
 
     async def _build_entries(

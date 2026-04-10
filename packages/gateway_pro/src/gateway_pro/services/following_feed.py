@@ -32,7 +32,7 @@ class FollowingFeedService:
         following = await self._following.get_own_following()
         entries_by_author = await asyncio.gather(
             *[
-                self._profile_feed.get_entries_for_profile(
+                self._profile_feed.get_entries_for_profile_best_effort(
                     user.id,
                     fallback_author=AtomFeedAuthor(
                         name=user.handle,
@@ -46,8 +46,10 @@ class FollowingFeedService:
             ]
         )
         entries: list[AtomFeedEntry] = []
+        partial = False
         for page in entries_by_author:
             entries.extend(page.entries)
+            partial = partial or page.partial
         entries.sort(key=lambda entry: entry.updated_at, reverse=True)
         if total is not None:
             entries = entries[:total]
@@ -73,6 +75,7 @@ class FollowingFeedService:
             ),
             next_url=None,
             entries=entries,
+            partial=partial,
         )
 
     def _build_feed_url(

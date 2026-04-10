@@ -153,6 +153,12 @@ def step_nested_field_string(context, parent, child, value):
     )
 
 
+@then('the response header "{name}" is "{value}"')
+def step_response_header_equals(context, name, value):
+    actual = context.response.headers.get(name)
+    assert actual == value, f'Expected header "{name}" to be "{value}", got "{actual}"'
+
+
 @then('the first item field "{field}" is "{value}"')
 def step_first_item_field(context, field, value):
     body = context.response.json()

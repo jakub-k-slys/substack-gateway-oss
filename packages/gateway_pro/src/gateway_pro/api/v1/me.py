@@ -32,4 +32,5 @@ async def get_me_following_feed(
     return Response(
         content=render_atom_feed(page),
         media_type="application/atom+xml; charset=utf-8",
+        headers={"X-Partial-Data": "true"} if page.partial else None,
     )

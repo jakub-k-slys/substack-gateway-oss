@@ -27,6 +27,15 @@ def step_followed_profile_notes_returns_sample(context, user_id, handle):
 
 
 @given(
+    "the Substack followed profile notes endpoint returns status {status:d} for user {user_id:d}"
+)
+def step_followed_profile_notes_returns_status(context, status, user_id):
+    context.respx_mock.get(_profile_feed_notes_url(user_id)).mock(
+        return_value=httpx.Response(status)
+    )
+
+
+@given(
     'the Substack followed profile posts endpoint returns a sample response for user {user_id:d} with title "{title}"'
 )
 def step_followed_profile_posts_returns_sample(context, user_id, title):
