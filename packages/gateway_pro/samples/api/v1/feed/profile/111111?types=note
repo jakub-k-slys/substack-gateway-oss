@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "entity_key": "c-111111",
+      "type": "comment",
+      "context": {
+        "timestamp": "2024-01-01T10:00:00.000Z",
+        "users": [
+          {
+            "id": 111111,
+            "name": "anotheruser",
+            "handle": "anotheruser",
+            "photo_url": null
+          }
+        ]
+      },
+      "comment": {
+        "id": 111111,
+        "body": "Note from anotheruser"
+      }
+    }
+  ],
+  "nextCursor": null
+}

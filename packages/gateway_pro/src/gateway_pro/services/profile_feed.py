@@ -73,7 +73,7 @@ class ProfileFeedService:
         feed_type: Literal["mixed", "post", "note"] = "mixed",
         notes_cursor: str | None = None,
         posts_cursor: str | None = None,
-        limit: int = 50,
+        limit: int = 10,
         feed_url: str,
     ) -> AtomFeedPage:
         profile = await self._profiles.get_profile_by_slug(slug)
@@ -128,7 +128,7 @@ class ProfileFeedService:
         feed_type: Literal["mixed", "post", "note"] = "mixed",
         notes_cursor: str | None = None,
         posts_cursor: str | None = None,
-        limit: int = 50,
+        limit: int = 10,
     ) -> AtomFeedEntriesPage:
         notes_page = await self._get_notes_page(
             profile_id,

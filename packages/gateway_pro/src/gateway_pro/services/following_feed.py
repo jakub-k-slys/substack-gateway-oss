@@ -25,7 +25,8 @@ class FollowingFeedService:
         self,
         *,
         feed_type: Literal["mixed", "post", "note"] = "mixed",
-        limit: int = 50,
+        limit: int = 10,
+        total: int | None = None,
         feed_url: str,
     ) -> AtomFeedPage:
         following = await self._following.get_own_following()
@@ -48,7 +49,8 @@ class FollowingFeedService:
         for page in entries_by_author:
             entries.extend(page.entries)
         entries.sort(key=lambda entry: entry.updated_at, reverse=True)
-        entries = entries[:limit]
+        if total is not None:
+            entries = entries[:total]
         updated_at = entries[0].updated_at if entries else "1970-01-01T00:00:00Z"
         author = AtomFeedAuthor(
             name="Following feed",
@@ -63,7 +65,12 @@ class FollowingFeedService:
             updated_at=updated_at,
             icon_url=None,
             alternate_url="https://substack.com/feed/following",
-            self_url=self._build_feed_url(feed_url, feed_type=feed_type, limit=limit),
+            self_url=self._build_feed_url(
+                feed_url,
+                feed_type=feed_type,
+                limit=limit,
+                total=total,
+            ),
             next_url=None,
             entries=entries,
         )
@@ -74,11 +81,13 @@ class FollowingFeedService:
         *,
         feed_type: Literal["mixed", "post", "note"],
         limit: int,
+        total: int | None,
     ) -> str:
-        query = urlencode(
-            {
-                "limit": str(limit),
-                "type": feed_type,
-            }
-        )
+        query_params = {
+            "limit": str(limit),
+            "type": feed_type,
+        }
+        if total is not None:
+            query_params["total"] = str(total)
+        query = urlencode(query_params)
         return f"{feed_url}?{query}"

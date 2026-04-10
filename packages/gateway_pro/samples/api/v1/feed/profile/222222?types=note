@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "entity_key": "c-222222",
+      "type": "comment",
+      "context": {
+        "timestamp": "2024-01-02T10:00:00.000Z",
+        "users": [
+          {
+            "id": 222222,
+            "name": "bob",
+            "handle": "bob",
+            "photo_url": null
+          }
+        ]
+      },
+      "comment": {
+        "id": 222222,
+        "body": "Note from bob"
+      }
+    }
+  ],
+  "nextCursor": null
+}

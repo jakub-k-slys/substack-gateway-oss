@@ -1,0 +1,12 @@
+{
+  "posts": [
+    {
+      "id": 111111,
+      "title": "Another User Post",
+      "post_date": "2024-01-03T10:00:00.000Z",
+      "subtitle": null,
+      "truncated_body_text": null
+    }
+  ],
+  "nextCursor": null
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 from behave import given
 from common import SUBSTACK_BASE
+from common_shim import load_sample
 
 
 def _profile_feed_notes_url(profile_id: int) -> str:
@@ -20,29 +21,7 @@ def step_followed_profile_notes_returns_sample(context, user_id, handle):
     context.respx_mock.get(_profile_feed_notes_url(user_id)).mock(
         return_value=httpx.Response(
             200,
-            json={
-                "items": [
-                    {
-                        "entity_key": f"note:{user_id}",
-                        "context": {
-                            "timestamp": f"2024-01-0{1 if user_id == 111111 else 2}T10:00:00.000Z",
-                            "users": [
-                                {
-                                    "id": user_id,
-                                    "name": handle,
-                                    "handle": handle,
-                                    "photo_url": None,
-                                }
-                            ],
-                        },
-                        "comment": {
-                            "id": user_id,
-                            "body": f"Note from {handle}",
-                        },
-                    }
-                ],
-                "nextCursor": None,
-            },
+            json=load_sample(f"api/v1/feed/profile/{user_id}?types=note"),
         )
     )
 
@@ -57,17 +36,6 @@ def step_followed_profile_posts_returns_sample(context, user_id, title):
     ).mock(
         return_value=httpx.Response(
             200,
-            json={
-                "posts": [
-                    {
-                        "id": user_id,
-                        "title": title,
-                        "post_date": f"2024-01-0{3 if user_id == 111111 else 4}T10:00:00.000Z",
-                        "subtitle": None,
-                        "truncatedBodyText": None,
-                    }
-                ],
-                "nextCursor": None,
-            },
+            json=load_sample(f"api/v1/profile/posts?profile_user_id={user_id}&limit=3"),
         )
     )

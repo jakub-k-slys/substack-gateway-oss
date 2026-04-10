@@ -11,7 +11,7 @@ Feature: Following feed endpoint
     And the Substack followed profile posts endpoint returns a sample response for user 111111 with title "Another User Post"
     And the Substack followed profile notes endpoint returns a sample response for user 222222 with handle "bob"
     And the Substack followed profile posts endpoint returns a sample response for user 222222 with title "Bob Post"
-    When I send GET /api/v1/me/following/feed?limit=3
+    When I send GET /api/v1/me/following/feed?limit=3&total=3
     Then the response status code is 200
     And the response content type starts with "application/atom+xml"
     And the response body contains "<feed"
@@ -19,6 +19,7 @@ Feature: Following feed endpoint
     And the response body contains "Bob Post"
     And the response body contains "note:"
     And the response body contains "limit=3"
+    And the response body contains "total=3"
     And the response body contains exactly 3 "<entry>" markers
 
   Scenario: Missing x-gateway-token header returns 422

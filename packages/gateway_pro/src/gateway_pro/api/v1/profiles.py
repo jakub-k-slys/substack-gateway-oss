@@ -23,7 +23,7 @@ async def get_profile_feed(
     type: Annotated[Literal["mixed", "post", "note"], Query()] = "mixed",
     notes_cursor: Annotated[str | None, Query()] = None,
     posts_cursor: Annotated[str | None, Query()] = None,
-    limit: Annotated[int, Query(gt=0, le=100)] = 50,
+    limit: Annotated[int, Query(gt=0, le=100)] = 10,
 ) -> Response:
     page = await service.get_feed_page(
         slug,

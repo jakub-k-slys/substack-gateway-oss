@@ -20,11 +20,13 @@ async def get_me_following_feed(
     request: Request,
     service: Annotated[FollowingFeedService, Depends(get_following_feed_service)],
     type: Annotated[Literal["mixed", "post", "note"], Query()] = "mixed",
-    limit: Annotated[int, Query(gt=0, le=100)] = 50,
+    limit: Annotated[int, Query(gt=0, le=100)] = 10,
+    total: Annotated[int | None, Query(gt=0)] = None,
 ) -> Response:
     page = await service.get_feed_page(
         feed_type=type,
         limit=limit,
+        total=total,
         feed_url=str(request.url.replace(query=None)),
     )
     return Response(

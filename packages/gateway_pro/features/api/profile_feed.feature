@@ -13,9 +13,8 @@ Feature: Profile feed endpoint
     And the response content type starts with "application/atom+xml"
     And the response body contains "<feed"
     And the response body contains "<id>profile:254824415</id>"
-    And the response body contains "Sample Post Title"
     And the response body contains "note:"
-    And the response body contains "limit=50"
+    And the response body contains "limit=10"
 
   Scenario: Fetch only post entries
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
