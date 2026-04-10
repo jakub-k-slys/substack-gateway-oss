@@ -16,7 +16,7 @@ from gateway_oss.extensions.base import (
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
-from gateway_pro import __version__ as pro_version
+from gateway_oss import __app_version__
 
 
 class ProExtension(GatewayExtension):
@@ -54,7 +54,7 @@ class ProExtension(GatewayExtension):
         return ApplicationInfo(
             application="substack-gateway",
             tier="pro",
-            version=pro_version,
+            version=__app_version__,
             features=build_pro_features(oauth_enabled=context.settings.oauth_enabled),
         )
 

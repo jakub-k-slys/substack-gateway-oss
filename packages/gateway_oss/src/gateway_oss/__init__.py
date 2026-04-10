@@ -8,7 +8,12 @@ try:
 except PackageNotFoundError:
     __version__ = "0.0.0"
 
-__all__ = ["api", "mcp", "create_app", "__version__"]
+try:
+    __app_version__ = version("substack-gateway")
+except PackageNotFoundError:
+    __app_version__ = __version__
+
+__all__ = ["api", "mcp", "create_app", "__version__", "__app_version__"]
 
 
 def __getattr__(name: str) -> Any:

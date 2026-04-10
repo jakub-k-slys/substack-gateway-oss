@@ -10,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from gateway_oss import __version__
+from gateway_oss import __app_version__
 from gateway_oss.api.app import api
 from gateway_oss.application_features import build_oss_features
 from gateway_oss.extensions.base import ApplicationInfo
@@ -41,7 +41,7 @@ async def _root(_: Any) -> JSONResponse:
     info = runtime.application_info or ApplicationInfo(
         application="substack-gateway",
         tier="oss",
-        version=__version__,
+        version=__app_version__,
         features=build_oss_features(),
     )
     return JSONResponse(
