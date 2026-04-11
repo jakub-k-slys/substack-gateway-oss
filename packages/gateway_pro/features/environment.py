@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 
 import respx
@@ -9,12 +10,17 @@ os.environ.pop("SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS", None)
 
 from gateway_oss.config import settings
 from gateway_oss.main import app
+from gateway_pro.services.following_feed import FollowingFeedService
 
 _BEHAVE_SUBSTACK_REQUESTS_PER_SECOND = 100.0
 _BEHAVE_SUBSTACK_MAX_CONNECTIONS = 100
 _BEHAVE_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS = 100
 _BEHAVE_SUBSTACK_RETRY_ATTEMPTS = 1
 _BEHAVE_SUBSTACK_RETRY_WAIT_SEC = 1.0
+
+
+def _clear_following_feed_cache() -> None:
+    asyncio.run(FollowingFeedService._get_followed_profile_entries.cache.clear())
 
 
 def before_all(context):
@@ -40,6 +46,7 @@ def before_all(context):
 
 
 def before_scenario(context, scenario):
+    _clear_following_feed_cache()
     context.client = TestClient(app, raise_server_exceptions=False)
     context.headers: dict[str, str] = {}
     context.response = None
@@ -51,6 +58,7 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     context.respx_mock.stop()
+    _clear_following_feed_cache()
 
     # Restore UnitOfWork and base_url if patched by login-flow OAuth steps
     if hasattr(context, "_original_uow"):
