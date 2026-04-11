@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SUBSTACK_GATEWAY_")
 
     substack_base_url: str = "https://substack.com"
+    following_feed_profile_cache_ttl_sec: int = Field(default=14400, ge=1)
     substack_timeout_sec: float = Field(default=120.0, gt=0)
     substack_connect_timeout_sec: float = Field(default=120.0, gt=0)
     substack_requests_per_second: float = Field(default=3.0, gt=0)
