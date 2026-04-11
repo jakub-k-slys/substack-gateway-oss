@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from gateway_oss.versioning import _find_project_pyproject, _read_project_version
+from gateway_oss.versioning import (
+    _find_project_pyproject,
+    _read_project_version,
+    get_application_version,
+)
 
 
 def test_read_project_version_returns_substack_gateway_version(tmp_path: Path) -> None:
@@ -46,3 +50,9 @@ version = "0.11.0"
     assert (
         _find_project_pyproject(init_file, project_name="substack-gateway") == pyproject
     )
+
+
+def test_get_application_version_prefers_env_override(monkeypatch) -> None:
+    monkeypatch.setenv("SUBSTACK_GATEWAY_VERSION", "0.12.0")
+
+    assert get_application_version(fallback="0.5.0") == "0.12.0"
