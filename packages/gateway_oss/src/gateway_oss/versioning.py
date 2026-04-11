@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import os
 import re
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 _PROJECT_NAME_RE = re.compile(r'^name\s*=\s*"(?P<name>[^"]+)"\s*$')
 _PROJECT_VERSION_RE = re.compile(r'^version\s*=\s*"(?P<version>[^"]+)"\s*$')
+_APPLICATION_VERSION_ENV_VAR = "SUBSTACK_GATEWAY_VERSION"
 
 
 def get_package_version(package_name: str, *, fallback: str = "0.0.0") -> str:
@@ -16,6 +18,9 @@ def get_package_version(package_name: str, *, fallback: str = "0.0.0") -> str:
 
 
 def get_application_version(*, fallback: str) -> str:
+    override = os.getenv(_APPLICATION_VERSION_ENV_VAR, "").strip()
+    if override:
+        return override
     try:
         return version("substack-gateway")
     except PackageNotFoundError:
