@@ -117,6 +117,44 @@ async def test_get_following_feed_page_reuses_cached_profile_entries() -> None:
 
 
 @pytest.mark.anyio
+async def test_get_following_feed_page_logs_cache_hit(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    following = AsyncMock()
+    following.get_own_following.return_value = [
+        SubstackFollowingUser(id=1, handle="alice"),
+    ]
+    profile_feed = AsyncMock()
+    profile_feed.get_entries_for_profile_best_effort.return_value = AtomFeedEntriesPage(
+        entries=[
+            profile_feed_entry(
+                entry_id="post:1",
+                updated_at="2024-01-02T10:00:00.000Z",
+                author_handle="alice",
+            )
+        ],
+        next_notes_cursor=None,
+        next_posts_cursor=None,
+    )
+    service = FollowingFeedService(following, profile_feed)
+    caplog.set_level("DEBUG")
+
+    await service.get_feed_page(
+        feed_type="mixed",
+        limit=10,
+        feed_url="https://gateway.example/api/v1/me/following/feed",
+    )
+    await service.get_feed_page(
+        feed_type="mixed",
+        limit=10,
+        feed_url="https://gateway.example/api/v1/me/following/feed",
+    )
+
+    assert "Following Feed cache miss for profile_id=1 handle=alice" in caplog.text
+    assert "Following Feed cache hit for profile_id=1 handle=alice" in caplog.text
+
+
+@pytest.mark.anyio
 async def test_get_following_feed_page_applies_total_limit_after_sorting() -> None:
     following = AsyncMock()
     following.get_own_following.return_value = [

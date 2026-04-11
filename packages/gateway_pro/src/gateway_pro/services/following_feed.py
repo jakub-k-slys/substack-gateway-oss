@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Literal
 from urllib.parse import urlencode
 
@@ -16,6 +17,8 @@ from gateway_pro.services.profile_feed import (
     AtomFeedPage,
     ProfileFeedService,
 )
+
+_log = logging.getLogger(__name__)
 
 
 def _build_followed_profile_feed_cache_key(
@@ -58,7 +61,7 @@ class FollowingFeedService:
         following = await self._following.get_own_following()
         entries_by_author = await asyncio.gather(
             *[
-                self._get_followed_profile_entries(
+                self._get_followed_profile_entries_cached(
                     user,
                     feed_type=feed_type,
                     limit=limit,
@@ -97,6 +100,43 @@ class FollowingFeedService:
             next_url=None,
             entries=entries,
             partial=partial,
+        )
+
+    async def _get_followed_profile_entries_cached(
+        self,
+        user: SubstackFollowingUser,
+        *,
+        feed_type: Literal["mixed", "post", "note"],
+        limit: int,
+    ) -> AtomFeedEntriesPage:
+        cache = self._get_followed_profile_entries.cache
+        cache_key = _build_followed_profile_feed_cache_key(
+            type(self)._get_followed_profile_entries,
+            self,
+            user,
+            feed_type=feed_type,
+            limit=limit,
+        )
+        if await cache.exists(cache_key):
+            _log.debug(
+                "Following Feed cache hit for profile_id=%d handle=%s type=%s limit=%d",
+                user.id,
+                user.handle,
+                feed_type,
+                limit,
+            )
+        else:
+            _log.debug(
+                "Following Feed cache miss for profile_id=%d handle=%s type=%s limit=%d",
+                user.id,
+                user.handle,
+                feed_type,
+                limit,
+            )
+        return await self._get_followed_profile_entries(
+            user,
+            feed_type=feed_type,
+            limit=limit,
         )
 
     @_followed_profile_feed_cache
