@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 from gateway_oss.config import settings
 from pydantic import BaseModel
 
+from gateway_pro.config import pro_settings
 from gateway_pro.oauth.db import DBUser, init_db
 from gateway_pro.oauth.repositories import UnitOfWork
 
@@ -33,7 +34,7 @@ async def create_user(
     if token != settings.admin_token:
         raise HTTPException(status_code=403, detail="Invalid token.")
 
-    if not settings.oauth_enabled:
+    if not pro_settings.oauth_enabled:
         raise HTTPException(
             status_code=503, detail="OAuth is not configured on this server."
         )
@@ -66,7 +67,7 @@ async def delete_user(
     if token != settings.admin_token:
         raise HTTPException(status_code=403, detail="Invalid token.")
 
-    if not settings.oauth_enabled:
+    if not pro_settings.oauth_enabled:
         raise HTTPException(
             status_code=503, detail="OAuth is not configured on this server."
         )

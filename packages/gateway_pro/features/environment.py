@@ -10,6 +10,7 @@ os.environ.pop("SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS", None)
 
 from gateway_oss.config import settings
 from gateway_oss.main import app
+from gateway_pro.config import pro_settings
 from gateway_pro.services.following_feed import FollowingFeedService
 
 _BEHAVE_SUBSTACK_REQUESTS_PER_SECOND = 100.0
@@ -65,14 +66,14 @@ def after_scenario(context, scenario):
         import gateway_pro.oauth.login as login_mod
 
         login_mod.UnitOfWork = context._original_uow
-        settings.base_url = context._original_base_url
+        pro_settings.base_url = context._original_base_url
 
     # Restore UnitOfWork and jwt_secret if patched by provider token-flow steps
     if hasattr(context, "_orig_provider_uow"):
         import gateway_pro.oauth.provider as provider_mod
 
         provider_mod.UnitOfWork = context._orig_provider_uow
-        settings.jwt_secret = context._orig_jwt_secret
+        pro_settings.jwt_secret = context._orig_jwt_secret
 
 
 def after_all(context):

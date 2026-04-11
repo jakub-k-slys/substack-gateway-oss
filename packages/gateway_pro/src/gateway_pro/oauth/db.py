@@ -15,6 +15,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from gateway_pro.config import pro_settings
+
 _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
 
@@ -137,11 +139,9 @@ class DBRefreshToken(Base):
 def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
-        from gateway_oss.config import settings
-
-        if not settings.database_url:
+        if not pro_settings.database_url:
             raise RuntimeError("DATABASE_URL is not configured")
-        _engine = create_async_engine(settings.database_url, poolclass=NullPool)
+        _engine = create_async_engine(pro_settings.database_url, poolclass=NullPool)
     return _engine
 
 
@@ -166,9 +166,7 @@ async def get_session() -> AsyncIterator[AsyncSession]:
 
 async def init_db() -> None:
     """Create all tables and run migrations. Idempotent."""
-    from gateway_oss.config import settings
-
-    if not settings.database_url:
+    if not pro_settings.database_url:
         return
     async with get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

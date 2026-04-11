@@ -5,21 +5,21 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from gateway_oss.config import settings
 from starlette.responses import Response
 from starlette.routing import Route, Router
 
+from gateway_pro.config import pro_settings
 from gateway_pro.oauth.login import process_login, process_token_form
 from gateway_pro.oauth.templates import render_login, render_token_form
 
 oauth_provider = None
-if settings.oauth_enabled:
+if pro_settings.oauth_enabled:
     from gateway_pro.oauth.provider import NeonOAuthProvider
 
-    assert settings.base_url, "BASE_URL must be set when OAuth is enabled"
+    assert pro_settings.base_url, "BASE_URL must be set when OAuth is enabled"
     oauth_provider = NeonOAuthProvider(
-        base_url=f"{settings.base_url}/mcp",
-        login_base_url=settings.base_url,
+        base_url=f"{pro_settings.base_url}/mcp",
+        login_base_url=pro_settings.base_url,
     )
 
 # ── Well-known discovery (RFC 8414 / RFC 9728) ────────────────────────────────
@@ -49,9 +49,8 @@ async def login_get(request_id: str = "") -> Response:
 
 @_login_router.post("/", response_class=HTMLResponse)
 async def login_post(request: Request) -> Response:
-    from gateway_oss.config import settings
-
-    return await process_login(request, f"{settings.base_url}/login/token")
+    base_url = pro_settings.base_url or ""
+    return await process_login(request, f"{base_url}/login/token")
 
 
 @_login_router.get("/token", response_class=HTMLResponse)

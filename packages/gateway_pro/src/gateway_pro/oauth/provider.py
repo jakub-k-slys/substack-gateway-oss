@@ -18,6 +18,7 @@ from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOption
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl
 
+from gateway_pro.config import pro_settings
 from gateway_pro.oauth.bearer import _RefreshTokenWithJti
 from gateway_pro.oauth.db import (
     DBAccessToken,
@@ -228,12 +229,10 @@ class NeonOAuthProvider(OAuthProvider):
         )
 
     async def load_access_token(self, token: str) -> AccessToken | None:
-        from gateway_oss.config import settings
-
-        if not settings.jwt_secret:
+        if not pro_settings.jwt_secret:
             return None
         try:
-            payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+            payload = jwt.decode(token, pro_settings.jwt_secret, algorithms=["HS256"])
         except jwt.PyJWTError:
             return None
 
@@ -257,13 +256,11 @@ class NeonOAuthProvider(OAuthProvider):
 
     async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
         if isinstance(token, AccessToken):
-            from gateway_oss.config import settings
-
-            if not settings.jwt_secret:
+            if not pro_settings.jwt_secret:
                 return
             try:
                 payload = jwt.decode(
-                    token.token, settings.jwt_secret, algorithms=["HS256"]
+                    token.token, pro_settings.jwt_secret, algorithms=["HS256"]
                 )
             except jwt.PyJWTError:
                 return
@@ -291,9 +288,7 @@ class NeonOAuthProvider(OAuthProvider):
         scopes: list[str],
         user_id: int | None = None,
     ) -> tuple[str, str, int]:
-        from gateway_oss.config import settings
-
-        assert settings.jwt_secret, "JWT_SECRET must be configured"
+        assert pro_settings.jwt_secret, "JWT_SECRET must be configured"
         jti = str(uuid.uuid4())
         now = int(time.time())
         exp = now + _ACCESS_TOKEN_TTL
@@ -307,5 +302,5 @@ class NeonOAuthProvider(OAuthProvider):
         }
         if user_id is not None:
             payload["user_id"] = user_id
-        token = jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+        token = jwt.encode(payload, pro_settings.jwt_secret, algorithm="HS256")
         return token, jti, exp

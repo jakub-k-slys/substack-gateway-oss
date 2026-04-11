@@ -6,10 +6,10 @@ from typing import Literal
 from urllib.parse import urlencode
 
 from aiocache import SimpleMemoryCache, cached_stampede
-from gateway_oss.config import settings
 from gateway_oss.models.substack import SubstackFollowingUser
 from gateway_oss.services.following import FollowingService
 
+from gateway_pro.config import pro_settings
 from gateway_pro.services.profile_feed import (
     AtomFeedAuthor,
     AtomFeedEntriesPage,
@@ -37,7 +37,7 @@ def _build_followed_profile_feed_cache_key(
 
 _followed_profile_feed_cache = cached_stampede(
     cache=SimpleMemoryCache,
-    ttl=settings.following_feed_profile_cache_ttl_sec,
+    ttl=pro_settings.following_feed_profile_cache_ttl_sec,
     lease=2,
     key_builder=_build_followed_profile_feed_cache_key,
 )

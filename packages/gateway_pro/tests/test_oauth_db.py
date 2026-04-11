@@ -49,9 +49,9 @@ def test_init_db_noop_without_database_url(monkeypatch):
     from unittest.mock import patch
 
     import gateway_pro.oauth.db as db_module
-    from gateway_oss.config import settings
+    from gateway_pro.config import pro_settings
 
-    monkeypatch.setattr(settings, "database_url", None)
+    monkeypatch.setattr(pro_settings, "database_url", None)
     with patch.object(db_module, "get_engine") as mock_engine:
         asyncio.run(db_module.init_db())
         mock_engine.assert_not_called()

@@ -16,6 +16,7 @@ import json
 import jwt
 import pytest
 from fastapi.testclient import TestClient
+from gateway_pro.config import pro_settings
 from gateway_pro.oauth.bearer import validate_bearer
 from gateway_pro.oauth.provider import NeonOAuthProvider
 
@@ -29,7 +30,7 @@ _JWT_SECRET = "test-only-secret"
 
 @pytest.fixture()
 def provider(monkeypatch):
-    monkeypatch.setattr("gateway_oss.config.settings.jwt_secret", _JWT_SECRET)
+    monkeypatch.setattr(pro_settings, "jwt_secret", _JWT_SECRET)
     return NeonOAuthProvider(base_url=_BASE_URL, login_base_url="http://localhost")
 
 
@@ -261,7 +262,6 @@ class TestCreateUserEndpoint:
         from unittest.mock import AsyncMock, MagicMock
 
         users_mod = importlib.import_module("gateway_pro.api.v1.users")
-        from gateway_oss.config import settings
 
         class MockUnitOfWork:
             async def __aenter__(self):
@@ -272,9 +272,9 @@ class TestCreateUserEndpoint:
             async def __aexit__(self, *args):
                 return None
 
-        monkeypatch.setattr(settings, "database_url", "postgresql+asyncpg://fake")
-        monkeypatch.setattr(settings, "base_url", "http://localhost")
-        monkeypatch.setattr(settings, "jwt_secret", "test-secret")
+        monkeypatch.setattr(pro_settings, "database_url", "postgresql+asyncpg://fake")
+        monkeypatch.setattr(pro_settings, "base_url", "http://localhost")
+        monkeypatch.setattr(pro_settings, "jwt_secret", "test-secret")
         monkeypatch.setattr(users_mod, "UnitOfWork", MockUnitOfWork)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 
@@ -294,7 +294,6 @@ class TestCreateUserEndpoint:
         from unittest.mock import AsyncMock, MagicMock
 
         users_mod = importlib.import_module("gateway_pro.api.v1.users")
-        from gateway_oss.config import settings
 
         class MockFailingUnitOfWork:
             async def __aenter__(self):
@@ -305,9 +304,9 @@ class TestCreateUserEndpoint:
             async def __aexit__(self, *args):
                 raise Exception("unique constraint violation")
 
-        monkeypatch.setattr(settings, "database_url", "postgresql+asyncpg://fake")
-        monkeypatch.setattr(settings, "base_url", "http://localhost")
-        monkeypatch.setattr(settings, "jwt_secret", "test-secret")
+        monkeypatch.setattr(pro_settings, "database_url", "postgresql+asyncpg://fake")
+        monkeypatch.setattr(pro_settings, "base_url", "http://localhost")
+        monkeypatch.setattr(pro_settings, "jwt_secret", "test-secret")
         monkeypatch.setattr(users_mod, "UnitOfWork", MockFailingUnitOfWork)
         monkeypatch.setattr(users_mod, "init_db", AsyncMock())
 

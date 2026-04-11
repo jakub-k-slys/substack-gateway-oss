@@ -156,13 +156,13 @@ def step_configure_provider(context, secret):
 
     # Patch UnitOfWork in the actual provider module (not the re-export wrapper)
     import gateway_pro.oauth.provider as provider_mod
-    from gateway_oss.config import settings
+    from gateway_pro.config import pro_settings
 
     store = context.provider_store
     context._orig_provider_uow = provider_mod.UnitOfWork
-    context._orig_jwt_secret = settings.jwt_secret
+    context._orig_jwt_secret = pro_settings.jwt_secret
     provider_mod.UnitOfWork = lambda: _MockUnitOfWork(store)
-    settings.jwt_secret = secret
+    pro_settings.jwt_secret = secret
 
 
 @given('a registered OAuth client "{client_id}"')

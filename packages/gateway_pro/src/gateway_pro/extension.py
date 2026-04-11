@@ -17,6 +17,7 @@ from starlette.applications import Starlette
 from starlette.routing import Mount
 
 from gateway_oss import __app_version__
+from gateway_pro.config import pro_settings
 
 
 class ProExtension(GatewayExtension):
@@ -55,7 +56,7 @@ class ProExtension(GatewayExtension):
             application="substack-gateway",
             tier="pro",
             version=__app_version__,
-            features=build_pro_features(oauth_enabled=context.settings.oauth_enabled),
+            features=build_pro_features(oauth_enabled=pro_settings.oauth_enabled),
         )
 
     @contextlib.asynccontextmanager
