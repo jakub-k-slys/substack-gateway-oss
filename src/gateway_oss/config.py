@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SUBSTACK_GATEWAY_")
 
     substack_base_url: str = "https://substack.com"
-    following_feed_profile_cache_ttl_sec: int = Field(default=14400, ge=1)
     substack_timeout_sec: float = Field(default=120.0, gt=0)
     substack_connect_timeout_sec: float = Field(default=120.0, gt=0)
     substack_requests_per_second: float = Field(default=3.0, gt=0)
@@ -22,15 +21,6 @@ class Settings(BaseSettings):
     substack_retry_max_wait_sec: float = Field(default=60.0, gt=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
-
-    # OAuth 2.1 / Neon DB settings (all required for OAuth to be active)
-    base_url: str | None = None
-    database_url: str | None = None
-    jwt_secret: str | None = None
-
-    @property
-    def oauth_enabled(self) -> bool:
-        return bool(self.base_url and self.database_url and self.jwt_secret)
 
     @field_validator("substack_base_url")
     @classmethod
