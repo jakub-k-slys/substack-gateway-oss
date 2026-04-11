@@ -1,6 +1,28 @@
 # CHANGELOG
 
 
+## v0.12.0 (2026-04-11)
+
+### Bug Fixes
+
+- Clear following feed cache in pro behave hooks
+  ([`fc31385`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/fc3138552ad31eb2cf989d15ece2aa9fade70bc3))
+
+- Log resolved application metadata at startup
+  ([`7b6ad56`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/7b6ad56e4904b0ab9fbcb531219d162bd3e3f5cf))
+
+- Use application version in root metadata
+  ([`65c7e04`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/65c7e044fd86899eddb916beedf30a8a220c0bf8))
+
+### Features
+
+- Cache following feed profiles
+  ([`e42905e`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/e42905e5e5b15997290a7128d2ef7e5709da9d66))
+
+- Expose application feature metadata
+  ([`2ff9aea`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/2ff9aea6acb0a4fa02ccbb1b347b6ffedfd72a8f))
+
+
 ## v0.11.0 (2026-04-10)
 
 ### Bug Fixes
