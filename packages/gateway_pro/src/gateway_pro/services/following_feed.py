@@ -4,13 +4,39 @@ import asyncio
 from typing import Literal
 from urllib.parse import urlencode
 
+from aiocache import SimpleMemoryCache, cached_stampede
+from gateway_oss.config import settings
+from gateway_oss.models.substack import SubstackFollowingUser
 from gateway_oss.services.following import FollowingService
 
 from gateway_pro.services.profile_feed import (
     AtomFeedAuthor,
+    AtomFeedEntriesPage,
     AtomFeedEntry,
     AtomFeedPage,
     ProfileFeedService,
+)
+
+
+def _build_followed_profile_feed_cache_key(
+    func, _self, user: SubstackFollowingUser, *, feed_type: str, limit: int
+) -> str:
+    return ":".join(
+        (
+            func.__module__,
+            func.__qualname__,
+            str(user.id),
+            feed_type,
+            str(limit),
+        )
+    )
+
+
+_followed_profile_feed_cache = cached_stampede(
+    cache=SimpleMemoryCache,
+    ttl=settings.following_feed_profile_cache_ttl_sec,
+    lease=2,
+    key_builder=_build_followed_profile_feed_cache_key,
 )
 
 
@@ -32,13 +58,8 @@ class FollowingFeedService:
         following = await self._following.get_own_following()
         entries_by_author = await asyncio.gather(
             *[
-                self._profile_feed.get_entries_for_profile_best_effort(
-                    user.id,
-                    fallback_author=AtomFeedAuthor(
-                        name=user.handle,
-                        handle=user.handle,
-                        avatar_url="",
-                    ),
+                self._get_followed_profile_entries(
+                    user,
                     feed_type=feed_type,
                     limit=limit,
                 )
@@ -76,6 +97,25 @@ class FollowingFeedService:
             next_url=None,
             entries=entries,
             partial=partial,
+        )
+
+    @_followed_profile_feed_cache
+    async def _get_followed_profile_entries(
+        self,
+        user: SubstackFollowingUser,
+        *,
+        feed_type: Literal["mixed", "post", "note"],
+        limit: int,
+    ) -> AtomFeedEntriesPage:
+        return await self._profile_feed.get_entries_for_profile_best_effort(
+            user.id,
+            fallback_author=AtomFeedAuthor(
+                name=user.handle,
+                handle=user.handle,
+                avatar_url="",
+            ),
+            feed_type=feed_type,
+            limit=limit,
         )
 
     def _build_feed_url(

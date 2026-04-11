@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
   "gateway_oss",
+  "aiocache>=0.12.3",
   "pyjwt>=2.11.0",
   "bcrypt>=5.0.0",
   "sqlalchemy>=2.0.48",

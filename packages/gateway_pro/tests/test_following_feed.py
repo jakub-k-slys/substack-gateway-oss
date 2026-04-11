@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from unittest.mock import AsyncMock
 
 import pytest
 from gateway_oss.models.substack import SubstackFollowingUser
 from gateway_pro.services.following_feed import FollowingFeedService
 from gateway_pro.services.profile_feed import AtomFeedAuthor, AtomFeedEntriesPage
+
+
+@pytest.fixture(autouse=True)
+async def clear_following_feed_cache() -> AsyncGenerator[None]:
+    await FollowingFeedService._get_followed_profile_entries.cache.clear()
+    yield
+    await FollowingFeedService._get_followed_profile_entries.cache.clear()
 
 
 @pytest.mark.anyio
@@ -70,6 +78,42 @@ async def test_get_following_feed_page_merges_entries_from_followed_profiles() -
     assert profile_feed.get_entries_for_profile_best_effort.await_args_list[1].kwargs[
         "fallback_author"
     ] == AtomFeedAuthor(name="bob", handle="bob", avatar_url="")
+
+
+@pytest.mark.anyio
+async def test_get_following_feed_page_reuses_cached_profile_entries() -> None:
+    following = AsyncMock()
+    following.get_own_following.return_value = [
+        SubstackFollowingUser(id=1, handle="alice"),
+    ]
+    profile_feed = AsyncMock()
+    profile_feed.get_entries_for_profile_best_effort.return_value = AtomFeedEntriesPage(
+        entries=[
+            profile_feed_entry(
+                entry_id="post:1",
+                updated_at="2024-01-02T10:00:00.000Z",
+                author_handle="alice",
+            )
+        ],
+        next_notes_cursor=None,
+        next_posts_cursor=None,
+    )
+    service = FollowingFeedService(following, profile_feed)
+
+    first_page = await service.get_feed_page(
+        feed_type="mixed",
+        limit=10,
+        feed_url="https://gateway.example/api/v1/me/following/feed",
+    )
+    second_page = await service.get_feed_page(
+        feed_type="mixed",
+        limit=10,
+        feed_url="https://gateway.example/api/v1/me/following/feed",
+    )
+
+    assert [entry.entry_id for entry in first_page.entries] == ["post:1"]
+    assert [entry.entry_id for entry in second_page.entries] == ["post:1"]
+    assert profile_feed.get_entries_for_profile_best_effort.await_count == 1
 
 
 @pytest.mark.anyio
