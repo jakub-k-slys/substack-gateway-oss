@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.12.1 (2026-04-11)
+
+### Bug Fixes
+
+- Prefer app version override for root metadata
+  ([`09d5432`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/09d5432e8275c85c5fcfa7dd07b9d277f0ffb892))
+
+### Chores
+
+- Log following feed cache hits and misses
+  ([`3040275`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/304027551341c2eddf2e2c5410d310cae989a427))
+
+### Refactoring
+
+- Split oss and pro config settings
+  ([`c161e7a`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/c161e7ae0799fed38e67687316c07c832a52c0e6))
+
+
 ## v0.12.0 (2026-04-11)
 
 ### Bug Fixes
