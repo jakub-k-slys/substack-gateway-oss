@@ -1,6 +1,836 @@
 # CHANGELOG
 
 
+## v0.6.0 (2026-04-12)
+
+### Bug Fixes
+
+- Apply formatting updates
+  ([`be13374`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/be13374e726202e0557ced99f91c3e4a9d31d67a))
+
+- Log resolved application metadata at startup
+  ([`5ce368e`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/5ce368ea5f8141dfbea469a83a777e45ac9840b7))
+
+- Prefer app version override for root metadata
+  ([`fad3ba9`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/fad3ba927e3f6da0251d3f7d9c4bd8201ff47832))
+
+- Preserve original authors for feed post items
+  ([`7c63c99`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/7c63c99a21ca6e2bd2e8773f6c4de05e19d44573))
+
+- Speed up behave Substack client settings
+  ([`9000a85`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/9000a85158e84f32a620fa223db3b562995e6790))
+
+- Use application version in root metadata
+  ([`1e46541`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/1e465419c24f746e4e9c1a8b8e5e7a06c8e83351))
+
+### Chores
+
+- Update Substack client default settings
+  ([`ac3c90a`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/ac3c90ae9f3a71432586abdb4b7af2447426db1b))
+
+- **deps**: Bump cryptography from 46.0.6 to 46.0.7 in the uv group across 1 directory
+  ([#17](https://github.com/jakub-k-slys/substack-gateway-oss/pull/17),
+  [`47792bc`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/47792bcbb0a03198b5593b41c98c957b4632010b))
+
+Bumps the uv group with 1 update in the / directory:
+  [cryptography](https://github.com/pyca/cryptography).
+
+Updates `cryptography` from 46.0.6 to 46.0.7 <details> <summary>Changelog</summary> <p><em>Sourced
+  from <a href="https://github.com/pyca/cryptography/blob/main/CHANGELOG.rst">cryptography's
+  changelog</a>.</em></p> <blockquote> <p>46.0.7 - 2026-04-07</p> <pre><code> * **SECURITY ISSUE**:
+  Fixed an issue where non-contiguous buffers could be passed to APIs that accept Python buffers,
+  which could lead to buffer overflow. **CVE-2026-39892** * Updated Windows, macOS, and Linux wheels
+  to be compiled with OpenSSL 3.5.6. <p>.. _v46-0-6:<br /> </code></pre></p> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/pyca/cryptography/commit/622d672e429a7cff836a23c5903683dbec1901f5"><code>622d672</code></a>
+  46.0.7 release (<a
+  href="https://redirect.github.com/pyca/cryptography/issues/14602">#14602</a>)</li> <li>See full
+  diff in <a href="https://github.com/pyca/cryptography/compare/46.0.6...46.0.7">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=cryptography&package-manager=uv&previous-version=46.0.6&new-version=46.0.7)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore <dependency name> major version` will close this
+  group update PR and stop Dependabot creating any more for the specific dependency's major version
+  (unless you unignore this specific dependency's major version or upgrade to it yourself) -
+  `@dependabot ignore <dependency name> minor version` will close this group update PR and stop
+  Dependabot creating any more for the specific dependency's minor version (unless you unignore this
+  specific dependency's minor version or upgrade to it yourself) - `@dependabot ignore <dependency
+  name>` will close this group update PR and stop Dependabot creating any more for the specific
+  dependency (unless you unignore this specific dependency or upgrade to it yourself) - `@dependabot
+  unignore <dependency name>` will remove all of the ignore conditions of the specified dependency -
+  `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of
+  the specified dependency and ignore conditions You can disable automated security fix PRs for this
+  repo from the [Security Alerts
+  page](https://github.com/jakub-k-slys/substack-gateway-oss/network/alerts).
+
+</details>
+
+- **deps**: Bump cryptography in the uv group across 1 directory
+  ([`e7b6cb9`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/e7b6cb9eede1d38423abbec6671edb9a3708ac88))
+
+Bumps the uv group with 1 update in the / directory:
+  [cryptography](https://github.com/pyca/cryptography).
+
+Updates `cryptography` from 46.0.6 to 46.0.7 -
+  [Changelog](https://github.com/pyca/cryptography/blob/main/CHANGELOG.rst) -
+  [Commits](https://github.com/pyca/cryptography/compare/46.0.6...46.0.7)
+
+--- updated-dependencies: - dependency-name: cryptography dependency-version: 46.0.7
+
+dependency-type: indirect
+
+dependency-group: uv ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump fastapi from 0.135.2 to 0.135.3
+  ([`b68b999`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/b68b99908da594e0c9b42948442455083fc133cd))
+
+Bumps [fastapi](https://github.com/fastapi/fastapi) from 0.135.2 to 0.135.3. - [Release
+  notes](https://github.com/fastapi/fastapi/releases) -
+  [Commits](https://github.com/fastapi/fastapi/compare/0.135.2...0.135.3)
+
+--- updated-dependencies: - dependency-name: fastapi dependency-version: 0.135.3
+
+dependency-type: direct:production
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump fastapi from 0.135.2 to 0.135.3
+  ([#16](https://github.com/jakub-k-slys/substack-gateway-oss/pull/16),
+  [`93a14a2`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/93a14a2afe0f620a82342251af2da66c6d081c78))
+
+Bumps [fastapi](https://github.com/fastapi/fastapi) from 0.135.2 to 0.135.3. <details>
+  <summary>Release notes</summary> <p><em>Sourced from <a
+  href="https://github.com/fastapi/fastapi/releases">fastapi's releases</a>.</em></p> <blockquote>
+  <h2>0.135.3</h2> <h3>Features</h3> <ul> <li>✨ Add support for <code>@app.vibe()</code>. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15280">#15280</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>. <ul> <li>New docs: <a
+  href="https://fastapi.tiangolo.com/advanced/vibe/">Vibe Coding</a>.</li> </ul> </li> </ul>
+  <h3>Docs</h3> <ul> <li>✏️ Fix typo for <code>client_secret</code> in OAuth2 form docstrings. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/14946">#14946</a> by <a
+  href="https://github.com/bysiber"><code>@​bysiber</code></a>.</li> </ul> <h3>Internal</h3> <ul>
+  <li>👥 Update FastAPI People - Experts. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15279">#15279</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>⬆ Bump orjson from 3.11.7
+  to 3.11.8. PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15276">#15276</a> by <a
+  href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>⬆ Bump ruff
+  from 0.15.0 to 0.15.8. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15277">#15277</a> by <a
+  href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>👥 Update
+  FastAPI GitHub topic repositories. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15274">#15274</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>⬆ Bump fastmcp from
+  2.14.5 to 3.2.0. PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15267">#15267</a> by
+  <a href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>👥 Update
+  FastAPI People - Contributors and Translators. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15270">#15270</a> by <a
+  href="https://github.com/tiangolo"><code>@​tiangolo</code></a>.</li> <li>⬆ Bump requests from
+  2.32.5 to 2.33.0. PR <a href="https://redirect.github.com/fastapi/fastapi/pull/15228">#15228</a>
+  by <a href="https://github.com/apps/dependabot"><code>@​dependabot[bot]</code></a>.</li> <li>👷 Add
+  ty check to <code>lint.sh</code>. PR <a
+  href="https://redirect.github.com/fastapi/fastapi/pull/15136">#15136</a> by <a
+  href="https://github.com/svlandeg"><code>@​svlandeg</code></a>.</li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/fastapi/fastapi/commit/1f442c454f2f74c7419f83c203e6333955399528"><code>1f442c4</code></a>
+  🔖 Release version 0.135.3</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/8f5d1577b471f389f6cdea878d40a1497fda7746"><code>8f5d157</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/428452a710338334ae11043a48b06d52d9b3edba"><code>428452a</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/70580da818722cce68b7a88928d67bd0f64f42c5"><code>70580da</code></a>
+  ✨ Add support for <code>@app.vibe()</code> (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15280">#15280</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/6ee87478d821171139264cd9cd17cbd2232934ce"><code>6ee8747</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/3e72c09a2abfe9e1b55eede6a297cb1847126e49"><code>3e72c09</code></a>
+  👥 Update FastAPI People - Experts (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15279">#15279</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/96df35f7a4337d612811483d8ade74f91cce2d61"><code>96df35f</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/6c8112555bd86f21cfee8500140dca094ad26e20"><code>6c81125</code></a>
+  ⬆ Bump orjson from 3.11.7 to 3.11.8 (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15276">#15276</a>)</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/428f82c93616b52aee2fcee03484a855135c07e5"><code>428f82c</code></a>
+  📝 Update release notes</li> <li><a
+  href="https://github.com/fastapi/fastapi/commit/5599c59b9e7112109f04b63a58034fb95833f514"><code>5599c59</code></a>
+  ⬆ Bump ruff from 0.15.0 to 0.15.8 (<a
+  href="https://redirect.github.com/fastapi/fastapi/issues/15277">#15277</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/fastapi/fastapi/compare/0.135.2...0.135.3">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=fastapi&package-manager=uv&previous-version=0.135.2&new-version=0.135.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump pytest from 9.0.2 to 9.0.3
+  ([`88c5c41`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/88c5c41889df7f24e26be93cdb84b656d1b4e168))
+
+Bumps [pytest](https://github.com/pytest-dev/pytest) from 9.0.2 to 9.0.3. - [Release
+  notes](https://github.com/pytest-dev/pytest/releases) -
+  [Changelog](https://github.com/pytest-dev/pytest/blob/main/CHANGELOG.rst) -
+  [Commits](https://github.com/pytest-dev/pytest/compare/9.0.2...9.0.3)
+
+--- updated-dependencies: - dependency-name: pytest dependency-version: 9.0.3
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump pytest from 9.0.2 to 9.0.3
+  ([#15](https://github.com/jakub-k-slys/substack-gateway-oss/pull/15),
+  [`78ae0c1`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/78ae0c122a94a0f1114c6cb934d3cd71918640ea))
+
+Bumps [pytest](https://github.com/pytest-dev/pytest) from 9.0.2 to 9.0.3. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a
+  href="https://github.com/pytest-dev/pytest/releases">pytest's releases</a>.</em></p> <blockquote>
+  <h2>9.0.3</h2> <h1>pytest 9.0.3 (2026-04-07)</h1> <h2>Bug fixes</h2> <ul> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/12444">#12444</a>: Fixed
+  <code>pytest.approx</code> which now correctly takes into account
+  <code>~collections.abc.Mapping</code> keys order to compare them.</p> </li> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/13634">#13634</a>: Blocking a
+  <code>conftest.py</code> file using the <code>-p no:</code> option is now explicitly
+  disallowed.</p> <p>Previously this resulted in an internal assertion failure during plugin
+  loading.</p> <p>Pytest now raises a clear <code>UsageError</code> explaining that conftest files
+  are not plugins and cannot be disabled via <code>-p</code>.</p> </li> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/13734">#13734</a>: Fixed crash when a
+  test raises an exceptiongroup with <code>__tracebackhide__ = True</code>.</p> </li> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14195">#14195</a>: Fixed an issue where
+  non-string messages passed to <!-- raw HTML omitted -->unittest.TestCase.subTest()<!-- raw HTML
+  omitted --> were not printed.</p> </li> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14343">#14343</a>: Fixed use of
+  insecure temporary directory (CVE-2025-71176).</p> </li> </ul> <h2>Improved documentation</h2>
+  <ul> <li><a href="https://redirect.github.com/pytest-dev/pytest/issues/13388">#13388</a>:
+  Clarified documentation for <code>-p</code> vs <code>PYTEST_PLUGINS</code> plugin loading and
+  fixed an incorrect <code>-p</code> example.</li> <li><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/13731">#13731</a>: Clarified that
+  capture fixtures (e.g. <code>capsys</code> and <code>capfd</code>) take precedence over the
+  <code>-s</code> / <code>--capture=no</code> command-line options in <code>Accessing captured
+  output from a test function &lt;accessing-captured-output&gt;</code>.</li> <li><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14088">#14088</a>: Clarified that the
+  default <code>pytest_collection</code> hook sets <code>session.items</code> before it calls
+  <code>pytest_collection_finish</code>, not after.</li> <li><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14255">#14255</a>: TOML integer log
+  levels must be quoted: Updating reference documentation.</li> </ul> <h2>Contributor-facing
+  changes</h2> <ul> <li> <p><a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/12689">#12689</a>: The test reports are
+  now published to Codecov from GitHub Actions. The test statistics is visible <a
+  href="https://app.codecov.io/gh/pytest-dev/pytest/tests">on the web interface</a>.</p> <p>-- by
+  <code>aleguy02</code></p> </li> </ul> </blockquote> </details> <details>
+  <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/a7d58d7a21b78581e636bbbdea13c66ad1657c1e"><code>a7d58d7</code></a>
+  Prepare release version 9.0.3</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/089d98199c253d8f89a040243bc4f2aa6cd5ab22"><code>089d981</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/14366">#14366</a>
+  from bluetech/revert-14193-backport</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/8127eaf4ab7f6b2fdd0dc1b38343ec97aeef05ac"><code>8127eaf</code></a>
+  Revert &quot;Fix: assertrepr_compare respects dict insertion order (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14050">#14050</a>) (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14193">#14193</a>)&quot;</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/99a7e6029e7a6e8d53e5df114b1346e035370241"><code>99a7e60</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/14363">#14363</a>
+  from pytest-dev/patchback/backports/9.0.x/95d8423bd...</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/ddee02a578da30dd43aedc39c1c1f1aaadfcee95"><code>ddee02a</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/14343">#14343</a>
+  from bluetech/cve-2025-71176-simple</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/74eac6916fee34726cb194f16c516e96fbd29619"><code>74eac69</code></a>
+  doc: Update training info (<a
+
+href="https://redirect.github.com/pytest-dev/pytest/issues/14298">#14298</a>) (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14301">#14301</a>)</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/f92dee777cfdb77d1c43633d02766ddf1f07c869"><code>f92dee7</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/14267">#14267</a>
+  from pytest-dev/patchback/backports/9.0.x/d6fa26c62...</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/7ee58acc8777c31ac6cf388d01addf5a414a7439"><code>7ee58ac</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/12378">#12378</a>
+  from Pierre-Sassoulas/fix-implicit-str-concat-and-d...</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/37da870d37e3a2f5177cae075c7b9ae279432bf8"><code>37da870</code></a>
+  Merge pull request <a href="https://redirect.github.com/pytest-dev/pytest/issues/14259">#14259</a>
+  from mitre88/patch-4 (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14268">#14268</a>)</li> <li><a
+  href="https://github.com/pytest-dev/pytest/commit/c34bfa3b7acb65b594707c714f1d8461b0304eed"><code>c34bfa3</code></a>
+  Add explanation for string context diffs (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14257">#14257</a>) (<a
+  href="https://redirect.github.com/pytest-dev/pytest/issues/14266">#14266</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/pytest-dev/pytest/compare/9.0.2...9.0.3">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=pytest&package-manager=uv&previous-version=9.0.2&new-version=9.0.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump respx from 0.22.0 to 0.23.0
+  ([`a439c8c`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/a439c8c3707622ebab239894bb07be87eb94c7c3))
+
+Bumps [respx](https://github.com/lundberg/respx) from 0.22.0 to 0.23.0. - [Release
+  notes](https://github.com/lundberg/respx/releases) -
+  [Changelog](https://github.com/lundberg/respx/blob/master/CHANGELOG.md) -
+  [Commits](https://github.com/lundberg/respx/compare/0.22.0...0.23.0)
+
+--- updated-dependencies: - dependency-name: respx dependency-version: 0.23.0
+
+dependency-type: direct:development
+
+update-type: version-update:semver-minor ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump respx from 0.22.0 to 0.23.0
+  ([#12](https://github.com/jakub-k-slys/substack-gateway-oss/pull/12),
+  [`d395427`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/d395427c2ca22a9ec55351addf7678b7aeb53116))
+
+Bumps [respx](https://github.com/lundberg/respx) from 0.22.0 to 0.23.0. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/lundberg/respx/releases">respx's
+  releases</a>.</em></p> <blockquote> <h2>Version 0.23.0</h2> <h2>0.23.0 (7th April 2026)</h2>
+  <h3>Fixed</h3> <ul> <li>Fix <code>data</code> pattern with list value (<a
+  href="https://redirect.github.com/lundberg/respx/issues/264">#264</a>)</li> <li>Fix and enhance
+  incorrect documentations about iterable side effects (<a
+  href="https://redirect.github.com/lundberg/respx/issues/287">#287</a>)</li> <li>Fix documentation
+  typo, thanks <a href="https://github.com/markhobson"><code>@​markhobson</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/298">#298</a>)</li> <li>Fix support for
+  multiple slashes <code>//</code> in URL path by not using <code>urljoin</code> when prepending
+  path, thanks <a href="https://github.com/lewiscollard"><code>@​lewiscollard</code></a> and <a
+  href="https://github.com/Skeen"><code>@​Skeen</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/302">#302</a>)</li> <li>Type Route.respond
+  json as <code>Any</code> to align with HTTPX, thanks <a
+  href="https://github.com/JacobHayes"><code>@​JacobHayes</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li>Properly handle
+  <code>ANY</code> in <code>MuitiItems</code> patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Fix test warnings (<a
+  href="https://redirect.github.com/lundberg/respx/issues/267">#267</a>)</li> <li>Add Python 3.14 to
+  test matrix, thanks <a
+  href="https://github.com/carlosdorneles-mb"><code>@​carlosdorneles-mb</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/300">#300</a>)</li> <li>Update nix flake,
+  mypy target and workflows (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>, <a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/lundberg/respx/blob/master/CHANGELOG.md">respx's changelog</a>.</em></p>
+  <blockquote> <h2>[0.23.0] - 2026-04-07</h2> <h3>Fixed</h3> <ul> <li>Fix <code>data</code> pattern
+  with list value (<a href="https://redirect.github.com/lundberg/respx/issues/264">#264</a>)</li>
+  <li>Fix and enhance incorrect documentations about iterable side effects (<a
+  href="https://redirect.github.com/lundberg/respx/issues/287">#287</a>)</li> <li>Fix documentation
+  typo, thanks <a href="https://github.com/markhobson"><code>@​markhobson</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/298">#298</a>)</li> <li>Fix support for
+  multiple slashes <code>//</code> in URL path by not using <code>urljoin</code> when prepending
+  path, thanks <a href="https://github.com/lewiscollard"><code>@​lewiscollard</code></a> and <a
+  href="https://github.com/Skeen"><code>@​Skeen</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/302">#302</a>)</li> <li>Type Route.respond
+  json as <code>Any</code> to align with HTTPX, thanks <a
+  href="https://github.com/JacobHayes"><code>@​JacobHayes</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li>Properly handle
+  <code>ANY</code> in <code>MuitiItems</code> patterns (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> </ul> <h3>CI</h3> <ul>
+  <li>Fix test warnings (<a
+  href="https://redirect.github.com/lundberg/respx/issues/267">#267</a>)</li> <li>Add Python 3.14 to
+  test matrix, thanks <a
+  href="https://github.com/carlosdorneles-mb"><code>@​carlosdorneles-mb</code></a> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/300">#300</a>)</li> <li>Update nix flake,
+  mypy target and workflows (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>, <a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/lundberg/respx/commit/62aaeabf2d55c9dcafa74ec086885850194e0dda"><code>62aaeab</code></a>
+  Release <code>0.23.0</code></li> <li><a
+  href="https://github.com/lundberg/respx/commit/d8edf3db92c4e6830301a4f4e51fe56b743e0ed9"><code>d8edf3d</code></a>
+  Adjust badges</li> <li><a
+  href="https://github.com/lundberg/respx/commit/b3a193d3a443472c9f0241599f02d89f4a3f33f9"><code>b3a193d</code></a>
+  Add downloads badge to docs</li> <li><a
+  href="https://github.com/lundberg/respx/commit/9961e9b79641635f3c891d8ded5c7e5aa3d8f049"><code>9961e9b</code></a>
+  Handle multiple routes using <code>MuitiItems</code> pattern with <code>ANY</code> (<a
+  href="https://redirect.github.com/lundberg/respx/issues/289">#289</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/e51c2a6ffad066c78dedb0fc0e2fa27257f686f2"><code>e51c2a6</code></a>
+  Update Route.respond json type hint to Any to match HTTPX (<a
+  href="https://redirect.github.com/lundberg/respx/issues/284">#284</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/a499260e28520ad6f19b06539f3321aa67f3f3b3"><code>a499260</code></a>
+  Bump less-action/reusables from 8 to 10 (<a
+  href="https://redirect.github.com/lundberg/respx/issues/282">#282</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/7b44b512c8e44db460bbafaddb382444660c55f4"><code>7b44b51</code></a>
+  Update nix flake and mypy target (<a
+  href="https://redirect.github.com/lundberg/respx/issues/306">#306</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/bf30cb3cdb8999879f8d921f03236ed25f52fdbf"><code>bf30cb3</code></a>
+  Add Python 3.14 to test matrix (<a
+  href="https://redirect.github.com/lundberg/respx/issues/300">#300</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/c39612aabc7edc5038353973e7709dacb9d7cc8b"><code>c39612a</code></a>
+  Don't use urljoin for prepending a forward slash to paths. (<a
+  href="https://redirect.github.com/lundberg/respx/issues/302">#302</a>)</li> <li><a
+  href="https://github.com/lundberg/respx/commit/0dbd8c8c5d4040309c6060809a60be93ae5fcba6"><code>0dbd8c8</code></a>
+  Correct RESPX typo (<a href="https://redirect.github.com/lundberg/respx/issues/298">#298</a>)</li>
+  <li>Additional commits viewable in <a
+  href="https://github.com/lundberg/respx/compare/0.22.0...0.23.0">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=respx&package-manager=uv&previous-version=0.22.0&new-version=0.23.0)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ruff from 0.15.8 to 0.15.9
+  ([`0d37dbd`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/0d37dbd72eba8628cd5bb5cf8c8e79ce7ca98fa1))
+
+Bumps [ruff](https://github.com/astral-sh/ruff) from 0.15.8 to 0.15.9. - [Release
+  notes](https://github.com/astral-sh/ruff/releases) -
+  [Changelog](https://github.com/astral-sh/ruff/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ruff/compare/0.15.8...0.15.9)
+
+--- updated-dependencies: - dependency-name: ruff dependency-version: 0.15.9
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ruff from 0.15.8 to 0.15.9
+  ([#13](https://github.com/jakub-k-slys/substack-gateway-oss/pull/13),
+  [`c358c1a`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/c358c1a38d071dd00befc9301303e17d459cefb6))
+
+Bumps [ruff](https://github.com/astral-sh/ruff) from 0.15.8 to 0.15.9. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ruff/releases">ruff's
+  releases</a>.</em></p> <blockquote> <h2>0.15.9</h2> <h2>Release Notes</h2> <p>Released on
+  2026-04-02.</p> <h3>Preview features</h3> <ul> <li>[<code>pyflakes</code>] Flag annotated variable
+  redeclarations as <code>F811</code> in preview mode (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24244">#24244</a>)</li>
+  <li>[<code>ruff</code>] Allow dunder-named assignments in non-strict mode for <code>RUF067</code>
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24089">#24089</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>[<code>flake8-errmsg</code>] Avoid shadowing existing <code>msg</code> in fix
+  for <code>EM101</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24363">#24363</a>)</li>
+  <li>[<code>flake8-simplify</code>] Ignore pre-initialization references in <code>SIM113</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24235">#24235</a>)</li>
+  <li>[<code>pycodestyle</code>] Fix <code>W391</code> fixes for consecutive empty notebook cells
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24236">#24236</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix <code>UP008</code> nested class matching (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24273">#24273</a>)</li>
+  <li>[<code>pyupgrade</code>] Ignore strings with string-only escapes (<code>UP012</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/16058">#16058</a>)</li>
+  <li>[<code>ruff</code>] <code>RUF072</code>: skip formfeeds on dedent (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24308">#24308</a>)</li>
+  <li>[<code>ruff</code>] Avoid re-using symbol in <code>RUF024</code> fix (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24316">#24316</a>)</li>
+  <li>[<code>ruff</code>] Parenthesize expression in <code>RUF050</code> fix (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24234">#24234</a>)</li> <li>Disallow starred
+  expressions as values of starred expressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24280">#24280</a>)</li> </ul> <h3>Rule
+  changes</h3> <ul> <li>[<code>flake8-simplify</code>] Suppress <code>SIM105</code> for
+  <code>except*</code> before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23869">#23869</a>)</li>
+  <li>[<code>pyflakes</code>] Extend <code>F507</code> to flag <code>%</code>-format strings with
+  zero placeholders (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24215">#24215</a>)</li>
+  <li>[<code>pyupgrade</code>] <code>UP018</code> should detect more unnecessarily wrapped literals
+  (UP018) (<a href="https://redirect.github.com/astral-sh/ruff/pull/24093">#24093</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix <code>UP008</code> callable scope handling to support lambdas (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24274">#24274</a>)</li>
+  <li>[<code>ruff</code>] <code>RUF010</code>: Mark fix as unsafe when it deletes a comment (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24270">#24270</a>)</li> </ul>
+  <h3>Formatter</h3> <ul> <li>Add <code>nested-string-quote-style</code> formatting option (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24312">#24312</a>)</li> </ul>
+  <h3>Documentation</h3> <ul> <li>[<code>flake8-bugbear</code>] Clarify RUF071 fix safety for
+  non-path string comparisons (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24149">#24149</a>)</li>
+  <li>[<code>flake8-type-checking</code>] Clarify import cycle wording for
+  <code>TC001</code>/<code>TC002</code>/<code>TC003</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24322">#24322</a>)</li> </ul> <h3>Other
+  changes</h3> <ul> <li>Avoid rendering fix lines with trailing whitespace after <code>|</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24343">#24343</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/tranhoangtu-it"><code>@​tranhoangtu-it</code></a></li> <li><a
+  href="https://github.com/dylwil3"><code>@​dylwil3</code></a></li> <li><a
+  href="https://github.com/zsol"><code>@​zsol</code></a></li> </ul> <!-- raw HTML omitted -->
+  </blockquote> <p>... (truncated)</p> </details> <details> <summary>Changelog</summary>
+  <p><em>Sourced from <a href="https://github.com/astral-sh/ruff/blob/main/CHANGELOG.md">ruff's
+  changelog</a>.</em></p> <blockquote> <h2>0.15.9</h2> <p>Released on 2026-04-02.</p> <h3>Preview
+  features</h3> <ul> <li>[<code>pyflakes</code>] Flag annotated variable redeclarations as
+  <code>F811</code> in preview mode (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24244">#24244</a>)</li>
+  <li>[<code>ruff</code>] Allow dunder-named assignments in non-strict mode for <code>RUF067</code>
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24089">#24089</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>[<code>flake8-errmsg</code>] Avoid shadowing existing <code>msg</code> in fix
+  for <code>EM101</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24363">#24363</a>)</li>
+  <li>[<code>flake8-simplify</code>] Ignore pre-initialization references in <code>SIM113</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24235">#24235</a>)</li>
+  <li>[<code>pycodestyle</code>] Fix <code>W391</code> fixes for consecutive empty notebook cells
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24236">#24236</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix <code>UP008</code> nested class matching (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24273">#24273</a>)</li>
+  <li>[<code>pyupgrade</code>] Ignore strings with string-only escapes (<code>UP012</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/16058">#16058</a>)</li>
+  <li>[<code>ruff</code>] <code>RUF072</code>: skip formfeeds on dedent (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24308">#24308</a>)</li>
+  <li>[<code>ruff</code>] Avoid re-using symbol in <code>RUF024</code> fix (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24316">#24316</a>)</li>
+  <li>[<code>ruff</code>] Parenthesize expression in <code>RUF050</code> fix (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24234">#24234</a>)</li> <li>Disallow starred
+  expressions as values of starred expressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24280">#24280</a>)</li> </ul> <h3>Rule
+  changes</h3> <ul> <li>[<code>flake8-simplify</code>] Suppress <code>SIM105</code> for
+  <code>except*</code> before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23869">#23869</a>)</li>
+  <li>[<code>pyflakes</code>] Extend <code>F507</code> to flag <code>%</code>-format strings with
+  zero placeholders (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24215">#24215</a>)</li>
+  <li>[<code>pyupgrade</code>] <code>UP018</code> should detect more unnecessarily wrapped literals
+  (UP018) (<a href="https://redirect.github.com/astral-sh/ruff/pull/24093">#24093</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix <code>UP008</code> callable scope handling to support lambdas (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24274">#24274</a>)</li>
+  <li>[<code>ruff</code>] <code>RUF010</code>: Mark fix as unsafe when it deletes a comment (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24270">#24270</a>)</li> </ul>
+  <h3>Formatter</h3> <ul> <li>Add <code>nested-string-quote-style</code> formatting option (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24312">#24312</a>)</li> </ul>
+  <h3>Documentation</h3> <ul> <li>[<code>flake8-bugbear</code>] Clarify RUF071 fix safety for
+  non-path string comparisons (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24149">#24149</a>)</li>
+  <li>[<code>flake8-type-checking</code>] Clarify import cycle wording for
+  <code>TC001</code>/<code>TC002</code>/<code>TC003</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24322">#24322</a>)</li> </ul> <h3>Other
+  changes</h3> <ul> <li>Avoid rendering fix lines with trailing whitespace after <code>|</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24343">#24343</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/tranhoangtu-it"><code>@​tranhoangtu-it</code></a></li> <li><a
+  href="https://github.com/dylwil3"><code>@​dylwil3</code></a></li> <li><a
+  href="https://github.com/zsol"><code>@​zsol</code></a></li> <li><a
+  href="https://github.com/renovate"><code>@​renovate</code></a></li> </ul> <!-- raw HTML omitted
+  --> </blockquote> <p>... (truncated)</p> </details> <details> <summary>Commits</summary> <ul>
+  <li><a
+  href="https://github.com/astral-sh/ruff/commit/724ccc1ae8a61e872cf58435f2c073189dc248f2"><code>724ccc1</code></a>
+  Bump 0.15.9 (<a href="https://redirect.github.com/astral-sh/ruff/issues/24369">#24369</a>)</li>
+  <li><a
+  href="https://github.com/astral-sh/ruff/commit/96d9e0964cb87498ef15510ea7f896ba336659f9"><code>96d9e09</code></a>
+  [ty] Move the <code>deferred</code> submodule inside <code>infer/builder</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24368">#24368</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/130da28d610a466721bb942e8a5e0ec47bbe3469"><code>130da28</code></a>
+  [ty] Infer the <code>extra_items</code> keyword argument to class-based TypedDicts as an...</li>
+  <li><a
+  href="https://github.com/astral-sh/ruff/commit/a617c54b0708a8c1eb850cc3b2a5caee21137a28"><code>a617c54</code></a>
+  [ty] Validate type qualifiers in functional TypedDict fields and the `extra_i...</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/d8517087c6cd0aa4f33dcede605ff642941dd74b"><code>d851708</code></a>
+  [ty] Improve robustness of various type-qualifier-related checks (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24251">#24251</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/aecb5877c6d6fe035c03aba994ec3a7b935b8f02"><code>aecb587</code></a>
+  Only run the release-gate on workflow dispatch (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24366">#24366</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/b88957174311030927bf564da32d05dee0eb89d9"><code>b889571</code></a>
+  [ty] Use <code>infer_type_expression</code> for parsing parameter annotations and return...</li>
+  <li><a
+  href="https://github.com/astral-sh/ruff/commit/3286a62be986a8d6d04d95b3bc619f06e012fa2f"><code>3286a62</code></a>
+  Add a &quot;release-gate&quot; step to the release workflow (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24365">#24365</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/5f88756ee10e3faf0e96c883c34c95fc78200536"><code>5f88756</code></a>
+  Disallow starred expressions as values of starred expressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24280">#24280</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/5c59f8a46965cac3470f09972196c8620faa4626"><code>5c59f8a</code></a>
+  [<code>pyupgrade</code>] Ignore strings with string-only escapes (<code>UP012</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/16058">#16058</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/astral-sh/ruff/compare/0.15.8...0.15.9">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ruff&package-manager=uv&previous-version=0.15.8&new-version=0.15.9)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ty from 0.0.27 to 0.0.29
+  ([`1644e76`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/1644e76fe7e0bda9401fd06cb3965efca7817e41))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.27 to 0.0.29. - [Release
+  notes](https://github.com/astral-sh/ty/releases) -
+  [Changelog](https://github.com/astral-sh/ty/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ty/compare/0.0.27...0.0.29)
+
+--- updated-dependencies: - dependency-name: ty dependency-version: 0.0.29
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ty from 0.0.27 to 0.0.29
+  ([#14](https://github.com/jakub-k-slys/substack-gateway-oss/pull/14),
+  [`1fb873b`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/1fb873b312be0189ddbbf9fba93eb6c45dbc893a))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.27 to 0.0.29. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ty/releases">ty's
+  releases</a>.</em></p> <blockquote> <h2>0.0.29</h2> <h2>Release Notes</h2> <p>Released on
+  2026-04-05.</p> <h3>Bug fixes</h3> <ul> <li>Avoid special-casing for
+  <code>dataclasses.field</code> if it's not in <code>field_specifiers</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24397">#24397</a>)</li> <li>Reject
+  unsupported <code>environment.python-version</code> values in configuration files (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24402">#24402</a>)</li> <li>Respect
+  supported lower bounds from <code>requires-python</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24401">#24401</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Add support for <code>types.new_class</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23144">#23144</a>)</li> <li>Fix PEP 695 type
+  aliases in <code>with</code> statement (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24395">#24395</a>)</li> <li>Respect
+  <code>__new__</code> and metaclass <code>__call__</code> return types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24357">#24357</a>)</li> <li>Treat enum
+  attributes with type annotations as members (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23776">#23776</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> <h2>Install ty 0.0.29</h2>
+  <h3>Install prebuilt binaries via shell script</h3> <pre lang="sh"><code>curl --proto '=https'
+  --tlsv1.2 -LsSf https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-installer.sh | sh
+  </code></pre> <h3>Install prebuilt binaries via powershell script</h3> <pre
+  lang="sh"><code>powershell -ExecutionPolicy Bypass -c &quot;irm
+  https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-installer.ps1 | iex&quot;
+  </code></pre> <h2>Download ty 0.0.29</h2> <table> <thead> <tr> <th>File</th> <th>Platform</th>
+  <th>Checksum</th> </tr> </thead> <tbody> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-apple-darwin.tar.gz">ty-aarch64-apple-darwin.tar.gz</a></td>
+  <td>Apple Silicon macOS</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-apple-darwin.tar.gz.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-x86_64-apple-darwin.tar.gz">ty-x86_64-apple-darwin.tar.gz</a></td>
+  <td>Intel macOS</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-x86_64-apple-darwin.tar.gz.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-pc-windows-msvc.zip">ty-aarch64-pc-windows-msvc.zip</a></td>
+  <td>ARM64 Windows</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-pc-windows-msvc.zip.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-i686-pc-windows-msvc.zip">ty-i686-pc-windows-msvc.zip</a></td>
+  <td>x86 Windows</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-i686-pc-windows-msvc.zip.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-x86_64-pc-windows-msvc.zip">ty-x86_64-pc-windows-msvc.zip</a></td>
+  <td>x64 Windows</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-x86_64-pc-windows-msvc.zip.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-unknown-linux-gnu.tar.gz">ty-aarch64-unknown-linux-gnu.tar.gz</a></td>
+  <td>ARM64 Linux</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-aarch64-unknown-linux-gnu.tar.gz.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-i686-unknown-linux-gnu.tar.gz">ty-i686-unknown-linux-gnu.tar.gz</a></td>
+  <td>x86 Linux</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-i686-unknown-linux-gnu.tar.gz.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-powerpc64-unknown-linux-gnu.tar.gz">ty-powerpc64-unknown-linux-gnu.tar.gz</a></td>
+  <td>PPC64 Linux</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-powerpc64-unknown-linux-gnu.tar.gz.sha256">checksum</a></td>
+  </tr> <tr> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-powerpc64le-unknown-linux-gnu.tar.gz">ty-powerpc64le-unknown-linux-gnu.tar.gz</a></td>
+  <td>PPC64LE Linux</td> <td><a
+  href="https://releases.astral.sh/github/ty/releases/download/0.0.29/ty-powerpc64le-unknown-linux-gnu.tar.gz.sha256">checksum</a></td>
+  </tr> </tbody> </table> <!-- raw HTML omitted --> </blockquote> <p>... (truncated)</p> </details>
+  <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ty/blob/main/CHANGELOG.md">ty's changelog</a>.</em></p>
+  <blockquote> <h2>0.0.29</h2> <p>Released on 2026-04-05.</p> <h3>Bug fixes</h3> <ul> <li>Avoid
+  special-casing for <code>dataclasses.field</code> if it's not in <code>field_specifiers</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24397">#24397</a>)</li> <li>Reject
+  unsupported <code>environment.python-version</code> values in configuration files (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24402">#24402</a>)</li> <li>Respect
+  supported lower bounds from <code>requires-python</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24401">#24401</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Add support for <code>types.new_class</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23144">#23144</a>)</li> <li>Fix PEP 695 type
+  aliases in <code>with</code> statement (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24395">#24395</a>)</li> <li>Respect
+  <code>__new__</code> and metaclass <code>__call__</code> return types (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24357">#24357</a>)</li> <li>Treat enum
+  attributes with type annotations as members (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/23776">#23776</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/carljm"><code>@​carljm</code></a></li> </ul> <h2>0.0.28</h2> <p>Released
+  on 2026-04-02.</p> <h3>Bug fixes</h3> <ul> <li>Mark loop header assignments as used to avoid false
+  positives in &quot;unused variable&quot; diagnostics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24336">#24336</a>)</li> </ul> <h3>LSP
+  server</h3> <ul> <li>Show constructor signature of classes when hovering over them (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24257">#24257</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Avoid emitting cascading diagnostics when parsing invalid type expressions
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24326">#24326</a>)</li> <li>Handle most
+  &quot;deep&quot; mutual TypeVar constraints (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24079">#24079</a>)</li> <li>Improve
+  consistency and quality of diagnostics relating to invalid type forms (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24325">#24325</a>)</li> <li>Improve
+  robustness of various type-qualifier-related checks (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24251">#24251</a>)</li> <li>Infer the
+  <code>extra_items</code> keyword argument to class-based TypedDicts as an annotation expression
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24362">#24362</a>)</li> <li>Use
+  bidirectional inference to fix false positives on operations such as <code>x: list[int | None] =
+  [None] * 2</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24197">#24197</a>)</li> <li>Sync vendored
+  typeshed stubs (<a href="https://redirect.github.com/astral-sh/ruff/pull/24340">#24340</a>). <a
+  href="https://github.com/python/typeshed/compare/f8f0794d0fe249c06dc9f31a004d85be6cca6ced...c5e47faeda2cf9d233f91bc1dc95814b0cc7ccba">Typeshed
+  diff</a></li> <li>Tighten up validation of subscripts and attributes in type expressions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24329">#24329</a>)</li> <li>Use
+  <code>infer_type_expression</code> for parsing parameter annotations and return-type annotations
+  (<a href="https://redirect.github.com/astral-sh/ruff/pull/24353">#24353</a>)</li> <li>Use
+  <code>infer_type_expression</code> for validating PEP-613 type aliases (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24370">#24370</a>)</li> <li>Validate
+  TypedDict fields when subclassing (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24338">#24338</a>)</li> <li>Validate type
+  qualifiers in functional TypedDict fields and the <code>extra_items</code> keyword to functional
+  TypedDicts (<a href="https://redirect.github.com/astral-sh/ruff/pull/24360">#24360</a>)</li>
+  <li>Improve diagnostics for invalid functional <code>TypedDict</code>s (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24345">#24345</a>)</li> </ul> <!-- raw HTML
+  omitted --> </blockquote> <p>... (truncated)</p> </details> <details> <summary>Commits</summary>
+  <ul> <li><a
+  href="https://github.com/astral-sh/ty/commit/438a78d688a38781e0675e57874b30dfed5fc964"><code>438a78d</code></a>
+  Bump version to 0.0.29 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3218">#3218</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/927aad261f59c957f83237471b4441dfce1ff425"><code>927aad2</code></a>
+  Bump version to 0.0.28 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3206">#3206</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/29d288e5e8012277f94aff7fdcff913b65f13f39"><code>29d288e</code></a>
+  Publish installers to <code>/installers/ty/latest</code> on the mirror (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3202">#3202</a>)</li> <li>See full diff in
+  <a href="https://github.com/astral-sh/ty/compare/0.0.27...0.0.29">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ty&package-manager=uv&previous-version=0.0.27&new-version=0.0.29)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+### Documentation
+
+- Clarify validation and semver commit rules
+  ([`aad27c0`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/aad27c0c857f5cf81bc3b217137bc9c40a04f279))
+
+### Features
+
+- Cache following feed profiles
+  ([`a1e568f`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/a1e568f2903de08fa0bec16c01a2106d727e8f2f))
+
+- Expose application feature metadata
+  ([`09935a0`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/09935a0f5551f1acc39e6732c700eafbd0a981a0))
+
+- Mark partial following feeds in responses
+  ([`2fa7f8e`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/2fa7f8ea8a88991000004bd1863e1cefc6b26802))
+
+- Normalize Atom feed ids and links
+  ([`e3e60ba`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/e3e60ba7a448bcf33c05c2863060035c81fb696c))
+
+### Refactoring
+
+- Split oss and pro config settings
+  ([`3e01838`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/3e018387b888bd2706cb42503f3624d634db1e1d))
+
+
 ## v0.5.0 (2026-04-04)
 
 ### Chores
@@ -942,6 +1772,9 @@ You can trigger Dependabot actions by commenting on this PR: - `@dependabot reba
 - Separate gateway auth from substack credentials
   ([`20c1c83`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/20c1c83935207093e0195a1eb31f9c1c352ac432))
 
+- Separate gateway auth from substack credentials
+  ([`79a2200`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/79a22001d9012d7d5880a38b16f69a3f2758b6b7))
+
 
 ## v0.4.0 (2026-03-23)
 
@@ -1382,6 +2215,15 @@ You can trigger Dependabot actions by commenting on this PR: - `@dependabot reba
 
 - Add tier-specific root metadata
   ([`ed5dbc5`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/ed5dbc5b689a40aaf80576e6f6f2fedc44ff0843))
+
+- Make oss mcp read only
+  ([`6393557`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/63935572d093a39037e919dd855fc86ded27720c))
+
+- Move publication url into bearer token
+  ([`2944387`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/2944387e409880e44d4d66037c9b77fc3f8b0cbb))
+
+- Require full validation for code changes
+  ([`d9a8cd3`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/d9a8cd30fdadb108bceffca9f9deea2c2cf2a751))
 
 
 ## v0.1.0 (2026-03-21)
