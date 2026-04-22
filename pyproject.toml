@@ -29,7 +29,7 @@ packages = ["src/gateway_oss"]
 [dependency-groups]
 dev = [
   "ruff>=0.15.10",
-  "ty>=0.0.30",
+  "ty>=0.0.32",
   "behave>=1.2.6",
   "respx>=0.23.1",
   "httpx>=0.28.0",
