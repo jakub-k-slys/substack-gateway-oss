@@ -1,6 +1,896 @@
 # CHANGELOG
 
 
+## v0.12.2 (2026-04-23)
+
+### Bug Fixes
+
+- Configure e2e client timeout
+  ([`3febd62`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/3febd6240588844de8726ed3b50e7c123fb6855f))
+
+- Sort import blocks in root.py and extension.py
+  ([`37781ed`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/37781ed7e66a192e2b5b4888d584f32ea3f82ec1))
+
+Resolve ruff I001 violations by letting ruff --fix reorder the import blocks into the expected isort
+  order.
+
+https://claude.ai/code/session_014PHSG4aNJ8F6gj8GFesYan
+
+- **drafts**: Extract posts key from list-drafts API response
+  ([`8532b62`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/8532b6266065d2cc220b47e43a385534cfd5df98))
+
+Substack GET /api/v1/drafts returns {"posts": [...]} not a bare array. Iterating the dict directly
+  yielded key strings, causing a Pydantic validation error. Also updates the BDD fixture to match
+  the real shape.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Chores
+
+- **deps**: Bump python-multipart from 0.0.22 to 0.0.26 in the uv group across 1 directory
+  ([#67](https://github.com/jakub-k-slys/substack-gateway-pro/pull/67),
+  [`f72cf5c`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/f72cf5cfceae9adfab81c0e081f22789dc929121))
+
+Bumps the uv group with 1 update in the / directory:
+  [python-multipart](https://github.com/Kludex/python-multipart).
+
+Updates `python-multipart` from 0.0.22 to 0.0.26 <details> <summary>Release notes</summary>
+  <p><em>Sourced from <a
+  href="https://github.com/Kludex/python-multipart/releases">python-multipart's
+  releases</a>.</em></p> <blockquote> <h2>Version 0.0.26</h2> <h2>What's Changed</h2> <ul> <li>Skip
+  preamble before first multipart boundary by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/262">Kludex/python-multipart#262</a></li>
+  <li>Silently discard epilogue data after the closing boundary by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/259">Kludex/python-multipart#259</a></li>
+  </ul> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/python-multipart/compare/0.0.25...0.0.26">https://github.com/Kludex/python-multipart/compare/0.0.25...0.0.26</a></p>
+  <h2>Version 0.0.25</h2> <h2>What's Changed</h2> <ul> <li>Apply Apache-2.0 properly by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/247">Kludex/python-multipart#247</a></li>
+  <li>Handle multipart headers case-insensitively by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/252">Kludex/python-multipart#252</a></li>
+  <li>Emit <code>field_end</code> for trailing bare field names on finalize by <a
+  href="https://github.com/bysiber"><code>@​bysiber</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/230">Kludex/python-multipart#230</a></li>
+  <li>Add <code>UPLOAD_DELETE_TMP</code> to <code>FormParser</code> config by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/254">Kludex/python-multipart#254</a></li>
+  <li>Remove custom FormParser classes by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/257">Kludex/python-multipart#257</a></li>
+  <li>Handle CTE values case-insensitively by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/258">Kludex/python-multipart#258</a></li>
+  <li>Add MIME content type info to File by <a
+  href="https://github.com/jhnstrk"><code>@​jhnstrk</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/143">Kludex/python-multipart#143</a></li>
+  </ul> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/python-multipart/compare/0.0.24...0.0.25">https://github.com/Kludex/python-multipart/compare/0.0.24...0.0.25</a></p>
+  <h2>Version 0.0.24</h2> <h2>What's Changed</h2> <ul> <li>Validate <code>chunk_size</code> in
+  <code>parse_form()</code> by <a href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/244">Kludex/python-multipart#244</a></li>
+  </ul> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/python-multipart/compare/0.0.23...0.0.24">https://github.com/Kludex/python-multipart/compare/0.0.23...0.0.24</a></p>
+  <h2>Version 0.0.23</h2> <h2>What's Changed</h2> <ul> <li>Remove unused
+  <code>trust_x_headers</code> parameter and <code>X-File-Name</code> fallback by <a
+  href="https://github.com/jhnstrk"><code>@​jhnstrk</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/196">Kludex/python-multipart#196</a></li>
+  <li>Return processed length from <code>QuerystringParser._internal_write</code> by <a
+  href="https://github.com/bysiber"><code>@​bysiber</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/229">Kludex/python-multipart#229</a></li>
+  <li>Cleanup metadata dunders from <code>__init__.py</code> by <a
+  href="https://github.com/Chesars"><code>@​Chesars</code></a> in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/227">Kludex/python-multipart#227</a></li>
+  </ul> <h2>New Contributors</h2> <ul> <li><a
+  href="https://github.com/Chesars"><code>@​Chesars</code></a> made their first contribution in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/227">Kludex/python-multipart#227</a></li>
+  <li><a href="https://github.com/bysiber"><code>@​bysiber</code></a> made their first contribution
+  in <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/229">Kludex/python-multipart#229</a></li>
+  </ul> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/python-multipart/compare/0.0.22...0.0.23">https://github.com/Kludex/python-multipart/compare/0.0.22...0.0.23</a></p>
+  </blockquote> </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/Kludex/python-multipart/blob/master/CHANGELOG.md">python-multipart's
+  changelog</a>.</em></p> <blockquote> <h2>0.0.26 (2026-04-10)</h2> <ul> <li>Skip preamble before
+  the first multipart boundary more efficiently <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/262">#262</a>.</li> <li>Silently
+  discard epilogue data after the closing multipart boundary <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/259">#259</a>.</li> </ul>
+  <h2>0.0.25 (2026-04-10)</h2> <ul> <li>Add MIME content type info to <code>File</code> <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/143">#143</a>.</li> <li>Handle CTE
+  values case-insensitively <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/258">#258</a>.</li> <li>Remove
+  custom <code>FormParser</code> classes <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/257">#257</a>.</li> <li>Add
+  <code>UPLOAD_DELETE_TMP</code> to <code>FormParser</code> config <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/254">#254</a>.</li> <li>Emit
+  <code>field_end</code> for trailing bare field names on finalize <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/230">#230</a>.</li> <li>Handle
+  multipart headers case-insensitively <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/252">#252</a>.</li> <li>Apply
+  Apache-2.0 properly <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/247">#247</a>.</li> </ul>
+  <h2>0.0.24 (2026-04-05)</h2> <ul> <li>Validate <code>chunk_size</code> in
+  <code>parse_form()</code> <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/244">#244</a>.</li> </ul>
+  <h2>0.0.23 (2026-04-05)</h2> <ul> <li>Remove unused <code>trust_x_headers</code> parameter and
+  <code>X-File-Name</code> fallback <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/196">#196</a>.</li> <li>Return
+  processed length from <code>QuerystringParser._internal_write</code> <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/229">#229</a>.</li> <li>Cleanup
+  metadata dunders from <code>__init__.py</code> <a
+  href="https://redirect.github.com/Kludex/python-multipart/pull/227">#227</a>.</li> </ul>
+  </blockquote> </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/28f47859b4a40c2e11e02dc514b2e9743ceedd2e"><code>28f4785</code></a>
+  Version 0.0.26 (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/263">#263</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/d4452a78bbde94995dd3c0d1b4aff3610a5c472f"><code>d4452a7</code></a>
+  Silently discard epilogue data after the closing boundary (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/259">#259</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/6a7b76dd2653d99d8e5981d7ff09a4a047750b37"><code>6a7b76d</code></a>
+  Skip preamble before first multipart boundary (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/262">#262</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/4addb60350fc843f77a1502f14247db91930b3bf"><code>4addb60</code></a>
+  Version 0.0.25 (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/261">#261</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/d3a4698e0dc16cbd85f98076b2ebf9b696cd3604"><code>d3a4698</code></a>
+  Add MIME content type info to File (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/143">#143</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/9a1ecbd074801fcd3911266f3f4442181d10ab92"><code>9a1ecbd</code></a>
+  Handle CTE values case-insensitively (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/258">#258</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/ef2a0b94f95676ea6a7b77d2252b09f5797cb8ed"><code>ef2a0b9</code></a>
+  Remove custom FormParser classes (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/257">#257</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/3a757d7cf209e654eb17cf7b7af868eed469f680"><code>3a757d7</code></a>
+  Ignore local Claude state (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/255">#255</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/55e739617db7c40e2cd04c5ad8c7acf2ed0a1d19"><code>55e7396</code></a>
+  fuzz: Add cifuzz (<a
+
+href="https://redirect.github.com/Kludex/python-multipart/issues/186">#186</a>)</li> <li><a
+  href="https://github.com/Kludex/python-multipart/commit/d6d1d111e7de9ce3d3f8623fe5f5e4201c0a5fd1"><code>d6d1d11</code></a>
+  Bump the github-actions group with 2 updates (<a
+  href="https://redirect.github.com/Kludex/python-multipart/issues/249">#249</a>)</li>
+  <li>Additional commits viewable in <a
+  href="https://github.com/Kludex/python-multipart/compare/0.0.22...0.0.26">compare view</a></li>
+  </ul> </details> <br />
+
+- **deps**: Bump python-multipart in the uv group across 1 directory
+  ([`ab28115`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/ab281153f7952ca6ac515280cb17370ec8351d93))
+
+Bumps the uv group with 1 update in the / directory:
+  [python-multipart](https://github.com/Kludex/python-multipart).
+
+Updates `python-multipart` from 0.0.22 to 0.0.26 - [Release
+  notes](https://github.com/Kludex/python-multipart/releases) -
+  [Changelog](https://github.com/Kludex/python-multipart/blob/master/CHANGELOG.md) -
+  [Commits](https://github.com/Kludex/python-multipart/compare/0.0.22...0.0.26)
+
+--- updated-dependencies: - dependency-name: python-multipart dependency-version: 0.0.26
+
+dependency-type: indirect
+
+dependency-group: uv ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump the uv group across 1 directory with 2 updates
+  ([`60d76ae`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/60d76ae15ce44c5cb6d74786572abff93e3911a1))
+
+Bumps the uv group with 2 updates in the / directory: [authlib](https://github.com/authlib/authlib)
+  and [python-dotenv](https://github.com/theskumar/python-dotenv).
+
+Updates `authlib` from 1.6.9 to 1.6.11 - [Release
+  notes](https://github.com/authlib/authlib/releases) -
+  [Changelog](https://github.com/authlib/authlib/blob/v1.6.11/docs/changelog.rst) -
+  [Commits](https://github.com/authlib/authlib/compare/v1.6.9...v1.6.11)
+
+Updates `python-dotenv` from 1.2.1 to 1.2.2 - [Release
+  notes](https://github.com/theskumar/python-dotenv/releases) -
+  [Changelog](https://github.com/theskumar/python-dotenv/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/theskumar/python-dotenv/compare/v1.2.1...v1.2.2)
+
+--- updated-dependencies: - dependency-name: authlib dependency-version: 1.6.11
+
+dependency-type: indirect
+
+dependency-group: uv
+
+- dependency-name: python-dotenv dependency-version: 1.2.2
+
+dependency-group: uv ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump the uv group across 1 directory with 2 updates
+  ([#72](https://github.com/jakub-k-slys/substack-gateway-pro/pull/72),
+  [`e3cd336`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/e3cd336093765418c6dbd74778d1eaadc7eb0c0a))
+
+Bumps the uv group with 2 updates in the / directory: [authlib](https://github.com/authlib/authlib)
+  and [python-dotenv](https://github.com/theskumar/python-dotenv).
+
+Updates `authlib` from 1.6.9 to 1.6.11 <details> <summary>Release notes</summary> <p><em>Sourced
+  from <a href="https://github.com/authlib/authlib/releases">authlib's releases</a>.</em></p>
+  <blockquote> <h2>v1.6.11</h2> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/authlib/authlib/compare/v1.6.10...v1.6.11">https://github.com/authlib/authlib/compare/v1.6.10...v1.6.11</a></p>
+  <ul> <li>Fix CSRF issue with starlette client</li> </ul> <h2>v1.6.10</h2> <p><strong>Full
+  Changelog</strong>: <a
+  href="https://github.com/authlib/authlib/compare/v1.6.9...v1.6.10">https://github.com/authlib/authlib/compare/v1.6.9...v1.6.10</a></p>
+  <ul> <li>Fix redirecting to unvalidated <code>redirect_uri</code> on
+  <code>UnsupportedResponseTypeError</code>.</li> </ul> </blockquote> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/authlib/authlib/blob/v1.6.11/docs/changelog.rst">authlib's
+  changelog</a>.</em></p> <blockquote> <h2>Version 1.6.11</h2> <p><strong>Released on Apr 16,
+  2026</strong></p> <ul> <li>Fix CSRF vulnerability in the Starlette OAuth client when a
+  <code>cache</code> is configured.</li> </ul> <h2>Version 1.6.10</h2> <p><strong>Released on Apr
+  13, 2026</strong></p> <ul> <li>Fix redirecting to unvalidated <code>redirect_uri</code> on
+  <code>UnsupportedResponseTypeError</code>.</li> </ul> </blockquote> </details> <details>
+  <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/authlib/authlib/commit/0dc0e5b4dc84f155319518a3732113af6fa47525"><code>0dc0e5b</code></a>
+  chore: bump to 1.6.11</li> <li><a
+  href="https://github.com/authlib/authlib/commit/aa7b8e46e00d0622658666476782042ac00153a5"><code>aa7b8e4</code></a>
+  Merge commit from fork</li> <li><a
+  href="https://github.com/authlib/authlib/commit/401a7709c3fe43bce1b2105d16a475b688faa788"><code>401a770</code></a>
+  fix: CSRF issue with starlette client</li> <li><a
+  href="https://github.com/authlib/authlib/commit/ef09aebbba4439dedb22bd15777d1b3458b6f0ab"><code>ef09aeb</code></a>
+  chore: release 1.6.10</li> <li><a
+  href="https://github.com/authlib/authlib/commit/3be08468201a7766a93012ce149ea12822cab096"><code>3be0846</code></a>
+  fix: redirecting to unvalidated redirect_uri on UnsupportedResponseTypeError</li> <li>See full
+  diff in <a href="https://github.com/authlib/authlib/compare/v1.6.9...v1.6.11">compare
+  view</a></li> </ul> </details> <br />
+
+Updates `python-dotenv` from 1.2.1 to 1.2.2 <details> <summary>Release notes</summary>
+  <p><em>Sourced from <a href="https://github.com/theskumar/python-dotenv/releases">python-dotenv's
+  releases</a>.</em></p> <blockquote> <h2>v1.2.2</h2> <h3>Added</h3> <ul> <li>Support for Python
+  3.14, including the free-threaded (3.14t) build. (#)</li> </ul> <h3>Changed</h3> <ul> <li>The
+  <code>dotenv run</code> command now forwards flags directly to the specified command by <a
+  href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/607">theskumar/python-dotenv#607</a></li>
+  <li>Improved documentation clarity regarding override behavior and the reference page.</li>
+  <li>Updated PyPy support to version 3.11.</li> <li>Documentation for FIFO file support.</li>
+  <li>Support for Python 3.9.</li> </ul> <h3>Fixed</h3> <ul> <li>Improved <code>set_key</code> and
+  <code>unset_key</code> behavior when interacting with symlinks by <a
+  href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a
+  href="https://github.com/theskumar/python-dotenv/commit/790c5c02991100aa1bf41ee5330aca75edc51311">#790c5</a></li>
+  <li>Corrected the license specifier and added missing Python 3.14 classifiers in package metadata
+  by <a href="https://github.com/JYOuyang"><code>@​JYOuyang</code></a> in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/590">theskumar/python-dotenv#590</a></li>
+  </ul> <h3>Breaking Changes</h3> <ul> <li> <p><code>dotenv.set_key</code> and
+  <code>dotenv.unset_key</code> used to follow symlinks in some situations. This is no longer the
+  case. For that behavior to be restored in all cases, <code>follow_symlinks=True</code> should be
+  used.</p> </li> <li> <p>In the CLI, <code>set</code> and <code>unset</code> used to follow
+  symlinks in some situations. This is no longer the case.</p> </li> <li>
+  <p><code>dotenv.set_key</code>, <code>dotenv.unset_key</code> and the CLI commands
+  <code>set</code> and <code>unset</code> used to reset the file mode of the modified .env file to
+  <code>0o600</code> in some situations. This is no longer the case: The original mode of the file
+  is now preserved. Is the file needed to be created or wasn't a regular file, mode
+  <code>0o600</code> is used.</p> </li> </ul> <h3>Misc</h3> <ul> <li>skip 000 permission tests for
+  root user by <a href="https://github.com/burnout-projects"><code>@​burnout-projects</code></a> in
+  <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/561">theskumar/python-dotenv#561</a></li>
+  <li>Bump actions/checkout from 5 to 6 in the github-actions group by <a
+  href="https://github.com/dependabot"><code>@​dependabot</code></a>[bot] in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/593">theskumar/python-dotenv#593</a></li>
+  <li>Add Windows testing to CI by <a href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/604">theskumar/python-dotenv#604</a></li>
+  <li>Improve workflow efficiency with best practices by <a
+  href="https://github.com/theskumar"><code>@​theskumar</code></a> in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/609">theskumar/python-dotenv#609</a></li>
+  <li>Remove the use of <code>sh</code> in tests by <a
+  href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/612">theskumar/python-dotenv#612</a></li>
+  </ul> <h2>New Contributors</h2> <ul> <li><a
+  href="https://github.com/JYOuyang"><code>@​JYOuyang</code></a> made their first contribution in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/590">theskumar/python-dotenv#590</a></li>
+  <li><a href="https://github.com/burnout-projects"><code>@​burnout-projects</code></a> made their
+  first contribution in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/561">theskumar/python-dotenv#561</a></li>
+  <li><a href="https://github.com/cpackham-atlnz"><code>@​cpackham-atlnz</code></a> made their first
+  contribution in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/pull/597">theskumar/python-dotenv#597</a></li>
+  </ul> <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/theskumar/python-dotenv/compare/v1.2.1...v1.2.2">https://github.com/theskumar/python-dotenv/compare/v1.2.1...v1.2.2</a></p>
+  </blockquote> </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/theskumar/python-dotenv/blob/main/CHANGELOG.md">python-dotenv's
+  changelog</a>.</em></p> <blockquote> <h2>[1.2.2] - 2026-03-01</h2> <h3>Added</h3> <ul> <li>Support
+  for Python 3.14, including the free-threaded (3.14t) build. (<a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/588">#588</a>)</li> </ul>
+  <h3>Changed</h3> <ul> <li>The <code>dotenv run</code> command now forwards flags directly to the
+  specified command by [<a href="https://github.com/bbc2"><code>@​bbc2</code></a>] in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/607">#607</a></li> <li>Improved
+  documentation clarity regarding override behavior and the reference page.</li> <li>Updated PyPy
+  support to version 3.11.</li> <li>Documentation for FIFO file support.</li> <li>Dropped Support
+  for Python 3.9.</li> </ul> <h3>Fixed</h3> <ul> <li>Improved <code>set_key</code> and
+  <code>unset_key</code> behavior when interacting with symlinks by [<a
+  href="https://github.com/bbc2"><code>@​bbc2</code></a>] in [790c5c0]</li> <li>Corrected the
+  license specifier and added missing Python 3.14 classifiers in package metadata by [<a
+  href="https://github.com/JYOuyang"><code>@​JYOuyang</code></a>] in <a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/590">#590</a></li> </ul>
+  <h3>Breaking Changes</h3> <ul> <li> <p><code>dotenv.set_key</code> and
+  <code>dotenv.unset_key</code> used to follow symlinks in some situations. This is no longer the
+  case. For that behavior to be restored in all cases, <code>follow_symlinks=True</code> should be
+  used.</p> </li> <li> <p>In the CLI, <code>set</code> and <code>unset</code> used to follow
+  symlinks in some situations. This is no longer the case.</p> </li> <li>
+  <p><code>dotenv.set_key</code>, <code>dotenv.unset_key</code> and the CLI commands
+  <code>set</code> and <code>unset</code> used to reset the file mode of the modified .env file to
+  <code>0o600</code> in some situations. This is no longer the case: The original mode of the file
+  is now preserved. Is the file needed to be created or wasn't a regular file, mode
+  <code>0o600</code> is used.</p> </li> </ul> </blockquote> </details> <details>
+  <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/36004e0e34be7665ff2b11a8a4005144f76f176d"><code>36004e0</code></a>
+  Bump version: 1.2.1 → 1.2.2</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/eb202520e5933c9daf42501e1e42fdb0144002c8"><code>eb20252</code></a>
+  docs: update changelog for v1.2.2</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/790c5c02991100aa1bf41ee5330aca75edc51311"><code>790c5c0</code></a>
+  Merge commit from fork</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/43340da220fb4ca4f95357bbe21a3c7f8f1278b1"><code>43340da</code></a>
+  Remove the use of <code>sh</code> in tests (<a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/612">#612</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/09d7cee32459e7abdcb5c9d8122a552589c06a9c"><code>09d7cee</code></a>
+  docs: clarify override behavior and document FIFO support (<a
+
+href="https://redirect.github.com/theskumar/python-dotenv/issues/610">#610</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/c8de2887c00198c22842c5ae5e92d1747467363c"><code>c8de288</code></a>
+  ci: improve workflow efficiency with best practices (<a
+
+href="https://redirect.github.com/theskumar/python-dotenv/issues/609">#609</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/7bd9e3dbfedc0983ad7d56d5570013035242bdf4"><code>7bd9e3d</code></a>
+  Add Windows testing to CI (<a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/604">#604</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/1baaf04f336072e0ee324d5df9563ec767f14f81"><code>1baaf04</code></a>
+  Drop Python 3.9 support and update to PyPy 3.11 (<a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/608">#608</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/4a22cf8993804aeede0c20b75bb1a29d3a99e9dc"><code>4a22cf8</code></a>
+  ci: enable testing on Python 3.14t (free-threaded) (<a
+
+href="https://redirect.github.com/theskumar/python-dotenv/issues/588">#588</a>)</li> <li><a
+  href="https://github.com/theskumar/python-dotenv/commit/e2e8e776b42e382ae38b44d3982dd649e7507dd4"><code>e2e8e77</code></a>
+  Fix license specifier (<a
+  href="https://redirect.github.com/theskumar/python-dotenv/issues/597">#597</a>)</li>
+  <li>Additional commits viewable in <a
+  href="https://github.com/theskumar/python-dotenv/compare/v1.2.1...v1.2.2">compare view</a></li>
+  </ul> </details> <br />
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore <dependency name> major version` will close this
+  group update PR and stop Dependabot creating any more for the specific dependency's major version
+  (unless you unignore this specific dependency's major version or upgrade to it yourself) -
+  `@dependabot ignore <dependency name> minor version` will close this group update PR and stop
+  Dependabot creating any more for the specific dependency's minor version (unless you unignore this
+  specific dependency's minor version or upgrade to it yourself) - `@dependabot ignore <dependency
+  name>` will close this group update PR and stop Dependabot creating any more for the specific
+  dependency (unless you unignore this specific dependency or upgrade to it yourself) - `@dependabot
+  unignore <dependency name>` will remove all of the ignore conditions of the specified dependency -
+  `@dependabot unignore <dependency name> <ignore condition>` will remove the ignore condition of
+  the specified dependency and ignore conditions You can disable automated security fix PRs for this
+  repo from the [Security Alerts
+  page](https://github.com/jakub-k-slys/substack-gateway-pro/network/alerts).
+
+</details>
+
+- **deps**: Bump uvicorn from 0.44.0 to 0.46.0
+  ([`5dd4603`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/5dd46033cbec494e293d9dd842470bf5c7d5da07))
+
+Bumps [uvicorn](https://github.com/Kludex/uvicorn) from 0.44.0 to 0.46.0. - [Release
+  notes](https://github.com/Kludex/uvicorn/releases) -
+  [Changelog](https://github.com/Kludex/uvicorn/blob/main/docs/release-notes.md) -
+  [Commits](https://github.com/Kludex/uvicorn/compare/0.44.0...0.46.0)
+
+--- updated-dependencies: - dependency-name: uvicorn dependency-version: 0.46.0
+
+dependency-type: direct:production
+
+update-type: version-update:semver-minor ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps**: Bump uvicorn from 0.44.0 to 0.46.0
+  ([#73](https://github.com/jakub-k-slys/substack-gateway-pro/pull/73),
+  [`86d8929`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/86d8929c2024974d1fb44d7a425931a5dad99939))
+
+Bumps [uvicorn](https://github.com/Kludex/uvicorn) from 0.44.0 to 0.46.0. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/Kludex/uvicorn/releases">uvicorn's
+  releases</a>.</em></p> <blockquote> <h2>Version 0.46.0</h2> <h2>What's Changed</h2> <ul>
+  <li>Support <code>ws_max_size</code> in <code>wsproto</code> implementation by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2915">Kludex/uvicorn#2915</a></li>
+  <li>Support <code>ws_ping_interval</code> and <code>ws_ping_timeout</code> in <code>wsproto</code>
+  implementation by <a href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2916">Kludex/uvicorn#2916</a></li> <li>Use
+  <code>bytearray</code> for incoming WebSocket message buffer in websockets-sansio by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2917">Kludex/uvicorn#2917</a></li> </ul>
+  <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/uvicorn/compare/0.45.0...0.46.0">https://github.com/Kludex/uvicorn/compare/0.45.0...0.46.0</a></p>
+  <h2>Version 0.45.0</h2> <h2>What's Changed</h2> <ul> <li>Preserve forwarded client ports in proxy
+  headers middleware by <a href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2903">Kludex/uvicorn#2903</a></li>
+  <li>Accept <code>os.PathLike</code> for <code>log_config</code> by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2905">Kludex/uvicorn#2905</a></li>
+  <li>Accept <code>log_level</code> strings case-insensitively by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2907">Kludex/uvicorn#2907</a></li> <li>Raise
+  helpful <code>ImportError</code> when PyYAML is missing for YAML log config by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2906">Kludex/uvicorn#2906</a></li>
+  <li>Revert empty context for ASGI runs by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2911">Kludex/uvicorn#2911</a></li> <li>Add
+  <code>--reset-contextvars</code> flag to isolate ASGI request context by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2912">Kludex/uvicorn#2912</a></li>
+  <li>Revert &quot;Emit <code>http.disconnect</code> on server shutdown for streaming
+  responses&quot; (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2829">#2829</a>) by <a
+  href="https://github.com/Kludex"><code>@​Kludex</code></a> in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2913">Kludex/uvicorn#2913</a></li> </ul>
+  <h2>New Contributors</h2> <ul> <li><a
+  href="https://github.com/Krishnachaitanyakc"><code>@​Krishnachaitanyakc</code></a> made their
+  first contribution in <a
+  href="https://redirect.github.com/Kludex/uvicorn/pull/2870">Kludex/uvicorn#2870</a></li> </ul>
+  <p><strong>Full Changelog</strong>: <a
+  href="https://github.com/Kludex/uvicorn/compare/0.44.0...0.45.0">https://github.com/Kludex/uvicorn/compare/0.44.0...0.45.0</a></p>
+  </blockquote> </details> <details> <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/Kludex/uvicorn/blob/main/docs/release-notes.md">uvicorn's
+  changelog</a>.</em></p> <blockquote> <h2>0.46.0 (April 23, 2026)</h2> <h3>Added</h3> <ul>
+  <li>Support <code>ws_max_size</code> in <code>wsproto</code> implementation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2915">#2915</a>)</li> <li>Support
+  <code>ws_ping_interval</code> and <code>ws_ping_timeout</code> in <code>wsproto</code>
+  implementation (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2916">#2916</a>)</li>
+  </ul> <h3>Changed</h3> <ul> <li>Use <code>bytearray</code> for incoming WebSocket message buffer
+  in <code>websockets-sansio</code> (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2917">#2917</a>)</li> </ul> <h2>0.45.0
+  (April 21, 2026)</h2> <h3>Added</h3> <ul> <li>Add <code>--reset-contextvars</code> flag to isolate
+  ASGI request context (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2912">#2912</a>)</li> <li>Accept
+  <code>os.PathLike</code> for <code>log_config</code> (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2905">#2905</a>)</li> <li>Accept
+  <code>log_level</code> strings case-insensitively (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2907">#2907</a>)</li> </ul>
+  <h3>Changed</h3> <ul> <li>Revert &quot;Emit <code>http.disconnect</code> on server shutdown for
+  streaming responses&quot; (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2913">#2913</a>)</li> <li>Revert
+  &quot;Explicitly start ASGI run with empty context&quot; (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2911">#2911</a>)</li> </ul> <h3>Fixed</h3>
+  <ul> <li>Preserve forwarded client ports in proxy headers middleware (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2903">#2903</a>)</li> <li>Raise helpful
+  <code>ImportError</code> when PyYAML is missing for YAML log config (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2906">#2906</a>)</li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/b224045f5900b7f766743bcb16ba9fc3adea2606"><code>b224045</code></a>
+  Version 0.46.0 (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2918">#2918</a>)</li>
+  <li><a
+  href="https://github.com/Kludex/uvicorn/commit/7375b5bf66d962186d663e85615d4b4d956bf880"><code>7375b5b</code></a>
+  Use <code>bytearray</code> for incoming WebSocket message buffer in websockets-sansio (#...</li>
+  <li><a
+  href="https://github.com/Kludex/uvicorn/commit/d438fb16fe2d23c7bbc2ca7094645cff1f116458"><code>d438fb1</code></a>
+  Support <code>ws_ping_interval</code> and <code>ws_ping_timeout</code> in <code>wsproto</code>
+  implementation ...</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/3e6b96446653d0156434bce529a14c80764c9eda"><code>3e6b964</code></a>
+  Support <code>ws_max_size</code> in <code>wsproto</code> implementation (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2915">#2915</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/2c423bd82be169459ea254a61476de34767e0326"><code>2c423bd</code></a>
+  Version 0.45.0 (<a href="https://redirect.github.com/Kludex/uvicorn/issues/2914">#2914</a>)</li>
+  <li><a
+  href="https://github.com/Kludex/uvicorn/commit/7f027f8e25e47668a9c2ce8b5c21b35054c48d02"><code>7f027f8</code></a>
+  Revert &quot;Emit <code>http.disconnect</code> on server shutdown for streaming responses&quot;
+  (#...</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/73a80c3cc87de269ed016e584a25e585ae6f2b44"><code>73a80c3</code></a>
+  Add <code>--reset-contextvars</code> flag to isolate ASGI request context (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2912">#2912</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/45c0b568d38e9bf4f2f036bc2d79eb98b0e72f72"><code>45c0b56</code></a>
+  Revert empty context for ASGI runs (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2911">#2911</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/850d92656de0cb5859ee5f6ba252e19ad3d38989"><code>850d926</code></a>
+  Raise helpful <code>ImportError</code> when PyYAML is missing for YAML log config (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2906">#2906</a>)</li> <li><a
+  href="https://github.com/Kludex/uvicorn/commit/fdcacb4b83bc686ea1ba9e50ffe5b8cfe49b3e00"><code>fdcacb4</code></a>
+  Accept <code>log_level</code> strings case-insensitively (<a
+  href="https://redirect.github.com/Kludex/uvicorn/issues/2907">#2907</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/Kludex/uvicorn/compare/0.44.0...0.46.0">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=uvicorn&package-manager=uv&previous-version=0.44.0&new-version=0.46.0)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ruff from 0.15.9 to 0.15.10
+  ([`16dc512`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/16dc512bd6541109f302417e525ef0a041d3a44d))
+
+Bumps [ruff](https://github.com/astral-sh/ruff) from 0.15.9 to 0.15.10. - [Release
+  notes](https://github.com/astral-sh/ruff/releases) -
+  [Changelog](https://github.com/astral-sh/ruff/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ruff/compare/0.15.9...0.15.10)
+
+--- updated-dependencies: - dependency-name: ruff dependency-version: 0.15.10
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ruff from 0.15.9 to 0.15.10
+  ([#69](https://github.com/jakub-k-slys/substack-gateway-pro/pull/69),
+  [`eefa46b`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/eefa46b5c64870754bd0712dbec8d57df9c0ef1e))
+
+Bumps [ruff](https://github.com/astral-sh/ruff) from 0.15.9 to 0.15.10. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ruff/releases">ruff's
+  releases</a>.</em></p> <blockquote> <h2>0.15.10</h2> <h2>Release Notes</h2> <p>Released on
+  2026-04-09.</p> <h3>Preview features</h3> <ul> <li>[<code>flake8-logging</code>] Allow closures in
+  except handlers (<code>LOG004</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24464">#24464</a>)</li>
+  <li>[<code>flake8-self</code>] Make <code>SLF</code> diagnostics robust to non-self-named
+  variables (<a href="https://redirect.github.com/astral-sh/ruff/pull/24281">#24281</a>)</li>
+  <li>[<code>flake8-simplify</code>] Make the fix for <code>collapsible-if</code> safe in
+  <code>preview</code> (<code>SIM102</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24371">#24371</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>Avoid emitting multi-line f-string elements before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24377">#24377</a>)</li> <li>Avoid syntax
+  error from <code>E502</code> fixes in f-strings and t-strings (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24410">#24410</a>)</li> <li>Strip form feeds
+  from indent passed to <code>dedent_to</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24381">#24381</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix panic caused by handling of octals (<code>UP012</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24390">#24390</a>)</li> <li>Reject
+  multi-line f-string elements before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24355">#24355</a>)</li> </ul> <h3>Rule
+  changes</h3> <ul> <li>[<code>ruff</code>] Treat f-string interpolation as potential side effect
+  (<code>RUF019</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24426">#24426</a>)</li> </ul>
+  <h3>Server</h3> <ul> <li>Add support for custom file extensions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24463">#24463</a>)</li> </ul>
+  <h3>Documentation</h3> <ul> <li>Document adding fixes in CONTRIBUTING.md (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24393">#24393</a>)</li> <li>Fix JSON typo in
+  settings example (<a href="https://redirect.github.com/astral-sh/ruff/pull/24517">#24517</a>)</li>
+  </ul> <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/dylwil3"><code>@​dylwil3</code></a></li> <li><a
+  href="https://github.com/silverstein"><code>@​silverstein</code></a></li> <li><a
+  href="https://github.com/anishgirianish"><code>@​anishgirianish</code></a></li> <li><a
+  href="https://github.com/shizukushq"><code>@​shizukushq</code></a></li> <li><a
+  href="https://github.com/zanieb"><code>@​zanieb</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> </ul> <h2>Install ruff
+  0.15.10</h2> <h3>Install prebuilt binaries via shell script</h3> <pre lang="sh"><code>curl --proto
+  '=https' --tlsv1.2 -LsSf
+  https://releases.astral.sh/github/ruff/releases/download/0.15.10/ruff-installer.sh | sh
+  </code></pre> <!-- raw HTML omitted --> </blockquote> <p>... (truncated)</p> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ruff/blob/main/CHANGELOG.md">ruff's changelog</a>.</em></p>
+  <blockquote> <h2>0.15.10</h2> <p>Released on 2026-04-09.</p> <h3>Preview features</h3> <ul>
+  <li>[<code>flake8-logging</code>] Allow closures in except handlers (<code>LOG004</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24464">#24464</a>)</li>
+  <li>[<code>flake8-self</code>] Make <code>SLF</code> diagnostics robust to non-self-named
+  variables (<a href="https://redirect.github.com/astral-sh/ruff/pull/24281">#24281</a>)</li>
+  <li>[<code>flake8-simplify</code>] Make the fix for <code>collapsible-if</code> safe in
+  <code>preview</code> (<code>SIM102</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24371">#24371</a>)</li> </ul> <h3>Bug
+  fixes</h3> <ul> <li>Avoid emitting multi-line f-string elements before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24377">#24377</a>)</li> <li>Avoid syntax
+  error from <code>E502</code> fixes in f-strings and t-strings (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24410">#24410</a>)</li> <li>Strip form feeds
+  from indent passed to <code>dedent_to</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24381">#24381</a>)</li>
+  <li>[<code>pyupgrade</code>] Fix panic caused by handling of octals (<code>UP012</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24390">#24390</a>)</li> <li>Reject
+  multi-line f-string elements before Python 3.12 (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24355">#24355</a>)</li> </ul> <h3>Rule
+  changes</h3> <ul> <li>[<code>ruff</code>] Treat f-string interpolation as potential side effect
+  (<code>RUF019</code>) (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24426">#24426</a>)</li> </ul>
+  <h3>Server</h3> <ul> <li>Add support for custom file extensions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24463">#24463</a>)</li> </ul>
+  <h3>Documentation</h3> <ul> <li>Document adding fixes in CONTRIBUTING.md (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24393">#24393</a>)</li> <li>Fix JSON typo in
+  settings example (<a href="https://redirect.github.com/astral-sh/ruff/pull/24517">#24517</a>)</li>
+  </ul> <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/dylwil3"><code>@​dylwil3</code></a></li> <li><a
+  href="https://github.com/silverstein"><code>@​silverstein</code></a></li> <li><a
+  href="https://github.com/anishgirianish"><code>@​anishgirianish</code></a></li> <li><a
+  href="https://github.com/shizukushq"><code>@​shizukushq</code></a></li> <li><a
+  href="https://github.com/zanieb"><code>@​zanieb</code></a></li> <li><a
+  href="https://github.com/AlexWaygood"><code>@​AlexWaygood</code></a></li> </ul> </blockquote>
+  </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/astral-sh/ruff/commit/252f76102a618bff6537b6c53c316ca3837f4abf"><code>252f761</code></a>
+  Bump 0.15.10 (<a href="https://redirect.github.com/astral-sh/ruff/issues/24519">#24519</a>)</li>
+  <li><a
+  href="https://github.com/astral-sh/ruff/commit/37a1ec8bb8e30955787b0cdf6e97f7f2254dba7f"><code>37a1ec8</code></a>
+  [ty] Fix assignability of intersections with bounded typevars (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24502">#24502</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/f518cc9ca0c830773dd49c3964eb5e49d52c8aed"><code>f518cc9</code></a>
+  [ty] Allow partially stringified <code>type[…]</code> annotations (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24518">#24518</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/16c4090d0a711b9c0523b932014f3daf140f35bc"><code>16c4090</code></a>
+  docs: fix JSON typo in settings example (<a
+
+href="https://redirect.github.com/astral-sh/ruff/issues/24517">#24517</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/99d97bd72f1934ac2af93e52468c10ef1c7a1a4e"><code>99d97bd</code></a>
+  [ty] Tighten up a few edge cases in <code>Concatenate</code> type-expression parsing (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/2">#2</a>...</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/2714e345bdd64a5baae3844c0d25db7b0b9fe330"><code>2714e34</code></a>
+  [ty] Enable <code>pull-diagnostics</code> by default in E2E tests (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24516">#24516</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/d8bc700722ab1b7272a4d724839da7c569b349d4"><code>d8bc700</code></a>
+  LSP: Add support for custom extensions (<a
+
+href="https://redirect.github.com/astral-sh/ruff/issues/24463">#24463</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/a45f96d65dbd4f958b07accd718f8d2af48cb956"><code>a45f96d</code></a>
+  [ty] stop special-casing str constructor (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24514">#24514</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/87a0f01cfd016e0297ef05ab638cde006bf8d947"><code>87a0f01</code></a>
+  [ruff] Treat f-string interpolation as potential side effect in RUF019 (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24426">#24426</a>)</li> <li><a
+  href="https://github.com/astral-sh/ruff/commit/e9ba8489b8d1f1fd5fd66887a74d5f2f58f733d4"><code>e9ba848</code></a>
+  [ty] Fix excess subscript argument inference for non-generic types (<a
+  href="https://redirect.github.com/astral-sh/ruff/issues/24354">#24354</a>)</li> <li>Additional
+  commits viewable in <a href="https://github.com/astral-sh/ruff/compare/0.15.9...0.15.10">compare
+  view</a></li> </ul> </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ruff&package-manager=uv&previous-version=0.15.9&new-version=0.15.10)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+---
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+- **deps-dev**: Bump ty from 0.0.29 to 0.0.31
+  ([`ec206d3`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/ec206d33157f1c66bf64299559c482f9d07fc787))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.29 to 0.0.31. - [Release
+  notes](https://github.com/astral-sh/ty/releases) -
+  [Changelog](https://github.com/astral-sh/ty/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ty/compare/0.0.29...0.0.31)
+
+--- updated-dependencies: - dependency-name: ty dependency-version: 0.0.31
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ty from 0.0.29 to 0.0.31
+  ([#68](https://github.com/jakub-k-slys/substack-gateway-pro/pull/68),
+  [`cdd1467`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/cdd1467112e798619e212fbf82f9227e5bc48a3c))
+
+[//]: # (dependabot-start) ⚠️ **Dependabot is rebasing this PR** ⚠️
+
+Rebasing might not happen immediately, so don't worry if this takes some time.
+
+Note: if you make any changes to this PR yourself, they will take precedence over the rebase.
+
+---
+
+[//]: # (dependabot-end)
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.29 to 0.0.31. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ty/releases">ty's
+  releases</a>.</em></p> <blockquote> <h2>0.0.31</h2> <h2>Release Notes</h2> <p>Released on
+  2026-04-15.</p> <h3>Bug fixes</h3> <ul> <li>Avoid panic from double inference for
+  <code>namedtuple(typename=T, field_names=x, **{})</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24641">#24641</a>)</li> <li>Avoid panic from
+  double inference with missing functional <code>Enum(...)</code> names (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24638">#24638</a>)</li> <li>Avoid panic from
+  double inference with functional <code>Enum(value=...)</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24639">#24639</a>)</li> <li>Fix cases where
+  <code>invalid-key</code> fix doesn't converge, and <code>override-of-final-method</code> produces
+  invalid syntax (<a href="https://redirect.github.com/astral-sh/ruff/pull/24649">#24649</a>)</li>
+  <li>Fix unnecessary <code>ty:ignore</code> comments inserted by <code>--add-ignore</code> for
+  diagnostics starting on the same line (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24651">#24651</a>)</li> </ul> <h3>CLI</h3>
+  <ul> <li>Add <code>--fix</code> mode to enable auto-fix for diagnostics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24097">#24097</a>)</li> </ul>
+  <h3>Performance</h3> <ul> <li>Avoid excessive memory usage for dataclasses with many fields (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24620">#24620</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Check inherited <code>NamedTuple</code> field conflicts (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24542">#24542</a>)</li> <li>Error when
+  duplicate keywords are provided to TypedDict constructors (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24449">#24449</a>)</li> <li>Respect mixed
+  positional and keyword arguments in TypedDict constructor (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24448">#24448</a>)</li> <li>Respect subclass
+  shadowing for inherited NamedTuple fields (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24640">#24640</a>)</li> <li>Skip
+  <code>EnumMeta.__call__</code> for enum constructor signatures (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24513">#24513</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> </ul> <h2>Install ty
+  0.0.31</h2> <h3>Install prebuilt binaries via shell script</h3> <pre lang="sh"><code>curl --proto
+  '=https' --tlsv1.2 -LsSf
+  https://releases.astral.sh/github/ty/releases/download/0.0.31/ty-installer.sh | sh </code></pre>
+  <h3>Install prebuilt binaries via powershell script</h3> <pre lang="sh"><code>powershell
+  -ExecutionPolicy Bypass -c &quot;irm
+  https://releases.astral.sh/github/ty/releases/download/0.0.31/ty-installer.ps1 | iex&quot;
+  </code></pre> <!-- raw HTML omitted --> </blockquote> <p>... (truncated)</p> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ty/blob/main/CHANGELOG.md">ty's changelog</a>.</em></p>
+  <blockquote> <h2>0.0.31</h2> <p>Released on 2026-04-15.</p> <h3>Bug fixes</h3> <ul> <li>Avoid
+  panic from double inference for <code>namedtuple(typename=T, field_names=x, **{})</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24641">#24641</a>)</li> <li>Avoid panic from
+  double inference with missing functional <code>Enum(...)</code> names (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24638">#24638</a>)</li> <li>Avoid panic from
+  double inference with functional <code>Enum(value=...)</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24639">#24639</a>)</li> <li>Fix cases where
+  <code>invalid-key</code> fix doesn't converge, and <code>override-of-final-method</code> produces
+  invalid syntax (<a href="https://redirect.github.com/astral-sh/ruff/pull/24649">#24649</a>)</li>
+  <li>Fix unnecessary <code>ty:ignore</code> comments inserted by <code>--add-ignore</code> for
+  diagnostics starting on the same line (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24651">#24651</a>)</li> </ul> <h3>CLI</h3>
+  <ul> <li>Add <code>--fix</code> mode to enable auto-fix for diagnostics (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24097">#24097</a>)</li> </ul>
+  <h3>Performance</h3> <ul> <li>Avoid excessive memory usage for dataclasses with many fields (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24620">#24620</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Check inherited <code>NamedTuple</code> field conflicts (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24542">#24542</a>)</li> <li>Error when
+  duplicate keywords are provided to TypedDict constructors (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24449">#24449</a>)</li> <li>Respect mixed
+  positional and keyword arguments in TypedDict constructor (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24448">#24448</a>)</li> <li>Respect subclass
+  shadowing for inherited NamedTuple fields (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24640">#24640</a>)</li> <li>Skip
+  <code>EnumMeta.__call__</code> for enum constructor signatures (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24513">#24513</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/sharkdp"><code>@​sharkdp</code></a></li> <li><a
+  href="https://github.com/Glyphack"><code>@​Glyphack</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> </ul>
+  <h2>0.0.30</h2> <p>Released on 2026-04-13.</p> <p>As of v0.0.30, ty no longer unions
+  <code>Unknown</code> into most inferred types of unannotated attributes. For example:</p> <pre
+  lang="python"><code>class Foo: def __init__(self) -&gt; None: self.value = 1
+  <p>reveal_type(Foo().value) # revealed: int Foo().value = &quot;x&quot; # error:
+  [invalid-assignment] </code></pre></p> <!-- raw HTML omitted --> </blockquote> <p>...
+  (truncated)</p> </details> <details> <summary>Commits</summary> <ul> <li><a
+  href="https://github.com/astral-sh/ty/commit/daaa40454966558ffd2a0ea3dcf86bc1749c8715"><code>daaa404</code></a>
+  Bump version to 0.0.31 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3280">#3280</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/12e86b58b5034a29266268195afc16feeab6e3ea"><code>12e86b5</code></a>
+  Bump version to 0.0.30 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3270">#3270</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/67077ad5fbde5adc1df0e3169525040ad1139dab"><code>67077ad</code></a>
+  Reorder sections in FAQ (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3267">#3267</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/01144db2dc10e0e8dbf1665fbb7faf1a545d0df4"><code>01144db</code></a>
+  Update docker/login-action action to v4.1.0 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3262">#3262</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/48b3fe3d5636f8ac337f0e9cf014c80190a1b427"><code>48b3fe3</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3261">#3261</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/7c8133816405d504c81651f341b833ae12c9574b"><code>7c81338</code></a>
+  Create a &quot;deployment&quot; for the release-gate job (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3239">#3239</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/a447e03aa5a8147aa69ed9eac5d68d36198d6237"><code>a447e03</code></a>
+  Add a &quot;release-gate&quot; step to the release workflow (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3205">#3205</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/5131a0e5c26d3cb4daf5fb489ddd54beca8e4a61"><code>5131a0e</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3221">#3221</a>)</li> <li>See full diff in
+  <a href="https://github.com/astral-sh/ty/compare/0.0.29...0.0.31">compare view</a></li> </ul>
+  </details> <br />
+
+[![Dependabot compatibility
+  score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=ty&package-manager=uv&previous-version=0.0.29&new-version=0.0.31)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can
+  also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start) [//]: # (dependabot-automerge-end)
+
+<details> <summary>Dependabot commands and options</summary> <br />
+
+You can trigger Dependabot actions by commenting on this PR: - `@dependabot rebase` will rebase this
+  PR - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+  - `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of
+  the specified dependency - `@dependabot ignore this major version` will close this PR and stop
+  Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it
+  yourself) - `@dependabot ignore this minor version` will close this PR and stop Dependabot
+  creating any more for this minor version (unless you reopen the PR or upgrade to it yourself) -
+  `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for
+  this dependency (unless you reopen the PR or upgrade to it yourself)
+
+</details>
+
+### Continuous Integration
+
+- Expand e2e summary to show per-scenario results
+  ([`acc2b3f`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/acc2b3f0ea51bcd510b8cdaddcbe5f4750b1f72b))
+
+Replace the feature-level aggregated table with a section per feature that lists each scenario
+  individually, showing Passed / Failed / Skipped status for every testcase element in the JUnit XML
+  output.
+
+https://claude.ai/code/session_014PHSG4aNJ8F6gj8GFesYan
+
+- Expand e2e summary to show per-scenario results
+  ([#70](https://github.com/jakub-k-slys/substack-gateway-pro/pull/70),
+  [`4ad36d9`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/4ad36d9d9f27e481962710c27e4d37af3ad5b4ec))
+
+Replace the feature-level aggregated table with a section per feature that lists each scenario
+  individually, showing Passed / Failed / Skipped status for every testcase element in the JUnit XML
+  output.
+
+https://claude.ai/code/session_014PHSG4aNJ8F6gj8GFesYan
+
+- Run e2e tests twice daily at 08:00 and 16:00 UTC
+  ([`f5a5342`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/f5a534218c4d3077f418d52fdd9382eab3dde5b1))
+
+https://claude.ai/code/session_014PHSG4aNJ8F6gj8GFesYan
+
+- Send per-scenario e2e results to Telegram
+  ([`5f45e18`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/5f45e181afe46981a0971da0081dd8badbc0baa6))
+
+Mirror the step summary detail level in the Telegram message: each feature section now lists every
+  scenario with its individual pass/fail/skip icon, matching what is already shown in the GitHub
+  step summary.
+
+https://claude.ai/code/session_011QtA5GwTxad1m4DhiBCVaS
+
+- Send per-scenario e2e results to Telegram
+  ([#71](https://github.com/jakub-k-slys/substack-gateway-pro/pull/71),
+  [`d15da56`](https://github.com/jakub-k-slys/substack-gateway-pro/commit/d15da56bb10d6795c9749b4b85de67274a949be1))
+
+Mirror the step summary detail level in the Telegram message: each feature section now lists every
+  scenario with its individual pass/fail/skip icon, matching what is already shown in the GitHub
+  step summary.
+
+https://claude.ai/code/session_011QtA5GwTxad1m4DhiBCVaS
+
+
 ## v0.12.1 (2026-04-11)
 
 ### Bug Fixes
