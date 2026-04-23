@@ -5,7 +5,7 @@ requires-python = ">=3.14"
 dependencies = [
   "gateway_oss",
   "gateway_pro",
-  "uvicorn>=0.41.0",
+  "uvicorn>=0.46.0",
   "uvloop>=0.22.1",
 ]
 
