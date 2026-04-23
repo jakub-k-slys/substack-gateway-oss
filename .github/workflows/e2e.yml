@@ -3,6 +3,7 @@ name: E2E Tests
 on:
   schedule:
     - cron: "0 8 * * *"
+    - cron: "0 16 * * *"
   push:
     branches:
       - main
@@ -51,9 +52,7 @@ jobs:
           import glob, os
           from xml.etree import ElementTree as ET
 
-          lines = ["## E2E Test Results\n",
-                   "| Feature | Tests | Passed | Failed | Skipped |",
-                   "|---------|------:|-------:|-------:|--------:|"]
+          lines = ["## E2E Test Results\n"]
           total = {"tests": 0, "failed": 0, "skipped": 0}
 
           for path in sorted(glob.glob("e2e-reports/*.xml")):
@@ -63,16 +62,29 @@ jobs:
               tests   = int(suite.get("tests",    0))
               failed  = int(suite.get("failures", 0)) + int(suite.get("errors", 0))
               skipped = int(suite.get("skipped",  0))
-              passed  = tests - failed - skipped
               name    = suite.get("name", os.path.basename(path))
               icon    = "✅" if failed == 0 else "❌"
-              lines.append(f"| {icon} {name} | {tests} | {passed} | {failed} | {skipped} |")
+              lines.append(f"### {icon} {name}\n")
+              lines.append("| Scenario | Status |")
+              lines.append("|----------|--------|")
+              for tc in suite.findall("testcase"):
+                  scenario = tc.get("name", "Unknown scenario")
+                  if tc.find("failure") is not None or tc.find("error") is not None:
+                      status = "❌ Failed"
+                  elif tc.find("skipped") is not None:
+                      status = "⏭️ Skipped"
+                  else:
+                      status = "✅ Passed"
+                  lines.append(f"| {scenario} | {status} |")
+              lines.append("")
               total["tests"]   += tests
               total["failed"]  += failed
               total["skipped"] += skipped
 
           tp = total["tests"] - total["failed"] - total["skipped"]
-          lines.append(f"| **Total** | **{total['tests']}** | **{tp}** | **{total['failed']}** | **{total['skipped']}** |")
+          overall = "✅" if total["failed"] == 0 else "❌"
+          lines.append(f"---\n")
+          lines.append(f"**{overall} Total: {tp}/{total['tests']} passed, {total['failed']} failed, {total['skipped']} skipped**\n")
 
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
               f.write("\n".join(lines) + "\n")
