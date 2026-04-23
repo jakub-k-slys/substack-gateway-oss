@@ -25,7 +25,7 @@ gateway_pro = { workspace = true }
 [dependency-groups]
 dev = [
   "ruff>=0.15.11",
-  "ty>=0.0.19",
+  "ty>=0.0.32",
   "behave>=1.2.6",
   "respx>=0.22.0",
   "httpx>=0.28.0",
