@@ -27,7 +27,9 @@ class DraftsService:
         """GET /drafts — all drafts as summaries."""
         _log.debug("Listing drafts")
         r = await self._pub.get("drafts")
-        drafts = [SubstackDraftSummary.model_validate(d) for d in r.json()]
+        data = r.json()
+        items = data["posts"] if isinstance(data, dict) else data
+        drafts = [SubstackDraftSummary.model_validate(d) for d in items]
         _log.debug("Got %d drafts", len(drafts))
         return drafts
 

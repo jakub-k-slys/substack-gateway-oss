@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from behave import then
+
 from gateway_oss import __app_version__
 
 
