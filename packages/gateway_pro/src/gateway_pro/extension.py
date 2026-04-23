@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastmcp import FastMCP
+from gateway_oss import __app_version__
 from gateway_oss.application_features import build_pro_features
 from gateway_oss.extensions.base import (
     ApplicationInfo,
@@ -16,7 +17,6 @@ from gateway_oss.extensions.base import (
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
-from gateway_oss import __app_version__
 from gateway_pro.config import pro_settings
 
 
