@@ -98,11 +98,11 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           python3 - <<'EOF'
-          import glob, os, urllib.request, urllib.parse, json
+          import glob, os, urllib.request, json
           from xml.etree import ElementTree as ET
 
           total = {"tests": 0, "failed": 0, "skipped": 0}
-          rows = []
+          sections = []
 
           for path in sorted(glob.glob("e2e-reports/*.xml")):
               suite = ET.parse(path).getroot()
@@ -111,10 +111,19 @@ jobs:
               tests   = int(suite.get("tests",    0))
               failed  = int(suite.get("failures", 0)) + int(suite.get("errors", 0))
               skipped = int(suite.get("skipped",  0))
-              passed  = tests - failed - skipped
               name    = suite.get("name", os.path.basename(path))
               icon    = "✅" if failed == 0 else "❌"
-              rows.append(f"{icon} <b>{name}</b>: {passed}/{tests} passed")
+              scenario_lines = [f"{icon} <b>{name}</b>"]
+              for tc in suite.findall("testcase"):
+                  scenario = tc.get("name", "Unknown scenario")
+                  if tc.find("failure") is not None or tc.find("error") is not None:
+                      s_icon = "❌"
+                  elif tc.find("skipped") is not None:
+                      s_icon = "⏭"
+                  else:
+                      s_icon = "✅"
+                  scenario_lines.append(f"  {s_icon} {scenario}")
+              sections.append("\n".join(scenario_lines))
               total["tests"]   += tests
               total["failed"]  += failed
               total["skipped"] += skipped
@@ -127,7 +136,7 @@ jobs:
               f"<b>E2E Results — {overall}</b>",
               f"Total: {tp}/{total['tests']} passed, {total['skipped']} skipped",
               "",
-              *rows,
+              *sections,
               "",
               f'<a href="{run_url}">View run</a>',
           ]
