@@ -1,0 +1,14 @@
+.idea/
+.vercel/
+.venv/
+venv/
+.uv-cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.Python
+.DS_Store
+.env*
