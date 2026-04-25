@@ -1,3 +1,4 @@
+.idea/
 .vercel/
 .venv/
 venv/
@@ -11,4 +12,3 @@ __pycache__/
 .Python
 .DS_Store
 .env*
-.idea/

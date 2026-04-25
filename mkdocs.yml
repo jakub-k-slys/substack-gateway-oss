@@ -1,0 +1,15 @@
+site_name: Substack Gateway OSS
+site_description: Documentation for the Substack Gateway OSS REST API and MCP server.
+repo_url: https://github.com/jakub-k-slys/substack-gateway-oss
+theme:
+  name: material
+plugins:
+  - search
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
+  - Installation: installation.md
+  - Authentication: authentication.md
+  - API Reference: api-reference.md
+  - MCP: mcp.md
+  - Development: development.md

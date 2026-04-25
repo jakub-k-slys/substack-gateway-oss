@@ -1,33 +1,37 @@
 [project]
-name = "substack-gateway"
-version = "0.12.2"
-requires-python = ">=3.14"
+name = "gateway_oss"
+version = "1.0.0"
+requires-python = ">=3.10"
 dependencies = [
-  "gateway_oss",
-  "gateway_pro",
-  "uvicorn>=0.46.0",
+  "fastapi>=0.136.0",
+  "httpx>=0.28.0",
+  "pyrate-limiter>=3.7.0",
+  "pydantic>=2.13.3",
+  "pydantic-settings>=2.14.0",
+  "async-lru>=2.0",
+  "fastmcp>=3.2.4",
+  "markdownify>=1.2.2",
+  "tenacity>=9.1.2",
   "uvloop>=0.22.1",
 ]
 
-[tool.uv.workspace]
-members = ["packages/gateway_oss", "packages/gateway_pro"]
+[project.scripts]
+app = "gateway_oss.main:main"
+gateway_oss = "gateway_oss.main:main"
 
-[tool.uv]
-package = false
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-where = ["packages"]
-
-[tool.uv.sources]
-gateway_oss = { workspace = true }
-gateway_pro = { workspace = true }
+[tool.hatch.build.targets.wheel]
+packages = ["src/gateway_oss"]
 
 [dependency-groups]
 dev = [
   "ruff>=0.15.11",
   "ty>=0.0.32",
   "behave>=1.2.6",
-  "respx>=0.22.0",
+  "respx>=0.23.1",
   "httpx>=0.28.0",
   "pytest>=8.0",
 ]
@@ -45,16 +49,16 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.behave]
-paths = ["packages/gateway_oss/features/", "packages/gateway_pro/features/"]
+paths = ["features/"]
 show_timings = true
 summary = true
 default_format = "pretty"
 
 [tool.pytest.ini_options]
-testpaths = ["packages/gateway_oss/tests", "packages/gateway_pro/tests"]
+testpaths = ["tests/"]
 
 [tool.ty.src]
-exclude = ["e2e/", "packages/gateway_oss/features/", "packages/gateway_pro/features/"]
+exclude = ["features/", "e2e/"]
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]

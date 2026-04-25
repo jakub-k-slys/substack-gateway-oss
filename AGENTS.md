@@ -1,50 +1,31 @@
-These instructions apply to the entire repository unless a deeper `AGENTS.md` overrides them.
-- `substack-gateway` is a Python 3.10+ FastAPI service that proxies authenticated requests to Substack.
-- The monorepo is split into `packages/gateway_oss/` and `packages/gateway_pro/`.
-- `gateway_oss.main:app` is the application entry point.
-- The OSS app code lives in `packages/gateway_oss/src/gateway_oss/`.
-- Pro-only OAuth code lives in `packages/gateway_pro/src/gateway_pro/oauth/`.
-- Gateway authentication and Substack authentication are separate concerns.
-- Authenticated REST requests pass Substack credentials in the `x-gateway-token` header, whose value is a base64-encoded JSON object containing `publication_url`, `substack_sid`, and `connect_sid`.
-- Install dependencies with `uv sync --dev`.
-- Run the app locally with `uv run uvicorn gateway_oss.main:app --host 0.0.0.0 --port 5001 --reload`.
-- Lint with `uv run ruff check .`.
-- Check formatting with `uv run ruff format --check .`.
-- Type-check with `uv run ty check .`.
-- Run unit tests with `uv run pytest`.
-- Run BDD tests with `uv run behave packages/gateway_oss/features/`.
-- Prefer targeted validation for the area you changed before running broader suites.
-- Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
-- When introducing changes, validate them before finishing the task. At minimum, run the relevant combination of:
-  `uv run ruff check .`,
-  `uv run ruff format --check .`,
-  `uv run ty check .`,
-  `uv build`,
-  `uv run pytest`,
-  `uv run behave packages/gateway_oss/features/`,
-  `uv run behave packages/gateway_pro/features/`.
-- Behave is currently run separately for OSS and PRO. In the monorepo, run the suite for the package you changed, and run both when the change crosses the package boundary.
-- `packages/gateway_oss/src/gateway_oss/api/`: FastAPI app wiring and request dependencies.
-- `packages/gateway_oss/src/gateway_oss/client/`: HTTP clients and upstream error handling.
-- `packages/gateway_oss/src/gateway_oss/services/`: business logic for drafts, notes, posts, profiles, and following.
-- `packages/gateway_oss/src/gateway_oss/models/`: Pydantic schemas and upstream response models.
-- `packages/gateway_oss/src/gateway_oss/converters/markdown.py`: Markdown/Substack document conversion.
-- `packages/gateway_oss/src/gateway_oss/mcp/`: MCP app and dependency wiring.
-- `packages/gateway_pro/src/gateway_pro/oauth/`: OAuth provider, DB access, login flow, and router.
-- `packages/gateway_oss/tests/`: OSS-focused pytest coverage.
-- `packages/gateway_oss/features/`: OSS Behave coverage and step definitions.
-- `samples/`: example Substack payloads used as reference fixtures.
-- Match the existing Python style: async-first, typed code, Pydantic models, and small focused functions.
-- Keep changes surgical. Fix the root cause instead of layering workarounds.
-- Reuse existing service and dependency boundaries rather than moving logic into route handlers.
-- Keep external API behavior stable unless the task explicitly requires a contract change.
-- Use double quotes and keep Ruff clean.
-- Avoid adding new dependencies unless they are clearly justified.
-- Add or update the smallest relevant tests for behavior changes.
-- For API behavior, prefer Behave coverage in `packages/gateway_oss/features/` when similar scenarios already exist.
-- For pure logic changes, prefer `pytest` tests in `packages/gateway_oss/tests/`.
-- When touching Markdown conversion, OAuth, or model translation, check for both unit and feature-level coverage nearby before adding new tests.
-- There are generated/cache directories in the repo already; do not commit new generated artifacts.
-- Respect existing user changes in the working tree. Do not revert unrelated modifications.
-- If a task affects auth, cookies, bearer decoding, or embedded `publication_url`, verify error handling paths as well as success paths.
-- Commit titles must use Conventional Commits / semver-style prefixes such as `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, or `ci:`. Prefer the narrowest correct prefix and keep the subject concise and imperative. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
+# Repository Guidelines
+
+## Project Structure & Module Organization
+Core application code lives in `src/gateway_oss/`. `api/v1/` holds FastAPI routes, `mcp/` exposes the FastMCP surface, `services/` contains shared business logic, `client/` wraps Substack HTTP calls, and `models/` defines schemas and pagination types. Markdown conversion lives in `converters/`, while extension hooks live in `extensions/`. Unit tests are in `tests/`, BDD coverage is in `features/` with step definitions under `features/steps/`. Use `samples/` for request examples and treat `dist/` as build output.
+
+## Build, Test, and Development Commands
+Install the pinned toolchain and dev dependencies with `uv sync --dev`. Run the app locally with `uv run python -m gateway_oss.main`; this serves the API and MCP endpoints on port `5001` by default. Build distributable artifacts with `uv build`.
+
+Quality checks:
+- `uv run ruff check .` runs lint rules.
+- `uv run ruff format --check .` verifies formatting.
+- `uv run ty check .` runs static type checks.
+- `uv build` verifies the package builds.
+- `uv run pytest tests/` runs unit tests.
+- `uv run behave features/` runs BDD and integration scenarios.
+
+When introducing changes, run the relevant validation before finishing the task. Prefer targeted checks for the touched area first, but the default OSS validation bar is lint, format, type-check, build, pytest, and behave.
+Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
+
+## Coding Style & Naming Conventions
+Target Python `3.10+` and keep code compatible with the `src/` layout. Ruff enforces 4-space indentation, double quotes, import sorting, and an 88-character line length. Prefer explicit module names like `posts.py`, `profiles.py`, and `markdown.py`; use `snake_case` for functions, variables, and files, and `PascalCase` for Pydantic models and other classes. Keep route handlers thin and move reusable logic into `services/` or `client/`.
+
+## Testing Guidelines
+Place fast unit tests in `tests/test_*.py`. Add behavior coverage in `features/**/*.feature` when changing API contracts, MCP tools, or converter behavior, and keep step implementations in `features/steps/` focused on reusable actions. Run `ruff check`, `ruff format --check`, `ty check`, `uv build`, `pytest`, and `behave` before opening a PR.
+
+## Commit & Pull Request Guidelines
+Follow Conventional Commits. Recent history uses prefixes such as `ci:`, and release automation depends on semantic commit messages. Keep commits scoped and imperative, for example `feat: add profile notes pagination`. PR titles must also follow Conventional Commits. Include a short description, linked issue if applicable, config or env changes, and example requests/responses when API behavior changes.
+Use semver-style prefixes consistently for commit titles, for example `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, and `ci:`. Prefer the narrowest correct prefix. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
+
+## Configuration & Security
+Configuration is environment-driven via the `SUBSTACK_GATEWAY_` prefix. Do not commit real Substack cookies, publication URLs, or JWT secrets. When adding settings, document them in `README.md` and keep authenticated endpoints aligned with the existing Bearer-token auth model, where `publication_url` is embedded in the base64 JSON credentials.

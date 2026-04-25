@@ -1,290 +1,171 @@
-# Substack Gateway
+# Substack Gateway OSS
 
-[![CI](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway/actions/workflows/ci.yml)
+[![CI](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yaml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yaml)
+[![E2E Tests](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml)
+[![Deployed on Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel)](https://substack-gateway.vercel.app)
 
-A stateless gateway for [Substack](https://substack.com) that exposes two interfaces:
+A stateless Python gateway for [Substack](https://substack.com) that exposes a
+REST API and an MCP server on top of the same service layer.
 
-- **REST API** (`/api/v1/*`) — a FastAPI HTTP API
-- **MCP server** (`/mcp`) — a [FastMCP](https://github.com/jlowin/fastmcp) server for AI tool use
+It is designed to make Substack data and actions easier to consume from scripts,
+applications, and AI tooling without duplicating integration logic across
+different interfaces.
 
-Both share the same service layer and HTTP clients. Deployable to [Vercel](https://vercel.com).
+## What You Can Do
 
----
+- Read public Substack profiles, posts, notes, and comments
+- Access authenticated `me` endpoints with a base64-encoded credential token
+- Create and delete notes through the REST API
+- Use the same gateway as an MCP server for AI tools and agent workflows
+- Extend the app with custom routes, MCP tools, auth providers, and lifespan
+  hooks
 
-## Authentication
+## Interfaces
 
-Gateway authentication and Substack authentication are separate concerns:
+- **REST API** at `/api/v1/*`
+- **MCP server** at `/mcp`
 
-- Gateway authentication authorizes access to the gateway itself. In PRO, MCP can use OAuth for this.
-- Substack authentication provides the publication URL plus Substack session cookies needed to call Substack.
+Both share the same service layer and HTTP clients.
 
-REST requests that need Substack authentication use one header:
+## Quickstart
 
-| Header | Description |
-|--------|-------------|
-| `x-gateway-token` | Base64-encoded JSON credentials object |
+Requirements:
 
-The Substack credentials object must contain:
+- Python 3.10+
+- [uv](https://docs.astral.sh/uv/)
 
-```json
-{
-  "publication_url": "https://example.substack.com",
-  "substack_sid": "<your substack.sid cookie value>",
-  "connect_sid": "<your connect.sid cookie value>"
-}
-```
-
-Encode credentials:
-
-```bash
-echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
-```
-
-Pass the result as `x-gateway-token: <base64string>`.
-
----
-
-## REST API Endpoints
-
-### Health
-
-#### `GET /api/v1/health/live`
-
-Public liveness probe. No authentication required.
-
-```json
-{ "status": "ok" }
-```
-
-#### `GET /api/v1/health/ready`
-
-Authenticated readiness probe. Verifies connectivity to Substack.
-
-```json
-{ "connected": true }
-```
-
-Add `?show=true` to include the decoded credentials in the response.
-
----
-
-### Me
-
-#### `GET /api/v1/me`
-
-Returns the authenticated user's own profile.
-
-#### `GET /api/v1/me/notes`
-
-Returns paginated notes for the authenticated user. Query params: `cursor`.
-
-#### `GET /api/v1/me/posts`
-
-Returns paginated posts for the authenticated user. Query params: `limit` (default 25), `offset` (default 0).
-
-#### `GET /api/v1/me/following`
-
-Returns the list of users the authenticated user follows.
-
----
-
-### Notes
-
-#### `GET /api/v1/notes/{note_id}`
-
-Returns a single note by ID.
-
-#### `POST /api/v1/notes`
-
-Publishes a new note. `content` is Markdown; converted to Substack's editor format automatically.
-
-```json
-{ "content": "Hello **world**", "attachment": "https://example.com" }
-```
-
-Returns `201 Created` with `{ "id": 999 }`.
-
-#### `DELETE /api/v1/notes/{note_id}`
-
-Deletes a note by ID. Returns `204 No Content`.
-
----
-
-### Posts
-
-#### `GET /api/v1/posts/{post_id}`
-
-Returns a full post by ID, including HTML body as Markdown.
-
-#### `GET /api/v1/posts/{post_id}/comments`
-
-Returns all comments for a post.
-
----
-
-### Profiles
-
-#### `GET /api/v1/profiles/{slug}`
-
-Returns a public profile by handle.
-
-#### `GET /api/v1/profiles/{slug}/posts`
-
-Returns paginated posts for a profile. Query params: `limit`, `offset`.
-
-#### `GET /api/v1/profiles/{slug}/notes`
-
-Returns paginated notes for a profile. Query params: `cursor`.
-
----
-
-### Drafts
-
-#### `POST /api/v1/drafts`
-
-Creates a new post draft. `body` accepts Markdown.
-
-```json
-{ "title": "My Draft", "subtitle": "A subtitle", "body": "Hello **world**." }
-```
-
-Returns `201 Created` with `{ "id": 189531629, "uuid": "..." }`.
-
-#### `GET /api/v1/drafts/{draft_id}`
-
-Returns a draft by ID. `body` is returned as Markdown.
-
-#### `PUT /api/v1/drafts/{draft_id}`
-
-Delta-updates a draft. Only included fields are updated. `body` accepts Markdown.
-
-#### `DELETE /api/v1/drafts/{draft_id}`
-
-Deletes a draft by ID. Returns `204 No Content`.
-
----
-
-## MCP Server
-
-The OSS MCP server is available at `/mcp` (streamable-http transport) and is read-only. Public tools do not require gateway auth or Substack credentials:
-
-| Tool | Description |
-|------|-------------|
-| `get_note` | Retrieve a single note by ID |
-| `get_post` | Retrieve a full post by ID |
-| `get_post_comments` | Retrieve comments for a post |
-| `get_profile` | Retrieve a public profile by handle |
-| `get_profile_posts` | Get paginated posts for a profile |
-| `get_profile_notes` | Get paginated notes for a profile |
-
-PRO adds authenticated personal and write tools on top of OSS:
-
-| Tool | Description |
-|------|-------------|
-| `create_note` | Publish a new note from Markdown |
-| `delete_note` | Delete a note by ID |
-| `get_me` | Get the authenticated user's profile |
-| `get_my_notes` | Get the authenticated user's notes |
-| `get_my_posts` | Get the authenticated user's posts |
-| `get_my_following` | Get the list of followed profiles |
-| `create_draft` | Create a new post draft (pro) |
-| `get_draft` | Fetch a draft by ID (pro) |
-| `update_draft` | Delta-update a draft (pro) |
-| `delete_draft` | Delete a draft by ID (pro) |
-
-For authenticated MCP tools, pass the same base64-encoded Substack credentials object as an explicit `token` tool argument. In PRO, OAuth may authorize access to the MCP server itself, but it does not store, derive, or inject Substack credentials.
-
----
-
-## Configuration
-
-All settings use the `SUBSTACK_GATEWAY_` env prefix:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SUBSTACK_GATEWAY_LOG_LEVEL` | `INFO` | Log level |
-| `SUBSTACK_GATEWAY_ADMIN_TOKEN` | (built-in default) | Admin token |
-| `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL` | `https://substack.com` | Substack API base URL |
-| `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC` | `30.0` | Request timeout (seconds) |
-| `SUBSTACK_GATEWAY_SUBSTACK_CONNECT_TIMEOUT_SEC` | `10.0` | Connect timeout (seconds) |
-| `SUBSTACK_GATEWAY_BASE_URL` | — | Required for OAuth mode |
-| `SUBSTACK_GATEWAY_DATABASE_URL` | — | Required for OAuth mode (Neon DB) |
-| `SUBSTACK_GATEWAY_JWT_SECRET` | — | Required for OAuth mode |
-
----
-
-## Extension System
-
-Extensions plug in extra routes, MCP tools, lifespan hooks, and auth providers without modifying core code. Loaded from:
-
-1. `substack_gateway_oss.extensions` entry-points (installed packages).
-2. `GATEWAY_EXTENSION_MODULES` env var (comma-separated `module:attr` strings).
-
-An extension implements the `GatewayExtension` protocol (`src/gateway_oss/extensions/base.py`):
-
-```python
-class GatewayExtension(Protocol):
-    name: str
-    def register_api(self, api: FastAPI, context: GatewayExtensionContext) -> None: ...
-    def register_app(self, app: Starlette, context: GatewayExtensionContext) -> None: ...
-    def register_mcp(self, mcp: FastMCP, context: GatewayExtensionContext) -> None: ...
-    def get_lifespan_hooks(self, context: GatewayExtensionContext) -> Sequence[LifespanHook]: ...
-    def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None: ...
-```
-
-Only one MCP auth provider may be active at a time.
-
----
-
-## Error Responses
-
-| Status | Meaning |
-|--------|---------|
-| `400` | Bad request (e.g. invalid publication URL) |
-| `401` | Invalid credentials |
-| `422` | Missing required headers or malformed request |
-| `502` | Substack API error or unreachable |
-
----
-
-## Getting Started
-
-Install dependencies using [uv](https://docs.astral.sh/uv/):
+Install dependencies:
 
 ```bash
 uv sync --dev
 ```
 
-## Running Locally
-
-Start the development server on http://0.0.0.0:5001 (auto-reloads on changes):
+Run the application locally:
 
 ```bash
 uv run python -m gateway_oss.main
 ```
 
-## Testing
+Check the root metadata endpoint:
 
 ```bash
-# Unit tests
-uv run pytest packages/gateway_pro/tests/
-
-# BDD integration tests
-uv run behave packages/gateway_oss/features/ packages/gateway_pro/features/
+curl http://127.0.0.1:5001/
 ```
 
-## Linting & Type Checking
+Check the liveness probe:
+
+```bash
+curl http://127.0.0.1:5001/api/v1/health/live
+```
+
+Fetch a public profile:
+
+```bash
+curl http://127.0.0.1:5001/api/v1/profiles/<slug>
+```
+
+## REST Example
+
+Public profile lookup:
+
+```bash
+curl http://127.0.0.1:5001/api/v1/profiles/<slug>
+```
+
+Authenticated request:
+
+```bash
+curl \
+  -H "x-gateway-token: <base64-encoded-json>" \
+  http://127.0.0.1:5001/api/v1/me
+```
+
+The REST API is mounted under `/api/v1` and includes endpoints for health,
+profiles, posts, notes, comments, and authenticated `me` operations.
+
+## Authentication
+
+Gateway access and Substack access are separate concerns.
+
+For this OSS repository, Substack credentials are passed as a base64-encoded
+JSON object. REST requests send that value as the `x-gateway-token` header.
+
+Credential shape:
+
+```json
+{
+  "publication_url": "https://example.substack.com",
+  "substack_sid": "s%3A...",
+  "connect_sid": "s%3A..."
+}
+```
+
+Encode it with:
+
+```bash
+echo '{"publication_url":"https://example.substack.com","substack_sid":"s%3A...","connect_sid":"s%3A..."}' | base64
+```
+
+Treat `substack_sid` and `connect_sid` as bearer credentials. Do not commit
+real values to the repository.
+
+## MCP
+
+The MCP server is mounted at `/mcp` and served over streamable HTTP.
+
+Public OSS MCP tools include:
+
+- `get_note`
+- `get_post`
+- `get_post_comments`
+- `get_profile`
+- `get_profile_posts`
+- `get_profile_notes`
+
+## Project Layout
+
+Core application code lives in `src/gateway_oss/`.
+
+- `api/v1/`: FastAPI route handlers
+- `mcp/`: FastMCP tool surface and transport integration
+- `services/`: shared business logic
+- `client/`: Substack HTTP client wrappers
+- `models/`: schemas and pagination models
+- `converters/`: Markdown conversion
+- `extensions/`: runtime extension hooks
+
+## Configuration
+
+Application settings are environment-driven via the `SUBSTACK_GATEWAY_` prefix.
+
+Common examples include:
+
+- `SUBSTACK_GATEWAY_LOG_LEVEL`
+- `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL`
+- `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC`
+
+## Documentation
+
+The repository includes MkDocs and Read the Docs configuration:
+
+- [Docs home](docs/index.md)
+- [Introduction](docs/introduction.md)
+- [Installation guide](docs/installation.md)
+- [Authentication](docs/authentication.md)
+- [API reference](docs/api-reference.md)
+- [MCP documentation](docs/mcp.md)
+- [Development guide](docs/development.md)
+- [Contributing guide](CONTRIBUTING.md)
+
+Read the Docs can build the site directly from `.readthedocs.yaml` and `mkdocs.yml`.
+
+## Validation
 
 ```bash
 uv run ruff check .
 uv run ruff format --check .
 uv run ty check .
+uv build
+uv run pytest tests/
+uv run behave features/
 ```
-
-## Deploying to Vercel
-
-```bash
-vercel --prod
-```
-
-Or push with [Vercel git integration](https://vercel.com/docs/deployments/git).

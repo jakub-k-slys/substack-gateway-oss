@@ -1,0 +1,22 @@
+{
+  "item": {
+    "entity_key": "comment-131648795",
+    "context": {
+      "timestamp": "2024-01-15T10:00:00.000Z",
+      "users": [
+        {
+          "id": 254824415,
+          "name": "Jakub Slys",
+          "handle": "jakubslys",
+          "photo_url": "https://substack.com/img/avatars/jakubslys.jpg"
+        }
+      ]
+    },
+    "comment": {
+      "id": 131648795,
+      "body": "This is a sample note body.",
+      "reaction_count": 5
+    },
+    "parentComments": []
+  }
+}

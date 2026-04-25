@@ -15,7 +15,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           ref: ${{ github.ref_name }}
-          token: ${{ secrets.SUBSTACK_GATEWAY_PRO_WRITE_TOKEN }}
+          token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -34,7 +34,7 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v9
         id: semantic
         with:
-          github_token: ${{ secrets.SUBSTACK_GATEWAY_PRO_WRITE_TOKEN }}
+          github_token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
 
       - name: Build package
         if: steps.semantic.outputs.released == 'true'
@@ -44,5 +44,5 @@ jobs:
         if: steps.semantic.outputs.released == 'true'
         uses: python-semantic-release/publish-action@v9
         with:
-          github_token: ${{ secrets.SUBSTACK_GATEWAY_PRO_WRITE_TOKEN }}
+          github_token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
           tag: ${{ steps.semantic.outputs.tag }}
