@@ -15,7 +15,11 @@ from gateway_oss.services.notes import NotesService
 router = APIRouter(tags=["notes"])
 
 
-@router.get("/notes/{note_id}", response_model=NoteResponse)
+@router.get(
+    "/notes/{note_id}",
+    response_model=NoteResponse,
+    response_model_exclude_none=True,
+)
 async def get_note(
     note_id: Annotated[int, Path(gt=0)],
     service: Annotated[NotesService, Depends(get_notes_service)],

@@ -76,7 +76,7 @@ class NoteResponse(BaseModel):
     id: int
     body: str
     likes_count: int
-    author: NoteAuthor
+    author: NoteAuthor | None = None
     published_at: str
 
     @classmethod
@@ -97,11 +97,15 @@ class NoteResponse(BaseModel):
             likes_count=comment.reaction_count
             if (comment and comment.reaction_count is not None)
             else 0,
-            author=NoteAuthor(
-                id=user.id if user else 0,
-                name=user.name if user else "",
-                handle=user.handle if user else "",
-                avatar_url=user.photo_url or "" if user else "",
+            author=(
+                NoteAuthor(
+                    id=user.id,
+                    name=user.name,
+                    handle=user.handle,
+                    avatar_url=user.photo_url or "",
+                )
+                if user
+                else None
             ),
             published_at=note.context.timestamp,
         )

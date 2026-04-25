@@ -96,7 +96,7 @@ async def get_note(
         _public_substack_client() as substack,
     ):
         note = await NotesService(publication, substack).get_note_by_id(note_id)
-    return NoteResponse.from_substack(note).model_dump()
+    return NoteResponse.from_substack(note).model_dump(exclude_none=True)
 
 
 async def create_note(
