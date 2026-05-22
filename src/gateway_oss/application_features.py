@@ -30,53 +30,6 @@ OSS_FEATURES: tuple[str, ...] = (
     "mcp:profiles:posts:list",
 )
 
-PRO_FEATURES: tuple[str, ...] = (
-    "api:drafts:create",
-    "api:drafts:delete",
-    "api:drafts:get",
-    "api:drafts:list",
-    "api:drafts:update",
-    "api:feeds:batch:atom",
-    "api:feeds:batch:create",
-    "api:feeds:batch:get",
-    "api:feeds:batch:list",
-    "api:feeds:batch:upsert",
-    "api:me:following:feed",
-    "api:notes:like",
-    "api:notes:unlike",
-    "api:posts:like",
-    "api:posts:restack",
-    "api:posts:unlike",
-    "api:profiles:feed",
-    "mcp:drafts:create",
-    "mcp:drafts:delete",
-    "mcp:drafts:get",
-    "mcp:drafts:list",
-    "mcp:drafts:update",
-    "mcp:feeds:batch:create",
-    "mcp:feeds:batch:get",
-    "mcp:feeds:batch:list",
-    "mcp:feeds:batch:upsert",
-    "mcp:notes:like",
-    "mcp:notes:unlike",
-    "mcp:posts:like",
-    "mcp:posts:restack",
-    "mcp:posts:unlike",
-)
-
-PRO_OAUTH_FEATURES: tuple[str, ...] = (
-    "api:users:create",
-    "api:users:delete",
-)
-
 
 def build_oss_features() -> tuple[str, ...]:
     return tuple(sorted(OSS_FEATURES))
-
-
-def build_pro_features(*, oauth_enabled: bool) -> tuple[str, ...]:
-    features = set(OSS_FEATURES)
-    features.update(PRO_FEATURES)
-    if oauth_enabled:
-        features.update(PRO_OAUTH_FEATURES)
-    return tuple(sorted(features))
