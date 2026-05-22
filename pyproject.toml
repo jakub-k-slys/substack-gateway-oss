@@ -3,13 +3,13 @@ name = "gateway_oss"
 version = "1.0.0"
 requires-python = ">=3.10"
 dependencies = [
-  "fastapi>=0.136.0",
+  "fastapi>=0.136.1",
   "httpx>=0.28.0",
   "pyrate-limiter>=3.7.0",
-  "pydantic>=2.13.3",
-  "pydantic-settings>=2.14.0",
+  "pydantic>=2.13.4",
+  "pydantic-settings>=2.14.1",
   "async-lru>=2.0",
-  "fastmcp>=3.2.4",
+  "fastmcp>=3.3.1",
   "markdownify>=1.2.2",
   "tenacity>=9.1.2",
   "uvloop>=0.22.1",
@@ -28,8 +28,8 @@ packages = ["src/gateway_oss"]
 
 [dependency-groups]
 dev = [
-  "ruff>=0.15.11",
-  "ty>=0.0.32",
+  "ruff>=0.15.13",
+  "ty>=0.0.38",
   "behave>=1.2.6",
   "respx>=0.23.1",
   "httpx>=0.28.0",
