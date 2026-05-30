@@ -1,6 +1,6 @@
 [project]
 name = "gateway_oss"
-version = "1.0.0"
+version = "1.1.0"
 requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.136.3",
@@ -19,6 +19,7 @@ dependencies = [
 app = "gateway_oss.main:main"
 gateway_oss = "gateway_oss.main:main"
 
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -26,15 +27,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/gateway_oss"]
 
-[dependency-groups]
-dev = [
-  "ruff>=0.15.14",
-  "ty>=0.0.38",
-  "behave>=1.2.6",
-  "respx>=0.23.1",
-  "httpx>=0.28.0",
-  "pytest>=8.0",
-]
 
 [tool.ruff]
 line-length = 88
@@ -48,6 +40,7 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 
+
 [tool.behave]
 paths = ["features/"]
 show_timings = true
@@ -57,8 +50,10 @@ default_format = "pretty"
 [tool.pytest.ini_options]
 testpaths = ["tests/"]
 
+
 [tool.ty.src]
 exclude = ["features/", "e2e/"]
+
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
@@ -66,3 +61,14 @@ branch = "main"
 commit_author = "Jakub Slys <jakub@slys.dev>"
 commit_message = "chore(release): {version}"
 tag_format = "{version}"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.15.14",
+  "ty>=0.0.38",
+  "behave>=1.2.6",
+  "respx>=0.23.1",
+  "httpx>=0.28.0",
+  "pytest>=8.0",
+]
+
