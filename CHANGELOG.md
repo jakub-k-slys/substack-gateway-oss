@@ -1,6 +1,197 @@
 # CHANGELOG
 
 
+## v2.0.0 (2026-05-30)
+
+### Bug Fixes
+
+- Switch posts pagination to cursor and rename to `next`
+  ([`085adb8`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/085adb8708bc8a9d3462a76367425094062ce718))
+
+Substack's profile/posts endpoint now rejects the `offset` query parameter outright, breaking
+  /me/posts and /profiles/{slug}/posts. Move both routes (and the matching MCP tools) to
+  cursor-based pagination, and align the outward page-response field name across notes and posts:
+  `next_cursor` is renamed to `next`.
+
+BREAKING CHANGE: `/api/v1/me/posts` and `/api/v1/profiles/{slug}/posts` no longer accept `offset`;
+  pass `cursor` instead. `NotesPageResponse` and `PostsPageResponse` expose `next` rather than
+  `next_cursor`.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+- Switch posts pagination to cursor and rename to `next`
+  ([#47](https://github.com/jakub-k-slys/substack-gateway-oss/pull/47),
+  [`dc54c52`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/dc54c5251b9dc575b12d14b7e8d266ed33bd72d2))
+
+## Summary - Substack's `profile/posts` endpoint now rejects the `offset` query parameter outright
+  (`400 Invalid value` for any value, including `0`), so `/api/v1/me/posts` and
+  `/api/v1/profiles/{slug}/posts` were returning 502. - Move both routes and the matching MCP tools
+  (`get_my_posts`, `get_profile_posts`, plus `PostsService.get_posts_for_profile`) to cursor-based
+  pagination using Substack's `nextCursor`. - Rename the outward page-response field across
+  `NotesPageResponse` and `PostsPageResponse` from `next_cursor` to `next` for a tighter, consistent
+  surface.
+
+## Breaking changes - `/api/v1/me/posts` and `/api/v1/profiles/{slug}/posts` no longer accept
+  `offset`; pass `cursor` instead. `limit` still supported. - `NotesPageResponse` /
+  `PostsPageResponse` expose `next` instead of `next_cursor` (REST + MCP). - MCP tools
+  `get_my_posts` / `get_profile_posts` take `cursor` instead of `offset`.
+
+## Test plan - [x] `uv run ruff check .` - [x] `uv run ruff format --check .` - [x] `uv run ty check
+  .` - [x] `uv build` - [x] `uv run pytest tests/` (37 passed) - [x] `uv run behave features/` (113
+  scenarios passed) - [x] `uv run behave e2e` against live Substack with real token (16/16 passed,
+  incl. previously-failing `me/posts` and `profiles/{slug}/posts`)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+### Chores
+
+- **deps-dev**: Bump ty from 0.0.38 to 0.0.40
+  ([`18c5a25`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/18c5a259d3d2cd4fa571475cc4e79eb4e1fec0fc))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.38 to 0.0.40. - [Release
+  notes](https://github.com/astral-sh/ty/releases) -
+  [Changelog](https://github.com/astral-sh/ty/blob/main/CHANGELOG.md) -
+  [Commits](https://github.com/astral-sh/ty/compare/0.0.38...0.0.40)
+
+--- updated-dependencies: - dependency-name: ty dependency-version: 0.0.39
+
+dependency-type: direct:development
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+- **deps-dev**: Bump ty from 0.0.38 to 0.0.40
+  ([#46](https://github.com/jakub-k-slys/substack-gateway-oss/pull/46),
+  [`672a53d`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/672a53db499eb95de98bd8516c63aac07949a114))
+
+Bumps [ty](https://github.com/astral-sh/ty) from 0.0.38 to 0.0.40. <details> <summary>Release
+  notes</summary> <p><em>Sourced from <a href="https://github.com/astral-sh/ty/releases">ty's
+  releases</a>.</em></p> <blockquote> <h2>0.0.40</h2> <h2>Release Notes</h2> <p>Released on
+  2026-05-27.</p> <h3>Bug fixes</h3> <ul> <li>Accept complete enum-literal alias unions as enums (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25341">#25341</a>)</li> <li>Fix diagnostics
+  in ignored folders after adding new files (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25236">#25236</a>)</li> <li>Show
+  <code>LiteralString</code> when hovering over an inline of a literal string in an IDE (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25373">#25373</a>)</li> </ul> <h3>LSP
+  server</h3> <ul> <li>Follow aliases when attempting to map a definition in a stub file to its
+  &quot;real&quot; runtime definition (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25328">#25328</a>)</li> <li>Treat Python
+  notebook text documents as Python sources (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25393">#25393</a>)</li> <li>Fix
+  autocompletion for elements inside incomplete list comprehensions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25326">#25326</a>)</li> </ul>
+  <h3>Diagnostics</h3> <ul> <li>Add a subdiagnostic help message to
+  <code>invalid-generic-class</code> diagnostics regarding incompatible variance (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25385">#25385</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Ignore and reject annotations on non-name targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25324">#25324</a>)</li> <li>Infer class
+  attributes assigned by metaclass initialization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25342">#25342</a>)</li> <li>Reject
+  inconsistent generic bases in &quot;dynamic&quot; classes created using <code>type(...)</code>,
+  <code>types.new_type(...)</code>, etc. (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25413">#25413</a>)</li> <li>Resolve enum
+  names for all unions arms in <code>Literal</code> enum subsets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25379">#25379</a>)</li> <li>Support
+  <code>typing.TypeForm</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25334">#25334</a>)</li> <li>Fix many issues
+  in the generics solver by using constraint sets more widely to solve type variables (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24540">#24540</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/anuraaga"><code>@​anuraaga</code></a></li> <li><a
+  href="https://github.com/dcreager"><code>@​dcreager</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/Dev-X25874"><code>@​Dev-X25874</code></a></li> </ul> <h2>Install ty
+  0.0.40</h2> <h3>Install prebuilt binaries via shell script</h3> <pre lang="sh"><code>curl --proto
+  '=https' --tlsv1.2 -LsSf
+  https://releases.astral.sh/github/ty/releases/download/0.0.40/ty-installer.sh | sh </code></pre>
+  <h3>Install prebuilt binaries via powershell script</h3> <pre lang="sh"><code>powershell
+  -ExecutionPolicy Bypass -c &quot;irm
+  https://releases.astral.sh/github/ty/releases/download/0.0.40/ty-installer.ps1 | iex&quot;
+  &lt;/tr&gt;&lt;/table&gt; </code></pre> </blockquote> <p>... (truncated)</p> </details> <details>
+  <summary>Changelog</summary> <p><em>Sourced from <a
+  href="https://github.com/astral-sh/ty/blob/main/CHANGELOG.md">ty's changelog</a>.</em></p>
+  <blockquote> <h2>0.0.40</h2> <p>Released on 2026-05-27.</p> <h3>Bug fixes</h3> <ul> <li>Accept
+  complete enum-literal alias unions as enums (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25341">#25341</a>)</li> <li>Fix diagnostics
+  in ignored folders after adding new files (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25236">#25236</a>)</li> <li>Show
+  <code>LiteralString</code> when hovering over an inline of a literal string in an IDE (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25373">#25373</a>)</li> </ul> <h3>LSP
+  server</h3> <ul> <li>Follow aliases when attempting to map a definition in a stub file to its
+  &quot;real&quot; runtime definition (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25328">#25328</a>)</li> <li>Treat Python
+  notebook text documents as Python sources (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25393">#25393</a>)</li> <li>Fix
+  autocompletion for elements inside incomplete list comprehensions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25326">#25326</a>)</li> </ul>
+  <h3>Diagnostics</h3> <ul> <li>Add a subdiagnostic help message to
+  <code>invalid-generic-class</code> diagnostics regarding incompatible variance (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25385">#25385</a>)</li> </ul> <h3>Core type
+  checking</h3> <ul> <li>Ignore and reject annotations on non-name targets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25324">#25324</a>)</li> <li>Infer class
+  attributes assigned by metaclass initialization (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25342">#25342</a>)</li> <li>Reject
+  inconsistent generic bases in &quot;dynamic&quot; classes created using <code>type(...)</code>,
+  <code>types.new_type(...)</code>, etc. (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25413">#25413</a>)</li> <li>Resolve enum
+  names for all unions arms in <code>Literal</code> enum subsets (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25379">#25379</a>)</li> <li>Support
+  <code>typing.TypeForm</code> (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25334">#25334</a>)</li> <li>Fix many issues
+  in the generics solver by using constraint sets more widely to solve type variables (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/24540">#24540</a>)</li> </ul>
+  <h3>Contributors</h3> <ul> <li><a
+  href="https://github.com/anuraaga"><code>@​anuraaga</code></a></li> <li><a
+  href="https://github.com/dcreager"><code>@​dcreager</code></a></li> <li><a
+  href="https://github.com/charliermarsh"><code>@​charliermarsh</code></a></li> <li><a
+  href="https://github.com/MichaReiser"><code>@​MichaReiser</code></a></li> <li><a
+  href="https://github.com/Dev-X25874"><code>@​Dev-X25874</code></a></li> </ul> <h2>0.0.39</h2>
+  <p>Released on 2026-05-22.</p> <p>This release removes the Python 3.9 branches from our vendored
+  standard library stubs. ty now only has &quot;full&quot; support for Python 3.10 and later, but
+  will still report version-specific syntax errors and other diagnostics when <code>--python-version
+  3.9</code> is provided via the CLI.</p> <h3>Bug fixes</h3> <ul> <li>Avoid panicking on
+  <code>__new__</code> assignments to classes (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25282">#25282</a>)</li> <li>Preserve
+  declaration order when synthesizing class fields (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25249">#25249</a>)</li> <li>Respect
+  <code>dict</code>-compatible fallbacks in TypedDict unions (<a
+  href="https://redirect.github.com/astral-sh/ruff/pull/25242">#25242</a>)</li> </ul> <!-- raw HTML
+  omitted --> </blockquote> <p>... (truncated)</p> </details> <details> <summary>Commits</summary>
+  <ul> <li><a
+  href="https://github.com/astral-sh/ty/commit/7b95bc219d1dcebc3ce39d222c66c14a3825c9a0"><code>7b95bc2</code></a>
+  Bump version to 0.0.40 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3554">#3554</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/54c7498ec94de87135edb8b54c311b54d30ec534"><code>54c7498</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3546">#3546</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/0d8540acdbf1340af95a2f364b9fd7d3b6bba3a8"><code>0d8540a</code></a>
+  docs: set Eglot <code>:language-id</code> so ty works with <code>python-base-mode</code> (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3532">#3532</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/8f1cee048254accb008fc391428b9c3139cebb2f"><code>8f1cee0</code></a>
+  scripts/update_schemastore: add text=True to git revision check_output calls ...</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/32b654a899f1c2cffd9909a89fec19ec53af2d9d"><code>32b654a</code></a>
+  docs: add Flycheck note to Emacs editor integration (<a
+
+href="https://redirect.github.com/astral-sh/ty/issues/3528">#3528</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/4e1b4e72018457d0cea0efa818ecccd63b3f3f01"><code>4e1b4e7</code></a>
+  docs: fix broken link and minor wording in suppression.md (<a
+
+href="https://redirect.github.com/astral-sh/ty/issues/3527">#3527</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/0205125174c135d6fc4014244dee374678b61c72"><code>0205125</code></a>
+  Bump version to 0.0.39 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3516">#3516</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/ae8058d40e641b545bbad046c487e964206a2286"><code>ae8058d</code></a>
+  Update maturin to v1.13.3 (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3494">#3494</a>)</li> <li><a
+  href="https://github.com/astral-sh/ty/commit/33b60f8ad0f2da648b867831548a4b8c7985647d"><code>33b60f8</code></a>
+  Update prek dependencies (<a
+  href="https://redirect.github.com/astral-sh/ty/issues/3495">#3495</a>)</li> <li>See full diff in
+  <a href="https://github.com/astral-sh/ty/compare/0.0.38...0.0.40">compare view</a></li> </ul>
+  </details> <br />
+
+
 ## v1.1.0 (2026-05-30)
 
 ### Bug Fixes
