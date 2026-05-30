@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from gateway_oss.api.deps import get_posts_service, get_profiles_service
-from gateway_oss.models.pagination import CursorPage, OffsetPage
+from gateway_oss.models.pagination import CursorLimitPage, CursorPage
 from gateway_oss.models.schemas import (
     NotesPageResponse,
     PostsPageResponse,
@@ -32,12 +32,12 @@ async def get_profile_posts(
     slug: str,
     profiles: Annotated[ProfilesService, Depends(get_profiles_service)],
     posts: Annotated[PostsService, Depends(get_posts_service)],
-    page: Annotated[OffsetPage, Depends()],
+    page: Annotated[CursorLimitPage, Depends()],
 ) -> PostsPageResponse:
     """Return a page of posts for the given profile slug."""
     profile_id = await profiles.get_profile_id_by_slug(slug)
     result = await posts.get_posts_for_profile(
-        profile_id, limit=page.limit, offset=page.offset
+        profile_id, limit=page.limit, cursor=page.cursor
     )
     return PostsPageResponse.from_substack(result)
 

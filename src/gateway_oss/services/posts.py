@@ -22,16 +22,24 @@ class PostsService:
         self._sub = sub
 
     async def get_posts_for_profile(
-        self, profile_id: int, limit: int = 25, offset: int = 0
+        self,
+        profile_id: int,
+        limit: int = 25,
+        cursor: str | None = None,
     ) -> SubstackProfilePostsPage:
         """GET /profile/posts — posts for a given profile ID."""
         _log.debug(
-            "Fetching posts for profile_id=%d (limit=%d, offset=%d)",
+            "Fetching posts for profile_id=%d (limit=%d, cursor=%r)",
             profile_id,
             limit,
-            offset,
+            cursor,
         )
-        params = {"profile_user_id": profile_id, "limit": limit, "offset": offset}
+        params: dict[str, str | int] = {
+            "profile_user_id": profile_id,
+            "limit": limit,
+        }
+        if cursor:
+            params["cursor"] = cursor
         r = await self._sub.get("profile/posts", params=params)
         page = SubstackProfilePostsPage.model_validate(r.json())
         _log.debug(

@@ -10,7 +10,7 @@ from gateway_oss.api.deps import (
     get_posts_service,
     get_profiles_service,
 )
-from gateway_oss.models.pagination import CursorPage, OffsetPage
+from gateway_oss.models.pagination import CursorLimitPage, CursorPage
 from gateway_oss.models.schemas import (
     FollowingResponse,
     NotesPageResponse,
@@ -48,12 +48,12 @@ async def get_me_notes(
 async def get_me_posts(
     profiles: Annotated[ProfilesService, Depends(get_profiles_service)],
     posts: Annotated[PostsService, Depends(get_posts_service)],
-    page: Annotated[OffsetPage, Depends()],
+    page: Annotated[CursorLimitPage, Depends()],
 ) -> PostsPageResponse:
     """Return a page of the authenticated user's own posts."""
     profile = await profiles.get_own_profile()
     result = await posts.get_posts_for_profile(
-        profile.id, limit=page.limit, offset=page.offset
+        profile.id, limit=page.limit, cursor=page.cursor
     )
     return PostsPageResponse.from_substack(result)
 

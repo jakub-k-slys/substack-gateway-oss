@@ -14,3 +14,10 @@ class CursorPage(BaseModel):
     """Shared dependency for cursor-paginated endpoints."""
 
     cursor: str | None = None
+
+
+class CursorLimitPage(BaseModel):
+    """Shared dependency for cursor-paginated endpoints with a page-size limit."""
+
+    cursor: str | None = None
+    limit: int = Field(default=25, gt=0, le=100)
