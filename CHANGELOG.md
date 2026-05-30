@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## v2.0.1 (2026-05-30)
+
+### Bug Fixes
+
+- Add Dockerfile and GHCR publish workflow
+  ([`bcbe487`](https://github.com/jakub-k-slys/substack-gateway-oss/commit/bcbe487d668e3bc1c500fd08f87310716f27e420))
+
+Build and push multi-arch image to ghcr.io on release publish or manual workflow_dispatch.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+
 ## v2.0.0 (2026-05-30)
 
 ### Bug Fixes
