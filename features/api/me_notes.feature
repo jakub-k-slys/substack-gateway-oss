@@ -9,7 +9,7 @@ Feature: Own notes endpoint
     When I send GET /api/v1/me/notes
     Then the response status code is 200
     And the response list "items" has 20 items
-    And the response field "next_cursor" is not null
+    And the response field "next" is not null
 
   Scenario: Authentication failure returns 401
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

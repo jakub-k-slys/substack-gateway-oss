@@ -140,13 +140,13 @@ async def get_my_notes(
 async def get_my_posts(
     token: str,
     limit: int = 25,
-    offset: int = 0,
+    cursor: str | None = None,
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         profiles = ProfilesService(substack)
         posts = PostsService(publication, substack)
         profile = await profiles.get_own_profile()
-        page = await posts.get_posts_for_profile(profile.id, limit=limit, offset=offset)
+        page = await posts.get_posts_for_profile(profile.id, limit=limit, cursor=cursor)
     return PostsPageResponse.from_substack(page).model_dump()
 
 
@@ -244,7 +244,7 @@ async def get_profile(
 async def get_profile_posts(
     slug: str,
     limit: int = 25,
-    offset: int = 0,
+    cursor: str | None = None,
 ) -> dict[str, Any]:
     async with (
         _public_publication_client() as publication,
@@ -253,7 +253,7 @@ async def get_profile_posts(
         profiles = ProfilesService(substack)
         posts = PostsService(publication, substack)
         profile_id = await profiles.get_profile_id_by_slug(slug)
-        page = await posts.get_posts_for_profile(profile_id, limit=limit, offset=offset)
+        page = await posts.get_posts_for_profile(profile_id, limit=limit, cursor=cursor)
     return PostsPageResponse.from_substack(page).model_dump()
 
 

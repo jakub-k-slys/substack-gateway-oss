@@ -10,7 +10,7 @@ Feature: Profile notes endpoint
     When I send GET /api/v1/profiles/jakubslys/notes
     Then the response status code is 200
     And the response list "items" has 12 items
-    And the response field "next_cursor" is not null
+    And the response field "next" is not null
 
   Scenario: Profile not found returns 404
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

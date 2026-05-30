@@ -44,7 +44,3 @@ Feature: Own posts endpoint
     When I send GET /api/v1/me/posts?limit=101
     Then the response status code is 422
 
-  Scenario: negative offset is rejected with 422
-    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
-    When I send GET /api/v1/me/posts?offset=-1
-    Then the response status code is 422
