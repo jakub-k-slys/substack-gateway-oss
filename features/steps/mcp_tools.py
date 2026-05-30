@@ -69,7 +69,7 @@ def _call(context, coro):
 
 @when("I call the MCP tool get_note with note_id {note_id:d}")
 def step_call_get_note(context, note_id):
-    _call(context, get_note(note_id=note_id))
+    _call(context, get_note(note_id=note_id, token=context.mcp_token))
 
 
 @when('I call the MCP tool create_note with content "{content}"')
@@ -104,12 +104,12 @@ def step_call_get_my_posts(context):
 
 @when("I call the MCP tool get_post with post_id {post_id:d}")
 def step_call_get_post(context, post_id):
-    _call(context, get_post(post_id=post_id))
+    _call(context, get_post(post_id=post_id, token=context.mcp_token))
 
 
 @when("I call the MCP tool get_post_comments with post_id {post_id:d}")
 def step_call_get_post_comments(context, post_id):
-    _call(context, get_post_comments(post_id=post_id))
+    _call(context, get_post_comments(post_id=post_id, token=context.mcp_token))
 
 
 @when("I call the MCP tool get_my_following")
@@ -169,4 +169,31 @@ def step_mcp_result_string(context, value):
 def step_mcp_raises_value_error(context):
     assert isinstance(context.mcp_error, ValueError), (
         f"Expected ValueError, got {type(context.mcp_error).__name__}: {context.mcp_error}"
+    )
+
+
+@then('the MCP result list "{field}" has {count:d} items')
+def step_mcp_list_count(context, field, count):
+    assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
+    actual = context.mcp_result[field]
+    assert isinstance(actual, list), f'Expected "{field}" to be a list'
+    assert len(actual) == count, f"Expected {count} items, got {len(actual)}"
+
+
+@then('the first MCP item in "{field}" has "{key}" equal to {value:d}')
+def step_mcp_first_item_int(context, field, key, value):
+    assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
+    items = context.mcp_result[field]
+    assert items, f'Expected "{field}" to be non-empty'
+    actual = items[0].get(key)
+    assert actual == value, f"Expected items[0].{key}={value}, got {actual!r}"
+
+
+@then("the MCP tool raises a SubstackAuthError")
+def step_mcp_raises_auth_error(context):
+    from gateway_oss.client.base import SubstackAuthError
+
+    assert isinstance(context.mcp_error, SubstackAuthError), (
+        f"Expected SubstackAuthError, got {type(context.mcp_error).__name__}: "
+        f"{context.mcp_error}"
     )

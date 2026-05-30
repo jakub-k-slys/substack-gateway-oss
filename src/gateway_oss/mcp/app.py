@@ -76,25 +76,11 @@ async def _authenticated_clients(
         yield publication, substack
 
 
-@_mcp.tool(
-    description="Retrieve a single Substack note by its numeric ID.",
-    tags={"notes", "read"},
-    annotations=ToolAnnotations(
-        title="Get Note",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={"category": "notes", "substack_endpoint": "GET /reader/comment/{note_id}"},
-)
 async def get_note(
     note_id: int,
+    token: str,
 ) -> dict[str, Any]:
-    async with (
-        _public_publication_client() as publication,
-        _public_substack_client() as substack,
-    ):
+    async with _authenticated_clients(token) as (publication, substack):
         note = await NotesService(publication, substack).get_note_by_id(note_id)
     return NoteResponse.from_substack(note).model_dump(exclude_none=True)
 
@@ -150,48 +136,20 @@ async def get_my_posts(
     return PostsPageResponse.from_substack(page).model_dump()
 
 
-@_mcp.tool(
-    description="Retrieve the full content of a Substack post by its numeric ID.",
-    tags={"posts", "read"},
-    annotations=ToolAnnotations(
-        title="Get Post",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
-)
 async def get_post(
     post_id: int,
+    token: str,
 ) -> dict[str, Any]:
-    async with (
-        _public_publication_client() as publication,
-        _public_substack_client() as substack,
-    ):
+    async with _authenticated_clients(token) as (publication, substack):
         post = await PostsService(publication, substack).get_post_by_id(post_id)
     return FullPostResponse.from_substack(post).model_dump()
 
 
-@_mcp.tool(
-    description="Retrieve all comments for a Substack post by its numeric ID.",
-    tags={"posts", "comments", "read"},
-    annotations=ToolAnnotations(
-        title="Get Post Comments",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={"category": "posts", "substack_endpoint": "GET /post/{post_id}/comments"},
-)
 async def get_post_comments(
     post_id: int,
+    token: str,
 ) -> dict[str, Any]:
-    async with (
-        _public_publication_client() as publication,
-        _public_substack_client() as substack,
-    ):
+    async with _authenticated_clients(token) as (publication, substack):
         comments = await PostsService(publication, substack).get_comments_for_post(
             post_id
         )
@@ -360,6 +318,48 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         ),
         meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
     )(get_my_following)
+    mcp.tool(
+        description="Retrieve a single Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"notes", "read"},
+        annotations=ToolAnnotations(
+            title="Get Note",
+            readOnlyHint=True,
+            destructiveHint=False,
+            idempotentHint=True,
+            openWorldHint=True,
+        ),
+        meta={
+            "category": "notes",
+            "substack_endpoint": "GET /reader/comment/{note_id}",
+        },
+    )(get_note)
+    mcp.tool(
+        description="Retrieve the full content of a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"posts", "read"},
+        annotations=ToolAnnotations(
+            title="Get Post",
+            readOnlyHint=True,
+            destructiveHint=False,
+            idempotentHint=True,
+            openWorldHint=True,
+        ),
+        meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
+    )(get_post)
+    mcp.tool(
+        description="Retrieve all comments for a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        tags={"posts", "comments", "read"},
+        annotations=ToolAnnotations(
+            title="Get Post Comments",
+            readOnlyHint=True,
+            destructiveHint=False,
+            idempotentHint=True,
+            openWorldHint=True,
+        ),
+        meta={
+            "category": "posts",
+            "substack_endpoint": "GET /post/{post_id}/comments",
+        },
+    )(get_post_comments)
 
 
 for extension in runtime.extensions:

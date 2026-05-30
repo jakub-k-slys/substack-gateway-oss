@@ -1,8 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 
 from behave import then, when
+
+
+def _e2e_token() -> str:
+    return (
+        os.environ.get("SUBSTACK_GATEWAY_TOKEN", "").strip()
+        or os.environ.get("SUBSTACK_TOKEN", "").strip()
+    )
 
 
 def _mcp_headers(session_id: str | None = None) -> dict[str, str]:
@@ -98,7 +106,29 @@ def step_call_get_post(context):
     payload = _mcp_request(
         "tools/call",
         4,
-        {"name": "get_post", "arguments": {"post_id": int(context.post_id)}},
+        {
+            "name": "get_post",
+            "arguments": {"post_id": int(context.post_id), "token": _e2e_token()},
+        },
+    )
+    response = context.client.post(
+        "/mcp/",
+        json=payload,
+        headers=_mcp_headers(getattr(context, "mcp_session_id", None)),
+    )
+    context.mcp_response = response
+    context.mcp_payload = _parse_mcp_response(response)
+
+
+@when("I call the MCP tool get_post_comments for the test post")
+def step_call_get_post_comments(context):
+    payload = _mcp_request(
+        "tools/call",
+        6,
+        {
+            "name": "get_post_comments",
+            "arguments": {"post_id": int(context.post_id), "token": _e2e_token()},
+        },
     )
     response = context.client.post(
         "/mcp/",
@@ -114,7 +144,10 @@ def step_call_get_note(context):
     payload = _mcp_request(
         "tools/call",
         5,
-        {"name": "get_note", "arguments": {"note_id": int(context.note_id)}},
+        {
+            "name": "get_note",
+            "arguments": {"note_id": int(context.note_id), "token": _e2e_token()},
+        },
     )
     response = context.client.post(
         "/mcp/",

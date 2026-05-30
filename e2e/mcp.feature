@@ -25,3 +25,5 @@ Feature: MCP public tools
     Then the MCP tool call succeeds
     When I call the MCP tool get_note for the test note
     Then the MCP tool call succeeds
+    When I call the MCP tool get_post_comments for the test post
+    Then the MCP tool call succeeds
