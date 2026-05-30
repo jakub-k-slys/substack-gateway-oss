@@ -19,11 +19,28 @@ jobs:
     services:
       gateway:
         image: ghcr.io/jakub-k-slys/substack-gateway-oss:latest
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
         ports:
           - 5001:5001
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Wait for gateway to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:5001/api/v1/health/live > /dev/null; then
+              echo "Gateway is up"
+              exit 0
+            fi
+            echo "Waiting for gateway... ($i/30)"
+            sleep 2
+          done
+          echo "Gateway did not become ready in time"
+          docker ps -a
+          exit 1
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -42,12 +59,16 @@ jobs:
         run: uv run behave e2e/ --junit --junit-directory e2e-reports/
         env:
           SUBSTACK_GATEWAY_BASE_URL: http://localhost:5001
-          SUBSTACK_GATEWAY_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_TOKEN }}
           SUBSTACK_TOKEN: ${{ secrets.SUBSTACK_TOKEN }}
           SUBSTACK_PUBLICATION_URL: ${{ secrets.SUBSTACK_PUBLICATION_URL }}
+          SUBSTACK_GATEWAY_ADMIN_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_ADMIN_TOKEN }}
           E2E_PROFILE_SLUG: ${{ secrets.E2E_PROFILE_SLUG }}
           E2E_NOTE_ID: ${{ secrets.E2E_NOTE_ID }}
           E2E_POST_ID: ${{ secrets.E2E_POST_ID }}
+
+      - name: Dump gateway logs
+        if: always()
+        run: docker logs "${{ job.services.gateway.id }}" || true
 
       - name: Upload E2E reports
         if: always()
