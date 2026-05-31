@@ -175,3 +175,14 @@ def step_first_item_field(context, field, value):
     assert actual == value, (
         f'Expected first item "{field}" to be "{value}", got "{actual}"'
     )
+
+
+@then('the first item field "{field}" is {value:d}')
+def step_first_item_field_int(context, field, value):
+    body = context.response.json()
+    items = body.get("items", [])
+    assert items, "Response list 'items' is empty"
+    actual = items[0][field]
+    assert actual == value, (
+        f'Expected first item "{field}" to be {value}, got {actual!r}'
+    )
