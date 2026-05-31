@@ -41,6 +41,9 @@ Feature: Posts endpoints
     Then the response status code is 200
     And the response list "items" has 2 items
     And the first item field "body" is "Great post!"
+    And the first item field "author_name" is "Alice Reader"
+    And the first item field "author_handle" is "alicereader"
+    And the first item field "user_id" is 100001
 
   Scenario: Authentication failure on comments fetch returns 401
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

@@ -202,6 +202,9 @@ class CommentResponse(BaseModel):
     id: int
     body: str
     is_admin: bool
+    author_name: str | None = None
+    author_handle: str | None = None
+    user_id: int | None = None
 
     @classmethod
     def from_substack(cls, comment: SubstackComment) -> CommentResponse:
@@ -209,6 +212,9 @@ class CommentResponse(BaseModel):
             id=comment.id,
             body=comment.body,
             is_admin=comment.author_is_admin or False,
+            author_name=comment.name,
+            author_handle=comment.handle,
+            user_id=comment.user_id,
         )
 
 

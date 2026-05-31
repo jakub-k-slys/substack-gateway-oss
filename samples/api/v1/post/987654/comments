@@ -3,12 +3,18 @@
     {
       "id": 111222333,
       "body": "Great post!",
-      "author_is_admin": false
+      "author_is_admin": false,
+      "name": "Alice Reader",
+      "handle": "alicereader",
+      "user_id": 100001
     },
     {
       "id": 111222334,
       "body": "Thanks for sharing this.",
-      "author_is_admin": true
+      "author_is_admin": true,
+      "name": "Bob Author",
+      "handle": "bobauthor",
+      "user_id": 100002
     }
   ]
 }

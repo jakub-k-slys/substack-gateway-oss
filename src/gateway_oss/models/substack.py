@@ -158,6 +158,9 @@ class SubstackComment(BaseModel):
     id: int
     body: str
     author_is_admin: bool | None = None
+    name: str | None = None
+    handle: str | None = None
+    user_id: int | None = None
 
 
 class SubstackCommentsResponse(BaseModel):
