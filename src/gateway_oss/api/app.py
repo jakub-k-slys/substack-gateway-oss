@@ -59,24 +59,30 @@ api = FastAPI(
 )
 
 
+_SILENT_PATHS = {"/v1/health/live", "/v1/health/ready"}
+
+
 @api.middleware("http")
 async def log_requests(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
     request.state.request_id = request_id
-    _log.debug("[%s] → %s %s", request_id, request.method, request.url.path)
+    silent = request.url.path in _SILENT_PATHS
+    if not silent:
+        _log.debug("[%s] → %s %s", request_id, request.method, request.url.path)
     start = time.monotonic()
     response = await call_next(request)
     elapsed = time.monotonic() - start
-    _log.info(
-        "[%s] %s %s → %d (%.3fs)",
-        request_id,
-        request.method,
-        request.url.path,
-        response.status_code,
-        elapsed,
-    )
+    if not silent:
+        _log.info(
+            "[%s] %s %s → %d (%.3fs)",
+            request_id,
+            request.method,
+            request.url.path,
+            response.status_code,
+            elapsed,
+        )
     response.headers["X-Request-ID"] = request_id
     return response
 
