@@ -5,11 +5,11 @@ requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.136.3",
   "httpx>=0.28.0",
-  "pyrate-limiter>=3.7.0",
+  "pyrate-limiter>=4.2.0",
   "pydantic>=2.13.4",
   "pydantic-settings>=2.14.1",
   "async-lru>=2.0",
-  "fastmcp>=3.3.1",
+  "fastmcp>=3.4.0",
   "markdownify>=1.2.2",
   "tenacity>=9.1.2",
   "uvloop>=0.22.1",
@@ -68,8 +68,8 @@ tag_format = "{version}"
 
 [dependency-groups]
 dev = [
-  "ruff>=0.15.14",
-  "ty>=0.0.40",
+  "ruff>=0.15.15",
+  "ty>=0.0.43",
   "behave>=1.2.6",
   "respx>=0.23.1",
   "httpx>=0.28.0",
