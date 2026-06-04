@@ -59,7 +59,7 @@ api = FastAPI(
 )
 
 
-_SILENT_PATHS = {"/v1/health/live", "/v1/health/ready"}
+_SILENT_PATHS = {"/api/v1/health/live", "/api/v1/health/ready"}
 
 
 @api.middleware("http")
