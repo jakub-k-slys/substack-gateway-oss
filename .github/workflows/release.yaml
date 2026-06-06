@@ -31,7 +31,7 @@ jobs:
         run: uv sync --dev
 
       - name: Python Semantic Release
-        uses: python-semantic-release/python-semantic-release@v9
+        uses: python-semantic-release/python-semantic-release@v10
         id: semantic
         with:
           github_token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload artifacts to GitHub Release
         if: steps.semantic.outputs.released == 'true'
-        uses: python-semantic-release/publish-action@v9
+        uses: python-semantic-release/publish-action@v10
         with:
           github_token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
           tag: ${{ steps.semantic.outputs.tag }}
