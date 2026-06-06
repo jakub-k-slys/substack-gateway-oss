@@ -16,6 +16,14 @@ from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
 from gateway_oss.config import settings
 from gateway_oss.extensions.runtime import get_runtime
 
+_SILENT_PATHS = {"/api/v1/health/live", "/api/v1/health/ready"}
+
+
+class _SilentPathsFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        return not any(path in message for path in _SILENT_PATHS)
+
 
 def _configure_logging() -> None:
     level = settings.log_level.upper()
@@ -23,6 +31,11 @@ def _configure_logging() -> None:
         {
             "version": 1,
             "disable_existing_loggers": False,
+            "filters": {
+                "silent_paths": {
+                    "()": _SilentPathsFilter,
+                },
+            },
             "formatters": {
                 "default": {
                     "format": "%(asctime)s %(levelname)-8s %(name)s %(message)s",
@@ -33,6 +46,7 @@ def _configure_logging() -> None:
                 "console": {
                     "class": "logging.StreamHandler",
                     "formatter": "default",
+                    "filters": ["silent_paths"],
                     "stream": "ext://sys.stderr",
                 },
             },
@@ -41,6 +55,9 @@ def _configure_logging() -> None:
                 # Suppress chatty low-level HTTP library debug output.
                 "httpx": {"level": "WARNING"},
                 "httpcore": {"level": "WARNING"},
+                # uvicorn.access has its own handler with propagate=False, so
+                # the filter on the console handler doesn't reach it.
+                "uvicorn.access": {"filters": ["silent_paths"]},
             },
         }
     )
@@ -59,30 +76,24 @@ api = FastAPI(
 )
 
 
-_SILENT_PATHS = {"/api/v1/health/live", "/api/v1/health/ready"}
-
-
 @api.middleware("http")
 async def log_requests(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
     request.state.request_id = request_id
-    silent = request.url.path in _SILENT_PATHS
-    if not silent:
-        _log.debug("[%s] → %s %s", request_id, request.method, request.url.path)
+    _log.debug("[%s] → %s %s", request_id, request.method, request.url.path)
     start = time.monotonic()
     response = await call_next(request)
     elapsed = time.monotonic() - start
-    if not silent:
-        _log.info(
-            "[%s] %s %s → %d (%.3fs)",
-            request_id,
-            request.method,
-            request.url.path,
-            response.status_code,
-            elapsed,
-        )
+    _log.info(
+        "[%s] %s %s → %d (%.3fs)",
+        request_id,
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed,
+    )
     response.headers["X-Request-ID"] = request_id
     return response
 
