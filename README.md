@@ -4,11 +4,11 @@
 [![E2E Tests](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml)
 [![Deployed on Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel)](https://substack-gateway.vercel.app)
 
-A stateless Python gateway for [Substack](https://substack.com) that exposes a
-REST API and an MCP server on top of the same service layer.
+A stateless Python gateway for [Substack](https://substack.com) that exposes
+a REST API and an MCP server on top of the same service layer.
 
-It is designed to make Substack data and actions easier to consume from scripts,
-applications, and AI tooling without duplicating integration logic across
+Designed to make Substack data and actions accessible from scripts,
+applications, and AI tooling — without duplicating integration logic across
 different interfaces.
 
 ## What You Can Do
@@ -144,6 +144,17 @@ Common examples include:
 - `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL`
 - `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC`
 
+## Validation
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run ty check .
+uv build
+uv run pytest tests/
+uv run behave features/
+```
+
 ## Documentation
 
 The repository includes MkDocs and Read the Docs configuration:
@@ -159,13 +170,19 @@ The repository includes MkDocs and Read the Docs configuration:
 
 Read the Docs can build the site directly from `.readthedocs.yaml` and `mkdocs.yml`.
 
-## Validation
+## Author
 
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run ty check .
-uv build
-uv run pytest tests/
-uv run behave features/
-```
+Built by [Jakub Slys](https://iam.slys.dev) — Backend Engineer building
+distributed systems for telecoms, running a self-hosted Kubernetes homelab,
+and building AI automation pipelines with n8n, MCP, and Claude.
+
+This gateway is the backend I use to automate my own Substack at
+[iam.slys.dev](https://iam.slys.dev), where I write about system design,
+machine learning fundamentals, and the AI tools I actually build and run
+in production.
+
+If you want to understand how this gateway works under the hood — the
+architecture decisions, what I got wrong the first time, and how it fits
+into a full content automation stack — that's what the newsletter is for.
+
+→ [iam.slys.dev](https://iam.slys.dev)
