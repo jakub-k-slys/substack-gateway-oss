@@ -68,7 +68,7 @@ tag_format = "{version}"
 
 [dependency-groups]
 dev = [
-  "ruff>=0.15.15",
+  "ruff>=0.15.16",
   "ty>=0.0.46",
   "behave>=1.2.6",
   "respx>=0.23.1",
