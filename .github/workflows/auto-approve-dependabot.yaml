@@ -1,4 +1,4 @@
-name: Auto-approve Dependabot 
+name: Auto-approve Dependabot
 on: pull_request_target
 
 permissions:
@@ -11,16 +11,22 @@ jobs:
         runs-on: ubuntu-latest
         if: github.actor == 'dependabot[bot]'
         steps:
+            - name: Mint a GitHub App installation token
+              uses: actions/create-github-app-token@v3
+              id: app-token
+              with:
+                  client-id: ${{ secrets.CLIENT_ID }}
+                  private-key: ${{ secrets.APP_PRIVATE_KEY }}
             - name: Dependabot metadata
               id: metadata
               uses: dependabot/fetch-metadata@v2
               with:
-                  github-token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
             - name: Approve a PR
               run: gh pr review --approve "$PR_URL"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
     auto-merge:
         name: Merge PR
@@ -29,13 +35,19 @@ jobs:
         runs-on: ubuntu-latest
         if: github.actor == 'dependabot[bot]'
         steps:
-          - name: Dependabot metadata
-            id: metadata
-            uses: dependabot/fetch-metadata@v2
-            with:
-                github-token: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
-          - name: Enable auto-merge for Dependabot PRs
-            run: gh pr merge --auto --merge "$PR_URL"
-            env:
-                PR_URL: ${{ github.event.pull_request.html_url }}
-                GH_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_OSS_WRITE_TOKEN }}
+            - name: Mint a GitHub App installation token
+              uses: actions/create-github-app-token@v3
+              id: app-token
+              with:
+                  client-id: ${{ secrets.CLIENT_ID }}
+                  private-key: ${{ secrets.APP_PRIVATE_KEY }}
+            - name: Dependabot metadata
+              id: metadata
+              uses: dependabot/fetch-metadata@v2
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Enable auto-merge for Dependabot PRs
+              run: gh pr merge --auto --merge "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
