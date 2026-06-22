@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
 
+    # Shared cache backend. When set, the "default" aiocache alias points at this
+    # Redis/Dragonfly instance; otherwise an in-process memory cache is used.
+    # A single switch governs the whole application (OSS + any extensions).
+    redis_url: str | None = None
+    profile_cache_ttl_sec: int = Field(default=300, ge=1)
+
     @field_validator("substack_base_url")
     @classmethod
     def _validate_base_url(cls, v: str) -> str:

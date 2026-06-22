@@ -41,7 +41,19 @@ def before_all(context):
     settings.substack_retry_max_wait_sec = _BEHAVE_SUBSTACK_RETRY_WAIT_SEC
 
 
+def _clear_shared_cache() -> None:
+    # The profile cache is now process-wide (shared "default" alias), not
+    # request-scoped, so it must be reset between scenarios to avoid one
+    # scenario's mocked profile leaking into the next.
+    import asyncio
+
+    import aiocache
+
+    asyncio.run(aiocache.caches.get("default").clear())
+
+
 def before_scenario(context, scenario):
+    _clear_shared_cache()
     context.client = TestClient(app, raise_server_exceptions=False)
     context.headers: dict[str, str] = {}
     context.response = None
