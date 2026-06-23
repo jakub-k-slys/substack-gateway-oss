@@ -20,9 +20,8 @@ class GatewayExtensionContext:
 
 
 @dataclass(slots=True, frozen=True)
-class ApplicationInfo:
-    application: str
-    tier: str
+class ModuleInfo:
+    name: str
     version: str
     features: tuple[str, ...] = ()
 
@@ -48,7 +47,5 @@ class GatewayExtension(Protocol):
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None:
         """Return an MCP auth provider, if the extension exposes one."""
 
-    def get_application_info(
-        self, context: GatewayExtensionContext
-    ) -> ApplicationInfo | None:
-        """Return application metadata for the root endpoint, if overridden."""
+    def get_module_info(self, context: GatewayExtensionContext) -> ModuleInfo | None:
+        """Return this module's metadata for the root endpoint, if any."""

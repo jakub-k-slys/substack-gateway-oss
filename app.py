@@ -1,1 +1,1 @@
-from gateway_oss.main import app  # noqa: F401
+from substack_gateway.main import app  # noqa: F401

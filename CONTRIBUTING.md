@@ -29,7 +29,7 @@ uv sync --dev
 Run the application locally:
 
 ```bash
-uv run python -m gateway_oss.main
+uv run python -m substack_gateway.main
 ```
 
 The app serves the REST API and MCP endpoints on port `5001` by default.

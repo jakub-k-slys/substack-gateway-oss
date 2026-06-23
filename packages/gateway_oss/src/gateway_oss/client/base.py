@@ -7,7 +7,7 @@ import logging
 import math
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Self
 
 import httpx
 from pyrate_limiter import Duration, Limiter, Rate
@@ -18,7 +18,6 @@ from tenacity import (
     stop_after_attempt,
 )
 from tenacity.wait import wait_exponential
-from typing_extensions import Self
 
 from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
 from gateway_oss.config import settings

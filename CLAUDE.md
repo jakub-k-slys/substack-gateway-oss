@@ -5,11 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Install dependencies (dev included)
-uv sync --dev
+# Install dependencies (dev included, all workspace members)
+uv sync --all-packages --dev
 
 # Run the server (dev mode with reload)
-uv run python -m gateway_oss.main
+uv run python -m substack_gateway.main
 
 # Lint
 uv run ruff check .
@@ -22,41 +22,66 @@ uv run ruff format .
 uv run ty check .
 
 # Unit tests (pytest)
-uv run pytest tests/
+uv run pytest packages/gateway_oss/tests/
 
 # Run a single test file
-uv run pytest tests/test_markdown.py
+uv run pytest packages/gateway_oss/tests/test_markdown.py
 
 # BDD integration tests (behave)
-uv run behave features/
+uv run behave packages/gateway_oss/features/
 
 # Run a single feature file
-uv run behave features/api/notes.feature
+uv run behave packages/gateway_oss/features/api/notes.feature
 
-# Build the package
-uv build
+# Build all workspace packages (shell + gateway_oss)
+uv build --all-packages
 ```
 
 When introducing changes, validate them before finishing the task. Prefer targeted runs first, but the expected OSS validation set is:
 - `uv run ruff check .`
 - `uv run ruff format --check .`
 - `uv run ty check .`
-- `uv build`
-- `uv run pytest tests/`
-- `uv run behave features/`
+- `uv build --all-packages`
+- `uv run pytest packages/gateway_oss/tests/`
+- `uv run behave packages/gateway_oss/features/`
 
 Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
 
 Commit and PR titles must use Conventional Commits / semver-style prefixes such as `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, or `ci:`. Prefer the narrowest correct prefix and keep the subject concise and imperative. For breaking changes, use Conventional Commits semver signaling with `!` in the type or scope, and/or include a `BREAKING CHANGE:` footer in the commit body.
 
+## Repository layout
+
+This repository is a **uv workspace**. The root is a thin shell package
+(`substack-gateway`, source in `src/substack_gateway/`) that only bootstraps the
+app; all OSS functionality lives in the `gateway_oss` member under
+`packages/gateway_oss/`.
+
+```
+pyproject.toml            # shell "substack-gateway": workspace root, console scripts, shared ruff/ty/behave/pytest config
+src/substack_gateway/     # thin bootstrap: create_app() + uvicorn entry (substack_gateway.main:app)
+packages/
+└── gateway_oss/          # OSS package: src/gateway_oss/ + tests/ + features/ + e2e/ + samples/
+```
+
+The workspace uses `members = ["packages/*"]`, so it does not hardcode any
+optional module — a downstream consumer (e.g. PRO) can drop a `packages/gateway_pro/`
+member into a checkout and it is picked up automatically. Use
+`uv sync --all-packages` so every present member is installed. The OSS repo never
+references PRO (only the generic glob and a `.gitignore` entry).
+
 ## Architecture
 
 This is a **Starlette-based gateway** that wraps the Substack private API and exposes two interfaces:
 
-- **`/api/v1/*`** — a FastAPI REST API (`src/gateway_oss/api/`)
-- **`/mcp`** — a FastMCP MCP server (`src/gateway_oss/mcp/`)
+- **`/api/v1/*`** — a FastAPI REST API (`packages/gateway_oss/src/gateway_oss/api/`)
+- **`/mcp`** — a FastMCP MCP server (`packages/gateway_oss/src/gateway_oss/mcp/`)
 
 Both share the same service layer and HTTP clients, wired together by `app_factory.py`.
+
+The root endpoint `/` returns per-module metadata:
+`{"application": "substack-gateway", "modules": [{"name": "gateway-oss", "version": ..., "features": [...]}]}`.
+Each extension contributes its own module via `get_module_info()`; the core
+aggregates them (no single-provider override, no `tier` field).
 
 ### Request flow
 
@@ -110,7 +135,7 @@ All settings are in `config.py` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `S
 
 ### Tests
 
-- **pytest** (`tests/`) — unit tests; currently covers the markdown converter.
-- **behave** (`features/`) — BDD integration tests that spin up the full Starlette app via `TestClient` with `respx` for HTTP mocking. Step definitions live in `features/steps/`; shared helpers and fixture setup are in `features/steps/common.py` and `features/environment.py`.
+- **pytest** (`packages/gateway_oss/tests/`) — unit tests; currently covers the markdown converter.
+- **behave** (`packages/gateway_oss/features/`) — BDD integration tests that spin up the full Starlette app via `TestClient` with `respx` for HTTP mocking. Step definitions live in `packages/gateway_oss/features/steps/`; shared helpers and fixture setup are in `features/steps/common.py` and `features/environment.py`.
 
-Behave tests load fixture data from a `samples/` directory (four levels above `features/steps/`) — this directory is not committed; create it at the repo root when adding new BDD fixtures.
+Behave tests load fixture data from a `samples/` directory (`packages/gateway_oss/samples/`, resolved as `parents[2]` of `features/steps/`).
