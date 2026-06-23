@@ -11,30 +11,37 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from gateway_oss import __app_version__
 from gateway_oss.api.app import api
 from gateway_oss.application_features import build_oss_features
-from gateway_oss.extensions.base import ApplicationInfo
+from gateway_oss.extensions.base import ModuleInfo
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.mcp.app import mcp
+from gateway_oss.versioning import get_package_version
 
 _log = logging.getLogger(__name__)
 
+APPLICATION_NAME = "substack-gateway"
 
-def _get_application_info() -> ApplicationInfo:
-    runtime = get_runtime()
-    info = runtime.application_info or ApplicationInfo(
-        application="substack-gateway",
-        tier="oss",
-        version=__app_version__,
+
+def _oss_module() -> ModuleInfo:
+    return ModuleInfo(
+        name="gateway-oss",
+        version=get_package_version("gateway_oss"),
         features=build_oss_features(),
     )
-    return ApplicationInfo(
-        application=info.application,
-        tier=info.tier,
-        version=info.version,
-        features=tuple(sorted(set(info.features))),
-    )
+
+
+def _build_modules() -> list[ModuleInfo]:
+    runtime = get_runtime()
+    modules = [_oss_module(), *runtime.module_infos]
+    return [
+        ModuleInfo(
+            name=module.name,
+            version=module.version,
+            features=tuple(sorted(set(module.features))),
+        )
+        for module in modules
+    ]
 
 
 @contextlib.asynccontextmanager
@@ -44,13 +51,11 @@ async def _lifespan(app: Any) -> AsyncIterator[None]:
         for hook in runtime.lifespan_hooks:
             await stack.enter_async_context(hook(app))
         async with mcp.lifespan(app):
-            info = _get_application_info()
+            modules = _build_modules()
             _log.info(
-                "Starting %s tier=%s version=%s features=%s",
-                info.application,
-                info.tier,
-                info.version,
-                ",".join(info.features),
+                "Starting %s modules=%s",
+                APPLICATION_NAME,
+                ",".join(f"{module.name}@{module.version}" for module in modules),
             )
             yield
 
@@ -64,13 +69,17 @@ class _McpTrailingSlash:
 
 
 async def _root(_: Any) -> JSONResponse:
-    info = _get_application_info()
     return JSONResponse(
         {
-            "application": info.application,
-            "tier": info.tier,
-            "version": info.version,
-            "features": list(info.features),
+            "application": APPLICATION_NAME,
+            "modules": [
+                {
+                    "name": module.name,
+                    "version": module.version,
+                    "features": list(module.features),
+                }
+                for module in _build_modules()
+            ],
         }
     )
 

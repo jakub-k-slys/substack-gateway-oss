@@ -43,7 +43,7 @@ uv sync --dev
 Run the application locally:
 
 ```bash
-uv run python -m gateway_oss.main
+uv run python -m substack_gateway.main
 ```
 
 Check the root metadata endpoint:

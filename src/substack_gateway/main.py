@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from gateway_oss.app_factory import create_app
+from gateway_oss import create_app
 
 app = create_app()
 
@@ -11,7 +11,7 @@ def main() -> None:
     import uvicorn
 
     uvicorn.run(
-        "gateway_oss.main:app",
+        "substack_gateway.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "5001")),
         loop="uvloop",

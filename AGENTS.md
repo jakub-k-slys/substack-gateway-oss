@@ -4,7 +4,7 @@
 Core application code lives in `src/gateway_oss/`. `api/v1/` holds FastAPI routes, `mcp/` exposes the FastMCP surface, `services/` contains shared business logic, `client/` wraps Substack HTTP calls, and `models/` defines schemas and pagination types. Markdown conversion lives in `converters/`, while extension hooks live in `extensions/`. Unit tests are in `tests/`, BDD coverage is in `features/` with step definitions under `features/steps/`. Use `samples/` for request examples and treat `dist/` as build output.
 
 ## Build, Test, and Development Commands
-Install the pinned toolchain and dev dependencies with `uv sync --dev`. Run the app locally with `uv run python -m gateway_oss.main`; this serves the API and MCP endpoints on port `5001` by default. Build distributable artifacts with `uv build`.
+Install the pinned toolchain and dev dependencies with `uv sync --dev`. Run the app locally with `uv run python -m substack_gateway.main`; this serves the API and MCP endpoints on port `5001` by default. Build distributable artifacts with `uv build`.
 
 Quality checks:
 - `uv run ruff check .` runs lint rules.

@@ -19,7 +19,7 @@ uv sync --dev
 Start the application locally:
 
 ```bash
-uv run python -m gateway_oss.main
+uv run python -m substack_gateway.main
 ```
 
 By default the app listens on `http://0.0.0.0:5001`.

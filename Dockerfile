@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN uv build --wheel --out-dir /tmp/wheels
+RUN uv build --all-packages --wheel --out-dir /tmp/wheels
 
 
 FROM python:3.11-slim AS runtime
@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=builder /tmp/wheels /tmp/wheels
 
-RUN python -m pip install --no-cache-dir /tmp/wheels/gateway_oss-*.whl \
+RUN python -m pip install --no-cache-dir /tmp/wheels/*.whl \
     && rm -rf /tmp/wheels
 
 RUN useradd --create-home --shell /usr/sbin/nologin appuser

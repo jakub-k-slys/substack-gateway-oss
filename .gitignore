@@ -1,5 +1,6 @@
 .idea/
 .vercel/
+/packages/gateway_pro/
 .venv/
 venv/
 .uv-cache/
