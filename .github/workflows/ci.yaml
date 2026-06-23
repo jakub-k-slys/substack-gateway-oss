@@ -27,10 +27,10 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Build
-        run: uv build 
+        run: uv build --all-packages
 
   lint:
     name: Lint
@@ -50,7 +50,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Lint (ruff check)
         run: uv run ruff check .
@@ -76,7 +76,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Type-check (ty)
         run: uv run ty check .
@@ -99,10 +99,10 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Run unit tests (pytest)
-        run: uv run pytest tests/ --junit-xml=pytest-reports/results.xml
+        run: uv run pytest packages/gateway_oss/tests/ --junit-xml=pytest-reports/results.xml
 
       - name: Write test summary
         if: always()
@@ -156,10 +156,10 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Run integration tests (behave)
-        run: uv run behave features/ --junit --junit-directory behave-reports/
+        run: uv run behave packages/gateway_oss/features/ --junit --junit-directory behave-reports/
 
       - name: Write test summary
         if: always()

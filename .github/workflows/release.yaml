@@ -38,7 +38,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --all-packages --dev
 
       - name: Python Semantic Release
         uses: python-semantic-release/python-semantic-release@v10
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build package
         if: steps.semantic.outputs.released == 'true'
-        run: uv build
+        run: uv build --all-packages
 
       - name: Upload artifacts to GitHub Release
         if: steps.semantic.outputs.released == 'true'
