@@ -1,7 +1,7 @@
 # Substack Gateway OSS
 
-[![CI](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yaml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yaml)
-[![E2E Tests](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yaml)
+[![CI](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/ci.yml)
+[![E2E Tests](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yml/badge.svg)](https://github.com/jakub-k-slys/substack-gateway-oss/actions/workflows/e2e.yml)
 [![Deployed on Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel)](https://substack-gateway.vercel.app)
 
 A stateless Python gateway for [Substack](https://substack.com) that exposes
