@@ -362,8 +362,23 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
     )(get_post_comments)
 
 
-for extension in runtime.extensions:
-    extension.register_mcp(_mcp, runtime.context)
+_mcp_app: Any = None
 
 
-mcp = _mcp.http_app(transport="streamable-http", path="/", stateless_http=True)
+def _build_mcp_app() -> Any:
+    for extension in runtime.extensions:
+        extension.register_mcp(_mcp, runtime.context)
+    return _mcp.http_app(transport="streamable-http", path="/", stateless_http=True)
+
+
+def __getattr__(name: str) -> Any:
+    # Build the MCP ASGI app lazily: extension registration must not run at
+    # import time. An extension's register_mcp imports gateway_pro.mcp.app,
+    # which imports this module back — doing that during import would re-enter
+    # a partially-initialised module and raise a circular ImportError.
+    if name == "mcp":
+        global _mcp_app
+        if _mcp_app is None:
+            _mcp_app = _build_mcp_app()
+        return _mcp_app
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
