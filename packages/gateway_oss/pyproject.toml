@@ -17,6 +17,7 @@ dependencies = [
   "gateway_notes",
   "gateway_notes_rest",
   "gateway_notes_mcp",
+  "gateway_rest_common",
 ]
 
 [build-system]
@@ -31,3 +32,4 @@ gateway_core = { workspace = true }
 gateway_notes = { workspace = true }
 gateway_notes_rest = { workspace = true }
 gateway_notes_mcp = { workspace = true }
+gateway_rest_common = { workspace = true }

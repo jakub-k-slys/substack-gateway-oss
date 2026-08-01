@@ -2,7 +2,7 @@
 name = "gateway_notes_rest"
 version = "3.1.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_notes", "fastapi>=0.138.2"]
+dependencies = ["gateway_core", "gateway_notes", "gateway_rest_common", "fastapi>=0.138.2"]
 
 [project.entry-points."substack_gateway.capabilities"]
 notes_rest = "gateway_notes_rest:capability"
@@ -17,3 +17,4 @@ packages = ["src/gateway_notes_rest"]
 [tool.uv.sources]
 gateway_core = { workspace = true }
 gateway_notes = { workspace = true }
+gateway_rest_common = { workspace = true }
