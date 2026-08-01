@@ -18,6 +18,7 @@ dependencies = [
   "gateway_notes",
   "gateway_notes_rest",
   "gateway_notes_mcp",
+  "gateway_following_rest",
   "gateway_rest_common",
   "gateway_mcp_common",
 ]
@@ -35,5 +36,6 @@ gateway_following = { workspace = true }
 gateway_notes = { workspace = true }
 gateway_notes_rest = { workspace = true }
 gateway_notes_mcp = { workspace = true }
+gateway_following_rest = { workspace = true }
 gateway_rest_common = { workspace = true }
 gateway_mcp_common = { workspace = true }

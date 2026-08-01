@@ -5,19 +5,16 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from gateway_oss.api.deps import (
-    get_following_service,
     get_notes_service,
     get_posts_service,
     get_profiles_service,
 )
 from gateway_oss.models.pagination import CursorLimitPage, CursorPage
 from gateway_oss.models.schemas import (
-    FollowingResponse,
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
 )
-from gateway_oss.services.following import FollowingService
 from gateway_oss.services.notes import NotesService
 from gateway_oss.services.posts import PostsService
 from gateway_oss.services.profiles import ProfilesService
@@ -56,12 +53,3 @@ async def get_me_posts(
         profile.id, limit=page.limit, cursor=page.cursor
     )
     return PostsPageResponse.from_substack(result)
-
-
-@router.get("/me/following", response_model=FollowingResponse)
-async def get_me_following(
-    service: Annotated[FollowingService, Depends(get_following_service)],
-) -> FollowingResponse:
-    """Return the list of users the authenticated user follows."""
-    users = await service.get_own_following()
-    return FollowingResponse.from_substack(users)
