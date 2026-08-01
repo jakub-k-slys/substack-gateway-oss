@@ -14,13 +14,11 @@ from gateway_mcp_common.clients import (
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import (
     CommentsResponse,
-    FollowingResponse,
     FullPostResponse,
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
 )
-from gateway_oss.services.following import FollowingService
 from gateway_oss.services.notes import NotesService
 from gateway_oss.services.posts import PostsService
 from gateway_oss.services.profiles import ProfilesService
@@ -78,14 +76,6 @@ async def get_post_comments(
             post_id
         )
     return CommentsResponse.from_substack(comments).model_dump()
-
-
-async def get_my_following(
-    token: str,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        users = await FollowingService(publication, substack).get_own_following()
-    return FollowingResponse.from_substack(users).model_dump()
 
 
 @_mcp.tool(
@@ -206,18 +196,6 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         ),
         meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
     )(get_my_posts)
-    mcp.tool(
-        description="Retrieve the list of Substack profiles that the authenticated user follows using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"me", "following", "read"},
-        annotations=ToolAnnotations(
-            title="Get My Following",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
-    )(get_my_following)
     mcp.tool(
         description="Retrieve the full content of a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"posts", "read"},
