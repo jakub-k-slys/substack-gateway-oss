@@ -103,8 +103,11 @@ version_toml = [
   "packages/gateway_comments/pyproject.toml:project.version",
   "packages/gateway_comments_rest/pyproject.toml:project.version",
   "packages/gateway_comments_mcp/pyproject.toml:project.version",
+  "packages/gateway_profiles/pyproject.toml:project.version",
   "packages/gateway_profiles_rest/pyproject.toml:project.version",
+  "packages/gateway_profiles_mcp/pyproject.toml:project.version",
   "packages/gateway_me_rest/pyproject.toml:project.version",
+  "packages/gateway_me_mcp/pyproject.toml:project.version",
 ]
 branch = "main"
 commit_author = "Jakub Slys <jakub@slys.dev>"
