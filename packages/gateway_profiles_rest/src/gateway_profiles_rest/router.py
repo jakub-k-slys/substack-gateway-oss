@@ -4,15 +4,18 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from gateway_oss.api.deps import get_posts_service, get_profiles_service
-from gateway_oss.models.pagination import CursorLimitPage, CursorPage
-from gateway_oss.models.schemas import (
-    NotesPageResponse,
-    PostsPageResponse,
-    ProfileResponse,
+from gateway_core.models.pagination import CursorLimitPage, CursorPage
+from gateway_notes.schemas import NotesPageResponse
+from gateway_notes.service import NotesService
+from gateway_posts.schemas import PostsPageResponse
+from gateway_posts.service import PostsService
+from gateway_profiles.schemas import ProfileResponse
+from gateway_profiles.service import ProfilesService
+from gateway_profiles_rest.deps import (
+    get_notes_service,
+    get_posts_service,
+    get_profiles_service,
 )
-from gateway_oss.services.posts import PostsService
-from gateway_oss.services.profiles import ProfilesService
 
 router = APIRouter(tags=["profiles"])
 
@@ -46,10 +49,10 @@ async def get_profile_posts(
 async def get_profile_notes(
     slug: str,
     profiles: Annotated[ProfilesService, Depends(get_profiles_service)],
-    posts: Annotated[PostsService, Depends(get_posts_service)],
+    notes: Annotated[NotesService, Depends(get_notes_service)],
     page: Annotated[CursorPage, Depends()],
 ) -> NotesPageResponse:
     """Return a page of notes for the given profile slug."""
     profile_id = await profiles.get_profile_id_by_slug(slug)
-    result = await posts.get_notes_for_profile(profile_id, cursor=page.cursor)
+    result = await notes.get_notes_for_profile(profile_id, cursor=page.cursor)
     return NotesPageResponse.from_substack(result)
