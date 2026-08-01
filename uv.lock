@@ -4,11 +4,22 @@ requires-python = ">=3.11"
 
 [manifest]
 members = [
+    "gateway-comments",
+    "gateway-comments-mcp",
+    "gateway-comments-rest",
     "gateway-core",
+    "gateway-following",
+    "gateway-following-mcp",
+    "gateway-following-rest",
+    "gateway-mcp-common",
     "gateway-notes",
     "gateway-notes-mcp",
     "gateway-notes-rest",
     "gateway-oss",
+    "gateway-posts",
+    "gateway-posts-mcp",
+    "gateway-posts-rest",
+    "gateway-rest-common",
     "substack-gateway",
 ]
 
@@ -505,8 +516,65 @@ server = [
 ]
 
 [[package]]
-name = "gateway-core"
+name = "gateway-comments"
+version = "3.1.0"
+source = { editable = "packages/gateway_comments" }
+dependencies = [
+    { name = "gateway-core" },
+    { name = "gateway-notes" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-notes", editable = "packages/gateway_notes" },
+    { name = "pydantic", specifier = ">=2.13.4" },
+]
+
+[[package]]
+name = "gateway-comments-mcp"
+version = "3.1.0"
+source = { editable = "packages/gateway_comments_mcp" }
+dependencies = [
+    { name = "fastmcp" },
+    { name = "gateway-comments" },
+    { name = "gateway-core" },
+    { name = "gateway-mcp-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "gateway-comments", editable = "packages/gateway_comments" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
+]
+
+[[package]]
+name = "gateway-comments-rest"
 version = "0.1.0"
+source = { editable = "packages/gateway_comments_rest" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-comments" },
+    { name = "gateway-core" },
+    { name = "gateway-notes" },
+    { name = "gateway-rest-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.138.2" },
+    { name = "gateway-comments", editable = "packages/gateway_comments" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-notes", editable = "packages/gateway_notes" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
+]
+
+[[package]]
+name = "gateway-core"
+version = "3.1.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -530,8 +598,72 @@ requires-dist = [
 ]
 
 [[package]]
-name = "gateway-notes"
+name = "gateway-following"
 version = "0.1.0"
+source = { editable = "packages/gateway_following" }
+dependencies = [
+    { name = "gateway-core" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "pydantic", specifier = ">=2.13.4" },
+]
+
+[[package]]
+name = "gateway-following-mcp"
+version = "0.1.0"
+source = { editable = "packages/gateway_following_mcp" }
+dependencies = [
+    { name = "fastmcp" },
+    { name = "gateway-core" },
+    { name = "gateway-following" },
+    { name = "gateway-mcp-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-following", editable = "packages/gateway_following" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
+]
+
+[[package]]
+name = "gateway-following-rest"
+version = "0.1.0"
+source = { editable = "packages/gateway_following_rest" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-core" },
+    { name = "gateway-following" },
+    { name = "gateway-rest-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.138.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-following", editable = "packages/gateway_following" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
+]
+
+[[package]]
+name = "gateway-mcp-common"
+version = "0.1.0"
+source = { editable = "packages/gateway_mcp_common" }
+dependencies = [
+    { name = "gateway-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "gateway-core", editable = "packages/gateway_core" }]
+
+[[package]]
+name = "gateway-notes"
+version = "3.1.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -546,11 +678,12 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "0.1.0"
+version = "3.1.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
     { name = "gateway-core" },
+    { name = "gateway-mcp-common" },
     { name = "gateway-notes" },
 ]
 
@@ -558,17 +691,19 @@ dependencies = [
 requires-dist = [
     { name = "fastmcp", specifier = ">=3.4.2" },
     { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
 ]
 
 [[package]]
 name = "gateway-notes-rest"
-version = "0.1.0"
+version = "3.1.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
     { name = "gateway-core" },
     { name = "gateway-notes" },
+    { name = "gateway-rest-common" },
 ]
 
 [package.metadata]
@@ -576,20 +711,32 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.138.2" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
 ]
 
 [[package]]
 name = "gateway-oss"
-version = "3.0.1"
+version = "3.1.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
     { name = "fastapi" },
     { name = "fastmcp" },
+    { name = "gateway-comments" },
+    { name = "gateway-comments-mcp" },
+    { name = "gateway-comments-rest" },
     { name = "gateway-core" },
+    { name = "gateway-following" },
+    { name = "gateway-following-mcp" },
+    { name = "gateway-following-rest" },
+    { name = "gateway-mcp-common" },
     { name = "gateway-notes" },
     { name = "gateway-notes-mcp" },
     { name = "gateway-notes-rest" },
+    { name = "gateway-posts" },
+    { name = "gateway-posts-mcp" },
+    { name = "gateway-posts-rest" },
+    { name = "gateway-rest-common" },
     { name = "httpx" },
     { name = "markdownify" },
     { name = "pydantic" },
@@ -604,10 +751,21 @@ requires-dist = [
     { name = "aiocache", extras = ["redis"], specifier = ">=0.12.3" },
     { name = "fastapi", specifier = ">=0.138.2" },
     { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "gateway-comments", editable = "packages/gateway_comments" },
+    { name = "gateway-comments-mcp", editable = "packages/gateway_comments_mcp" },
+    { name = "gateway-comments-rest", editable = "packages/gateway_comments_rest" },
     { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-following", editable = "packages/gateway_following" },
+    { name = "gateway-following-mcp", editable = "packages/gateway_following_mcp" },
+    { name = "gateway-following-rest", editable = "packages/gateway_following_rest" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
     { name = "gateway-notes-mcp", editable = "packages/gateway_notes_mcp" },
     { name = "gateway-notes-rest", editable = "packages/gateway_notes_rest" },
+    { name = "gateway-posts", editable = "packages/gateway_posts" },
+    { name = "gateway-posts-mcp", editable = "packages/gateway_posts_mcp" },
+    { name = "gateway-posts-rest", editable = "packages/gateway_posts_rest" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.4" },
@@ -615,6 +773,74 @@ requires-dist = [
     { name = "pyrate-limiter", specifier = ">=4.4.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "uvloop", specifier = ">=0.22.1" },
+]
+
+[[package]]
+name = "gateway-posts"
+version = "0.1.0"
+source = { editable = "packages/gateway_posts" }
+dependencies = [
+    { name = "gateway-core" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "pydantic", specifier = ">=2.13.4" },
+]
+
+[[package]]
+name = "gateway-posts-mcp"
+version = "3.1.0"
+source = { editable = "packages/gateway_posts_mcp" }
+dependencies = [
+    { name = "fastmcp" },
+    { name = "gateway-core" },
+    { name = "gateway-mcp-common" },
+    { name = "gateway-posts" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
+    { name = "gateway-posts", editable = "packages/gateway_posts" },
+]
+
+[[package]]
+name = "gateway-posts-rest"
+version = "0.1.0"
+source = { editable = "packages/gateway_posts_rest" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-core" },
+    { name = "gateway-posts" },
+    { name = "gateway-rest-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.138.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-posts", editable = "packages/gateway_posts" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
+]
+
+[[package]]
+name = "gateway-rest-common"
+version = "0.1.0"
+source = { editable = "packages/gateway_rest_common" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.138.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
 ]
 
 [[package]]

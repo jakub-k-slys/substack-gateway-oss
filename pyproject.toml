@@ -86,6 +86,17 @@ version_toml = [
   "packages/gateway_notes/pyproject.toml:project.version",
   "packages/gateway_notes_rest/pyproject.toml:project.version",
   "packages/gateway_notes_mcp/pyproject.toml:project.version",
+  "packages/gateway_rest_common/pyproject.toml:project.version",
+  "packages/gateway_mcp_common/pyproject.toml:project.version",
+  "packages/gateway_following/pyproject.toml:project.version",
+  "packages/gateway_following_rest/pyproject.toml:project.version",
+  "packages/gateway_following_mcp/pyproject.toml:project.version",
+  "packages/gateway_posts/pyproject.toml:project.version",
+  "packages/gateway_posts_rest/pyproject.toml:project.version",
+  "packages/gateway_posts_mcp/pyproject.toml:project.version",
+  "packages/gateway_comments/pyproject.toml:project.version",
+  "packages/gateway_comments_rest/pyproject.toml:project.version",
+  "packages/gateway_comments_mcp/pyproject.toml:project.version",
 ]
 branch = "main"
 commit_author = "Jakub Slys <jakub@slys.dev>"
