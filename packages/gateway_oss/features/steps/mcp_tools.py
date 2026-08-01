@@ -14,12 +14,8 @@ from behave import given, then, when
 
 from gateway_comments_mcp.tools import get_post_comments
 from gateway_following_mcp.tools import get_my_following
+from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
 from gateway_notes_mcp.tools import create_note, delete_note, get_note
-from gateway_oss.mcp.app import (
-    get_me,
-    get_my_notes,
-    get_my_posts,
-)
 from gateway_posts_mcp.tools import get_post
 from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
 

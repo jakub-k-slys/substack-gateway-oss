@@ -3,94 +3,27 @@ from __future__ import annotations
 from typing import Any
 
 from fastmcp import FastMCP
-from mcp.types import ToolAnnotations
 
 from gateway_mcp_common.clients import (
     _anonymous_credentials,  # noqa: F401
-    _authenticated_clients,
+    _authenticated_clients,  # noqa: F401
 )
 from gateway_oss.extensions.runtime import get_runtime
-from gateway_oss.models.schemas import (
-    NotesPageResponse,
-    PostsPageResponse,
-    ProfileResponse,
-)
-from gateway_oss.services.notes import NotesService
-from gateway_oss.services.posts import PostsService
-from gateway_oss.services.profiles import ProfilesService
 
 runtime = get_runtime()
 
 _mcp = FastMCP("substack-gateway", auth=runtime.mcp_auth_provider)
 
 
-async def get_me(
-    token: str,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (_publication, substack):
-        profile = await ProfilesService(substack).get_own_profile()
-    return ProfileResponse.from_substack(profile).model_dump()
-
-
-async def get_my_notes(
-    token: str,
-    cursor: str | None = None,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        page = await NotesService(publication, substack).get_own_notes(cursor=cursor)
-    return NotesPageResponse.from_substack(page).model_dump()
-
-
-async def get_my_posts(
-    token: str,
-    limit: int = 25,
-    cursor: str | None = None,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        profiles = ProfilesService(substack)
-        posts = PostsService(publication, substack)
-        profile = await profiles.get_own_profile()
-        page = await posts.get_posts_for_profile(profile.id, limit=limit, cursor=cursor)
-    return PostsPageResponse.from_substack(page).model_dump()
-
-
 def register_authenticated_tools(mcp: FastMCP) -> None:
-    mcp.tool(
-        description="Retrieve the authenticated user's own Substack public profile using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"me", "profile", "read"},
-        annotations=ToolAnnotations(
-            title="Get My Profile",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "me", "substack_endpoint": "GET /user/{slug}/public_profile"},
-    )(get_me)
-    mcp.tool(
-        description="Retrieve the authenticated user's own notes, paginated via an optional cursor. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"me", "notes", "read"},
-        annotations=ToolAnnotations(
-            title="Get My Notes",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "me", "substack_endpoint": "GET /notes"},
-    )(get_my_notes)
-    mcp.tool(
-        description="Retrieve the authenticated user's own posts, paginated via limit and offset. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"me", "posts", "read"},
-        annotations=ToolAnnotations(
-            title="Get My Posts",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
-    )(get_my_posts)
+    """Backward-compatibility no-op.
+
+    The authenticated OSS tools are now registered via the capability
+    registry (entry-point group ``substack_gateway.capabilities``). This
+    function is retained because a downstream extension imports and calls it;
+    it must NOT register anything, or those tools would be double-registered
+    (FastMCP raises on duplicate tool names).
+    """
 
 
 _mcp_app: Any = None
