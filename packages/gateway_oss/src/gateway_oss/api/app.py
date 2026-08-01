@@ -15,6 +15,7 @@ from gateway_oss.api.v1 import router as v1_router
 from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
 from gateway_oss.config import settings
 from gateway_oss.extensions.runtime import get_runtime
+from gateway_oss.registry import load_rest_capabilities
 
 _SILENT_PATHS = {"/api/v1/health/live", "/api/v1/health/ready"}
 
@@ -142,5 +143,9 @@ async def substack_api_error_handler(
 
 
 api.include_router(v1_router, prefix="/v1")
+
+for cap in load_rest_capabilities():
+    api.include_router(cap.router, prefix=cap.mount_prefix)
+
 for extension in get_runtime().extensions:
     extension.register_api(api, get_runtime().context)

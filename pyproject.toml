@@ -26,6 +26,7 @@ members = ["packages/*"]
 gateway_oss = { workspace = true }
 gateway_core = { workspace = true }
 gateway_notes = { workspace = true }
+gateway_notes_rest = { workspace = true }
 
 
 [tool.ruff]
@@ -37,7 +38,7 @@ select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["gateway_core", "gateway_notes", "gateway_oss", "substack_gateway"]
+known-first-party = ["gateway_core", "gateway_notes", "gateway_notes_rest", "gateway_oss", "substack_gateway"]
 
 [tool.ruff.format]
 quote-style = "double"

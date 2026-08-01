@@ -4,13 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from gateway_oss.api.deps import get_notes_service
-from gateway_oss.models.schemas import (
-    CreateNoteRequest,
-    CreateNoteResponse,
-    NoteResponse,
-)
-from gateway_oss.services.notes import NotesService
+from gateway_notes.schemas import CreateNoteRequest, CreateNoteResponse, NoteResponse
+from gateway_notes.service import NotesService
+from gateway_notes_rest.deps import get_notes_service
 
 router = APIRouter(tags=["notes"])
 

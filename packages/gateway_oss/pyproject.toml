@@ -15,6 +15,7 @@ dependencies = [
   "uvloop>=0.22.1",
   "gateway_core",
   "gateway_notes",
+  "gateway_notes_rest",
 ]
 
 [build-system]
@@ -27,3 +28,4 @@ packages = ["src/gateway_oss"]
 [tool.uv.sources]
 gateway_core = { workspace = true }
 gateway_notes = { workspace = true }
+gateway_notes_rest = { workspace = true }
