@@ -4,20 +4,18 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from gateway_oss.api.deps import (
+from gateway_core.models.pagination import CursorLimitPage, CursorPage
+from gateway_me_rest.deps import (
     get_notes_service,
     get_posts_service,
     get_profiles_service,
 )
-from gateway_oss.models.pagination import CursorLimitPage, CursorPage
-from gateway_oss.models.schemas import (
-    NotesPageResponse,
-    PostsPageResponse,
-    ProfileResponse,
-)
-from gateway_oss.services.notes import NotesService
-from gateway_oss.services.posts import PostsService
-from gateway_oss.services.profiles import ProfilesService
+from gateway_notes.schemas import NotesPageResponse
+from gateway_notes.service import NotesService
+from gateway_posts.schemas import PostsPageResponse
+from gateway_posts.service import PostsService
+from gateway_profiles.schemas import ProfileResponse
+from gateway_profiles.service import ProfilesService
 
 router = APIRouter(tags=["me"])
 

@@ -1,0 +1,29 @@
+[project]
+name = "gateway_me_rest"
+version = "3.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "gateway_core",
+  "gateway_rest_common",
+  "gateway_profiles",
+  "gateway_notes",
+  "gateway_posts",
+  "fastapi>=0.138.2",
+]
+
+[project.entry-points."substack_gateway.capabilities"]
+me_rest = "gateway_me_rest:capability"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gateway_me_rest"]
+
+[tool.uv.sources]
+gateway_core = { workspace = true }
+gateway_rest_common = { workspace = true }
+gateway_profiles = { workspace = true }
+gateway_notes = { workspace = true }
+gateway_posts = { workspace = true }

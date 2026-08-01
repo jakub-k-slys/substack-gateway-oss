@@ -29,6 +29,7 @@ dependencies = [
   "gateway_comments_mcp",
   "gateway_profiles_rest",
   "gateway_profiles_mcp",
+  "gateway_me_rest",
   "gateway_rest_common",
   "gateway_mcp_common",
 ]
@@ -57,5 +58,6 @@ gateway_comments_rest = { workspace = true }
 gateway_comments_mcp = { workspace = true }
 gateway_profiles_rest = { workspace = true }
 gateway_profiles_mcp = { workspace = true }
+gateway_me_rest = { workspace = true }
 gateway_rest_common = { workspace = true }
 gateway_mcp_common = { workspace = true }
