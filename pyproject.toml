@@ -51,6 +51,7 @@ default_format = "pretty"
 
 [tool.pytest.ini_options]
 testpaths = ["packages/gateway_oss/tests", "packages/gateway_core/tests"]
+addopts = "--import-mode=importlib"
 
 
 [tool.ty.src]
