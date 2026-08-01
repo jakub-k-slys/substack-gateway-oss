@@ -8,8 +8,6 @@ from mcp.types import ToolAnnotations
 from gateway_mcp_common.clients import (
     _anonymous_credentials,  # noqa: F401
     _authenticated_clients,
-    _public_publication_client,
-    _public_substack_client,
 )
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import (
@@ -54,87 +52,6 @@ async def get_my_posts(
         profile = await profiles.get_own_profile()
         page = await posts.get_posts_for_profile(profile.id, limit=limit, cursor=cursor)
     return PostsPageResponse.from_substack(page).model_dump()
-
-
-@_mcp.tool(
-    description="Retrieve a public Substack profile by its handle/slug.",
-    tags={"profiles", "read"},
-    annotations=ToolAnnotations(
-        title="Get Profile",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={
-        "category": "profiles",
-        "substack_endpoint": "GET /user/{slug}/public_profile",
-    },
-)
-async def get_profile(
-    slug: str,
-) -> dict[str, Any]:
-    async with _public_substack_client() as substack:
-        profile = await ProfilesService(substack).get_profile_by_slug(slug)
-    return ProfileResponse.from_substack(profile).model_dump()
-
-
-@_mcp.tool(
-    description="Retrieve a paginated list of posts for a Substack profile identified by handle/slug.",
-    tags={"profiles", "posts", "read"},
-    annotations=ToolAnnotations(
-        title="Get Profile Posts",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={"category": "profiles", "substack_endpoint": "GET /profile/posts"},
-)
-async def get_profile_posts(
-    slug: str,
-    limit: int = 25,
-    cursor: str | None = None,
-) -> dict[str, Any]:
-    async with (
-        _public_publication_client() as publication,
-        _public_substack_client() as substack,
-    ):
-        profiles = ProfilesService(substack)
-        posts = PostsService(publication, substack)
-        profile_id = await profiles.get_profile_id_by_slug(slug)
-        page = await posts.get_posts_for_profile(profile_id, limit=limit, cursor=cursor)
-    return PostsPageResponse.from_substack(page).model_dump()
-
-
-@_mcp.tool(
-    description="Retrieve a paginated list of notes for a Substack profile identified by handle/slug.",
-    tags={"profiles", "notes", "read"},
-    annotations=ToolAnnotations(
-        title="Get Profile Notes",
-        readOnlyHint=True,
-        destructiveHint=False,
-        idempotentHint=True,
-        openWorldHint=True,
-    ),
-    meta={
-        "category": "profiles",
-        "substack_endpoint": "GET /reader/feed/profile/{id}",
-    },
-)
-async def get_profile_notes(
-    slug: str,
-    cursor: str | None = None,
-) -> dict[str, Any]:
-    async with (
-        _public_publication_client() as publication,
-        _public_substack_client() as substack,
-    ):
-        profiles = ProfilesService(substack)
-        posts = PostsService(publication, substack)
-        profile_id = await profiles.get_profile_id_by_slug(slug)
-        page = await posts.get_notes_for_profile(profile_id, cursor=cursor)
-    return NotesPageResponse.from_substack(page).model_dump()
 
 
 def register_authenticated_tools(mcp: FastMCP) -> None:

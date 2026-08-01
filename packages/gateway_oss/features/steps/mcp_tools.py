@@ -19,11 +19,9 @@ from gateway_oss.mcp.app import (
     get_me,
     get_my_notes,
     get_my_posts,
-    get_profile,
-    get_profile_notes,
-    get_profile_posts,
 )
 from gateway_posts_mcp.tools import get_post
+from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
 
 # ------------------------------------------------------------------
 # Given — authentication
