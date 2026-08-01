@@ -6,7 +6,6 @@ from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
 from gateway_core.models.substack import (
     SubstackFullPost,
-    SubstackNotesPage,
     SubstackPostResponse,
     SubstackProfilePostsPage,
 )
@@ -43,24 +42,6 @@ class PostsService:
         _log.debug(
             "Got %d posts for profile_id=%d (next_cursor=%r)",
             len(page.posts),
-            profile_id,
-            page.next_cursor,
-        )
-        return page
-
-    async def get_notes_for_profile(
-        self, profile_id: int, cursor: str | None = None
-    ) -> SubstackNotesPage:
-        """GET /reader/feed/profile/{id}?types=note — notes for a given profile ID."""
-        _log.debug("Fetching notes for profile_id=%d (cursor=%r)", profile_id, cursor)
-        params: dict[str, str] = {"types": "note"}
-        if cursor:
-            params["cursor"] = cursor
-        r = await self._pub.get(f"reader/feed/profile/{profile_id}", params=params)
-        page = SubstackNotesPage.model_validate(r.json())
-        _log.debug(
-            "Got %d notes for profile_id=%d (next_cursor=%r)",
-            len(page.items),
             profile_id,
             page.next_cursor,
         )
