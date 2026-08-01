@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class RestCapability:
-    """Deskryptor komórki REST jednej domeny, publikowany przez entry-point."""
+    """REST capability descriptor for one domain, published via an entry-point."""
 
     domain: str
     router: APIRouter
@@ -21,7 +21,7 @@ class RestCapability:
 
 @dataclass(frozen=True)
 class McpCapability:
-    """Deskryptor komórki MCP jednej domeny, publikowany przez entry-point."""
+    """MCP capability descriptor for one domain, published via an entry-point."""
 
     domain: str
     register: Callable[[FastMCP], None]
