@@ -4,6 +4,7 @@ import logging
 
 from pydantic import BaseModel
 
+from gateway_core.auth import BearerCredentials  # noqa: F401
 from gateway_oss.converters.markdown import (
     html_to_markdown,
 )
@@ -24,12 +25,6 @@ _log = logging.getLogger(__name__)
 
 class LivenessResponse(BaseModel):
     status: str
-
-
-class BearerCredentials(BaseModel):
-    publication_url: str | None = None
-    substack_sid: str | None = None
-    connect_sid: str | None = None
 
 
 TokensInfo = BearerCredentials

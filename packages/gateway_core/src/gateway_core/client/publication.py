@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gateway_oss.client.base import SubstackHTTPBase
+from gateway_core.client.base import SubstackHTTPBase
 
 _API_PREFIX = "api/v1"
 
@@ -9,7 +9,7 @@ class PublicationClient(SubstackHTTPBase):
     """HTTP client scoped to a single Substack publication.
 
     Handles all requests to ``{publication_url}/api/v1/*``.
-    Domain logic lives in the service classes (``gateway_oss.services.*``).
+    Domain logic lives in the service classes (``gateway_core.services.*``).
     """
 
     def __init__(

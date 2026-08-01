@@ -5,11 +5,16 @@ import contextlib
 from collections.abc import AsyncIterator
 from urllib.parse import urlparse
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
-from gateway_oss.client.publication import PublicationClient
-from gateway_oss.client.substack import SubstackClient
-from gateway_oss.models.schemas import BearerCredentials
+from gateway_core.client.publication import PublicationClient
+from gateway_core.client.substack import SubstackClient
+
+
+class BearerCredentials(BaseModel):
+    publication_url: str | None = None
+    substack_sid: str | None = None
+    connect_sid: str | None = None
 
 
 def decode_bearer_credentials(raw: str) -> BearerCredentials:

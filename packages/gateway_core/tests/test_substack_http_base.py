@@ -5,10 +5,10 @@ import time
 import httpx
 import pytest
 
-from gateway_oss.client import base
-from gateway_oss.client.base import SubstackHTTPBase
-from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
-from gateway_oss.config import settings
+from gateway_core.client import base
+from gateway_core.client.base import SubstackHTTPBase
+from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway_core.config import settings
 
 
 class _TestClient(SubstackHTTPBase):

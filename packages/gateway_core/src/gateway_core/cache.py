@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 import aiocache
 
-from gateway_oss.config import settings
+from gateway_core.config import settings
 
 _log = logging.getLogger(__name__)
 

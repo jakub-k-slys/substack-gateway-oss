@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 
-from gateway_oss.client.base import SubstackHTTPBase
-from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
-from gateway_oss.config import settings
-from gateway_oss.models.substack import (
+from gateway_core.client.base import SubstackHTTPBase
+from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway_core.config import settings
+from gateway_core.models.substack import (
     HandleOptionsResponse,
     SubstackUserSettingsResponse,
 )
@@ -20,7 +20,7 @@ class SubstackClient(SubstackHTTPBase):
 
     Handles all requests to ``https://substack.com/api/v1/*`` and provides
     helpers for resolving the caller's own identity.  Domain logic lives in
-    the service classes (``gateway_oss.services.*``).
+    the service classes (``gateway_core.services.*``).
     """
 
     def __init__(

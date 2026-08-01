@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from gateway_oss.auth import decode_bearer_credentials
+from gateway_core.auth import decode_bearer_credentials
 
 
 def _encode(payload: dict[str, str]) -> str:

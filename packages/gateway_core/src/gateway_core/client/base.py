@@ -19,8 +19,8 @@ from tenacity import (
 )
 from tenacity.wait import wait_exponential
 
-from gateway_oss.client.exceptions import SubstackAPIError, SubstackAuthError
-from gateway_oss.config import settings
+from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway_core.config import settings
 
 _log = logging.getLogger(__name__)
 

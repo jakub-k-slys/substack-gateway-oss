@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from gateway_oss.versioning import (
+from gateway_core.versioning import (
     _find_project_pyproject,
     _read_project_version,
     get_application_version,
