@@ -3,6 +3,10 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from gateway_core.auth import BearerCredentials  # noqa: F401
+from gateway_following.schemas import (  # noqa: F401
+    FollowingResponse,
+    FollowingUserResponse,
+)
 from gateway_notes.schemas import (  # noqa: F401
     CreateNoteRequest,
     CreateNoteResponse,
@@ -14,7 +18,6 @@ from gateway_oss.converters.markdown import (
 )
 from gateway_oss.models.substack import (
     SubstackComment,
-    SubstackFollowingUser,
     SubstackFullPost,
     SubstackPreviewPost,
     SubstackProfilePostsPage,
@@ -155,25 +158,3 @@ class CommentsResponse(BaseModel):
     @classmethod
     def from_substack(cls, comments: list[SubstackComment]) -> CommentsResponse:
         return cls(items=[CommentResponse.from_substack(c) for c in comments])
-
-
-# ------------------------------------------------------------------
-# Following
-# ------------------------------------------------------------------
-
-
-class FollowingUserResponse(BaseModel):
-    id: int
-    handle: str
-
-    @classmethod
-    def from_substack(cls, user: SubstackFollowingUser) -> FollowingUserResponse:
-        return cls(id=user.id, handle=user.handle)
-
-
-class FollowingResponse(BaseModel):
-    items: list[FollowingUserResponse]
-
-    @classmethod
-    def from_substack(cls, users: list[SubstackFollowingUser]) -> FollowingResponse:
-        return cls(items=[FollowingUserResponse.from_substack(u) for u in users])
