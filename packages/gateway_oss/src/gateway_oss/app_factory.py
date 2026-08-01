@@ -24,10 +24,17 @@ APPLICATION_NAME = "substack-gateway"
 
 
 def _oss_module() -> ModuleInfo:
+    from gateway_oss.registry import load_mcp_capabilities, load_rest_capabilities
+
+    registry_features: tuple[str, ...] = tuple(
+        f
+        for cap in (*load_rest_capabilities(), *load_mcp_capabilities())
+        for f in cap.features
+    )
     return ModuleInfo(
         name="gateway-oss",
         version=get_package_version("gateway_oss"),
-        features=build_oss_features(),
+        features=tuple(sorted({*build_oss_features(), *registry_features})),
     )
 
 

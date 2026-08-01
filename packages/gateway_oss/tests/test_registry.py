@@ -13,7 +13,7 @@ class _FakeEP:
 
 
 def test_load_splits_rest_and_mcp(monkeypatch) -> None:
-    rest = RestCapability(domain="notes", router=object())
+    rest = RestCapability(domain="notes", router=object())  # ty: ignore[invalid-argument-type]
     mcp = McpCapability(domain="notes", register=lambda s: None)
     monkeypatch.setattr(
         registry.importlib.metadata,
