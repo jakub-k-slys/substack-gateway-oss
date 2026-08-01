@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from gateway_oss.models.schemas import NoteResponse
-from gateway_oss.models.substack import (
+from gateway_core.models.substack import (
     SubstackNote,
     SubstackNoteComment,
     SubstackNoteContext,
 )
+from gateway_notes.schemas import NoteResponse
 
 
 def test_note_response_omits_author_when_note_has_no_users() -> None:

@@ -25,6 +25,7 @@ members = ["packages/*"]
 [tool.uv.sources]
 gateway_oss = { workspace = true }
 gateway_core = { workspace = true }
+gateway_notes = { workspace = true }
 
 
 [tool.ruff]
@@ -36,7 +37,7 @@ select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["gateway_core", "gateway_oss", "substack_gateway"]
+known-first-party = ["gateway_core", "gateway_notes", "gateway_oss", "substack_gateway"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -50,7 +51,11 @@ summary = true
 default_format = "pretty"
 
 [tool.pytest.ini_options]
-testpaths = ["packages/gateway_oss/tests", "packages/gateway_core/tests"]
+testpaths = [
+  "packages/gateway_oss/tests",
+  "packages/gateway_core/tests",
+  "packages/gateway_notes/tests",
+]
 addopts = "--import-mode=importlib"
 
 
