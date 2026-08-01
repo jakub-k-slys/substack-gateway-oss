@@ -1,23 +1,18 @@
 from __future__ import annotations
 
-import contextlib
-from collections.abc import AsyncIterator
 from typing import Any
 
 from fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
-from gateway_oss.auth import (
-    decode_bearer_credentials,
-    make_publication_client,
-    make_substack_client,
+from gateway_mcp_common.clients import (
+    _anonymous_credentials,  # noqa: F401
+    _authenticated_clients,
+    _public_publication_client,
+    _public_substack_client,
 )
-from gateway_oss.client.publication import PublicationClient
-from gateway_oss.client.substack import SubstackClient
-from gateway_oss.config import settings
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import (
-    BearerCredentials,
     CommentsResponse,
     FollowingResponse,
     FullPostResponse,
@@ -33,45 +28,6 @@ from gateway_oss.services.profiles import ProfilesService
 runtime = get_runtime()
 
 _mcp = FastMCP("substack-gateway", auth=runtime.mcp_auth_provider)
-
-
-def _anonymous_credentials() -> BearerCredentials:
-    return BearerCredentials(
-        publication_url=settings.substack_base_url,
-        substack_sid="",
-        connect_sid="",
-    )
-
-
-@contextlib.asynccontextmanager
-async def _public_substack_client() -> AsyncIterator[SubstackClient]:
-    async with make_substack_client(_anonymous_credentials()) as sub:
-        yield sub
-
-
-@contextlib.asynccontextmanager
-async def _public_publication_client() -> AsyncIterator[PublicationClient]:
-    credentials = _anonymous_credentials()
-    assert credentials.publication_url is not None
-    async with make_publication_client(
-        credentials, credentials.publication_url
-    ) as publication:
-        yield publication
-
-
-@contextlib.asynccontextmanager
-async def _authenticated_clients(
-    token: str,
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
-    credentials = decode_bearer_credentials(token)
-    assert credentials.publication_url is not None
-    async with (
-        make_publication_client(
-            credentials, credentials.publication_url
-        ) as publication,
-        make_substack_client(credentials) as substack,
-    ):
-        yield publication, substack
 
 
 async def get_me(

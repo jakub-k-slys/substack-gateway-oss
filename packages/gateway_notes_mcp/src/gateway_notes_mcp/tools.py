@@ -1,31 +1,10 @@
 from __future__ import annotations
 
-import contextlib
-from collections.abc import AsyncIterator
 from typing import Any
 
-from gateway_core.auth import (
-    decode_bearer_credentials,
-    make_publication_client,
-    make_substack_client,
-)
-from gateway_core.client.publication import PublicationClient
-from gateway_core.client.substack import SubstackClient
+from gateway_mcp_common.clients import _authenticated_clients
 from gateway_notes.schemas import CreateNoteResponse, NoteResponse
 from gateway_notes.service import NotesService
-
-
-@contextlib.asynccontextmanager
-async def _authenticated_clients(
-    token: str,
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
-    credentials = decode_bearer_credentials(token)
-    assert credentials.publication_url is not None
-    async with (
-        make_publication_client(credentials, credentials.publication_url) as pub,
-        make_substack_client(credentials) as sub,
-    ):
-        yield pub, sub
 
 
 async def get_note(note_id: int, token: str) -> dict[str, Any]:
