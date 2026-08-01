@@ -14,7 +14,6 @@ from gateway_mcp_common.clients import (
 from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import (
     CommentsResponse,
-    FullPostResponse,
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
@@ -56,15 +55,6 @@ async def get_my_posts(
         profile = await profiles.get_own_profile()
         page = await posts.get_posts_for_profile(profile.id, limit=limit, cursor=cursor)
     return PostsPageResponse.from_substack(page).model_dump()
-
-
-async def get_post(
-    post_id: int,
-    token: str,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        post = await PostsService(publication, substack).get_post_by_id(post_id)
-    return FullPostResponse.from_substack(post).model_dump()
 
 
 async def get_post_comments(
@@ -196,18 +186,6 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         ),
         meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
     )(get_my_posts)
-    mcp.tool(
-        description="Retrieve the full content of a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"posts", "read"},
-        annotations=ToolAnnotations(
-            title="Get Post",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
-    )(get_post)
     mcp.tool(
         description="Retrieve all comments for a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"posts", "comments", "read"},

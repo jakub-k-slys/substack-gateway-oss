@@ -18,12 +18,12 @@ from gateway_oss.mcp.app import (
     get_me,
     get_my_notes,
     get_my_posts,
-    get_post,
     get_post_comments,
     get_profile,
     get_profile_notes,
     get_profile_posts,
 )
+from gateway_posts_mcp.tools import get_post
 
 # ------------------------------------------------------------------
 # Given — authentication
