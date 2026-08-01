@@ -14,6 +14,7 @@ dependencies = [
   "tenacity>=9.1.2",
   "uvloop>=0.22.1",
   "gateway_core",
+  "gateway_comments",
   "gateway_following",
   "gateway_notes",
   "gateway_posts",
@@ -36,6 +37,7 @@ packages = ["src/gateway_oss"]
 
 [tool.uv.sources]
 gateway_core = { workspace = true }
+gateway_comments = { workspace = true }
 gateway_following = { workspace = true }
 gateway_notes = { workspace = true }
 gateway_posts = { workspace = true }
