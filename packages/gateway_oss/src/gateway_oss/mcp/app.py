@@ -19,10 +19,8 @@ from gateway_oss.extensions.runtime import get_runtime
 from gateway_oss.models.schemas import (
     BearerCredentials,
     CommentsResponse,
-    CreateNoteResponse,
     FollowingResponse,
     FullPostResponse,
-    NoteResponse,
     NotesPageResponse,
     PostsPageResponse,
     ProfileResponse,
@@ -74,36 +72,6 @@ async def _authenticated_clients(
         make_substack_client(credentials) as substack,
     ):
         yield publication, substack
-
-
-async def get_note(
-    note_id: int,
-    token: str,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        note = await NotesService(publication, substack).get_note_by_id(note_id)
-    return NoteResponse.from_substack(note).model_dump(exclude_none=True)
-
-
-async def create_note(
-    content: str,
-    token: str,
-    attachment: str | None = None,
-) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        note = await NotesService(publication, substack).create_note(
-            content, attachment=attachment
-        )
-    return CreateNoteResponse.from_substack(note).model_dump()
-
-
-async def delete_note(
-    note_id: int,
-    token: str,
-) -> str:
-    async with _authenticated_clients(token) as (publication, substack):
-        await NotesService(publication, substack).delete_note(note_id)
-    return f"Note {note_id} deleted successfully."
 
 
 async def get_me(
@@ -247,30 +215,6 @@ async def get_profile_notes(
 
 def register_authenticated_tools(mcp: FastMCP) -> None:
     mcp.tool(
-        description="Publish a new note to Substack from Markdown content, with an optional link attachment. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"notes", "write"},
-        annotations=ToolAnnotations(
-            title="Create Note",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
-        ),
-        meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
-    )(create_note)
-    mcp.tool(
-        description="Permanently delete a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"notes", "write", "delete"},
-        annotations=ToolAnnotations(
-            title="Delete Note",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
-    )(delete_note)
-    mcp.tool(
         description="Retrieve the authenticated user's own Substack public profile using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"me", "profile", "read"},
         annotations=ToolAnnotations(
@@ -319,21 +263,6 @@ def register_authenticated_tools(mcp: FastMCP) -> None:
         meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
     )(get_my_following)
     mcp.tool(
-        description="Retrieve a single Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
-        tags={"notes", "read"},
-        annotations=ToolAnnotations(
-            title="Get Note",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
-        ),
-        meta={
-            "category": "notes",
-            "substack_endpoint": "GET /reader/comment/{note_id}",
-        },
-    )(get_note)
-    mcp.tool(
         description="Retrieve the full content of a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
         tags={"posts", "read"},
         annotations=ToolAnnotations(
@@ -366,6 +295,10 @@ _mcp_app: Any = None
 
 
 def _build_mcp_app() -> Any:
+    from gateway_oss.registry import load_mcp_capabilities
+
+    for cap in load_mcp_capabilities():
+        cap.register(_mcp)
     for extension in runtime.extensions:
         extension.register_mcp(_mcp, runtime.context)
     return _mcp.http_app(transport="streamable-http", path="/", stateless_http=True)

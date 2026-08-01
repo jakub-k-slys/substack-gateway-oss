@@ -16,6 +16,7 @@ dependencies = [
   "gateway_core",
   "gateway_notes",
   "gateway_notes_rest",
+  "gateway_notes_mcp",
 ]
 
 [build-system]
@@ -29,3 +30,4 @@ packages = ["src/gateway_oss"]
 gateway_core = { workspace = true }
 gateway_notes = { workspace = true }
 gateway_notes_rest = { workspace = true }
+gateway_notes_mcp = { workspace = true }

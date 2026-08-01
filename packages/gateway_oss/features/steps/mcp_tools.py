@@ -12,14 +12,12 @@ import json
 
 from behave import given, then, when
 
+from gateway_notes_mcp.tools import create_note, delete_note, get_note
 from gateway_oss.mcp.app import (
-    create_note,
-    delete_note,
     get_me,
     get_my_following,
     get_my_notes,
     get_my_posts,
-    get_note,
     get_post,
     get_post_comments,
     get_profile,
