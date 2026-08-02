@@ -522,7 +522,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -539,7 +539,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -558,7 +558,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -579,7 +579,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -604,7 +604,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -619,7 +619,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -638,7 +638,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -657,7 +657,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "gateway-core" },
@@ -714,7 +714,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -729,7 +729,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -748,7 +748,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -767,7 +767,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -838,7 +838,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -853,7 +853,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "3.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -872,7 +872,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -954,7 +954,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "0.1.0"
+version = "3.2.0"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1915,7 +1915,11 @@ name = "substack-gateway"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "fastapi" },
+    { name = "fastmcp" },
+    { name = "gateway-core" },
     { name = "gateway-oss" },
+    { name = "starlette" },
     { name = "uvicorn" },
     { name = "uvloop" },
 ]
@@ -1932,7 +1936,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "fastapi", specifier = ">=0.138.2" },
+    { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-oss", editable = "packages/gateway_oss" },
+    { name = "starlette" },
     { name = "uvicorn", specifier = ">=0.49.0" },
     { name = "uvloop", specifier = ">=0.22.1" },
 ]
