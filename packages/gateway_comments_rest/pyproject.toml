@@ -2,7 +2,7 @@
 name = "gateway_comments_rest"
 version = "3.3.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_rest_common", "gateway_comments", "gateway_notes", "fastapi>=0.138.2"]
+dependencies = ["gateway_core", "gateway_rest_common", "gateway_comments", "gateway_notes", "fastapi>=0.141.1"]
 
 [project.entry-points."substack_gateway.capabilities"]
 comments_rest = "gateway_comments_rest:capability"

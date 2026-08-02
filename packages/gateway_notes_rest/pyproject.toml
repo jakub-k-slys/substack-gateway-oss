@@ -2,7 +2,7 @@
 name = "gateway_notes_rest"
 version = "3.3.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_notes", "gateway_rest_common", "fastapi>=0.138.2"]
+dependencies = ["gateway_core", "gateway_notes", "gateway_rest_common", "fastapi>=0.141.1"]
 
 [project.entry-points."substack_gateway.capabilities"]
 notes_rest = "gateway_notes_rest:capability"

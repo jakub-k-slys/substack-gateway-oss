@@ -8,7 +8,7 @@ dependencies = [
   "gateway_profiles",
   "gateway_posts",
   "gateway_notes",
-  "fastapi>=0.138.2",
+  "fastapi>=0.141.1",
 ]
 
 [project.entry-points."substack_gateway.capabilities"]
