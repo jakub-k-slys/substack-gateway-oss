@@ -2,7 +2,7 @@
 name = "gateway_following_mcp"
 version = "3.3.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_mcp_common", "gateway_following", "fastmcp>=3.4.2"]
+dependencies = ["gateway_core", "gateway_mcp_common", "gateway_following", "fastmcp>=3.4.5"]
 
 [project.entry-points."substack_gateway.capabilities"]
 following_mcp = "gateway_following_mcp:capability"
