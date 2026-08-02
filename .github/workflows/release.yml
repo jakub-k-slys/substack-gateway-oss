@@ -1,6 +1,17 @@
 name: Make a new release
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Force a version bump level (auto = let commit analysis decide)"
+        type: choice
+        default: auto
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+          - prerelease
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -45,6 +56,7 @@ jobs:
         id: semantic
         with:
           github_token: ${{ steps.app-token.outputs.token }}
+          force: ${{ inputs.force != 'auto' && inputs.force || '' }}
 
       - name: Build package
         if: steps.semantic.outputs.released == 'true'
