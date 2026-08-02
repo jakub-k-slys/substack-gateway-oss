@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from gateway_core.capabilities import McpCapability, RestCapability
-from gateway_oss import registry
+from substack_gateway import registry
 
 
 class _FakeEP:

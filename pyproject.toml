@@ -70,6 +70,7 @@ default_format = "pretty"
 
 [tool.pytest.ini_options]
 testpaths = [
+  "tests",
   "packages/gateway_oss/tests",
   "packages/gateway_core/tests",
   "packages/gateway_comments/tests",
