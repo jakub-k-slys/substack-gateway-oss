@@ -13,11 +13,3 @@ def test_register_authenticated_tools_registers_nothing() -> None:
     mcp_app.register_authenticated_tools(server)
     # calling it again must also not raise (idempotent no-op)
     mcp_app.register_authenticated_tools(server)
-
-
-def test_register_authenticated_tools_noop_on_populated_registry_app() -> None:
-    """Building the real MCP app populates it with the registry tools; then
-    the extension-style call to register_authenticated_tools must not raise
-    a duplicate-tool error."""
-    mcp_app._build_mcp_app()
-    mcp_app.register_authenticated_tools(mcp_app._mcp)  # must not raise

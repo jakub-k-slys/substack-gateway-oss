@@ -29,7 +29,7 @@ def test_full_app_boots() -> None:
     """Pełna apka wstaje, a root '/' raportuje moduł gateway-oss (+ każdy zainstalowany)."""
     from starlette.testclient import TestClient
 
-    from gateway_oss.app_factory import create_app
+    from gateway_oss import create_app
 
     with TestClient(create_app()) as client:
         body = client.get("/").json()

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from starlette.testclient import TestClient
 
-from gateway_oss.app_factory import create_app
+from gateway_oss import create_app
 
 
 def test_root_reports_notes_features_from_registry() -> None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from gateway_oss import create_app
+from substack_gateway.app_factory import create_app
 
 app = create_app()
 

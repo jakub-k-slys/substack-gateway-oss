@@ -20,15 +20,15 @@ __all__ = ["api", "mcp", "create_app", "__version__", "__app_version__"]
 
 def __getattr__(name: str) -> Any:
     if name == "api":
-        from gateway_oss.api.app import api
+        from substack_gateway.api_app import api
 
         return api
     if name == "mcp":
-        from gateway_oss.mcp.app import mcp
+        from substack_gateway.mcp_app import mcp
 
         return mcp
     if name == "create_app":
-        from gateway_oss.app_factory import create_app
+        from substack_gateway.app_factory import create_app
 
         return create_app
     raise AttributeError(name)
