@@ -25,7 +25,9 @@ different interfaces.
 - **REST API** at `/api/v1/*`
 - **MCP server** at `/mcp`
 
-Both share the same service layer and HTTP clients.
+Both share the same service layer and HTTP clients. The thin
+`substack_gateway` shell package assembles the application (REST + MCP
+composition), while `gateway_oss` provides the OSS module surface as a facade.
 
 ## Quickstart
 
