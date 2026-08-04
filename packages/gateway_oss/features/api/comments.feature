@@ -10,6 +10,7 @@ Feature: Comment by ID endpoint
     Then the response status code is 200
     And the response field "id" is not null
     And the response field "body" is not null
+    And the response field "post_id" is not null
 
   Scenario: Comment not found returns 404
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

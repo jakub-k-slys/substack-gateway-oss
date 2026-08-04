@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from gateway_core.capabilities import RestCapability
 
-_FEATURES = ("api:comments:get", "api:posts:comments:list")
+_FEATURES = (
+    "api:comments:get",
+    "api:comments:create",
+    "api:comments:delete",
+    "api:comments:like",
+    "api:comments:unlike",
+    "api:comments:reply",
+    "api:comments:replies:list",
+    "api:posts:comments:list",
+)
 
 
 def capability() -> RestCapability:

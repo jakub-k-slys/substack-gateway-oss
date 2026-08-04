@@ -12,6 +12,11 @@
         }
       ]
     },
+    "post": {
+      "id": 987654,
+      "title": "A sample post",
+      "post_date": "2024-01-15T10:00:00.000Z"
+    },
     "comment": {
       "id": 131648795,
       "body": "This is a sample note body.",
