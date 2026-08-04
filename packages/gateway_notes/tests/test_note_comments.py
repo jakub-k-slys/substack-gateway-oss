@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 
+from gateway_core.models.substack import SubstackPostComment
 from gateway_notes.service import NotesService
 
 
@@ -45,3 +46,10 @@ async def test_list_note_replies_flattens_comment_branches() -> None:
     sub.get.assert_awaited_once_with("reader/comment/131648795/replies")
     assert [r.id for r in replies] == [1, 2]
     assert [r.body for r in replies] == ["first", "second"]
+
+
+def test_post_comment_parent_id_parses_ancestor_path() -> None:
+    assert SubstackPostComment(id=1, body="x", ancestor_path="1.2.3").parent_id == 3
+    assert SubstackPostComment(id=1, body="x").parent_id is None
+    assert SubstackPostComment(id=1, body="x", ancestor_path="").parent_id is None
+    assert SubstackPostComment(id=1, body="x", ancestor_path="1.2.x").parent_id is None
