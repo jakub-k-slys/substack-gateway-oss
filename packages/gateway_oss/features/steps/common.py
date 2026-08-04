@@ -118,6 +118,12 @@ def step_field_string(context, field, value):
     )
 
 
+@then('the response field "{field}" is {value:d}')
+def step_response_field_equals_int(context, field, value):
+    body = context.response.json()
+    assert body.get(field) == value, f"{field}={body.get(field)!r} != {value}"
+
+
 @then('the response field "{field}" is not null')
 def step_field_not_null(context, field):
     body = context.response.json()

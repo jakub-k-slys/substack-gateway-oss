@@ -6,6 +6,10 @@ _FEATURES = (
     "api:notes:get",
     "api:notes:create",
     "api:notes:delete",
+    "api:notes:like",
+    "api:notes:unlike",
+    "api:notes:reply",
+    "api:notes:replies:list",
 )
 
 
