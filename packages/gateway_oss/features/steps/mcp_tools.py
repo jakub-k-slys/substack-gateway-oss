@@ -15,7 +15,15 @@ from behave import given, then, when
 from gateway_comments_mcp.tools import get_post_comments
 from gateway_following_mcp.tools import get_my_following
 from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
-from gateway_notes_mcp.tools import create_note, delete_note, get_note
+from gateway_notes_mcp.tools import (
+    create_note,
+    delete_note,
+    get_note,
+    like_note,
+    list_note_replies,
+    reply_to_note,
+    unlike_note,
+)
 from gateway_posts_mcp.tools import get_post
 from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
 
@@ -72,6 +80,26 @@ def step_call_create_note(context, content):
 @when("I call the MCP tool delete_note with note_id {note_id:d}")
 def step_call_delete_note(context, note_id):
     _call(context, delete_note(note_id=note_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool like_note with note_id {note_id:d}")
+def step_call_like_note(context, note_id):
+    _call(context, like_note(note_id=note_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool unlike_note with note_id {note_id:d}")
+def step_call_unlike_note(context, note_id):
+    _call(context, unlike_note(note_id=note_id, token=context.mcp_token))
+
+
+@when('I call the MCP tool reply_to_note with note_id {note_id:d} and body "{body}"')
+def step_call_reply_to_note(context, note_id, body):
+    _call(context, reply_to_note(note_id=note_id, body=body, token=context.mcp_token))
+
+
+@when("I call the MCP tool list_note_replies with note_id {note_id:d}")
+def step_call_list_note_replies(context, note_id):
+    _call(context, list_note_replies(note_id=note_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------
@@ -146,7 +174,7 @@ def step_mcp_field_not_null(context, field):
 def step_mcp_field_string(context, field, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     actual = context.mcp_result[field]
-    assert actual == value, f'Expected "{field}" to be "{value}", got "{actual}"'
+    assert str(actual) == value, f'Expected "{field}" to be "{value}", got "{actual}"'
 
 
 @then('the MCP result is "{value}"')

@@ -13,3 +13,7 @@ Feature: Root endpoint
     And the "gateway-oss" module features contain "api:profiles:posts:list"
     And the "gateway-oss" module features contain "mcp:notes:create"
     And the "gateway-oss" module features contain "mcp:posts:get"
+    And the "gateway-oss" module features contain "api:notes:like"
+    And the "gateway-oss" module features contain "api:notes:reply"
+    And the "gateway-oss" module features contain "mcp:notes:like"
+    And the "gateway-oss" module features contain "mcp:notes:replies:list"
