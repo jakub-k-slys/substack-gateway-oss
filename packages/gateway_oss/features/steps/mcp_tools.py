@@ -12,7 +12,16 @@ import json
 
 from behave import given, then, when
 
-from gateway_comments_mcp.tools import get_post_comments
+from gateway_comments_mcp.tools import (
+    create_post_comment,
+    delete_post_comment,
+    get_post_comment,
+    get_post_comments,
+    like_post_comment,
+    list_post_comment_replies,
+    reply_to_post_comment,
+    unlike_post_comment,
+)
 from gateway_following_mcp.tools import get_my_following
 from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
 from gateway_notes_mcp.tools import (
@@ -135,6 +144,62 @@ def step_call_get_post_comments(context, post_id):
 @when("I call the MCP tool get_my_following")
 def step_call_get_my_following(context):
     _call(context, get_my_following(token=context.mcp_token))
+
+
+# ------------------------------------------------------------------
+# When — comment engagement
+# ------------------------------------------------------------------
+
+
+@when(
+    'I call the MCP tool create_post_comment with post_id {post_id:d} and body "{body}"'
+)
+def step_call_create_post_comment(context, post_id, body):
+    _call(
+        context,
+        create_post_comment(post_id=post_id, body=body, token=context.mcp_token),
+    )
+
+
+@when(
+    "I call the MCP tool reply_to_post_comment with comment_id {comment_id:d} "
+    'and body "{body}"'
+)
+def step_call_reply_to_post_comment(context, comment_id, body):
+    _call(
+        context,
+        reply_to_post_comment(
+            comment_id=comment_id, body=body, token=context.mcp_token
+        ),
+    )
+
+
+@when("I call the MCP tool get_post_comment with comment_id {comment_id:d}")
+def step_call_get_post_comment(context, comment_id):
+    _call(context, get_post_comment(comment_id=comment_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool delete_post_comment with comment_id {comment_id:d}")
+def step_call_delete_post_comment(context, comment_id):
+    _call(context, delete_post_comment(comment_id=comment_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool list_post_comment_replies with comment_id {comment_id:d}")
+def step_call_list_post_comment_replies(context, comment_id):
+    _call(
+        context,
+        list_post_comment_replies(comment_id=comment_id, token=context.mcp_token),
+    )
+
+
+@when("I call the MCP tool like_post_comment with comment_id {comment_id:d}")
+def step_call_like_post_comment(context, comment_id):
+    _call(context, like_post_comment(comment_id=comment_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool unlike_post_comment with comment_id {comment_id:d}")
+def step_call_unlike_post_comment(context, comment_id):
+    _call(context, unlike_post_comment(comment_id=comment_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------
