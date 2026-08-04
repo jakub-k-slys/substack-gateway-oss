@@ -216,3 +216,47 @@ class SubstackUserSettingsResponse(BaseModel):
 
     user_settings: list[SubstackUserSetting]
     qualifies_for_badge: bool | None = None
+
+
+# ------------------------------------------------------------------
+# Rich comment shape (note threads / replies)
+# ------------------------------------------------------------------
+
+
+class SubstackPostComment(BaseModel):
+    id: int
+    body: str
+    post_id: int | None = None
+    user_id: int | None = None
+    publication_id: int | None = None
+    date: str | None = None
+    deleted: bool = False
+    name: str | None = None
+    photo_url: str | None = None
+    ancestor_path: str | None = None
+    type: str | None = None
+    status: str | None = None
+    reaction_count: int | None = None
+
+    @property
+    def parent_id(self) -> int | None:
+        path = self.ancestor_path or ""
+        if not path:
+            return None
+        last = path.split(".")[-1]
+        try:
+            return int(last)
+        except ValueError:
+            return None
+
+
+class SubstackCommentBranch(BaseModel):
+    comment: SubstackPostComment
+
+
+class SubstackCommentBranchesResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    branches: list[SubstackCommentBranch] = Field(
+        alias="commentBranches", default_factory=list
+    )

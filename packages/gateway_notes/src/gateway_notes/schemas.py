@@ -8,6 +8,7 @@ from gateway_core.models.substack import (
     SubstackNote,
     SubstackNoteCreated,
     SubstackNotesPage,
+    SubstackPostComment,
 )
 
 _log = logging.getLogger(__name__)
@@ -82,3 +83,45 @@ class CreateNoteResponse(BaseModel):
     @classmethod
     def from_substack(cls, note: SubstackNoteCreated) -> CreateNoteResponse:
         return cls(id=note.id)
+
+
+class NoteReplyCreatedResponse(BaseModel):
+    id: int
+    date: str | None = None
+    status: str | None = None
+
+    @classmethod
+    def from_substack(cls, note: SubstackNoteCreated) -> NoteReplyCreatedResponse:
+        return cls(id=note.id, date=note.date, status=note.status)
+
+
+class NoteReplyItem(BaseModel):
+    id: int
+    body: str
+    parent_id: int | None = None
+    user_id: int | None = None
+    date: str | None = None
+    deleted: bool = False
+    author_name: str | None = None
+    reaction_count: int | None = None
+
+    @classmethod
+    def from_substack(cls, c: SubstackPostComment) -> NoteReplyItem:
+        return cls(
+            id=c.id,
+            body=c.body,
+            parent_id=c.parent_id,
+            user_id=c.user_id,
+            date=c.date,
+            deleted=c.deleted,
+            author_name=c.name,
+            reaction_count=c.reaction_count,
+        )
+
+
+class NoteRepliesResponse(BaseModel):
+    items: list[NoteReplyItem]
+
+    @classmethod
+    def from_substack(cls, replies: list[SubstackPostComment]) -> NoteRepliesResponse:
+        return cls(items=[NoteReplyItem.from_substack(c) for c in replies])
