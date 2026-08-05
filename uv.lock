@@ -528,7 +528,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -545,7 +545,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -564,7 +564,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -585,7 +585,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -610,7 +610,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -625,7 +625,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -644,7 +644,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -663,7 +663,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "gateway-core" },
@@ -674,7 +674,7 @@ requires-dist = [{ name = "gateway-core", editable = "packages/gateway_core" }]
 
 [[package]]
 name = "gateway-me-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -697,7 +697,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -720,7 +720,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -735,7 +735,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -754,7 +754,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -773,7 +773,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -844,7 +844,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -859,7 +859,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -878,7 +878,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -897,7 +897,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -914,7 +914,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -937,7 +937,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -960,7 +960,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "3.5.0"
+version = "3.6.0"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1947,7 +1947,7 @@ requires-dist = [
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-oss", editable = "packages/gateway_oss" },
     { name = "starlette" },
-    { name = "uvicorn", specifier = ">=0.52.0" },
+    { name = "uvicorn", specifier = ">=0.52.1" },
     { name = "uvloop", specifier = ">=0.22.1" },
 ]
 
@@ -2027,15 +2027,15 @@ wheels = [
 
 [[package]]
 name = "uvicorn"
-version = "0.52.0"
+version = "0.52.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "h11" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/05/c8/2d307868453a4bca6e64fa3581d122ae0748a0869c53f159339def179c7c/uvicorn-0.52.0.tar.gz", hash = "sha256:ca8876ad6c1983f394157c168b39d52f6dd56dabf5602fa0982751cffc2293ae", size = 97504, upload-time = "2026-07-29T08:45:34.065Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/18/ccce41535dee1be77735592bd19965f3972c82e07ee703d324709496b716/uvicorn-0.52.1.tar.gz", hash = "sha256:112ec661814189acbccd3f7b86460147cc065fc92c0821afa78918780e4354dd", size = 100571, upload-time = "2026-08-01T18:19:30.732Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/e6/b5c0630ace9757232aec07112be8146b812787db52141ff9d50674aa7634/uvicorn-0.52.0-py3-none-any.whl", hash = "sha256:3d887809810b89ed33501bcf0a9aba469b06ecd608158efce04bd6b48d8c9b08", size = 79058, upload-time = "2026-07-29T08:45:32.492Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/d5/68e6e9bca63c0badf67002890a46d3784c958de45b65e1275ec583ca1f06/uvicorn-0.52.1-py3-none-any.whl", hash = "sha256:e4403f9d93188cf9d1088e9f40e3acd12630e2df8675316704379a7fc20fff6a", size = 79859, upload-time = "2026-08-01T18:19:29.294Z" },
 ]
 
 [[package]]
