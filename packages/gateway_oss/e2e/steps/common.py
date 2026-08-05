@@ -127,6 +127,102 @@ def step_get_post_comments(context):
     )
 
 
+# --- Post comment lifecycle -------------------------------------------------
+
+
+@when('I create a post comment with body "{body}"')
+def step_create_post_comment(context, body):
+    context.response = context.client.post(
+        f"/api/v1/posts/{context.post_id}/comments",
+        json={"body": body},
+        headers=context.headers,
+    )
+
+
+@given("the created post comment ID is saved as the top")
+def step_save_top_post_comment(context):
+    context.top_post_comment_id = str(context.response.json()["id"])
+
+
+@given("the created post comment ID is saved as the reply")
+def step_save_reply_post_comment(context):
+    context.reply_post_comment_id = str(context.response.json()["id"])
+
+
+@when('I reply to the top post comment with body "{body}"')
+def step_reply_to_top(context, body):
+    context.response = context.client.post(
+        f"/api/v1/comments/{context.top_post_comment_id}/comments",
+        json={"body": body},
+        headers=context.headers,
+    )
+
+
+@when('I reply to post comment "{comment_id}" with body "{body}"')
+def step_reply_to_explicit(context, comment_id, body):
+    context.response = context.client.post(
+        f"/api/v1/comments/{comment_id}/comments",
+        json={"body": body},
+        headers=context.headers,
+    )
+
+
+@when("I list replies of the top post comment")
+def step_list_replies_of_top(context):
+    context.response = context.client.get(
+        f"/api/v1/comments/{context.top_post_comment_id}/comments",
+        headers=context.headers,
+    )
+
+
+@then("the items contain the reply post comment")
+def step_items_contain_reply(context):
+    items = context.response.json()["items"]
+    target = int(context.reply_post_comment_id)
+    assert any(it["id"] == target for it in items), (
+        f"reply id={target} not in listing: {[it['id'] for it in items]}"
+    )
+
+
+@when("I fetch the top post comment")
+def step_fetch_top(context):
+    context.response = context.client.get(
+        f"/api/v1/comments/{context.top_post_comment_id}", headers=context.headers
+    )
+
+
+@when("I like the top post comment")
+def step_like_top(context):
+    context.response = context.client.post(
+        f"/api/v1/comments/{context.top_post_comment_id}/reaction",
+        headers=context.headers,
+    )
+
+
+@when("I unlike the top post comment")
+def step_unlike_top(context):
+    context.response = context.client.delete(
+        f"/api/v1/comments/{context.top_post_comment_id}/reaction",
+        headers=context.headers,
+    )
+
+
+@when("I delete the reply post comment")
+def step_delete_reply_post_comment(context):
+    context.response = context.client.delete(
+        f"/api/v1/comments/{context.reply_post_comment_id}",
+        headers=context.headers,
+    )
+
+
+@when("I delete the top post comment")
+def step_delete_top_post_comment(context):
+    context.response = context.client.delete(
+        f"/api/v1/comments/{context.top_post_comment_id}",
+        headers=context.headers,
+    )
+
+
 @then("the response status is {status:d}")
 def step_status(context, status):
     assert context.response.status_code == status, (
