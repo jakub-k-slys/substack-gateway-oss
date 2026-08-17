@@ -35,6 +35,31 @@ def test_decode_bearer_credentials_requires_publication_url() -> None:
         )
 
 
+def test_decode_bearer_credentials_allows_missing_connect_sid() -> None:
+    credentials = decode_bearer_credentials(
+        _encode(
+            {
+                "publication_url": "https://example.substack.com",
+                "substack_sid": "sid",
+            }
+        )
+    )
+
+    assert credentials.connect_sid is None
+
+
+def test_decode_bearer_credentials_requires_substack_sid() -> None:
+    with pytest.raises(ValueError, match="substack_sid"):
+        decode_bearer_credentials(
+            _encode(
+                {
+                    "publication_url": "https://example.substack.com",
+                    "connect_sid": "csid",
+                }
+            )
+        )
+
+
 def test_decode_bearer_credentials_rejects_invalid_publication_url() -> None:
     with pytest.raises(ValueError, match="valid HTTP or HTTPS publication_url"):
         decode_bearer_credentials(
