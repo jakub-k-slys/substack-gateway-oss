@@ -38,10 +38,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"posts", "comments", "read"},
         annotations=ToolAnnotations(
             title="Get Post Comments",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "posts",
@@ -54,10 +54,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Create Post Comment",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={
             "category": "comments",
@@ -70,10 +70,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Reply To Post Comment",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={
             "category": "comments",
@@ -86,10 +86,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "read"},
         annotations=ToolAnnotations(
             title="Get Post Comment",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "comments", "substack_endpoint": "GET /reader/comment/{id}"},
     )(get_post_comment)
@@ -99,10 +99,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Post Comment",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "comments", "substack_endpoint": "DELETE /comment/{id}"},
     )(delete_post_comment)
@@ -112,10 +112,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "read"},
         annotations=ToolAnnotations(
             title="List Post Comment Replies",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "comments",
@@ -128,10 +128,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Like Post Comment",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "comments",
@@ -144,10 +144,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Unlike Post Comment",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "comments",

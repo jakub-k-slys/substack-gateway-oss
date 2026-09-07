@@ -20,10 +20,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"me", "following", "read"},
         annotations=ToolAnnotations(
             title="Get My Following",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "me", "substack_endpoint": "GET /user/{id}/subscriber-lists"},
     )(get_my_following)
