@@ -54,8 +54,18 @@ def _clear_shared_cache() -> None:
     asyncio.run(aiocache.caches.get("default").clear())
 
 
+def _reset_stats_cache() -> None:
+    # The stats cache is a process-wide singleton; reset it so each scenario
+    # starts with a fresh in-memory store (covers both the REST dependencies and
+    # the MCP tools, which resolve the cache directly via create_stats_cache()).
+    import gateway_stats.cache as stats_cache_mod
+
+    stats_cache_mod._default_cache = None
+
+
 def before_scenario(context, scenario):
     _clear_shared_cache()
+    _reset_stats_cache()
     context.client = TestClient(app, raise_server_exceptions=False)
     context.headers: dict[str, str] = {}
     context.response = None

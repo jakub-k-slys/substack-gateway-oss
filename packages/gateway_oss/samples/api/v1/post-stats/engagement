@@ -1,0 +1,20 @@
+{
+  "likes": {
+    "count": 33,
+    "users": [
+      {"id": 110886, "name": "Alex Lindahl", "handle": "alexlindahl"}
+    ]
+  },
+  "commentSummary": {
+    "total": 6,
+    "comments": [
+      {"id": 1, "body": "Great post!"}
+    ]
+  },
+  "commenters": {
+    "count": 7,
+    "users": [
+      {"id": 317340, "name": "Daniel Ionescu", "handle": "danielionescu"}
+    ]
+  }
+}

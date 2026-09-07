@@ -1,0 +1,8 @@
+{
+  "totalFreeSignups": 12,
+  "totalPaidSubscriptions": 3,
+  "timeseries": [
+    {"date": "2026/07/08", "free_signups": 8, "paid_subscriptions": 2},
+    {"date": "2026/07/09", "free_signups": 4, "paid_subscriptions": 1}
+  ]
+}
