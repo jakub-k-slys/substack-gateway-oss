@@ -15,6 +15,7 @@ members = [
     "gateway-comments-rest",
     "gateway-core",
     "gateway-drafts",
+    "gateway-drafts-mcp",
     "gateway-drafts-rest",
     "gateway-following",
     "gateway-following-mcp",
@@ -629,6 +630,25 @@ requires-dist = [
 ]
 
 [[package]]
+name = "gateway-drafts-mcp"
+version = "3.6.0"
+source = { editable = "packages/gateway_drafts_mcp" }
+dependencies = [
+    { name = "fastmcp" },
+    { name = "gateway-core" },
+    { name = "gateway-drafts" },
+    { name = "gateway-mcp-common" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.4.6" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-drafts", editable = "packages/gateway_drafts" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
+]
+
+[[package]]
 name = "gateway-drafts-rest"
 version = "3.6.0"
 source = { editable = "packages/gateway_drafts_rest" }
@@ -825,6 +845,7 @@ dependencies = [
     { name = "gateway-comments-rest" },
     { name = "gateway-core" },
     { name = "gateway-drafts" },
+    { name = "gateway-drafts-mcp" },
     { name = "gateway-drafts-rest" },
     { name = "gateway-following" },
     { name = "gateway-following-mcp" },
@@ -864,6 +885,7 @@ requires-dist = [
     { name = "gateway-comments-rest", editable = "packages/gateway_comments_rest" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
+    { name = "gateway-drafts-mcp", editable = "packages/gateway_drafts_mcp" },
     { name = "gateway-drafts-rest", editable = "packages/gateway_drafts_rest" },
     { name = "gateway-following", editable = "packages/gateway_following" },
     { name = "gateway-following-mcp", editable = "packages/gateway_following_mcp" },
