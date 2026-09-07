@@ -44,7 +44,7 @@ When introducing changes, validate them before finishing the task. Prefer target
 - `uv run ruff format --check .`
 - `uv run ty check .`
 - `uv build --all-packages`
-- `uv run pytest packages/gateway_oss/tests/`
+- `uv run pytest`
 - `uv run behave packages/gateway_oss/features/`
 
 Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
@@ -155,7 +155,7 @@ An extension implements the `GatewayExtension` protocol (`gateway_oss/extensions
 
 ### Configuration
 
-All settings are in `gateway_core.config.Settings` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`); `gateway_oss.config` re-exports it for backward compatibility. Key settings: `admin_token` and the optional OAuth trio (`base_url`, `database_url`, `jwt_secret`). Request-level publication targeting is carried in the `x-gateway-token` header's `publication_url` field.
+All settings are in `gateway_core.config.Settings` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`); `gateway_oss.config` re-exports it for backward compatibility. Key settings: `admin_token`, the optional `redis_url` shared cache backend, and the publication-analytics cache settings `stats_snapshot_cache_ttl_sec`, `stats_timeseries_ttl_sec`, and `stats_timeseries_watermark_lag_days`. Request-level publication targeting is carried in the `x-gateway-token` header's `publication_url` field.
 
 Publication analytics caching (`gateway_stats`) is controlled by three settings:
 - `SUBSTACK_GATEWAY_STATS_SNAPSHOT_CACHE_TTL_SEC` (default `900`) — TTL for cached publication/post snapshot aggregates.

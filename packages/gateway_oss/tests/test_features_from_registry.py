@@ -48,3 +48,70 @@ def test_root_reports_profiles_me_features_from_registry() -> None:
         "mcp:me:posts:list",
     ):
         assert feat in oss["features"]
+
+
+def test_root_reports_drafts_features_from_registry() -> None:
+    with TestClient(create_app()) as client:
+        body = client.get("/").json()
+    oss = next(m for m in body["modules"] if m["name"] == "gateway-oss")
+    for feat in (
+        "api:drafts:list",
+        "api:drafts:get",
+        "api:drafts:create",
+        "api:drafts:update",
+        "api:drafts:delete",
+        "api:drafts:schedule",
+        "api:drafts:unschedule",
+        "api:drafts:prepublish",
+        "api:drafts:ai-detection",
+        "api:images:create",
+        "mcp:drafts:list",
+        "mcp:drafts:get",
+        "mcp:drafts:create",
+        "mcp:drafts:update",
+        "mcp:drafts:delete",
+        "mcp:drafts:schedule",
+        "mcp:drafts:unschedule",
+        "mcp:drafts:prepublish",
+        "mcp:drafts:ai-detection",
+        "mcp:images:upload",
+    ):
+        assert feat in oss["features"]
+
+
+def test_root_reports_stats_features_from_registry() -> None:
+    with TestClient(create_app()) as client:
+        body = client.get("/").json()
+    oss = next(m for m in body["modules"] if m["name"] == "gateway-oss")
+    for feat in (
+        "api:stats:subscribers",
+        "api:stats:traffic:30d-views",
+        "api:posts:stats:engagement",
+        "api:posts:stats:traffic",
+        "api:posts:stats:recipients",
+        "api:posts:stats:growth",
+        "api:posts:stats:discussion",
+        "mcp:stats:subscribers",
+        "mcp:stats:traffic:30d-views",
+        "mcp:posts:stats:engagement",
+        "mcp:posts:stats:traffic",
+        "mcp:posts:stats:recipients",
+        "mcp:posts:stats:growth",
+        "mcp:posts:stats:discussion",
+    ):
+        assert feat in oss["features"]
+
+
+def test_root_reports_posts_engagement_features_from_registry() -> None:
+    with TestClient(create_app()) as client:
+        body = client.get("/").json()
+    oss = next(m for m in body["modules"] if m["name"] == "gateway-oss")
+    for feat in (
+        "api:posts:like",
+        "api:posts:unlike",
+        "api:posts:restack",
+        "mcp:posts:like",
+        "mcp:posts:unlike",
+        "mcp:posts:restack",
+    ):
+        assert feat in oss["features"]
