@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "user_id": 254824415,
+      "email": "reader@example.com",
+      "opens": 3,
+      "opens_day7": 2,
+      "opens_day28": 3,
+      "email_opens": 1,
+      "app_opens": 2,
+      "clicks": 1,
+      "post_bottom_seens": 1
+    }
+  ],
+  "total": 1
+}

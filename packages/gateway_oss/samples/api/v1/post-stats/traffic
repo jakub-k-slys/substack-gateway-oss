@@ -1,0 +1,29 @@
+{
+  "referrers": [
+    {
+      "source": "direct",
+      "source_category": "direct",
+      "views": 512,
+      "subscriber_views": 300,
+      "signups": 12,
+      "subscribes": 3,
+      "percent_of_total_views": 0.61
+    },
+    {
+      "source": "substack",
+      "source_category": "substack",
+      "views": 210,
+      "subscriber_views": 140,
+      "signups": 5,
+      "subscribes": 1,
+      "percent_of_total_views": 0.25
+    }
+  ],
+  "devices": [
+    {"device_type": "desktop", "views": 480, "percent_of_total_views": 0.57},
+    {"device_type": "mobile", "views": 360, "percent_of_total_views": 0.43}
+  ],
+  "categories": [
+    {"category_type": "app", "category_views": 300, "view_count": 300, "percent_of_total_views": 0.36}
+  ]
+}

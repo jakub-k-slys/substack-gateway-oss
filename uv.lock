@@ -32,6 +32,7 @@ members = [
     "gateway-profiles-rest",
     "gateway-rest-common",
     "gateway-stats",
+    "gateway-stats-rest",
     "substack-gateway",
 ]
 
@@ -801,6 +802,7 @@ dependencies = [
     { name = "gateway-profiles-rest" },
     { name = "gateway-rest-common" },
     { name = "gateway-stats" },
+    { name = "gateway-stats-rest" },
     { name = "httpx" },
     { name = "markdownify" },
     { name = "pydantic" },
@@ -836,6 +838,7 @@ requires-dist = [
     { name = "gateway-profiles-rest", editable = "packages/gateway_profiles_rest" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
     { name = "gateway-stats", editable = "packages/gateway_stats" },
+    { name = "gateway-stats-rest", editable = "packages/gateway_stats_rest" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.4" },
@@ -991,6 +994,25 @@ requires-dist = [
     { name = "aiocache", extras = ["redis"], specifier = ">=0.12.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "pydantic", specifier = ">=2.13.4" },
+]
+
+[[package]]
+name = "gateway-stats-rest"
+version = "3.6.0"
+source = { editable = "packages/gateway_stats_rest" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-core" },
+    { name = "gateway-rest-common" },
+    { name = "gateway-stats" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.141.1" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
+    { name = "gateway-stats", editable = "packages/gateway_stats" },
 ]
 
 [[package]]

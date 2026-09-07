@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "entity_key": "comment:1",
+      "type": "comment",
+      "comment": {"id": 1, "body": "Loved this."},
+      "canReply": true,
+      "isMuted": false
+    }
+  ],
+  "nextCursor": null,
+  "tabs": [
+    {"id": "all", "name": "All"},
+    {"id": "comments", "name": "Comments"}
+  ],
+  "tabId": "all"
+}
