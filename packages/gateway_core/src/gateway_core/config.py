@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     redis_url: str | None = None
     profile_cache_ttl_sec: int = Field(default=300, ge=1)
 
+    # Publication analytics cache. Timeseries rows are append-only and cached
+    # with a watermark lag so maturing days are re-fetched rather than frozen;
+    # snapshots are opaque aggregates with a plain TTL.
+    stats_snapshot_cache_ttl_sec: int = Field(default=900, ge=1)
+    stats_timeseries_ttl_sec: int = Field(default=86_400, ge=1)
+    stats_timeseries_watermark_lag_days: int = Field(default=2, ge=0)
+
     @field_validator("substack_base_url")
     @classmethod
     def _validate_base_url(cls, v: str) -> str:
