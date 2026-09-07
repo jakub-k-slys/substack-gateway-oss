@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from gateway_core.capabilities import RestCapability
 
-_FEATURES = ("api:posts:get",)
+_FEATURES = (
+    "api:posts:get",
+    "api:posts:like",
+    "api:posts:unlike",
+    "api:posts:restack",
+)
 
 
 def capability() -> RestCapability:
