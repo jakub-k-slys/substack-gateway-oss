@@ -22,6 +22,7 @@ from gateway_comments_mcp.tools import (
     reply_to_post_comment,
     unlike_post_comment,
 )
+from gateway_drafts_mcp.tools import create_draft, delete_draft, get_draft, list_drafts
 from gateway_following_mcp.tools import get_my_following
 from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
 from gateway_notes_mcp.tools import (
@@ -118,6 +119,31 @@ def step_call_reply_to_note(context, note_id, body):
 @when("I call the MCP tool list_note_replies with note_id {note_id:d}")
 def step_call_list_note_replies(context, note_id):
     _call(context, list_note_replies(note_id=note_id, token=context.mcp_token))
+
+
+# ------------------------------------------------------------------
+# When — drafts
+# ------------------------------------------------------------------
+
+
+@when("I call the MCP tool list_drafts")
+def step_call_list_drafts(context):
+    _call(context, list_drafts(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_draft with draft_id {draft_id:d}")
+def step_call_get_draft(context, draft_id):
+    _call(context, get_draft(draft_id=draft_id, token=context.mcp_token))
+
+
+@when('I call the MCP tool create_draft with title "{title}"')
+def step_call_create_draft(context, title):
+    _call(context, create_draft(title=title, token=context.mcp_token))
+
+
+@when("I call the MCP tool delete_draft with draft_id {draft_id:d}")
+def step_call_delete_draft(context, draft_id):
+    _call(context, delete_draft(draft_id=draft_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------

@@ -1,0 +1,20 @@
+[project]
+name = "gateway_drafts_mcp"
+version = "3.6.0"
+requires-python = ">=3.11"
+dependencies = ["gateway_core", "gateway_drafts", "gateway_mcp_common", "fastmcp>=3.4.6"]
+
+[project.entry-points."substack_gateway.capabilities"]
+drafts_mcp = "gateway_drafts_mcp:capability"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gateway_drafts_mcp"]
+
+[tool.uv.sources]
+gateway_core = { workspace = true }
+gateway_drafts = { workspace = true }
+gateway_mcp_common = { workspace = true }

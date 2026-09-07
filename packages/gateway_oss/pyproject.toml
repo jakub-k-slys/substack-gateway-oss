@@ -24,6 +24,7 @@ dependencies = [
   "gateway_stats_mcp",
   "gateway_drafts",
   "gateway_drafts_rest",
+  "gateway_drafts_mcp",
   "gateway_notes_rest",
   "gateway_notes_mcp",
   "gateway_following_rest",
@@ -59,6 +60,7 @@ gateway_stats_rest = { workspace = true }
 gateway_stats_mcp = { workspace = true }
 gateway_drafts = { workspace = true }
 gateway_drafts_rest = { workspace = true }
+gateway_drafts_mcp = { workspace = true }
 gateway_notes_rest = { workspace = true }
 gateway_notes_mcp = { workspace = true }
 gateway_following_rest = { workspace = true }
