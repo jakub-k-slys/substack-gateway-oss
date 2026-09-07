@@ -1,6 +1,6 @@
 [project]
 name = "gateway_drafts"
-version = "3.6.0"
+version = "3.7.0"
 requires-python = ">=3.11"
 dependencies = ["gateway_core", "pydantic>=2.13.5"]
 
