@@ -52,3 +52,38 @@ class PostsService:
         _log.debug("Fetching post id=%d", post_id)
         r = await self._sub.get(f"posts/by-id/{post_id}")
         return SubstackPostResponse.model_validate(r.json()).post
+
+
+_LIKE_REACTION = "❤"
+_READER_SURFACE = "reader"
+
+
+class PostReactionsService:
+    def __init__(self, sub: SubstackClient) -> None:
+        self._sub = sub
+
+    async def like_post(self, post_id: int) -> None:
+        _log.debug("Adding like to post id=%d", post_id)
+        await self._sub.post(
+            f"post/{post_id}/reaction",
+            json={"reaction": _LIKE_REACTION, "surface": _READER_SURFACE},
+        )
+        _log.debug("Added like to post id=%d", post_id)
+
+    async def unlike_post(self, post_id: int) -> None:
+        _log.debug("Removing like from post id=%d", post_id)
+        await self._sub.delete(f"post/{post_id}/reaction", json={})
+        _log.debug("Removed like from post id=%d", post_id)
+
+
+class PostRestacksService:
+    def __init__(self, sub: SubstackClient) -> None:
+        self._sub = sub
+
+    async def restack_post(self, post_id: int) -> None:
+        _log.debug("Restacking post id=%d", post_id)
+        await self._sub.post(
+            "restack/feed",
+            json={"postId": post_id, "commentId": None},
+        )
+        _log.debug("Restacked post id=%d", post_id)

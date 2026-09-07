@@ -33,7 +33,7 @@ from gateway_notes_mcp.tools import (
     reply_to_note,
     unlike_note,
 )
-from gateway_posts_mcp.tools import get_post
+from gateway_posts_mcp.tools import get_post, like_post, restack_post, unlike_post
 from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
 
 # ------------------------------------------------------------------
@@ -144,6 +144,21 @@ def step_call_get_post_comments(context, post_id):
 @when("I call the MCP tool get_my_following")
 def step_call_get_my_following(context):
     _call(context, get_my_following(token=context.mcp_token))
+
+
+@when("I call the MCP tool like_post with post_id {post_id:d}")
+def step_call_like_post(context, post_id):
+    _call(context, like_post(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool unlike_post with post_id {post_id:d}")
+def step_call_unlike_post(context, post_id):
+    _call(context, unlike_post(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool restack_post with post_id {post_id:d}")
+def step_call_restack_post(context, post_id):
+    _call(context, restack_post(post_id=post_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------
