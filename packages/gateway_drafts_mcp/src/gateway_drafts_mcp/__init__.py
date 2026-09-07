@@ -42,10 +42,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="List Drafts",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "GET /post_management/drafts"},
     )(list_drafts)
@@ -54,10 +54,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get Draft",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
     )(get_draft)
@@ -66,10 +66,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Create Draft",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "POST /drafts"},
     )(create_draft)
@@ -78,10 +78,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "images", "write"},
         annotations=ToolAnnotations(
             title="Upload Image",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "POST /api/v1/image"},
     )(upload_image)
@@ -90,10 +90,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Update Draft",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "PUT /drafts/{draft_id}"},
     )(update_draft)
@@ -102,10 +102,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Draft",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "drafts", "substack_endpoint": "DELETE /drafts/{draft_id}"},
     )(delete_draft)
@@ -114,10 +114,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get AI Detection",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "drafts",
@@ -129,10 +129,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Check Draft",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "drafts",
@@ -144,10 +144,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Schedule Draft",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "drafts",
@@ -159,10 +159,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"drafts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Unschedule Draft",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "drafts",

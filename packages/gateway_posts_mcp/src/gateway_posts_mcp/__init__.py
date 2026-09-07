@@ -25,10 +25,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"posts", "read"},
         annotations=ToolAnnotations(
             title="Get Post",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
     )(get_post)
@@ -37,10 +37,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"posts", "write"},
         annotations=ToolAnnotations(
             title="Like Post",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "posts",
@@ -52,10 +52,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"posts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Unlike Post",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "posts",
@@ -67,10 +67,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"posts", "write"},
         annotations=ToolAnnotations(
             title="Restack Post",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={
             "category": "posts",

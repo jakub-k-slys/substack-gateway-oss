@@ -36,10 +36,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Create Note",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
     )(create_note)
@@ -48,10 +48,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Note",
-            readOnlyHint=False,
-            destructiveHint=True,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
     )(delete_note)
@@ -60,10 +60,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "read"},
         annotations=ToolAnnotations(
             title="Get Note",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "notes",
@@ -75,10 +75,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Like Note",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "notes",
@@ -90,10 +90,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Unlike Note",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "notes",
@@ -105,10 +105,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Reply To Note",
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
         meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
     )(reply_to_note)
@@ -117,10 +117,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"notes", "read"},
         annotations=ToolAnnotations(
             title="List Note Replies",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "notes",

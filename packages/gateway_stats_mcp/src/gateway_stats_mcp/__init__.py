@@ -36,10 +36,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get Subscriber Timeseries",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "stats",
@@ -51,10 +51,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get 30-Day Views",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "stats",
@@ -68,10 +68,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Engagement",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "post-stats",
@@ -83,10 +83,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Traffic",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "post-stats",
@@ -98,10 +98,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Recipients",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "post-stats",
@@ -113,10 +113,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Growth",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "post-stats",
@@ -128,10 +128,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Discussion",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "post-stats",

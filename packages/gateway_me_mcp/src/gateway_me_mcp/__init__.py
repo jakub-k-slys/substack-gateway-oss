@@ -20,10 +20,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"me", "profile", "read"},
         annotations=ToolAnnotations(
             title="Get My Profile",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "me", "substack_endpoint": "GET /user/{slug}/public_profile"},
     )(get_me)
@@ -32,10 +32,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"me", "notes", "read"},
         annotations=ToolAnnotations(
             title="Get My Notes",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "me", "substack_endpoint": "GET /notes"},
     )(get_my_notes)
@@ -44,10 +44,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"me", "posts", "read"},
         annotations=ToolAnnotations(
             title="Get My Posts",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "me", "substack_endpoint": "GET /profile/posts"},
     )(get_my_posts)

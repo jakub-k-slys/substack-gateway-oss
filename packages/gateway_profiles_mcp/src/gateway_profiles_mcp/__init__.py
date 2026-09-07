@@ -24,10 +24,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"profiles", "read"},
         annotations=ToolAnnotations(
             title="Get Profile",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "profiles",
@@ -39,10 +39,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"profiles", "posts", "read"},
         annotations=ToolAnnotations(
             title="Get Profile Posts",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={"category": "profiles", "substack_endpoint": "GET /profile/posts"},
     )(get_profile_posts)
@@ -51,10 +51,10 @@ def _register(mcp: FastMCP) -> None:
         tags={"profiles", "notes", "read"},
         annotations=ToolAnnotations(
             title="Get Profile Notes",
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
         meta={
             "category": "profiles",
