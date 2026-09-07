@@ -25,9 +25,11 @@ different interfaces.
 - **REST API** at `/api/v1/*`
 - **MCP server** at `/mcp`
 
-Both share the same service layer and HTTP clients. The thin
+Both share the same `gateway_core` HTTP clients and config. The thin
 `substack_gateway` shell package assembles the application (REST + MCP
-composition), while `gateway_oss` provides the OSS module surface as a facade.
+composition) from per-domain packages — notes, posts, profiles, following,
+comments, me, drafts, and stats — each published as a capability, while
+`gateway_oss` provides health routes and the extension surface.
 
 ## Quickstart
 
@@ -39,7 +41,7 @@ Requirements:
 Install dependencies:
 
 ```bash
-uv sync --dev
+uv sync --all-packages --dev
 ```
 
 Run the application locally:
@@ -83,7 +85,8 @@ curl \
 ```
 
 The REST API is mounted under `/api/v1` and includes endpoints for health,
-profiles, posts, notes, comments, and authenticated `me` operations.
+profiles, posts, notes, comments, drafts, publication/post analytics, and
+authenticated `me` operations.
 
 ## Authentication
 
@@ -126,15 +129,17 @@ Public OSS MCP tools include:
 
 ## Project Layout
 
-Core application code lives in `src/gateway_oss/`.
+The root `src/substack_gateway/` package composes the app (`app_factory.py`,
+`api_app.py`, `mcp_app.py`, `registry.py`). `packages/gateway_core/` is the
+shared foundation: auth, HTTP clients, config, converters, and models. Each
+domain ships as a trio of packages:
 
-- `api/v1/`: FastAPI route handlers
-- `mcp/`: FastMCP tool surface and transport integration
-- `services/`: shared business logic
-- `client/`: Substack HTTP client wrappers
-- `models/`: schemas and pagination models
-- `converters/`: Markdown conversion
-- `extensions/`: runtime extension hooks
+- `gateway_<domain>/`: service layer
+- `gateway_<domain>_rest/`: FastAPI router, published as a capability
+- `gateway_<domain>_mcp/`: FastMCP tools, published as a capability
+
+`packages/gateway_oss/` provides health routes, the extension protocol, and
+versioning.
 
 ## Configuration
 
@@ -145,6 +150,9 @@ Common examples include:
 - `SUBSTACK_GATEWAY_LOG_LEVEL`
 - `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL`
 - `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC`
+- `SUBSTACK_GATEWAY_STATS_SNAPSHOT_CACHE_TTL_SEC` (default `900`)
+- `SUBSTACK_GATEWAY_STATS_TIMESERIES_TTL_SEC` (default `86400`)
+- `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`)
 
 ## Validation
 
@@ -152,9 +160,9 @@ Common examples include:
 uv run ruff check .
 uv run ruff format --check .
 uv run ty check .
-uv build
-uv run pytest tests/
-uv run behave features/
+uv build --all-packages
+uv run pytest
+uv run behave packages/gateway_oss/features/
 ```
 
 ## Documentation
