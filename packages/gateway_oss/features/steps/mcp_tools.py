@@ -35,6 +35,15 @@ from gateway_notes_mcp.tools import (
 )
 from gateway_posts_mcp.tools import get_post, like_post, restack_post, unlike_post
 from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
+from gateway_stats_mcp.tools import (
+    get_30d_views,
+    get_post_discussion,
+    get_post_engagement,
+    get_post_growth,
+    get_post_recipients,
+    get_post_traffic,
+    get_subscriber_timeseries,
+)
 
 # ------------------------------------------------------------------
 # Given — authentication
@@ -215,6 +224,46 @@ def step_call_like_post_comment(context, comment_id):
 @when("I call the MCP tool unlike_post_comment with comment_id {comment_id:d}")
 def step_call_unlike_post_comment(context, comment_id):
     _call(context, unlike_post_comment(comment_id=comment_id, token=context.mcp_token))
+
+
+# ------------------------------------------------------------------
+# When — stats
+# ------------------------------------------------------------------
+
+
+@when("I call the MCP tool get_subscriber_timeseries")
+def step_call_get_subscriber_timeseries(context):
+    _call(context, get_subscriber_timeseries(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_30d_views")
+def step_call_get_30d_views(context):
+    _call(context, get_30d_views(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_post_engagement with post_id {post_id:d}")
+def step_call_get_post_engagement(context, post_id):
+    _call(context, get_post_engagement(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool get_post_traffic with post_id {post_id:d}")
+def step_call_get_post_traffic(context, post_id):
+    _call(context, get_post_traffic(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool get_post_recipients with post_id {post_id:d}")
+def step_call_get_post_recipients(context, post_id):
+    _call(context, get_post_recipients(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool get_post_growth with post_id {post_id:d}")
+def step_call_get_post_growth(context, post_id):
+    _call(context, get_post_growth(post_id=post_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool get_post_discussion with post_id {post_id:d}")
+def step_call_get_post_discussion(context, post_id):
+    _call(context, get_post_discussion(post_id=post_id, token=context.mcp_token))
 
 
 # ------------------------------------------------------------------

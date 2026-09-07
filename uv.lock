@@ -32,6 +32,7 @@ members = [
     "gateway-profiles-rest",
     "gateway-rest-common",
     "gateway-stats",
+    "gateway-stats-mcp",
     "gateway-stats-rest",
     "substack-gateway",
 ]
@@ -802,6 +803,7 @@ dependencies = [
     { name = "gateway-profiles-rest" },
     { name = "gateway-rest-common" },
     { name = "gateway-stats" },
+    { name = "gateway-stats-mcp" },
     { name = "gateway-stats-rest" },
     { name = "httpx" },
     { name = "markdownify" },
@@ -838,6 +840,7 @@ requires-dist = [
     { name = "gateway-profiles-rest", editable = "packages/gateway_profiles_rest" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
     { name = "gateway-stats", editable = "packages/gateway_stats" },
+    { name = "gateway-stats-mcp", editable = "packages/gateway_stats_mcp" },
     { name = "gateway-stats-rest", editable = "packages/gateway_stats_rest" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "markdownify", specifier = ">=1.2.3" },
@@ -994,6 +997,25 @@ requires-dist = [
     { name = "aiocache", extras = ["redis"], specifier = ">=0.12.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "pydantic", specifier = ">=2.13.4" },
+]
+
+[[package]]
+name = "gateway-stats-mcp"
+version = "3.6.0"
+source = { editable = "packages/gateway_stats_mcp" }
+dependencies = [
+    { name = "fastmcp" },
+    { name = "gateway-core" },
+    { name = "gateway-mcp-common" },
+    { name = "gateway-stats" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastmcp", specifier = ">=3.4.6" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
+    { name = "gateway-stats", editable = "packages/gateway_stats" },
 ]
 
 [[package]]
