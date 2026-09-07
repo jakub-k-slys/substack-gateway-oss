@@ -38,6 +38,7 @@ gateway_stats = { workspace = true }
 gateway_stats_rest = { workspace = true }
 gateway_stats_mcp = { workspace = true }
 gateway_drafts = { workspace = true }
+gateway_drafts_rest = { workspace = true }
 gateway_notes_rest = { workspace = true }
 gateway_notes_mcp = { workspace = true }
 gateway_following_rest = { workspace = true }
@@ -63,7 +64,7 @@ select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["gateway_core", "gateway_comments", "gateway_following", "gateway_notes", "gateway_notes_rest", "gateway_notes_mcp", "gateway_following_rest", "gateway_following_mcp", "gateway_posts", "gateway_posts_rest", "gateway_posts_mcp", "gateway_comments_rest", "gateway_comments_mcp", "gateway_profiles", "gateway_profiles_rest", "gateway_profiles_mcp", "gateway_stats", "gateway_stats_rest", "gateway_stats_mcp", "gateway_drafts", "gateway_me_rest", "gateway_me_mcp", "gateway_oss", "gateway_rest_common", "gateway_mcp_common", "substack_gateway"]
+known-first-party = ["gateway_core", "gateway_comments", "gateway_following", "gateway_notes", "gateway_notes_rest", "gateway_notes_mcp", "gateway_following_rest", "gateway_following_mcp", "gateway_posts", "gateway_posts_rest", "gateway_posts_mcp", "gateway_comments_rest", "gateway_comments_mcp", "gateway_profiles", "gateway_profiles_rest", "gateway_profiles_mcp", "gateway_stats", "gateway_stats_rest", "gateway_stats_mcp", "gateway_drafts", "gateway_drafts_rest", "gateway_me_rest", "gateway_me_mcp", "gateway_oss", "gateway_rest_common", "gateway_mcp_common", "substack_gateway"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -121,6 +122,7 @@ version_toml = [
   "packages/gateway_stats_rest/pyproject.toml:project.version",
   "packages/gateway_stats_mcp/pyproject.toml:project.version",
   "packages/gateway_drafts/pyproject.toml:project.version",
+  "packages/gateway_drafts_rest/pyproject.toml:project.version",
   "packages/gateway_me_rest/pyproject.toml:project.version",
   "packages/gateway_me_mcp/pyproject.toml:project.version",
 ]
