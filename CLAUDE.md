@@ -71,7 +71,11 @@ packages/
 
 Each domain ships as a **trio** — `gateway_<domain>` (service layer), `gateway_<domain>_rest`
 (FastAPI router), `gateway_<domain>_mcp` (FastMCP tools). Current trios include
-`comments`, `following`, `notes`, `posts`, `profiles`, `me`, `drafts`, and `stats`.
+`comments`, `following`, `notes`, `posts`, `profiles`, `drafts`, and `stats`. `me` is an
+exception: `gateway_me_rest` and `gateway_me_mcp` exist as a two-package (REST + MCP
+only) capability pair with no `gateway_me` service package — they compose
+`NotesService`, `PostsService`, and `ProfilesService` from other domains instead of
+owning a service of their own.
 Each `_rest`/`_mcp` package registers itself through the `substack_gateway.capabilities`
 entry-point group (e.g. `drafts_rest = "gateway_drafts_rest:capability"` in that
 package's `pyproject.toml`); `src/substack_gateway/registry.py` discovers every
@@ -136,8 +140,10 @@ Each domain package (`gateway_notes`, `gateway_posts`, `gateway_profiles`, `gate
 ### Converters
 
 `gateway_core.converters.markdown` has two separate concerns:
-1. `markdown_to_doc` / `markdown_to_note_payload` — converts Markdown to Substack's ProseMirror JSON format (used when creating notes and drafts).
+1. `markdown_to_doc` / `markdown_to_note_payload` — converts Markdown to Substack's ProseMirror JSON format (used when creating notes).
 2. `html_to_markdown` — converts Substack post HTML to Markdown using `markdownify` (used in `FullPostResponse`).
+
+`gateway_drafts.converters.markdown` is a separate, domain-specific converter: `markdown_to_draft_doc` converts Markdown to draft ProseMirror JSON (used when creating and updating drafts).
 
 ### Extension system
 
