@@ -15,6 +15,7 @@ members = [
     "gateway-comments-rest",
     "gateway-core",
     "gateway-drafts",
+    "gateway-drafts-rest",
     "gateway-following",
     "gateway-following-mcp",
     "gateway-following-rest",
@@ -628,6 +629,27 @@ requires-dist = [
 ]
 
 [[package]]
+name = "gateway-drafts-rest"
+version = "3.6.0"
+source = { editable = "packages/gateway_drafts_rest" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "gateway-core" },
+    { name = "gateway-drafts" },
+    { name = "gateway-rest-common" },
+    { name = "python-multipart" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.141.1" },
+    { name = "gateway-core", editable = "packages/gateway_core" },
+    { name = "gateway-drafts", editable = "packages/gateway_drafts" },
+    { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
+    { name = "python-multipart", specifier = ">=0.0.31" },
+]
+
+[[package]]
 name = "gateway-following"
 version = "3.6.0"
 source = { editable = "packages/gateway_following" }
@@ -803,6 +825,7 @@ dependencies = [
     { name = "gateway-comments-rest" },
     { name = "gateway-core" },
     { name = "gateway-drafts" },
+    { name = "gateway-drafts-rest" },
     { name = "gateway-following" },
     { name = "gateway-following-mcp" },
     { name = "gateway-following-rest" },
@@ -841,6 +864,7 @@ requires-dist = [
     { name = "gateway-comments-rest", editable = "packages/gateway_comments_rest" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
+    { name = "gateway-drafts-rest", editable = "packages/gateway_drafts_rest" },
     { name = "gateway-following", editable = "packages/gateway_following" },
     { name = "gateway-following-mcp", editable = "packages/gateway_following_mcp" },
     { name = "gateway-following-rest", editable = "packages/gateway_following_rest" },
