@@ -2,7 +2,7 @@
 name = "gateway_profiles"
 version = "3.6.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "pydantic>=2.13.4", "aiocache[redis]>=0.12.3"]
+dependencies = ["gateway_core", "pydantic>=2.13.5", "aiocache[redis]>=0.12.3"]
 
 [build-system]
 requires = ["hatchling"]
