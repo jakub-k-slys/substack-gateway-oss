@@ -1,6 +1,6 @@
 [project]
 name = "gateway_posts_mcp"
-version = "3.7.0"
+version = "3.8.0"
 requires-python = ">=3.11"
 dependencies = ["gateway_core", "gateway_mcp_common", "gateway_posts", "fastmcp>=4.0.2"]
 
