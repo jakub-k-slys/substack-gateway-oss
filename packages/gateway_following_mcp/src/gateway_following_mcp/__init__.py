@@ -16,7 +16,7 @@ def _register(mcp: FastMCP) -> None:
     from gateway_following_mcp.tools import get_my_following
 
     mcp.tool(
-        description="Retrieve the list of Substack profiles that the authenticated user follows using an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Retrieve the list of Substack profiles that the authenticated user follows. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"me", "following", "read"},
         annotations=ToolAnnotations(
             title="Get My Following",

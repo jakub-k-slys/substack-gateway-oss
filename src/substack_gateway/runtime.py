@@ -35,6 +35,22 @@ def _single_provider(label: str, providers: Sequence[T | None]) -> T | None:
     return active[0] if active else None
 
 
+def _call_optional_hook(
+    extension: GatewayExtension, method_name: str, context: GatewayExtensionContext
+) -> Any | None:
+    """Call an optional protocol method, tolerating extensions that don't define it.
+
+    `ext_loader.load_extensions` never checks a loaded extension against the
+    `GatewayExtension` protocol, so a duck-typed extension that doesn't subclass it
+    may lack methods the protocol declares with a default. Fall back to `None`
+    rather than raising `AttributeError` for those.
+    """
+    method = getattr(extension, method_name, None)
+    if method is None:
+        return None
+    return method(context)
+
+
 @lru_cache(maxsize=1)
 def get_runtime() -> GatewayRuntime:
     context = GatewayExtensionContext(settings=settings)
@@ -46,11 +62,17 @@ def get_runtime() -> GatewayRuntime:
     ]
     mcp_auth_provider = _single_provider(
         "MCP auth provider",
-        [extension.get_mcp_auth_provider(context) for extension in extensions],
+        [
+            _call_optional_hook(extension, "get_mcp_auth_provider", context)
+            for extension in extensions
+        ],
     )
     credential_resolver = _single_provider(
         "credential resolver",
-        [extension.get_credential_resolver(context) for extension in extensions],
+        [
+            _call_optional_hook(extension, "get_credential_resolver", context)
+            for extension in extensions
+        ],
     )
     set_credential_resolver(credential_resolver)
     module_infos = [

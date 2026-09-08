@@ -26,7 +26,7 @@ The codebase also defines authenticated MCP operations for:
 - `get_my_posts`
 - `get_my_following`
 
-Those tools require an explicit `token` argument carrying the base64-encoded Substack credential JSON.
+The `token` argument on those tools is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.
 
 Whether authenticated tools are exposed depends on the active runtime and extension setup.
 

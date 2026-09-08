@@ -32,7 +32,7 @@ def _register(mcp: FastMCP) -> None:
     )
 
     mcp.tool(
-        description="Fetch the publication's daily subscriber timeseries (paid, comps, free trials, total) for the trailing year. Optionally pass `from_date` (ISO) to bound the window. Results are delta-cached: repeat calls only fetch new days from Substack. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch the publication's daily subscriber timeseries (paid, comps, free trials, total) for the trailing year. Optionally pass `from_date` (ISO) to bound the window. Results are delta-cached: repeat calls only fetch new days from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get Subscriber Timeseries",
@@ -47,7 +47,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_subscriber_timeseries)
     mcp.tool(
-        description="Fetch the publication's trailing-30-day view count and its delta versus the prior period. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch the publication's trailing-30-day view count and its delta versus the prior period. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get 30-Day Views",
@@ -64,7 +64,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_30d_views)
     mcp.tool(
-        description="Fetch engagement for a published post: like count and likers, comment count and summary, and commenter count. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch engagement for a published post: like count and likers, comment count and summary, and commenter count. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Engagement",
@@ -79,7 +79,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_post_engagement)
     mcp.tool(
-        description="Fetch traffic for a published post: view counts broken down by referrer source, device type, and category. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch traffic for a published post: view counts broken down by referrer source, device type, and category. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Traffic",
@@ -94,7 +94,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_post_traffic)
     mcp.tool(
-        description="Fetch per-recipient email stats for a published post (delivery, opens, clicks), paginated via limit/offset. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch per-recipient email stats for a published post (delivery, opens, clicks), paginated via limit/offset. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Recipients",
@@ -109,7 +109,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_post_recipients)
     mcp.tool(
-        description="Fetch subscriber growth attributed to a published post. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch subscriber growth attributed to a published post. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Growth",
@@ -124,7 +124,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_post_growth)
     mcp.tool(
-        description="Fetch the discussion (comment thread) for a published post, cursor-paginated. Result is a short-lived cached snapshot. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Fetch the discussion (comment thread) for a published post, cursor-paginated. Result is a short-lived cached snapshot. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},
         annotations=ToolAnnotations(
             title="Get Post Discussion",
