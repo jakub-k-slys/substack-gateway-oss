@@ -7,7 +7,7 @@ from gateway_following.service import FollowingService
 from gateway_mcp_common.clients import _authenticated_clients
 
 
-async def get_my_following(token: str) -> dict[str, Any]:
+async def get_my_following(token: str | None = None) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         users = await FollowingService(pub, sub).get_own_following()
     return FollowingResponse.from_substack(users).model_dump()

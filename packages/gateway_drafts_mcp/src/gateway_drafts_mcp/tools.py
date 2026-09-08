@@ -17,7 +17,7 @@ from gateway_mcp_common.clients import _authenticated_clients
 
 
 async def list_drafts(
-    token: str,
+    token: str | None = None,
     next: str | None = None,
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
@@ -31,7 +31,7 @@ async def list_drafts(
 
 async def get_draft(
     draft_id: int,
-    token: str,
+    token: str | None = None,
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         draft = await DraftsService(publication, substack).get_draft(draft_id)
@@ -39,7 +39,7 @@ async def get_draft(
 
 
 async def create_draft(
-    token: str,
+    token: str | None = None,
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
@@ -55,7 +55,7 @@ async def create_draft(
 
 async def update_draft(
     draft_id: int,
-    token: str,
+    token: str | None = None,
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
@@ -76,7 +76,7 @@ async def update_draft(
 
 async def delete_draft(
     draft_id: int,
-    token: str,
+    token: str | None = None,
 ) -> str:
     async with _authenticated_clients(token) as (publication, substack):
         await DraftsService(publication, substack).delete_draft(draft_id)
@@ -85,7 +85,7 @@ async def delete_draft(
 
 async def get_ai_detection(
     draft_id: int,
-    token: str,
+    token: str | None = None,
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         result = await DraftsService(publication, substack).ai_detection(draft_id)
@@ -94,7 +94,7 @@ async def get_ai_detection(
 
 async def check_draft(
     draft_id: int,
-    token: str,
+    token: str | None = None,
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         result = await DraftsService(publication, substack).prepublish_draft(draft_id)
@@ -104,7 +104,7 @@ async def check_draft(
 async def schedule_draft(
     draft_id: int,
     scheduled_at: str,
-    token: str,
+    token: str | None = None,
     post_audience: str = "only_paid",
     email_audience: str = "only_paid",
 ) -> dict[str, Any]:
@@ -120,7 +120,7 @@ async def schedule_draft(
 
 async def unschedule_draft(
     draft_id: int,
-    token: str,
+    token: str | None = None,
 ) -> str:
     async with _authenticated_clients(token) as (publication, substack):
         await DraftsService(publication, substack).unschedule_draft(draft_id)
@@ -128,8 +128,8 @@ async def unschedule_draft(
 
 
 async def upload_image(
-    token: str,
     image_base64: str,
+    token: str | None = None,
     content_type: str = "image/png",
 ) -> dict[str, Any]:
     image = data_uri(content_type, base64.b64decode(image_base64))

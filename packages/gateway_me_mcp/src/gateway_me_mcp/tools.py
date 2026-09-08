@@ -11,20 +11,22 @@ from gateway_profiles.schemas import ProfileResponse
 from gateway_profiles.service import ProfilesService
 
 
-async def get_me(token: str) -> dict[str, Any]:
+async def get_me(token: str | None = None) -> dict[str, Any]:
     async with _authenticated_clients(token) as (_publication, substack):
         profile = await ProfilesService(substack).get_own_profile()
     return ProfileResponse.from_substack(profile).model_dump()
 
 
-async def get_my_notes(token: str, cursor: str | None = None) -> dict[str, Any]:
+async def get_my_notes(
+    token: str | None = None, cursor: str | None = None
+) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         page = await NotesService(publication, substack).get_own_notes(cursor=cursor)
     return NotesPageResponse.from_substack(page).model_dump()
 
 
 async def get_my_posts(
-    token: str, limit: int = 25, cursor: str | None = None
+    token: str | None = None, limit: int = 25, cursor: str | None = None
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         profile = await ProfilesService(substack).get_own_profile()
