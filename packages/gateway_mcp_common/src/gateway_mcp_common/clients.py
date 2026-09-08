@@ -62,10 +62,10 @@ async def resolve_credentials(token: str | None = None) -> BearerCredentials:
 
 
 @contextlib.asynccontextmanager
-async def _authenticated_clients(
-    token: str | None = None,
+async def clients_from(
+    credentials: BearerCredentials,
 ) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
-    credentials = await resolve_credentials(token)
+    """Yield clients built from credentials that are already resolved."""
     assert credentials.publication_url is not None
     async with (
         make_publication_client(
@@ -74,3 +74,12 @@ async def _authenticated_clients(
         make_substack_client(credentials) as substack,
     ):
         yield publication, substack
+
+
+@contextlib.asynccontextmanager
+async def _authenticated_clients(
+    token: str | None = None,
+) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
+    credentials = await resolve_credentials(token)
+    async with clients_from(credentials) as clients:
+        yield clients
