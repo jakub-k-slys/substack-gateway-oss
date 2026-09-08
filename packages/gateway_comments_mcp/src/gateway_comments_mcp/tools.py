@@ -11,13 +11,15 @@ from gateway_comments.service import CommentNotFoundError, CommentsService
 from gateway_mcp_common.clients import _authenticated_clients
 
 
-async def get_post_comments(post_id: int, token: str) -> dict[str, Any]:
+async def get_post_comments(post_id: int, token: str | None = None) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         comments = await CommentsService(pub, sub).get_comments_for_post(post_id)
     return CommentsResponse.from_substack(comments).model_dump()
 
 
-async def create_post_comment(post_id: int, body: str, token: str) -> dict[str, Any]:
+async def create_post_comment(
+    post_id: int, body: str, token: str | None = None
+) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         comment = await CommentsService(pub, sub).create_top_level_comment(
             post_id, body
@@ -26,7 +28,7 @@ async def create_post_comment(post_id: int, body: str, token: str) -> dict[str, 
 
 
 async def reply_to_post_comment(
-    comment_id: int, body: str, token: str
+    comment_id: int, body: str, token: str | None = None
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         try:
@@ -36,19 +38,21 @@ async def reply_to_post_comment(
     return PostCommentResponse.from_substack(comment).model_dump(exclude_none=True)
 
 
-async def get_post_comment(comment_id: int, token: str) -> dict[str, Any]:
+async def get_post_comment(comment_id: int, token: str | None = None) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         comment = await CommentsService(pub, sub).get_post_comment(comment_id)
     return PostCommentResponse.from_substack(comment).model_dump(exclude_none=True)
 
 
-async def delete_post_comment(comment_id: int, token: str) -> str:
+async def delete_post_comment(comment_id: int, token: str | None = None) -> str:
     async with _authenticated_clients(token) as (pub, sub):
         await CommentsService(pub, sub).delete_comment(comment_id)
     return f"Comment {comment_id} deleted successfully."
 
 
-async def list_post_comment_replies(comment_id: int, token: str) -> dict[str, Any]:
+async def list_post_comment_replies(
+    comment_id: int, token: str | None = None
+) -> dict[str, Any]:
     async with _authenticated_clients(token) as (pub, sub):
         replies = await CommentsService(pub, sub).list_comment_replies(comment_id)
     return PostCommentRepliesResponse.from_substack(replies).model_dump(
@@ -56,13 +60,13 @@ async def list_post_comment_replies(comment_id: int, token: str) -> dict[str, An
     )
 
 
-async def like_post_comment(comment_id: int, token: str) -> str:
+async def like_post_comment(comment_id: int, token: str | None = None) -> str:
     async with _authenticated_clients(token) as (pub, sub):
         await CommentsService(pub, sub).like_comment(comment_id)
     return f"Comment {comment_id} liked successfully."
 
 
-async def unlike_post_comment(comment_id: int, token: str) -> str:
+async def unlike_post_comment(comment_id: int, token: str | None = None) -> str:
     async with _authenticated_clients(token) as (pub, sub):
         await CommentsService(pub, sub).unlike_comment(comment_id)
     return f"Comment {comment_id} unliked successfully."
