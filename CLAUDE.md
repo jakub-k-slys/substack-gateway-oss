@@ -118,7 +118,7 @@ Client request
 
 Gateway authentication and Substack authentication are separate concerns. REST requests carry an `x-gateway-token` header whose value is a **base64-encoded JSON token** containing `publication_url`, `substack_sid`, and `connect_sid` (Substack session cookies plus the target publication URL). `gateway_core.auth` decodes this token; each domain's `_rest` package's `deps.py` uses it to construct per-request HTTP clients.
 
-The MCP layer does not resolve Substack credentials through OAuth. Authenticated MCP tools take an explicit `token` argument carrying the same base64-encoded Substack credentials object. An extension's OAuth provider may still authorize access to the gateway itself, but it does not store or inject Substack credentials.
+The MCP layer does not resolve Substack credentials through OAuth. Authenticated MCP tools take an optional `token` argument carrying the same base64-encoded Substack credentials object; when it is supplied it is always used. When it is omitted, the gateway asks the installed credential resolver (`gateway_core.credentials`) to map the authenticated caller to Substack credentials. This repository installs no resolver, so a call without a token raises `MissingCredentialsError`, whose message tells the caller to pass `token`. An extension may separately register its own resolver via `GatewayExtension.get_credential_resolver`, and may authorize access to the gateway itself through an MCP auth provider, but neither the gateway nor its own auth provider stores or injects Substack credentials.
 
 ### HTTP clients
 

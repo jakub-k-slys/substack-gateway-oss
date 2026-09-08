@@ -22,6 +22,7 @@ from gateway_comments_mcp.tools import (
     reply_to_post_comment,
     unlike_post_comment,
 )
+from gateway_core.credentials import MissingCredentialsError
 from gateway_drafts_mcp.tools import create_draft, delete_draft, get_draft, list_drafts
 from gateway_following_mcp.tools import get_my_following
 from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
@@ -119,6 +120,11 @@ def step_call_reply_to_note(context, note_id, body):
 @when("I call the MCP tool list_note_replies with note_id {note_id:d}")
 def step_call_list_note_replies(context, note_id):
     _call(context, list_note_replies(note_id=note_id, token=context.mcp_token))
+
+
+@when("I call the MCP tool get_note without credentials")
+def step_call_get_note_without_credentials(context):
+    _call(context, get_note(note_id=1))
 
 
 # ------------------------------------------------------------------
@@ -345,6 +351,15 @@ def step_mcp_raises_value_error(context):
     assert isinstance(context.mcp_error, ValueError), (
         f"Expected ValueError, got {type(context.mcp_error).__name__}: {context.mcp_error}"
     )
+
+
+@then("the MCP call fails asking for credentials")
+def step_mcp_missing_credentials(context):
+    assert isinstance(context.mcp_error, MissingCredentialsError), (
+        f"Expected MissingCredentialsError, got "
+        f"{type(context.mcp_error).__name__}: {context.mcp_error}"
+    )
+    assert "token" in str(context.mcp_error)
 
 
 @then('the MCP result list "{field}" has {count:d} items')
