@@ -26,7 +26,7 @@ class SubstackClient(SubstackHTTPBase):
     def __init__(
         self,
         substack_sid: str,
-        connect_sid: str,
+        connect_sid: str | None,
         request_id: str | None = None,
     ) -> None:
         super().__init__(substack_sid, connect_sid, request_id)

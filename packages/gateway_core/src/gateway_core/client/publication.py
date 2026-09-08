@@ -15,7 +15,7 @@ class PublicationClient(SubstackHTTPBase):
     def __init__(
         self,
         substack_sid: str,
-        connect_sid: str,
+        connect_sid: str | None,
         publication_url: str,
         request_id: str | None = None,
     ) -> None:

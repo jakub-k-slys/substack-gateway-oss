@@ -199,10 +199,12 @@ class SubstackHTTPBase:
     def __init__(
         self,
         substack_sid: str,
-        connect_sid: str,
+        connect_sid: str | None,
         request_id: str | None = None,
     ) -> None:
-        self._cookies = {"substack.sid": substack_sid, "connect.sid": connect_sid}
+        self._cookies = {"substack.sid": substack_sid}
+        if connect_sid:
+            self._cookies["connect.sid"] = connect_sid
         self._http: httpx.AsyncClient | None = None
         self._rid = f"[{request_id}] " if request_id else ""
 
