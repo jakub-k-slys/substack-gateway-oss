@@ -90,6 +90,7 @@ testpaths = [
   "packages/gateway_profiles/tests",
   "packages/gateway_stats/tests",
   "packages/gateway_drafts/tests",
+  "packages/gateway_mcp_common/tests",
 ]
 addopts = "--import-mode=importlib"
 

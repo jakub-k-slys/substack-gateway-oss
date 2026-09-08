@@ -2,7 +2,7 @@
 name = "gateway_mcp_common"
 version = "3.7.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core"]
+dependencies = ["gateway_core", "fastmcp>=4.0.2"]
 
 [build-system]
 requires = ["hatchling"]
