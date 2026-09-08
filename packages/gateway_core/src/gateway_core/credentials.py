@@ -30,9 +30,15 @@ class CredentialResolver(Protocol):
     async def resolve(self, access_token: Any) -> BearerCredentials | None:
         """Return credentials for ``access_token``'s subject, or ``None``.
 
-        ``access_token`` is the transport's authenticated token object, or
+        ``access_token`` is the transport's authenticated token object — in
+        practice, an instance of ``fastmcp.server.auth.AccessToken``, or
         ``None`` when the request carried no authentication. It is typed
-        loosely so this package stays free of transport dependencies.
+        loosely so this package stays free of that dependency.
+
+        Implementations MUST treat ``None`` as unauthenticated and return
+        ``None`` for it rather than serving any stored credential set — a
+        resolver that ignores the distinction would hand one caller's
+        credentials to every anonymous request.
         """
 
 

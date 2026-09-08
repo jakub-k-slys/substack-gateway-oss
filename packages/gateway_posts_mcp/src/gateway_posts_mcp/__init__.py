@@ -21,7 +21,7 @@ def _register(mcp: FastMCP) -> None:
     from gateway_posts_mcp.tools import get_post, like_post, restack_post, unlike_post
 
     mcp.tool(
-        description="Retrieve the full content of a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Retrieve the full content of a Substack post by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"posts", "read"},
         annotations=ToolAnnotations(
             title="Get Post",
@@ -33,7 +33,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "posts", "substack_endpoint": "GET /posts/by-id/{post_id}"},
     )(get_post)
     mcp.tool(
-        description="Add a heart like to a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Add a heart like to a Substack post by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"posts", "write"},
         annotations=ToolAnnotations(
             title="Like Post",
@@ -48,7 +48,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(like_post)
     mcp.tool(
-        description="Remove a heart like from a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Remove a heart like from a Substack post by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"posts", "write", "delete"},
         annotations=ToolAnnotations(
             title="Unlike Post",
@@ -63,7 +63,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(unlike_post)
     mcp.tool(
-        description="Restack a Substack post into the authenticated user's feed by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Restack a Substack post into the authenticated user's feed by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"posts", "write"},
         annotations=ToolAnnotations(
             title="Restack Post",

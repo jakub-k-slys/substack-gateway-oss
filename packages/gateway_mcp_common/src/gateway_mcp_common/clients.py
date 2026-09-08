@@ -10,6 +10,7 @@ from gateway_core.auth import (
     decode_bearer_credentials,
     make_publication_client,
     make_substack_client,
+    validate_bearer_credentials,
 )
 from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
@@ -58,6 +59,7 @@ async def resolve_credentials(token: str | None = None) -> BearerCredentials:
     credentials = await resolver.resolve(get_access_token())
     if credentials is None:
         raise MissingCredentialsError()
+    validate_bearer_credentials(credentials, source="Resolved credentials")
     return credentials
 
 

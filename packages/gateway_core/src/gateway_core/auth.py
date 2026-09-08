@@ -17,6 +17,28 @@ class BearerCredentials(BaseModel):
     connect_sid: str | None = None
 
 
+def validate_bearer_credentials(
+    credentials: BearerCredentials, *, source: str = "Token"
+) -> None:
+    """Validate that credentials carry a usable publication URL and session cookies.
+
+    Applies the same three checks regardless of where the credentials came
+    from: a decoded ``token`` argument, or a value returned by an installed
+    :class:`~gateway_core.credentials.CredentialResolver`. ``source`` names the
+    origin in the raised message (e.g. ``"Token"`` or ``"Resolved credentials"``).
+
+    Raises:
+        ValueError: If required fields are absent or malformed.
+    """
+    if not credentials.publication_url:
+        raise ValueError(f"{source} must contain publication_url")
+    parsed = urlparse(credentials.publication_url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise ValueError(f"{source} must contain a valid HTTP or HTTPS publication_url")
+    if not credentials.substack_sid or not credentials.connect_sid:
+        raise ValueError(f"{source} must contain substack_sid and connect_sid")
+
+
 def decode_bearer_credentials(raw: str) -> BearerCredentials:
     """Decode a base64-encoded JSON gateway token into BearerCredentials.
 
@@ -34,13 +56,7 @@ def decode_bearer_credentials(raw: str) -> BearerCredentials:
         raise ValueError(
             "Invalid token: expected base64-encoded JSON credentials"
         ) from exc
-    if not credentials.publication_url:
-        raise ValueError("Token must contain publication_url")
-    parsed = urlparse(credentials.publication_url)
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        raise ValueError("Token must contain a valid HTTP or HTTPS publication_url")
-    if not credentials.substack_sid or not credentials.connect_sid:
-        raise ValueError("Token must contain substack_sid and connect_sid")
+    validate_bearer_credentials(credentials)
     return credentials
 
 

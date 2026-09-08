@@ -34,7 +34,7 @@ def _register(mcp: FastMCP) -> None:
     )
 
     mcp.tool(
-        description="Retrieve all comments for a Substack post by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Retrieve all comments for a Substack post by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"posts", "comments", "read"},
         annotations=ToolAnnotations(
             title="Get Post Comments",
@@ -50,7 +50,7 @@ def _register(mcp: FastMCP) -> None:
     )(get_post_comments)
 
     mcp.tool(
-        description="Create a top-level comment on a Substack post. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Create a top-level comment on a Substack post. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Create Post Comment",
@@ -66,7 +66,7 @@ def _register(mcp: FastMCP) -> None:
     )(create_post_comment)
 
     mcp.tool(
-        description="Reply to an existing Substack post comment. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Reply to an existing Substack post comment. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Reply To Post Comment",
@@ -82,7 +82,7 @@ def _register(mcp: FastMCP) -> None:
     )(reply_to_post_comment)
 
     mcp.tool(
-        description="Fetch a single Substack post comment by its numeric ID. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Fetch a single Substack post comment by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "read"},
         annotations=ToolAnnotations(
             title="Get Post Comment",
@@ -95,7 +95,7 @@ def _register(mcp: FastMCP) -> None:
     )(get_post_comment)
 
     mcp.tool(
-        description="Delete a Substack post comment by its numeric ID. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Delete a Substack post comment by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Post Comment",
@@ -108,7 +108,7 @@ def _register(mcp: FastMCP) -> None:
     )(delete_post_comment)
 
     mcp.tool(
-        description="List the direct replies to a Substack post comment. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="List the direct replies to a Substack post comment. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "read"},
         annotations=ToolAnnotations(
             title="List Post Comment Replies",
@@ -124,7 +124,7 @@ def _register(mcp: FastMCP) -> None:
     )(list_post_comment_replies)
 
     mcp.tool(
-        description="Add a like reaction to a Substack post comment. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Add a like reaction to a Substack post comment. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Like Post Comment",
@@ -140,7 +140,7 @@ def _register(mcp: FastMCP) -> None:
     )(like_post_comment)
 
     mcp.tool(
-        description="Remove your like reaction from a Substack post comment. Requires an explicit base64-encoded Substack credentials token via the token argument.",
+        description="Remove your like reaction from a Substack post comment. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"comments", "write"},
         annotations=ToolAnnotations(
             title="Unlike Post Comment",

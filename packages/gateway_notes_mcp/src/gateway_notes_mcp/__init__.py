@@ -32,7 +32,7 @@ def _register(mcp: FastMCP) -> None:
     )
 
     mcp.tool(
-        description="Publish a new note to Substack from Markdown content, with an optional link attachment. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Publish a new note to Substack from Markdown content, with an optional link attachment. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Create Note",
@@ -44,7 +44,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
     )(create_note)
     mcp.tool(
-        description="Permanently delete a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Permanently delete a Substack note by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "write", "delete"},
         annotations=ToolAnnotations(
             title="Delete Note",
@@ -56,7 +56,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "notes", "substack_endpoint": "DELETE /comment/{note_id}"},
     )(delete_note)
     mcp.tool(
-        description="Retrieve a single Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Retrieve a single Substack note by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "read"},
         annotations=ToolAnnotations(
             title="Get Note",
@@ -71,7 +71,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_note)
     mcp.tool(
-        description="Add a like to a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Add a like to a Substack note by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Like Note",
@@ -86,7 +86,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(like_note)
     mcp.tool(
-        description="Remove a like from a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Remove a like from a Substack note by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Unlike Note",
@@ -101,7 +101,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(unlike_note)
     mcp.tool(
-        description="Reply to a Substack note or to any comment within its thread, from Markdown content. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="Reply to a Substack note or to any comment within its thread, from Markdown content. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "write"},
         annotations=ToolAnnotations(
             title="Reply To Note",
@@ -113,7 +113,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "notes", "substack_endpoint": "POST /comment/feed/"},
     )(reply_to_note)
     mcp.tool(
-        description="List the direct replies to a Substack note by its numeric ID. Requires an explicit base64-encoded Substack credentials token passed via the tool's token argument.",
+        description="List the direct replies to a Substack note by its numeric ID. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"notes", "read"},
         annotations=ToolAnnotations(
             title="List Note Replies",
