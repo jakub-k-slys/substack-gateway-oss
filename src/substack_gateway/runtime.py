@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, TypeVar
 
+from gateway_core.credentials import CredentialResolver, set_credential_resolver
 from gateway_oss.config import settings
 from gateway_oss.extensions.base import (
     GatewayExtension,
@@ -23,6 +24,7 @@ class GatewayRuntime:
     extensions: list[GatewayExtension]
     lifespan_hooks: list[LifespanHook]
     mcp_auth_provider: Any | None
+    credential_resolver: CredentialResolver | None
     module_infos: list[ModuleInfo]
 
 
@@ -46,6 +48,11 @@ def get_runtime() -> GatewayRuntime:
         "MCP auth provider",
         [extension.get_mcp_auth_provider(context) for extension in extensions],
     )
+    credential_resolver = _single_provider(
+        "credential resolver",
+        [extension.get_credential_resolver(context) for extension in extensions],
+    )
+    set_credential_resolver(credential_resolver)
     module_infos = [
         info
         for extension in extensions
@@ -56,5 +63,6 @@ def get_runtime() -> GatewayRuntime:
         extensions=extensions,
         lifespan_hooks=lifespan_hooks,
         mcp_auth_provider=mcp_auth_provider,
+        credential_resolver=credential_resolver,
         module_infos=module_infos,
     )

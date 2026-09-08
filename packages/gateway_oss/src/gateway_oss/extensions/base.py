@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastmcp import FastMCP
 from starlette.applications import Starlette
 
+from gateway_core.credentials import CredentialResolver
 from gateway_oss.config import Settings
 
 LifespanHook = Callable[[Any], AbstractAsyncContextManager[None, bool | None]]
@@ -46,6 +47,12 @@ class GatewayExtension(Protocol):
 
     def get_mcp_auth_provider(self, context: GatewayExtensionContext) -> Any | None:
         """Return an MCP auth provider, if the extension exposes one."""
+
+    def get_credential_resolver(
+        self, context: GatewayExtensionContext
+    ) -> CredentialResolver | None:
+        """Return a resolver for MCP callers that omit the token, if any."""
+        return None
 
     def get_module_info(self, context: GatewayExtensionContext) -> ModuleInfo | None:
         """Return this module's metadata for the root endpoint, if any."""
