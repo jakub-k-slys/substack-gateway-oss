@@ -4,8 +4,8 @@ requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
-    "python_full_version < '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
     "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32')",
 ]
 
@@ -536,7 +536,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -553,7 +553,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -572,7 +572,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -593,7 +593,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -612,13 +612,13 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.4.0" },
+    { name = "pyrate-limiter", specifier = ">=4.5.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
 ]
 
 [[package]]
 name = "gateway-drafts"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts" }
 dependencies = [
     { name = "gateway-core" },
@@ -633,7 +633,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -652,7 +652,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -673,7 +673,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -688,7 +688,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -707,7 +707,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -726,7 +726,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "fastmcp" },
@@ -741,7 +741,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -764,7 +764,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -787,7 +787,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -802,7 +802,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -821,7 +821,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -840,7 +840,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -916,14 +916,14 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.4.0" },
+    { name = "pyrate-limiter", specifier = ">=4.5.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "uvloop", specifier = ">=0.22.1" },
 ]
 
 [[package]]
 name = "gateway-posts"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -938,7 +938,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -957,7 +957,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -976,7 +976,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -993,7 +993,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1016,7 +1016,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1039,7 +1039,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1054,7 +1054,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats" }
 dependencies = [
     { name = "gateway-core" },
@@ -1071,7 +1071,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1090,7 +1090,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1143,8 +1143,8 @@ name = "httpcore2"
 version = "2.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or sys_platform != 'emscripten'" },
-    { name = "truststore", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or sys_platform != 'emscripten'" },
+    { name = "h11" },
+    { name = "truststore" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/be/ad/f4f0e57345f1870f3e8cb624e058d7eca6e5a27d33bcc3311d9b618734cd/httpcore2-2.12.0.tar.gz", hash = "sha256:9293522bba0aa7c4c8e9e3f040c16575bd8868e155a77fa30c7a9085a5eae648", size = 67548, upload-time = "2026-08-18T13:22:08.211Z" }
 wheels = [
@@ -1715,11 +1715,11 @@ wheels = [
 
 [[package]]
 name = "pyrate-limiter"
-version = "4.4.0"
+version = "4.5.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/19/27/e564f33ea085c63d5540f707b31aeb50a4992eac2da655dc02435a760a07/pyrate_limiter-4.4.0.tar.gz", hash = "sha256:2c0c720c4fa16c5d8199e4821bf34507fb49c007a25b786cec6fb94ffd0844aa", size = 90955, upload-time = "2026-06-14T10:52:03.021Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/43/48693393af06b9fffbaea6bb8fe03be3c3f17be5d1423dab347d1aad1dde/pyrate_limiter-4.5.0.tar.gz", hash = "sha256:098345fff3a52b84dee9bcf6973f184c8b3ef8d34e1f4f781ac0773e3984598b", size = 123240, upload-time = "2026-08-30T10:35:39.272Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/77/2b5ea2e5e343fd7f74ba9c50a282d7cb66d1be3d12bd647510338d78fcf1/pyrate_limiter-4.4.0-py3-none-any.whl", hash = "sha256:f738dfa3c7ac1222a5ea3d31e00cfd31b5592b13ade4077afe9e8ac6293381f5", size = 43102, upload-time = "2026-06-14T10:52:01.334Z" },
+    { url = "https://files.pythonhosted.org/packages/64/dc/02f88649feeabf4282c8c194a6f6060ca858041bab1204365b5d8ef8a95e/pyrate_limiter-4.5.0-py3-none-any.whl", hash = "sha256:e7320a715adf404cb7b2f399e05ceb59cae165275b21f7708eb1b9fd9608e91c", size = 57188, upload-time = "2026-08-30T10:35:38.069Z" },
 ]
 
 [[package]]
@@ -2041,8 +2041,8 @@ name = "secretstorage"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cryptography", marker = "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')" },
-    { name = "jeepney", marker = "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')" },
+    { name = "cryptography" },
+    { name = "jeepney" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/03/e834bcd866f2f8a49a85eaff47340affa3bfa391ee9912a952a1faa68c7b/secretstorage-3.5.0.tar.gz", hash = "sha256:f04b8e4689cbce351744d5537bf6b1329c6fc68f91fa666f60a380edddcd11be", size = 19884, upload-time = "2025-11-23T19:02:53.191Z" }
 wheels = [
