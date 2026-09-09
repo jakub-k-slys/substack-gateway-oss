@@ -4,8 +4,8 @@ requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
-    "python_full_version < '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
     "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32')",
 ]
 
@@ -472,19 +472,19 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "4.0.2"
+version = "4.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastmcp-slim", extra = ["client", "server"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/37/1c/981a1854f91a08872f4b8b9a627d5d751cafc1340d29b21b747f0b520b0a/fastmcp-4.0.2.tar.gz", hash = "sha256:60d5c5ead3b6a117bfada5c0f95fe5c1aba53d1577079ecbdf42eeff0cd9b931", size = 42306015, upload-time = "2026-09-02T23:28:08.386Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5d/1a/bee10aff530338f3b8982a3dd1c377c3ba5d0bc724615bf358422c4e9ecf/fastmcp-4.0.3.tar.gz", hash = "sha256:0dd50baf070105ee4436c245f087ac3c047e655c32d9e783de16d0bf15783a98", size = 42311418, upload-time = "2026-09-05T00:31:36.932Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/3f/b97cfb92e0d6db8232c67c258117cd0dd9def86c8b472270bd7196d5cd9d/fastmcp-4.0.2-py3-none-any.whl", hash = "sha256:9075e64a94634ad660971ed14374c87be06f2a16a921028ca87987e6aa2f3bfa", size = 8078, upload-time = "2026-09-02T23:28:03.777Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/cb/66600db497b3be21cf141f01296308169859d48ed9b1bc8ba7c9d83279b7/fastmcp-4.0.3-py3-none-any.whl", hash = "sha256:f743f43193e1daf606e6497a9dddba5bbaad7df7957a98fd093716ecf4458b99", size = 8076, upload-time = "2026-09-05T00:31:33.957Z" },
 ]
 
 [[package]]
 name = "fastmcp-slim"
-version = "4.0.2"
+version = "4.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mcp-types" },
@@ -495,9 +495,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/7d/c2597734e3a0859d62c9d8f6f35067d1e296537512e280db3af19204be64/fastmcp_slim-4.0.2.tar.gz", hash = "sha256:86b99bdcb872b52d964c79bc6d43ce79f40ed5538b589d102792b4a7cf3947f4", size = 684052, upload-time = "2026-09-02T23:27:39.868Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/a9/b7b796b0d4a5e095dadef233833c82ac1136f5c110dd9947b2e9a4988518/fastmcp_slim-4.0.3.tar.gz", hash = "sha256:3ce04a82b82cc41ccb12bb3bb366cfd65b52bc797b8fee332a75da9d480f9b74", size = 685704, upload-time = "2026-09-05T00:31:12.346Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/c0/c022eba3a25ebb56111de1b5f76fbfca81925def58880464263582acfcd8/fastmcp_slim-4.0.2-py3-none-any.whl", hash = "sha256:6bd5b5885628f73263fa2247ea1d26e4a514499a6e079ee3e340cd03a7fe5ed8", size = 858100, upload-time = "2026-09-02T23:27:38.459Z" },
+    { url = "https://files.pythonhosted.org/packages/43/4b/6b31820d87f56d5773538860878c8634b618cd1e9044b3bfbd8a78380a0f/fastmcp_slim-4.0.3-py3-none-any.whl", hash = "sha256:3756ed4bd9f82f40adaf51974b7cdd1463ab6b9f479cf69b69b2692969312b87", size = 859717, upload-time = "2026-09-05T00:31:10.93Z" },
 ]
 
 [package.optional-dependencies]
@@ -536,7 +536,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -553,7 +553,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -564,7 +564,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -572,7 +572,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -593,7 +593,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -618,7 +618,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts" }
 dependencies = [
     { name = "gateway-core" },
@@ -633,7 +633,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -644,7 +644,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -652,7 +652,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_drafts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -673,7 +673,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -688,7 +688,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -699,7 +699,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-following", editable = "packages/gateway_following" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -707,7 +707,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -726,7 +726,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "fastmcp" },
@@ -735,13 +735,13 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
 ]
 
 [[package]]
 name = "gateway-me-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -754,7 +754,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -764,7 +764,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -787,7 +787,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -802,7 +802,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -813,7 +813,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -821,7 +821,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -840,7 +840,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -885,7 +885,7 @@ dependencies = [
 requires-dist = [
     { name = "aiocache", extras = ["redis"], specifier = ">=0.12.3" },
     { name = "fastapi", specifier = ">=0.141.1" },
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-comments-mcp", editable = "packages/gateway_comments_mcp" },
     { name = "gateway-comments-rest", editable = "packages/gateway_comments_rest" },
@@ -923,7 +923,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -938,7 +938,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -949,7 +949,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-posts", editable = "packages/gateway_posts" },
@@ -957,7 +957,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -976,7 +976,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "aiocache", extra = ["redis"] },
@@ -993,7 +993,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1006,7 +1006,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -1016,7 +1016,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1039,7 +1039,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1054,7 +1054,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats" }
 dependencies = [
     { name = "gateway-core" },
@@ -1071,7 +1071,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-mcp"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1082,7 +1082,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-stats", editable = "packages/gateway_stats" },
@@ -1090,7 +1090,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-rest"
-version = "3.7.0"
+version = "3.8.0"
 source = { editable = "packages/gateway_stats_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1143,8 +1143,8 @@ name = "httpcore2"
 version = "2.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or sys_platform != 'emscripten'" },
-    { name = "truststore", marker = "python_full_version < '3.12' or python_full_version >= '3.14' or sys_platform != 'emscripten'" },
+    { name = "h11" },
+    { name = "truststore" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/be/ad/f4f0e57345f1870f3e8cb624e058d7eca6e5a27d33bcc3311d9b618734cd/httpcore2-2.12.0.tar.gz", hash = "sha256:9293522bba0aa7c4c8e9e3f040c16575bd8868e155a77fa30c7a9085a5eae648", size = 67548, upload-time = "2026-08-18T13:22:08.211Z" }
 wheels = [
@@ -2041,8 +2041,8 @@ name = "secretstorage"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cryptography", marker = "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')" },
-    { name = "jeepney", marker = "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')" },
+    { name = "cryptography" },
+    { name = "jeepney" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/03/e834bcd866f2f8a49a85eaff47340affa3bfa391ee9912a952a1faa68c7b/secretstorage-3.5.0.tar.gz", hash = "sha256:f04b8e4689cbce351744d5537bf6b1329c6fc68f91fa666f60a380edddcd11be", size = 19884, upload-time = "2025-11-23T19:02:53.191Z" }
 wheels = [
@@ -2120,7 +2120,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.141.1" },
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-oss", editable = "packages/gateway_oss" },
     { name = "starlette" },
