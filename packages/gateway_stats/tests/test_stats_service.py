@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any, cast
 
 import pytest
+from _fakes import FakeStatsCache
 
 from gateway_core.client.substack import SubstackClient
 from gateway_core.config import settings
-from gateway_stats.cache import InMemoryStatsCache
 from gateway_stats.service import StatsService
 
 PUB = "https://example.substack.com"
@@ -36,14 +36,14 @@ class _FakePub:
         return _FakeResponse(self._responses.pop(0))
 
 
-def _make_service(pub: _FakePub, cache: InMemoryStatsCache) -> StatsService:
+def _make_service(pub: _FakePub, cache: FakeStatsCache) -> StatsService:
     return StatsService(cast(Any, pub), cast(SubstackClient, None), cache, PUB)
 
 
 @pytest.mark.anyio
 async def test_subscriber_timeseries_delta_fetches_only_the_tail(monkeypatch):
     monkeypatch.setattr(settings, "stats_timeseries_watermark_lag_days", 2)
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub(
         [
             [_HEADER, ["2025/07/10", 1, 0, 0, 10], ["2025/07/11", 1, 0, 0, 11]],
@@ -67,7 +67,7 @@ async def test_subscriber_timeseries_delta_fetches_only_the_tail(monkeypatch):
 
 @pytest.mark.anyio
 async def test_subscriber_timeseries_filters_by_from_bound():
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub(
         [[_HEADER, ["2025/07/10", 1, 0, 0, 10], ["2025/07/11", 1, 0, 0, 11]]]
     )
@@ -80,7 +80,7 @@ async def test_subscriber_timeseries_filters_by_from_bound():
 
 @pytest.mark.anyio
 async def test_subscriber_timeseries_handles_empty_payload():
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub([[_HEADER]])
     service = _make_service(pub, cache)
 
@@ -91,7 +91,7 @@ async def test_subscriber_timeseries_handles_empty_payload():
 
 @pytest.mark.anyio
 async def test_thirty_day_views_is_cached_after_first_fetch():
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub([{"views30d": 100, "viewsDelta30d": 5}])
     service = _make_service(pub, cache)
 

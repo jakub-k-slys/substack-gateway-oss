@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Any, cast
 
 import pytest
+from _fakes import FakeStatsCache
 
 from gateway_core.client.substack import SubstackClient
-from gateway_stats.cache import InMemoryStatsCache
 from gateway_stats.post_stats import PostStatsService
 
 PUB = "https://example.substack.com"
@@ -33,7 +33,7 @@ class _FakePub:
 
 def _service(pub: _FakePub) -> PostStatsService:
     return PostStatsService(
-        cast(Any, pub), cast(SubstackClient, None), InMemoryStatsCache(), PUB
+        cast(Any, pub), cast(SubstackClient, None), FakeStatsCache(), PUB
     )
 
 
@@ -70,7 +70,7 @@ async def test_discussion_omits_cursor_when_absent_and_sends_when_present():
 
 @pytest.mark.anyio
 async def test_snapshot_cache_avoids_second_upstream_call():
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub({"referrers": [], "devices": [], "categories": []})
     service = PostStatsService(cast(Any, pub), cast(SubstackClient, None), cache, PUB)
 
@@ -83,7 +83,7 @@ async def test_snapshot_cache_avoids_second_upstream_call():
 
 @pytest.mark.anyio
 async def test_recipients_pagination_is_cached_per_page():
-    cache = InMemoryStatsCache()
+    cache = FakeStatsCache()
     pub = _FakePub({"rows": [], "total": 0})
     service = PostStatsService(cast(Any, pub), cast(SubstackClient, None), cache, PUB)
 

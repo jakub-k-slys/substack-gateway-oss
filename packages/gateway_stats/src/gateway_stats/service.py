@@ -108,12 +108,7 @@ class StatsService:
 
         r = await self._pub.get("publication/stats/publication_traffic/30d_views")
         data = r.json()
-        await self._cache.set_snapshot(
-            self._pub_url,
-            _SNAPSHOT_30D_VIEWS,
-            data,
-            settings.stats_snapshot_cache_ttl_sec,
-        )
+        await self._cache.set_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS, data)
         return data
 
 

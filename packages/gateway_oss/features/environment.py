@@ -55,12 +55,13 @@ def _clear_shared_cache() -> None:
 
 
 def _reset_stats_cache() -> None:
-    # The stats cache is a process-wide singleton; reset it so each scenario
-    # starts with a fresh in-memory store (covers both the REST dependencies and
-    # the MCP tools, which resolve the cache directly via create_stats_cache()).
-    import gateway_stats.cache as stats_cache_mod
+    # The stats cache is resolved from a process-wide registry; reset it to the
+    # null default so each scenario starts uncached (covers both the REST
+    # dependencies and the MCP tools, which resolve the cache directly via
+    # get_stats_cache()).
+    from gateway_stats.cache import set_stats_cache
 
-    stats_cache_mod._default_cache = None
+    set_stats_cache(None)
 
 
 def before_scenario(context, scenario):

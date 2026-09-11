@@ -5,7 +5,6 @@ from typing import Any
 
 from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
-from gateway_core.config import settings
 from gateway_stats.cache import StatsCache
 
 _log = logging.getLogger(__name__)
@@ -42,9 +41,7 @@ class PostStatsService:
             return cached
         r = await self._pub.get(path, params=params)
         data = r.json()
-        await self._cache.set_snapshot(
-            self._pub_url, key, data, settings.stats_snapshot_cache_ttl_sec
-        )
+        await self._cache.set_snapshot(self._pub_url, key, data)
         return data
 
     async def engagement(self, post_id: int) -> dict[str, Any]:
