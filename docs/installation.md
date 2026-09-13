@@ -38,13 +38,3 @@ Check the public liveness probe:
 ```bash
 curl http://127.0.0.1:5001/api/v1/health/live
 ```
-
-## Read the Docs
-
-This repository includes:
-
-- `mkdocs.yml` for MkDocs site configuration
-- `.readthedocs.yaml` for Read the Docs build configuration
-- `docs/requirements.txt` for documentation-only dependencies
-
-If you connect the repository to Read the Docs, it can build the site directly from those files.

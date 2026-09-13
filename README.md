@@ -180,7 +180,7 @@ uv run behave packages/gateway_oss/features/
 
 ## Documentation
 
-The repository includes MkDocs and Read the Docs configuration:
+Reference documentation lives in `docs/`:
 
 - [Docs home](docs/index.md)
 - [Introduction](docs/introduction.md)
@@ -190,8 +190,6 @@ The repository includes MkDocs and Read the Docs configuration:
 - [MCP documentation](docs/mcp.md)
 - [Development guide](docs/development.md)
 - [Contributing guide](CONTRIBUTING.md)
-
-Read the Docs can build the site directly from `.readthedocs.yaml` and `mkdocs.yml`.
 
 ## Author
 
