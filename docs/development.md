@@ -118,7 +118,11 @@ backward compatibility. Settings include:
 - `SUBSTACK_GATEWAY_SUBSTACK_RETRY_ATTEMPTS`
 - `SUBSTACK_GATEWAY_SUBSTACK_RETRY_MIN_WAIT_SEC`
 - `SUBSTACK_GATEWAY_SUBSTACK_RETRY_MAX_WAIT_SEC`
-- `SUBSTACK_GATEWAY_ADMIN_TOKEN`
+- `SUBSTACK_GATEWAY_ADMIN_TOKEN` (no default) — gates administrative
+  surfaces an extension may expose. Nothing in this repository reads it,
+  so leaving it unset costs a plain gateway nothing; an extension that
+  does read it must refuse the request when it is unset rather than
+  compare against nothing.
 - `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`) — how
   many trailing days of publication analytics are treated as still maturing
   and re-fetched rather than reused
