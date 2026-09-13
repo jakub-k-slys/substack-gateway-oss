@@ -155,12 +155,10 @@ An extension implements the `GatewayExtension` protocol (`gateway_oss/extensions
 
 ### Configuration
 
-All settings are in `gateway_core.config.Settings` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`); `gateway_oss.config` re-exports it for backward compatibility. Key settings: `admin_token`, the optional `redis_url` shared cache backend, and the publication-analytics cache settings `stats_snapshot_cache_ttl_sec`, `stats_timeseries_ttl_sec`, and `stats_timeseries_watermark_lag_days`. Request-level publication targeting is carried in the `x-gateway-token` header's `publication_url` field.
+All settings are in `gateway_core.config.Settings` with the `SUBSTACK_GATEWAY_` env prefix (e.g. `SUBSTACK_GATEWAY_LOG_LEVEL`); `gateway_oss.config` re-exports it for backward compatibility. Key settings: `admin_token` and `stats_timeseries_watermark_lag_days`. Request-level publication targeting is carried in the `x-gateway-token` header's `publication_url` field. OSS performs no caching of its own; an extension may install one.
 
-Publication analytics caching (`gateway_stats`) is controlled by three settings:
-- `SUBSTACK_GATEWAY_STATS_SNAPSHOT_CACHE_TTL_SEC` (default `900`) — TTL for cached publication/post snapshot aggregates.
-- `SUBSTACK_GATEWAY_STATS_TIMESERIES_TTL_SEC` (default `86400`) — TTL for cached timeseries rows.
-- `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`) — how many trailing days are treated as still maturing and re-fetched rather than served from cache.
+Publication analytics fetching (`gateway_stats`) is controlled by one setting:
+- `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`) — how many trailing days are treated as still maturing and re-fetched rather than reused.
 
 ### Tests
 
