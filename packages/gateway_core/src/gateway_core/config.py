@@ -20,7 +20,12 @@ class Settings(BaseSettings):
     substack_retry_min_wait_sec: float = Field(default=10.0, gt=0)
     substack_retry_max_wait_sec: float = Field(default=60.0, gt=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
-    admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
+    # No default on purpose. This gates administrative surfaces that an
+    # extension may expose, so a built-in value would be a published
+    # credential: anyone reading this repository would hold it. Unset means
+    # "no admin token configured", and a consumer must refuse the request
+    # rather than compare against nothing.
+    admin_token: str | None = None
 
     # Publication analytics timeseries rows are append-only; this many trailing
     # days are treated as still maturing and re-fetched rather than served from
