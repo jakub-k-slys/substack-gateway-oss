@@ -4,7 +4,7 @@ from typing import Any
 
 from gateway_core.auth import BearerCredentials
 from gateway_mcp_common.clients import clients_from, resolve_credentials
-from gateway_stats.cache import create_stats_cache
+from gateway_stats.cache import get_stats_cache
 from gateway_stats.post_stats import PostStatsService
 from gateway_stats.schemas import (
     PostDiscussionResponse,
@@ -26,7 +26,7 @@ async def get_subscriber_timeseries(
     assert credentials.publication_url is not None
     async with clients_from(credentials) as (publication, substack):
         rows = await StatsService(
-            publication, substack, create_stats_cache(), credentials.publication_url
+            publication, substack, get_stats_cache(), credentials.publication_url
         ).subscriber_timeseries(from_=from_date)
     return SubscriberTimeseriesResponse.from_substack(rows).model_dump()
 
@@ -38,7 +38,7 @@ async def get_30d_views(
     assert credentials.publication_url is not None
     async with clients_from(credentials) as (publication, substack):
         data = await StatsService(
-            publication, substack, create_stats_cache(), credentials.publication_url
+            publication, substack, get_stats_cache(), credentials.publication_url
         ).thirty_day_views()
     return ThirtyDayViewsResponse.from_substack(data).model_dump()
 
@@ -48,7 +48,7 @@ def _post_stats_service(
 ) -> PostStatsService:
     assert credentials.publication_url is not None
     return PostStatsService(
-        publication, substack, create_stats_cache(), credentials.publication_url
+        publication, substack, get_stats_cache(), credentials.publication_url
     )
 
 

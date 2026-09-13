@@ -22,17 +22,9 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     admin_token: str = "WW91IHNoYWxsIG5vdCBwYXNzLiBZb3Ugc2hhbGwgbm90IHBhc3MsIHlvdSBzaGFsbCBub3QgcGFzcyEK"
 
-    # Shared cache backend. When set, the "default" aiocache alias points at this
-    # Redis/Dragonfly instance; otherwise an in-process memory cache is used.
-    # A single switch governs the whole application (OSS + any extensions).
-    redis_url: str | None = None
-    profile_cache_ttl_sec: int = Field(default=300, ge=1)
-
-    # Publication analytics cache. Timeseries rows are append-only and cached
-    # with a watermark lag so maturing days are re-fetched rather than frozen;
-    # snapshots are opaque aggregates with a plain TTL.
-    stats_snapshot_cache_ttl_sec: int = Field(default=900, ge=1)
-    stats_timeseries_ttl_sec: int = Field(default=86_400, ge=1)
+    # Publication analytics timeseries rows are append-only; this many trailing
+    # days are treated as still maturing and re-fetched rather than served from
+    # a cache, regardless of whether an extension installs one.
     stats_timeseries_watermark_lag_days: int = Field(default=2, ge=0)
 
     @field_validator("substack_base_url")

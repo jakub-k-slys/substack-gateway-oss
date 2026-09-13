@@ -30,4 +30,4 @@ Use semver-style prefixes consistently for commit titles, for example `feat:`, `
 ## Configuration & Security
 Configuration is environment-driven via the `SUBSTACK_GATEWAY_` prefix (`gateway_core.config.Settings`). Do not commit real Substack cookies, publication URLs, or JWT secrets. When adding settings, document them in `README.md` and keep authenticated endpoints aligned with the existing Bearer-token auth model, where `publication_url` is embedded in the base64 JSON credentials.
 
-Publication analytics caching (`gateway_stats`) adds three settings: `SUBSTACK_GATEWAY_STATS_SNAPSHOT_CACHE_TTL_SEC` (default `900`), `SUBSTACK_GATEWAY_STATS_TIMESERIES_TTL_SEC` (default `86400`), and `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`).
+Publication analytics fetching (`gateway_stats`) adds one setting: `SUBSTACK_GATEWAY_STATS_TIMESERIES_WATERMARK_LAG_DAYS` (default `2`), which controls how far back timeseries data is re-fetched. OSS performs no caching; an extension may install one.

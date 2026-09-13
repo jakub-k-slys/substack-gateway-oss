@@ -37,14 +37,15 @@ async def subscriber_timeseries(
         Query(
             alias="from",
             description="ISO lower bound for the returned window "
-            "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 365 days.",
+            "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 7 days.",
         ),
     ] = None,
 ) -> SubscriberTimeseriesResponse:
     """Daily subscriber counts (paid / comps / free trials / total).
 
-    Cached with delta fetch: only the tail beyond the last cached day is pulled
-    from Substack on subsequent calls.
+    If a cache extension is installed, only the tail beyond the last stored
+    day is fetched from Substack on subsequent calls; without one, every call
+    fetches the full window.
     """
     rows = await service.subscriber_timeseries(from_=from_)
     return SubscriberTimeseriesResponse.from_substack(rows)
@@ -59,7 +60,11 @@ async def subscriber_timeseries(
 async def thirty_day_views(
     service: Annotated[StatsService, Depends(get_stats_service)],
 ) -> ThirtyDayViewsResponse:
-    """Trailing-30-day publication views and their delta (TTL-cached snapshot)."""
+    """Trailing-30-day publication views and their delta.
+
+    Without a cache extension installed, every call reaches the Substack API
+    directly.
+    """
     data = await service.thirty_day_views()
     return ThirtyDayViewsResponse.from_substack(data)
 
@@ -73,7 +78,11 @@ async def thirty_day_views(
 async def post_engagement(
     post_id: _PostId, service: _PostStatsService
 ) -> PostEngagementResponse:
-    """Likes, comment summary, and commenters for a post (TTL-cached)."""
+    """Likes, comment summary, and commenters for a post.
+
+    Without a cache extension installed, every call reaches the Substack API
+    directly.
+    """
     data = await service.engagement(post_id)
     return PostEngagementResponse.from_substack(data)
 

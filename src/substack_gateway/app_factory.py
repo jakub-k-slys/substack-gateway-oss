@@ -1,26 +1,22 @@
 from __future__ import annotations
 
-from gateway_core.cache import configure_default_cache
+import contextlib
+import logging
+from collections.abc import AsyncIterator
+from contextlib import AsyncExitStack
+from typing import Any, cast
 
-configure_default_cache()
+from starlette.applications import Starlette
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
+from starlette.routing import Mount, Route
 
-import contextlib  # noqa: E402
-import logging  # noqa: E402
-from collections.abc import AsyncIterator  # noqa: E402
-from contextlib import AsyncExitStack  # noqa: E402
-from typing import Any, cast  # noqa: E402
-
-from starlette.applications import Starlette  # noqa: E402
-from starlette.middleware.cors import CORSMiddleware  # noqa: E402
-from starlette.responses import JSONResponse  # noqa: E402
-from starlette.routing import Mount, Route  # noqa: E402
-
-from gateway_oss.application_features import build_oss_features  # noqa: E402
-from gateway_oss.extensions.base import ModuleInfo  # noqa: E402
-from gateway_oss.versioning import get_package_version  # noqa: E402
-from substack_gateway.api_app import api  # noqa: E402
-from substack_gateway.mcp_app import mcp  # noqa: E402
-from substack_gateway.runtime import get_runtime  # noqa: E402
+from gateway_oss.application_features import build_oss_features
+from gateway_oss.extensions.base import ModuleInfo
+from gateway_oss.versioning import get_package_version
+from substack_gateway.api_app import api
+from substack_gateway.mcp_app import mcp
+from substack_gateway.runtime import get_runtime
 
 _log = logging.getLogger(__name__)
 

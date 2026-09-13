@@ -15,7 +15,9 @@ _TIMESERIES_ENDPOINTS: dict[str, str] = {
     "subscribers": "publication/stats/subscribers/timeseries",
 }
 
-_DEFAULT_LOOKBACK_DAYS = 365
+# Kept deliberately short: without a cache installed this window is refetched on
+# every call, and `from_` is available per call for anything wider.
+_DEFAULT_LOOKBACK_DAYS = 7
 _SNAPSHOT_30D_VIEWS = "traffic_30d_views"
 
 
@@ -45,8 +47,10 @@ def _watermark_from(watermark: str, lag_days: int) -> str:
 class StatsService:
     """Publication analytics, backed by a delta-aware cache.
 
-    Timeseries are fetched incrementally: only rows newer than the cached
-    watermark are pulled from Substack and merged. Snapshots are TTL-cached.
+    When a cache is installed, timeseries are fetched incrementally: only
+    rows newer than the stored watermark are pulled from Substack and
+    merged, and snapshots are served from that cache until it evicts them.
+    Without one installed, every call reaches Substack directly.
     """
 
     def __init__(
@@ -78,6 +82,17 @@ class StatsService:
             fetch_from = _watermark_from(
                 watermark, settings.stats_timeseries_watermark_lag_days
             )
+            # A warm cache must still be able to widen. When the caller asks for a
+            # window starting before the oldest row held, fetch from there instead:
+            # the endpoint takes only `from` and returns through to now, so one
+            # request covers both the missing prefix and the tail.
+            if from_ and _iso_to_date(from_) < _bucket_to_date(min(cached)):
+                # Take the EARLIER of the two, never a straight overwrite. With a
+                # large lag the watermark date can already be earlier than
+                # `from_`, and overwriting it there would fetch less than the
+                # delta path would have — silently dropping part of the
+                # maturing re-fetch.
+                fetch_from = min(from_, fetch_from)
         else:
             fetch_from = from_ or _default_from()
 
@@ -100,7 +115,11 @@ class StatsService:
         return rows
 
     async def thirty_day_views(self) -> dict[str, int]:
-        """Trailing-30-day view count and its delta (snapshot, TTL-cached)."""
+        """Trailing-30-day view count and its delta (snapshot).
+
+        Without a cache extension installed, every call reaches Substack
+        directly.
+        """
         cached = await self._cache.get_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS)
         if cached is not None:
             _log.debug("30d views served from snapshot cache")
@@ -108,12 +127,7 @@ class StatsService:
 
         r = await self._pub.get("publication/stats/publication_traffic/30d_views")
         data = r.json()
-        await self._cache.set_snapshot(
-            self._pub_url,
-            _SNAPSHOT_30D_VIEWS,
-            data,
-            settings.stats_snapshot_cache_ttl_sec,
-        )
+        await self._cache.set_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS, data)
         return data
 
 

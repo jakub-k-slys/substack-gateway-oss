@@ -5,7 +5,6 @@ from typing import Any
 
 from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
-from gateway_core.config import settings
 from gateway_stats.cache import StatsCache
 
 _log = logging.getLogger(__name__)
@@ -17,8 +16,10 @@ class PostStatsService:
     """Per-post analytics (the tabs of a published post's stats page).
 
     Every tab is an aggregate snapshot rather than an append-only series, so
-    each is TTL-cached via :class:`StatsCache` snapshots keyed by post id (plus
-    pagination/cursor where relevant). All calls hit the publication host.
+    each is stored via :class:`StatsCache` snapshots keyed by post id (plus
+    pagination/cursor where relevant), through whatever cache is installed;
+    with none installed, nothing is retained and every call reaches
+    Substack. All calls hit the publication host.
     """
 
     def __init__(
@@ -42,9 +43,7 @@ class PostStatsService:
             return cached
         r = await self._pub.get(path, params=params)
         data = r.json()
-        await self._cache.set_snapshot(
-            self._pub_url, key, data, settings.stats_snapshot_cache_ttl_sec
-        )
+        await self._cache.set_snapshot(self._pub_url, key, data)
         return data
 
     async def engagement(self, post_id: int) -> dict[str, Any]:
