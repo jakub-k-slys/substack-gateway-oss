@@ -15,7 +15,9 @@ _TIMESERIES_ENDPOINTS: dict[str, str] = {
     "subscribers": "publication/stats/subscribers/timeseries",
 }
 
-_DEFAULT_LOOKBACK_DAYS = 365
+# Kept deliberately short: without a cache installed this window is refetched on
+# every call, and `from_` is available per call for anything wider.
+_DEFAULT_LOOKBACK_DAYS = 7
 _SNAPSHOT_30D_VIEWS = "traffic_30d_views"
 
 
@@ -78,6 +80,12 @@ class StatsService:
             fetch_from = _watermark_from(
                 watermark, settings.stats_timeseries_watermark_lag_days
             )
+            # A warm cache must still be able to widen. When the caller asks for a
+            # window starting before the oldest row held, fetch from there instead:
+            # the endpoint takes only `from` and returns through to now, so one
+            # request covers both the missing prefix and the tail.
+            if from_ and _iso_to_date(from_) < _bucket_to_date(min(cached)):
+                fetch_from = from_
         else:
             fetch_from = from_ or _default_from()
 

@@ -7,6 +7,7 @@ from _fakes import FakeStatsCache
 
 from gateway_core.client.substack import SubstackClient
 from gateway_core.config import settings
+from gateway_stats.cache import StatsCache
 from gateway_stats.service import StatsService
 
 PUB = "https://example.substack.com"
@@ -36,7 +37,7 @@ class _FakePub:
         return _FakeResponse(self._responses.pop(0))
 
 
-def _make_service(pub: _FakePub, cache: FakeStatsCache) -> StatsService:
+def _make_service(pub: _FakePub, cache: StatsCache) -> StatsService:
     return StatsService(cast(Any, pub), cast(SubstackClient, None), cache, PUB)
 
 
@@ -102,3 +103,78 @@ async def test_thirty_day_views_is_cached_after_first_fetch():
     assert second == first
     # Only one upstream call — the second is served from the snapshot cache.
     assert len(pub.calls) == 1
+
+
+@pytest.mark.anyio
+async def test_default_window_is_seven_days(monkeypatch) -> None:
+    from gateway_stats import service as service_mod
+
+    assert service_mod._DEFAULT_LOOKBACK_DAYS == 7
+
+
+@pytest.mark.anyio
+async def test_a_warm_cache_widens_when_asked_for_older_data(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "stats_timeseries_watermark_lag_days", 2)
+    cache = FakeStatsCache()
+    await cache.write_timeseries(
+        PUB, "subscribers", {"2025/07/10": ["2025/07/10", 1, 0, 0, 10]}
+    )
+    pub = _FakePub([[_HEADER, ["2025/01/01", 1, 0, 0, 5]]])
+    service = _make_service(pub, cache)
+
+    await service.subscriber_timeseries(from_="2025-01-01T00:00:00Z")
+
+    _path, params = pub.calls[0]
+    assert params == {"from": "2025-01-01T00:00:00Z"}, (
+        "a from_ older than the oldest cached row must widen the fetch, "
+        "not be reduced to a filter over rows already held"
+    )
+
+
+@pytest.mark.anyio
+async def test_without_a_cache_from_is_honoured_every_call() -> None:
+    from gateway_stats.cache import NullStatsCache
+
+    pub = _FakePub(
+        [
+            [_HEADER, ["2025/01/01", 1, 0, 0, 5]],
+            [_HEADER, ["2025/01/01", 1, 0, 0, 5]],
+        ]
+    )
+    service = _make_service(pub, NullStatsCache())
+
+    first = await service.subscriber_timeseries(from_="2025-01-01T00:00:00Z")
+    await service.subscriber_timeseries(from_="2025-01-01T00:00:00Z")
+
+    assert first == [["2025/01/01", 1, 0, 0, 5]], (
+        "an uncached deployment must still return the rows it fetched"
+    )
+    assert [params for _path, params in pub.calls] == [
+        {"from": "2025-01-01T00:00:00Z"},
+        {"from": "2025-01-01T00:00:00Z"},
+    ], "with nothing retained, every call fetches the window the caller asked for"
+
+
+@pytest.mark.anyio
+async def test_a_warm_cache_still_delta_fetches_when_from_is_inside_it(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(settings, "stats_timeseries_watermark_lag_days", 2)
+    cache = FakeStatsCache()
+    await cache.write_timeseries(
+        PUB,
+        "subscribers",
+        {
+            "2025/07/10": ["2025/07/10", 1, 0, 0, 10],
+            "2025/07/11": ["2025/07/11", 1, 0, 0, 11],
+        },
+    )
+    pub = _FakePub([[_HEADER, ["2025/07/12", 1, 0, 0, 12]]])
+    service = _make_service(pub, cache)
+
+    await service.subscriber_timeseries(from_="2025-07-11T00:00:00Z")
+
+    _path, params = pub.calls[0]
+    assert params == {"from": "2025-07-09T00:00:00Z"}, (
+        "a from_ inside the cached range must leave the watermark path alone"
+    )
