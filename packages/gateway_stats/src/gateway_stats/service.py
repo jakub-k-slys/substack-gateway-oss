@@ -47,8 +47,10 @@ def _watermark_from(watermark: str, lag_days: int) -> str:
 class StatsService:
     """Publication analytics, backed by a delta-aware cache.
 
-    Timeseries are fetched incrementally: only rows newer than the cached
-    watermark are pulled from Substack and merged. Snapshots are TTL-cached.
+    When a cache is installed, timeseries are fetched incrementally: only
+    rows newer than the stored watermark are pulled from Substack and
+    merged, and snapshots are served from that cache until it evicts them.
+    Without one installed, every call reaches Substack directly.
     """
 
     def __init__(
@@ -113,7 +115,11 @@ class StatsService:
         return rows
 
     async def thirty_day_views(self) -> dict[str, int]:
-        """Trailing-30-day view count and its delta (snapshot, TTL-cached)."""
+        """Trailing-30-day view count and its delta (snapshot).
+
+        Without a cache extension installed, every call reaches Substack
+        directly.
+        """
         cached = await self._cache.get_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS)
         if cached is not None:
             _log.debug("30d views served from snapshot cache")

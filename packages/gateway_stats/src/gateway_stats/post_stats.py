@@ -16,8 +16,10 @@ class PostStatsService:
     """Per-post analytics (the tabs of a published post's stats page).
 
     Every tab is an aggregate snapshot rather than an append-only series, so
-    each is TTL-cached via :class:`StatsCache` snapshots keyed by post id (plus
-    pagination/cursor where relevant). All calls hit the publication host.
+    each is stored via :class:`StatsCache` snapshots keyed by post id (plus
+    pagination/cursor where relevant), through whatever cache is installed;
+    with none installed, nothing is retained and every call reaches
+    Substack. All calls hit the publication host.
     """
 
     def __init__(
