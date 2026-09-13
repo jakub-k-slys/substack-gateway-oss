@@ -8,10 +8,11 @@
 
 ## Install Dependencies
 
-From the repository root:
+This repository is a uv workspace; install every member (the shell,
+`gateway_core`, and every domain trio) from the repository root:
 
 ```bash
-uv sync --dev
+uv sync --all-packages --dev
 ```
 
 ## Run the Gateway

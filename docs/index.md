@@ -9,11 +9,15 @@ Both interfaces share the same service layer and Substack clients, so the HTTP a
 
 ## What You Can Do
 
-- Read public Substack profiles, posts, notes, and comments
-- Access authenticated "me" endpoints with a base64-encoded credential token
-- Create and delete notes through the REST API
-- Use the same gateway as an MCP server for AI tools and agent workflows
-- Extend the app with custom routes, MCP tools, auth providers, and lifespan hooks
+- Read Substack profiles, posts, notes, comments, drafts, and publication /
+  post analytics
+- Create, update, and delete notes, comments, and drafts
+- Access authenticated `me` endpoints and tools with a base64-encoded
+  credential token
+- Use the same gateway as a REST API or an MCP server for AI tools and agent
+  workflows
+- Extend the app with custom routes, MCP tools, auth providers, credential
+  resolvers, and lifespan hooks
 
 ## Quick Links
 
