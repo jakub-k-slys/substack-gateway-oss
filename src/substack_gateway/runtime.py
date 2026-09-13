@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, TypeVar
 
+from gateway_core.caching import ValueCache, set_value_cache
 from gateway_core.credentials import CredentialResolver, set_credential_resolver
 from gateway_oss.config import settings
 from gateway_oss.extensions.base import (
@@ -13,6 +14,7 @@ from gateway_oss.extensions.base import (
     LifespanHook,
     ModuleInfo,
 )
+from gateway_stats.cache import StatsCache, set_stats_cache
 from substack_gateway.ext_loader import load_extensions
 
 T = TypeVar("T")
@@ -25,6 +27,8 @@ class GatewayRuntime:
     lifespan_hooks: list[LifespanHook]
     mcp_auth_provider: Any | None
     credential_resolver: CredentialResolver | None
+    value_cache: ValueCache | None
+    stats_cache: StatsCache | None
     module_infos: list[ModuleInfo]
 
 
@@ -75,6 +79,22 @@ def get_runtime() -> GatewayRuntime:
         ],
     )
     set_credential_resolver(credential_resolver)
+    value_cache = _single_provider(
+        "value cache",
+        [
+            _call_optional_hook(extension, "get_value_cache", context)
+            for extension in extensions
+        ],
+    )
+    set_value_cache(value_cache)
+    stats_cache = _single_provider(
+        "stats cache",
+        [
+            _call_optional_hook(extension, "get_stats_cache", context)
+            for extension in extensions
+        ],
+    )
+    set_stats_cache(stats_cache)
     module_infos = [
         info
         for extension in extensions
@@ -86,5 +106,7 @@ def get_runtime() -> GatewayRuntime:
         lifespan_hooks=lifespan_hooks,
         mcp_auth_provider=mcp_auth_provider,
         credential_resolver=credential_resolver,
+        value_cache=value_cache,
+        stats_cache=stats_cache,
         module_infos=module_infos,
     )

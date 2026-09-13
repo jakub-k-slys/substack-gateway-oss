@@ -9,8 +9,10 @@ from fastapi import FastAPI
 from fastmcp import FastMCP
 from starlette.applications import Starlette
 
+from gateway_core.caching import ValueCache
 from gateway_core.credentials import CredentialResolver
 from gateway_oss.config import Settings
+from gateway_stats.cache import StatsCache
 
 LifespanHook = Callable[[Any], AbstractAsyncContextManager[None, bool | None]]
 
@@ -52,6 +54,14 @@ class GatewayExtension(Protocol):
         self, context: GatewayExtensionContext
     ) -> CredentialResolver | None:
         """Return a resolver for MCP callers that omit the token, if any."""
+        return None
+
+    def get_value_cache(self, context: GatewayExtensionContext) -> ValueCache | None:
+        """Return a cache for keyed values, if the extension supplies one."""
+        return None
+
+    def get_stats_cache(self, context: GatewayExtensionContext) -> StatsCache | None:
+        """Return a cache for publication analytics, if the extension supplies one."""
         return None
 
     def get_module_info(self, context: GatewayExtensionContext) -> ModuleInfo | None:
