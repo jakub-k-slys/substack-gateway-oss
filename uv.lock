@@ -4,8 +4,8 @@ requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
-    "python_full_version < '3.14' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
     "(python_full_version < '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32')",
 ]
 
@@ -449,19 +449,19 @@ wheels = [
 
 [[package]]
 name = "fastmcp"
-version = "4.0.2"
+version = "4.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastmcp-slim", extra = ["client", "server"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/37/1c/981a1854f91a08872f4b8b9a627d5d751cafc1340d29b21b747f0b520b0a/fastmcp-4.0.2.tar.gz", hash = "sha256:60d5c5ead3b6a117bfada5c0f95fe5c1aba53d1577079ecbdf42eeff0cd9b931", size = 42306015, upload-time = "2026-09-02T23:28:08.386Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5d/1a/bee10aff530338f3b8982a3dd1c377c3ba5d0bc724615bf358422c4e9ecf/fastmcp-4.0.3.tar.gz", hash = "sha256:0dd50baf070105ee4436c245f087ac3c047e655c32d9e783de16d0bf15783a98", size = 42311418, upload-time = "2026-09-05T00:31:36.932Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/3f/b97cfb92e0d6db8232c67c258117cd0dd9def86c8b472270bd7196d5cd9d/fastmcp-4.0.2-py3-none-any.whl", hash = "sha256:9075e64a94634ad660971ed14374c87be06f2a16a921028ca87987e6aa2f3bfa", size = 8078, upload-time = "2026-09-02T23:28:03.777Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/cb/66600db497b3be21cf141f01296308169859d48ed9b1bc8ba7c9d83279b7/fastmcp-4.0.3-py3-none-any.whl", hash = "sha256:f743f43193e1daf606e6497a9dddba5bbaad7df7957a98fd093716ecf4458b99", size = 8076, upload-time = "2026-09-05T00:31:33.957Z" },
 ]
 
 [[package]]
 name = "fastmcp-slim"
-version = "4.0.2"
+version = "4.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mcp-types" },
@@ -472,9 +472,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/7d/c2597734e3a0859d62c9d8f6f35067d1e296537512e280db3af19204be64/fastmcp_slim-4.0.2.tar.gz", hash = "sha256:86b99bdcb872b52d964c79bc6d43ce79f40ed5538b589d102792b4a7cf3947f4", size = 684052, upload-time = "2026-09-02T23:27:39.868Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/a9/b7b796b0d4a5e095dadef233833c82ac1136f5c110dd9947b2e9a4988518/fastmcp_slim-4.0.3.tar.gz", hash = "sha256:3ce04a82b82cc41ccb12bb3bb366cfd65b52bc797b8fee332a75da9d480f9b74", size = 685704, upload-time = "2026-09-05T00:31:12.346Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/c0/c022eba3a25ebb56111de1b5f76fbfca81925def58880464263582acfcd8/fastmcp_slim-4.0.2-py3-none-any.whl", hash = "sha256:6bd5b5885628f73263fa2247ea1d26e4a514499a6e079ee3e340cd03a7fe5ed8", size = 858100, upload-time = "2026-09-02T23:27:38.459Z" },
+    { url = "https://files.pythonhosted.org/packages/43/4b/6b31820d87f56d5773538860878c8634b618cd1e9044b3bfbd8a78380a0f/fastmcp_slim-4.0.3-py3-none-any.whl", hash = "sha256:3756ed4bd9f82f40adaf51974b7cdd1463ab6b9f479cf69b69b2692969312b87", size = 859717, upload-time = "2026-09-05T00:31:10.93Z" },
 ]
 
 [package.optional-dependencies]
@@ -541,7 +541,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -587,7 +587,7 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.4.0" },
+    { name = "pyrate-limiter", specifier = ">=4.5.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
 ]
 
@@ -619,7 +619,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -643,7 +643,7 @@ requires-dist = [
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
-    { name = "python-multipart", specifier = ">=0.0.31" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
 ]
 
 [[package]]
@@ -674,7 +674,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-following", editable = "packages/gateway_following" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
@@ -710,7 +710,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
 ]
 
@@ -729,7 +729,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -788,7 +788,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -858,7 +858,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.141.1" },
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-comments-mcp", editable = "packages/gateway_comments_mcp" },
     { name = "gateway-comments-rest", editable = "packages/gateway_comments_rest" },
@@ -889,7 +889,7 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.4.0" },
+    { name = "pyrate-limiter", specifier = ">=4.5.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "uvloop", specifier = ">=0.22.1" },
 ]
@@ -922,7 +922,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-posts", editable = "packages/gateway_posts" },
@@ -977,7 +977,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -1051,7 +1051,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-mcp-common", editable = "packages/gateway_mcp_common" },
     { name = "gateway-stats", editable = "packages/gateway_stats" },
@@ -1684,11 +1684,11 @@ wheels = [
 
 [[package]]
 name = "pyrate-limiter"
-version = "4.4.0"
+version = "4.5.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/19/27/e564f33ea085c63d5540f707b31aeb50a4992eac2da655dc02435a760a07/pyrate_limiter-4.4.0.tar.gz", hash = "sha256:2c0c720c4fa16c5d8199e4821bf34507fb49c007a25b786cec6fb94ffd0844aa", size = 90955, upload-time = "2026-06-14T10:52:03.021Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/43/48693393af06b9fffbaea6bb8fe03be3c3f17be5d1423dab347d1aad1dde/pyrate_limiter-4.5.0.tar.gz", hash = "sha256:098345fff3a52b84dee9bcf6973f184c8b3ef8d34e1f4f781ac0773e3984598b", size = 123240, upload-time = "2026-08-30T10:35:39.272Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/77/2b5ea2e5e343fd7f74ba9c50a282d7cb66d1be3d12bd647510338d78fcf1/pyrate_limiter-4.4.0-py3-none-any.whl", hash = "sha256:f738dfa3c7ac1222a5ea3d31e00cfd31b5592b13ade4077afe9e8ac6293381f5", size = 43102, upload-time = "2026-06-14T10:52:01.334Z" },
+    { url = "https://files.pythonhosted.org/packages/64/dc/02f88649feeabf4282c8c194a6f6060ca858041bab1204365b5d8ef8a95e/pyrate_limiter-4.5.0-py3-none-any.whl", hash = "sha256:e7320a715adf404cb7b2f399e05ceb59cae165275b21f7708eb1b9fd9608e91c", size = 57188, upload-time = "2026-08-30T10:35:38.069Z" },
 ]
 
 [[package]]
@@ -1718,11 +1718,11 @@ wheels = [
 
 [[package]]
 name = "python-multipart"
-version = "0.0.31"
+version = "0.0.32"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/64/7e/9b35ad8f3d9ca680f7c87a88f19612fdd8da9796c4d3b46e560ac79dcc4a/python_multipart-0.0.31.tar.gz", hash = "sha256:fc631183bb13e56db3158a4909908dfb2e23565286744e798241e63750e5d680", size = 46689, upload-time = "2026-06-04T08:27:49.014Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/42/55c32bb9b12693c092ad250a0e82edb5b31ddeda6eb772de5f308b3804ad/python_multipart-0.0.32.tar.gz", hash = "sha256:be54b7f3fa167bb83e4fcd936b887b708f4e57fe75911c02aebf53efaf8d938e", size = 46881, upload-time = "2026-06-04T16:18:58.647Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/1e/7f7f299527a5a8ad90acd5f2f78dfa6c8495c6301a3205106ea68a84de96/python_multipart-0.0.31-py3-none-any.whl", hash = "sha256:8408153d68a9773291fc1da39a8b85a50044bddbabd2dd72e9229776b7b15e28", size = 29996, upload-time = "2026-06-04T08:27:47.804Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl", hash = "sha256:ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23", size = 30042, upload-time = "2026-06-04T16:18:57.319Z" },
 ]
 
 [[package]]
@@ -2077,7 +2077,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.141.1" },
-    { name = "fastmcp", specifier = ">=4.0.2" },
+    { name = "fastmcp", specifier = ">=4.0.3" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-oss", editable = "packages/gateway_oss" },
     { name = "starlette" },

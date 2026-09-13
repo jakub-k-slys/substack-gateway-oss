@@ -2,7 +2,7 @@
 name = "gateway_drafts_mcp"
 version = "3.8.0"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_drafts", "gateway_mcp_common", "fastmcp>=4.0.2"]
+dependencies = ["gateway_core", "gateway_drafts", "gateway_mcp_common", "fastmcp>=4.0.3"]
 
 [project.entry-points."substack_gateway.capabilities"]
 drafts_mcp = "gateway_drafts_mcp:capability"
