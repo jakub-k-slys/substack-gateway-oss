@@ -37,7 +37,7 @@ async def subscriber_timeseries(
         Query(
             alias="from",
             description="ISO lower bound for the returned window "
-            "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 365 days.",
+            "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 7 days.",
         ),
     ] = None,
 ) -> SubscriberTimeseriesResponse:

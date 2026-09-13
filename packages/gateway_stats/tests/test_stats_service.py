@@ -178,3 +178,36 @@ async def test_a_warm_cache_still_delta_fetches_when_from_is_inside_it(
     assert params == {"from": "2025-07-09T00:00:00Z"}, (
         "a from_ inside the cached range must leave the watermark path alone"
     )
+
+
+@pytest.mark.anyio
+async def test_widening_never_fetches_less_than_the_watermark_path_would(
+    monkeypatch,
+) -> None:
+    # Cache span is short (2025/07/01 - 2025/07/20) relative to a large
+    # watermark_lag_days (30), so the watermark-derived date (2025-06-20) is
+    # already earlier than `from_` (2025-06-25), which is itself older than
+    # the oldest cached row (2025/07/01). Widening must still fire, but it
+    # must land on the EARLIER of the two dates -- the watermark date -- not
+    # overwrite it with the later `from_` and silently shrink the maturing
+    # re-fetch window.
+    monkeypatch.setattr(settings, "stats_timeseries_watermark_lag_days", 30)
+    cache = FakeStatsCache()
+    await cache.write_timeseries(
+        PUB,
+        "subscribers",
+        {
+            "2025/07/01": ["2025/07/01", 1, 0, 0, 1],
+            "2025/07/20": ["2025/07/20", 1, 0, 0, 20],
+        },
+    )
+    pub = _FakePub([[_HEADER, ["2025/06/20", 1, 0, 0, 0]]])
+    service = _make_service(pub, cache)
+
+    await service.subscriber_timeseries(from_="2025-06-25T00:00:00Z")
+
+    _path, params = pub.calls[0]
+    assert params == {"from": "2025-06-20T00:00:00Z"}, (
+        "the fetch must start at the watermark date (the earlier of the two), "
+        "not at from_, or part of the maturing re-fetch window is silently lost"
+    )

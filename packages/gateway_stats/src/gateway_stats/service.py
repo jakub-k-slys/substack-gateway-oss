@@ -85,7 +85,12 @@ class StatsService:
             # the endpoint takes only `from` and returns through to now, so one
             # request covers both the missing prefix and the tail.
             if from_ and _iso_to_date(from_) < _bucket_to_date(min(cached)):
-                fetch_from = from_
+                # Take the EARLIER of the two, never a straight overwrite. With a
+                # large lag the watermark date can already be earlier than
+                # `from_`, and overwriting it there would fetch less than the
+                # delta path would have — silently dropping part of the
+                # maturing re-fetch.
+                fetch_from = min(from_, fetch_from)
         else:
             fetch_from = from_ or _default_from()
 

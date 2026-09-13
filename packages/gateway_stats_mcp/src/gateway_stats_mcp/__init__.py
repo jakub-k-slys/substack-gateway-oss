@@ -32,7 +32,7 @@ def _register(mcp: FastMCP) -> None:
     )
 
     mcp.tool(
-        description="Fetch the publication's daily subscriber timeseries (paid, comps, free trials, total) for the trailing year. Optionally pass `from_date` (ISO) to bound the window. Results are delta-cached: repeat calls only fetch new days from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Fetch the publication's daily subscriber timeseries (paid, comps, free trials, total) for the trailing 7 days by default. Optionally pass `from_date` (ISO) to bound the window. Results are delta-cached: repeat calls only fetch new days from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get Subscriber Timeseries",
