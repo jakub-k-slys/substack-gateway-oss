@@ -13,12 +13,15 @@ different interfaces.
 
 ## What You Can Do
 
-- Read public Substack profiles, posts, notes, and comments
-- Access authenticated `me` endpoints with a base64-encoded credential token
-- Create and delete notes through the REST API
-- Use the same gateway as an MCP server for AI tools and agent workflows
-- Extend the app with custom routes, MCP tools, auth providers, and lifespan
-  hooks
+- Read Substack profiles, posts, notes, comments, drafts, and publication /
+  post analytics
+- Create, update, and delete notes, comments, and drafts
+- Access authenticated `me` endpoints and MCP tools with a base64-encoded
+  credential token
+- Use the same gateway as a REST API or an MCP server for AI tools and agent
+  workflows
+- Extend the app with custom routes, MCP tools, auth providers, credential
+  resolvers, and lifespan hooks
 
 ## Interfaces
 
@@ -62,21 +65,27 @@ Check the liveness probe:
 curl http://127.0.0.1:5001/api/v1/health/live
 ```
 
-Fetch a public profile:
+Fetch a profile (every `/api/v1` route except `/health/live` requires the
+`x-gateway-token` header, even for reads over public Substack data — see
+[Authentication](docs/authentication.md)):
 
 ```bash
-curl http://127.0.0.1:5001/api/v1/profiles/<slug>
+curl \
+  -H "x-gateway-token: <base64-encoded-json>" \
+  http://127.0.0.1:5001/api/v1/profiles/<slug>
 ```
 
 ## REST Example
 
-Public profile lookup:
+Profile lookup:
 
 ```bash
-curl http://127.0.0.1:5001/api/v1/profiles/<slug>
+curl \
+  -H "x-gateway-token: <base64-encoded-json>" \
+  http://127.0.0.1:5001/api/v1/profiles/<slug>
 ```
 
-Authenticated request:
+`me`:
 
 ```bash
 curl \
@@ -84,9 +93,10 @@ curl \
   http://127.0.0.1:5001/api/v1/me
 ```
 
-The REST API is mounted under `/api/v1` and includes endpoints for health,
-profiles, posts, notes, comments, drafts, publication/post analytics, and
-authenticated `me` operations.
+The REST API is mounted under `/api/v1` and includes 45 endpoints across
+health, profiles, posts, notes, comments, drafts, publication/post
+analytics, following, and `me` — see the full
+[API reference](docs/api-reference.md).
 
 ## Authentication
 
@@ -116,13 +126,16 @@ real values to the repository.
 
 ## MCP
 
-The MCP server is mounted at `/mcp` and served over streamable HTTP.
+The MCP server is mounted at `/mcp` and served over streamable HTTP. It
+exposes 43 tools across the same domains as the REST API — see the full
+[MCP reference](docs/mcp.md).
 
-Public OSS MCP tools include:
+Every tool takes an optional `token` argument carrying the same
+base64-encoded credentials as `x-gateway-token`; when omitted, the gateway
+asks an installed credential resolver (this repository installs none, so an
+omitted token raises an error telling the caller to pass one). Only the
+three `profiles` tools need no credentials at all:
 
-- `get_note`
-- `get_post`
-- `get_post_comments`
 - `get_profile`
 - `get_profile_posts`
 - `get_profile_notes`
@@ -167,7 +180,7 @@ uv run behave packages/gateway_oss/features/
 
 ## Documentation
 
-The repository includes MkDocs and Read the Docs configuration:
+Reference documentation lives in `docs/`:
 
 - [Docs home](docs/index.md)
 - [Introduction](docs/introduction.md)
@@ -177,8 +190,6 @@ The repository includes MkDocs and Read the Docs configuration:
 - [MCP documentation](docs/mcp.md)
 - [Development guide](docs/development.md)
 - [Contributing guide](CONTRIBUTING.md)
-
-Read the Docs can build the site directly from `.readthedocs.yaml` and `mkdocs.yml`.
 
 ## Author
 
