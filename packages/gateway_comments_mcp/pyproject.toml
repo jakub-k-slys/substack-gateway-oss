@@ -2,7 +2,7 @@
 name = "gateway_comments_mcp"
 version = "4.0.1"
 requires-python = ">=3.11"
-dependencies = ["gateway_core", "gateway_mcp_common", "gateway_comments", "fastmcp>=4.0.3"]
+dependencies = ["gateway_core", "gateway_mcp_common", "gateway_comments", "fastmcp>=4.0.5"]
 
 [project.entry-points."substack_gateway.capabilities"]
 comments_mcp = "gateway_comments_mcp:capability"
