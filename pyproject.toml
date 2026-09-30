@@ -6,7 +6,7 @@ dependencies = [
   "gateway_oss",
   "gateway_core",
   "fastapi>=0.141.1",
-  "fastmcp>=4.0.5",
+  "fastmcp>=4.0.10",
   "starlette",
   "uvicorn>=0.53.0",
   "uvloop>=0.22.1",
