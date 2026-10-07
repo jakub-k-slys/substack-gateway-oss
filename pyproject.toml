@@ -5,7 +5,7 @@ requires-python = ">=3.11"
 dependencies = [
   "gateway_oss",
   "gateway_core",
-  "fastapi>=0.141.1",
+  "fastapi>=0.142.2",
   "fastmcp>=4.0.10",
   "starlette",
   "uvicorn>=0.54.0",
