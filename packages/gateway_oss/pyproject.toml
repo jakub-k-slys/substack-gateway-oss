@@ -10,7 +10,7 @@ dependencies = [
   "pydantic-settings>=2.15.0",
   "fastmcp>=4.0.10",
   "markdownify>=1.2.3",
-  "tenacity>=9.1.2",
+  "tenacity>=9.2.1",
   "uvloop>=0.23.0",
   "gateway_core",
   "gateway_comments",
