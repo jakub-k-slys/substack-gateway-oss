@@ -4,7 +4,7 @@ import json
 
 import httpx
 from behave import given, then
-from common import load_sample, pub_url
+from common import load_sample, pub_url, walk_path
 
 
 def _subscribers_url(context) -> str:
@@ -81,8 +81,6 @@ def step_stats_status(context, name, status):
 
 @then('the response path "{path}" equals JSON {value}')
 def step_path_equals_json(context, path, value):
-    node = context.response.json()
-    for segment in path.split("."):
-        node = node[int(segment)] if isinstance(node, list) else node[segment]
+    node = walk_path(context.response.json(), path)
     expected = json.loads(value)
     assert node == expected, f"Expected {path} to equal {expected!r}, got {node!r}"

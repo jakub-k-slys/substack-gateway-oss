@@ -11,6 +11,7 @@ import base64
 import json
 
 from behave import given, then, when
+from common import walk_path
 
 from gateway_comments_mcp.tools import (
     create_post_comment,
@@ -45,11 +46,17 @@ from gateway_posts_mcp.tools import get_post, like_post, restack_post, unlike_po
 from gateway_profiles_mcp.tools import get_profile, get_profile_notes, get_profile_posts
 from gateway_stats_mcp.tools import (
     get_30d_views,
+    get_arr_timeseries,
+    get_dashboard_period,
+    get_dashboard_summary,
+    get_email_timeseries,
+    get_post_counts,
     get_post_discussion,
     get_post_engagement,
     get_post_growth,
     get_post_recipients,
     get_post_traffic,
+    get_recommendation_stats,
     get_subscriber_timeseries,
 )
 
@@ -307,6 +314,42 @@ def step_call_get_30d_views(context):
     _call(context, get_30d_views(token=context.mcp_token))
 
 
+@when("I call the MCP tool get_arr_timeseries")
+def step_call_get_arr_timeseries(context):
+    _call(context, get_arr_timeseries(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_email_timeseries")
+def step_call_get_email_timeseries(context):
+    _call(context, get_email_timeseries(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_dashboard_summary")
+def step_call_get_dashboard_summary(context):
+    _call(context, get_dashboard_summary(token=context.mcp_token))
+
+
+@when("I call the MCP tool get_dashboard_period with range_days {range_days:d}")
+def step_call_get_dashboard_period(context, range_days):
+    _call(
+        context,
+        get_dashboard_period(token=context.mcp_token, range_days=range_days),
+    )
+
+
+@when('I call the MCP tool get_recommendation_stats with direction "{direction}"')
+def step_call_get_recommendation_stats(context, direction):
+    _call(
+        context,
+        get_recommendation_stats(direction=direction, token=context.mcp_token),
+    )
+
+
+@when("I call the MCP tool get_post_counts")
+def step_call_get_post_counts(context):
+    _call(context, get_post_counts(token=context.mcp_token))
+
+
 @when("I call the MCP tool get_post_engagement with post_id {post_id:d}")
 def step_call_get_post_engagement(context, post_id):
     _call(context, get_post_engagement(post_id=post_id, token=context.mcp_token))
@@ -370,6 +413,14 @@ def step_mcp_field_string(context, field, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     actual = context.mcp_result[field]
     assert str(actual) == value, f'Expected "{field}" to be "{value}", got "{actual}"'
+
+
+@then('the MCP result path "{path}" equals JSON {value}')
+def step_mcp_path_equals_json(context, path, value):
+    assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
+    node = walk_path(context.mcp_result, path)
+    expected = json.loads(value)
+    assert node == expected, f"Expected {path} to equal {expected!r}, got {node!r}"
 
 
 @then('the MCP result is "{value}"')
