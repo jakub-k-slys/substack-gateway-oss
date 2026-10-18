@@ -89,13 +89,17 @@ atomic lock against an edit that lands between the two requests.
 | `**text**` | bold |
 | `*text*` | italic (`_text_` is not italic: underscores are plain text) |
 | `~~text~~` | strikethrough |
-| `` `text` `` | inline code (cannot be combined with other marks) |
+| `` `text` `` | inline code (see below for combining it with other marks) |
 | `[text](https://example.com)` | link |
 
 Bold, italic and strikethrough combine freely (`***both***`, `**~~x~~**`) and can
 sit inside a link text (`[**bold link**](url)`). A delimiter run that has
 whitespace (or the start or end of the text) on both sides is literal, so
 `2 * 3` stays `2 * 3`. A delimiter that never closes is literal too.
+
+Inline code inside another mark (``**`x`**``, ``[`x`](url)``) parses and is
+stored with both marks, but the dialect cannot write that combination back:
+`get_draft` returns the whole block as a `substack-node` fence.
 
 Marks the dialect has no syntax for (for example underline) make the whole block
 come back as a `substack-node` block; links whose attributes differ from the
@@ -162,7 +166,7 @@ Substack's watermark endpoint while writing the draft.
 | Attribute | Meaning |
 |---|---|
 | `watermark` | default watermark: 6 % of the image width, top-right, opacity 65 |
-| `watermark=N%` | logo width as a percentage of the image width (above 0, up to 100) |
+| `watermark=N%` | logo width as a percentage of the image width (above 0, up to 100; the logo is kept inside the image, so it is never larger than the image's shorter side) |
 | `watermark-pos=top-right\|top-left\|bottom-right\|bottom-left` | corner (default `top-right`) |
 | `watermark-opacity=0..100` | opacity (default 65) |
 
@@ -306,8 +310,11 @@ When a block cannot be written as readable dialect syntax without losing
 anything, `get_draft` writes it as a `substack-node` fence holding the node's JSON.
 This happens for node types the dialect does not know (including ones Substack
 adds later) such as `digestPostEmbed`, charts that are already in the draft,
-unsupported marks, nested lists, empty paragraphs and an alignment the dialect
-cannot place. It is the escape hatch that makes the round trip lossless.
+images with a caption (a `captionedImage` with a `caption` child), paragraphs
+holding a line break (`hard_break`), paragraphs that start or end with a space,
+empty paragraphs, unsupported marks (including inline code combined with another
+mark), nested lists and an alignment the dialect cannot place. It is the escape
+hatch that makes the round trip lossless.
 
 The rule: **move or delete a `substack-node` block, never edit it.** It is not
 meant to be edited; a block you change by hand may be rejected or stored
@@ -342,7 +349,7 @@ fetch anything.
 ## Escaping
 
 A backslash before any ASCII punctuation character makes it literal: `\*`, `\[`,
-`\#`, `\\`. `get_draft` escapes `\ * ` [ ] ~ { }` inside text for you, and puts a
+`\#`, `\\`. `get_draft` escapes `` \ * ` [ ] ~ { } `` inside text for you, and puts a
 backslash in front of a line that would otherwise open a block (`#`, `>`, `|>`,
 `-`, `+`, `1.`, `::`, `$$`, ```` ``` ````, `!`). Write the same escapes when your
 text needs them.

@@ -33,12 +33,14 @@ _DIALECT_CHEAT_SHEET = (
     "Body dialect (Markdown plus): `---` rule; "
     "`::button[Text]{href=subscribe|share|comment|URL}`; "
     "`![alt](src){size=normal|large|full}` with `{watermark=N%}` to watermark "
-    "(external images are uploaded); `::defaults{align=left|center|right|justify}` "
+    "(external images are uploaded); "
+    "`::defaults{align=left|center|right|justify|default}` "
     "as the first line; `:::align{left|center|right|justify|default}` ... `:::` "
     "and `:::callout` ... `:::` containers; `|>` pullquote; `$$` LaTeX. A "
     "```substack-node fence is a verbatim node: move or delete it, never edit "
     "its JSON. Malformed syntax is rejected with the line number; start a line "
     "with `\\` to write dialect-looking text literally. Full syntax: "
+    "https://github.com/jakub-k-slys/substack-gateway-oss/blob/main/"
     "docs/drafts-markdown.md."
 )
 _CONCURRENCY_HINT = (

@@ -6,7 +6,10 @@ from fastmcp import FastMCP
 from gateway_drafts_mcp import _register
 
 _TOKEN_SENTENCE = "The `token` argument is optional"
-_DOC = "docs/drafts-markdown.md"
+_DOC = (
+    "https://github.com/jakub-k-slys/substack-gateway-oss/blob/main/"
+    "docs/drafts-markdown.md"
+)
 
 
 async def _description(name: str) -> str:
@@ -35,7 +38,7 @@ async def test_draft_body_tools_keep_token_sentence_and_point_to_docs(
 
     assert _TOKEN_SENTENCE in description
     assert _DOC in description
-    assert "::defaults" in description
+    assert "::defaults{align=left|center|right|justify|default}" in description
     assert ":::align" in description
     assert ":::callout" in description
     assert "{size=normal|large|full}" in description
