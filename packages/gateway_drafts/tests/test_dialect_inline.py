@@ -76,8 +76,8 @@ def test_backslash_escapes_any_ascii_punctuation() -> None:
 
 
 def test_dialect_parser_accepts_inner_whitespace() -> None:
-    assert parse_inline("** x **") == [_t(" x ", "strong")]
-    assert parse_inline("~~ y ~~z") == [_t(" y ", "strikethrough"), _t("z")]
+    assert parse_inline("a** x **b") == [_t("a"), _t(" x ", "strong"), _t("b")]
+    assert parse_inline("x~~ y ~~z") == [_t("x"), _t(" y ", "strikethrough"), _t("z")]
 
 
 @pytest.mark.parametrize(
@@ -212,7 +212,9 @@ _MARK_SETS: list[tuple[str, ...]] = [
 ]
 
 
-def _random_content(rng: random.Random) -> list[dict[str, Any]]:
+def _random_content(
+    rng: random.Random, *, spaced_marks: bool = False
+) -> list[dict[str, Any]]:
     content: list[dict[str, Any]] = []
     for _ in range(rng.randint(1, 6)):
         length = rng.randint(1, 4)
@@ -224,7 +226,12 @@ def _random_content(rng: random.Random) -> list[dict[str, Any]]:
         else:
             text = "".join(rng.choice(_ALPHABET) for _ in range(length))
             href = rng.choice([None, None, "https://x", "https://y/(z)"])
-            node = _t(text, *rng.choice(_MARK_SETS), href=href)
+            marks = rng.choice(_MARK_SETS)
+            if marks and not spaced_marks:
+                # A delimiter run with whitespace on both sides is literal, so
+                # keep marked text from starting or ending with whitespace.
+                text = text.strip() or "a"
+            node = _t(text, *marks, href=href)
         if content and content[-1].get("marks") == node.get("marks"):
             content[-1]["text"] += node["text"]
         else:
@@ -255,3 +262,88 @@ def test_many_unterminated_link_targets_parse_in_linear_time() -> None:
     # Each "](" without a closing ")" used to rescan to the end of the text.
     raw = "[a](" * 20000
     assert parse_inline(raw) == [_t(raw)]
+
+
+def test_spaced_marked_text_is_the_only_reason_for_none() -> None:
+    rng = random.Random(11)
+    for _ in range(3000):
+        content = _random_content(rng, spaced_marks=True)
+        if serialize_inline(content) is None:
+            assert any(
+                node.get("marks")
+                and node["text"] != node["text"].strip()
+                and node["marks"][0]["type"] != "code"
+                for node in content
+            ), content
+
+
+# --- review fix round 1 -----------------------------------------------------
+
+
+def test_bracket_without_target_does_not_swallow_a_later_link() -> None:
+    assert parse_inline("Note [1]: see [the docs](https://x) now") == [
+        _t("Note [1]: see "),
+        _t("the docs", href="https://x"),
+        _t(" now"),
+    ]
+
+
+def test_stray_open_bracket_before_a_link_is_literal() -> None:
+    assert parse_inline("see [a [docs](https://x)") == [
+        _t("see [a "),
+        _t("docs", href="https://x"),
+    ]
+
+
+def test_link_closing_inside_open_mark_makes_the_mark_literal() -> None:
+    assert parse_inline("[**a](https://x)") == [_t("**a", href="https://x")]
+
+
+def test_link_target_allows_balanced_parentheses() -> None:
+    assert parse_inline("[wiki](https://en.wikipedia.org/wiki/A_(b)) ok") == [
+        _t("wiki", href="https://en.wikipedia.org/wiki/A_(b)"),
+        _t(" ok"),
+    ]
+
+
+def test_link_target_with_unbalanced_parentheses_is_not_a_link() -> None:
+    assert parse_inline("[a](x(y) z") == [_t("[a](x(y) z")]
+
+
+def test_link_title_does_not_land_in_the_href() -> None:
+    assert parse_inline('[a](https://x "T")') == [_t('[a](https://x "T")')]
+
+
+def test_href_with_whitespace_is_not_expressible() -> None:
+    assert serialize_inline([_t("a", href="https://x y")]) is None
+
+
+def test_spaced_delimiter_runs_are_literal() -> None:
+    assert parse_inline("2 * 3 * 4 = 24") == [_t("2 * 3 * 4 = 24")]
+    assert parse_inline("a ** b ** c") == [_t("a ** b ** c")]
+    assert parse_inline("x ~~ y ~~ z") == [_t("x ~~ y ~~ z")]
+    assert parse_inline("* a *") == [_t("* a *")]
+
+
+def test_serializer_output_hitting_the_spaced_rule_returns_none() -> None:
+    # Would be written "a * b*": the first run has spaces on both sides.
+    assert serialize_inline([_t("a "), _t(" b", "em")]) is None
+
+
+def test_em_wrapping_strong() -> None:
+    assert parse_inline("*a **b** c*") == [
+        _t("a ", "em"),
+        _t("b", "strong", "em"),
+        _t(" c", "em"),
+    ]
+    assert parse_inline("***a** b*") == [_t("a", "strong", "em"), _t(" b", "em")]
+
+
+def test_many_open_brackets_then_closing_brackets_parse_in_linear_time() -> None:
+    raw = "[" * 30000 + "]" * 30000
+    assert parse_inline(raw) == [_t(raw)]
+
+
+def test_long_asterisk_run_before_long_text_parses_in_linear_time() -> None:
+    raw = "*" * 30000 + "a" * 30000 + "*"
+    assert "".join(node["text"] for node in parse_inline(raw)).count("a") == 30000

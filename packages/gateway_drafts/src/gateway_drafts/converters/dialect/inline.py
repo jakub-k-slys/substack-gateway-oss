@@ -2,14 +2,17 @@
 
 Supported marks: ``strong`` (``**``), ``em`` (``*``), ``strikethrough`` (``~~``),
 optionally inside one ``link`` (``[...](href)``), and ``code`` (`` ` ``) alone.
-Delimiters nest in the fixed order link > strong > em > strikethrough and wrap
-the exact text, inner whitespace included (``** x **`` is strong " x ").
+Delimiters wrap the exact text, inner whitespace included (``a** x **b`` is
+strong " x "), but a delimiter run with whitespace or a text boundary on both
+sides is literal (``2 * 3``).
 
 ``parse_inline`` is a character scanner with a mark stack: a delimiter closes
 the mark on top of the stack if it can, otherwise opens a mark that is not yet
-active, otherwise it is literal. Openers still unclosed at the end become
-literal text, so parsing never fails. ``serialize_inline`` returns ``None``
-whenever the content cannot be written so that ``parse_inline`` gives it back.
+active, otherwise it is literal. A ``]`` without a valid ``(target)`` turns its
+``[`` into literal text. Openers still unclosed at the end become literal text,
+so parsing never fails. ``serialize_inline`` writes the fixed nesting order
+link > strong > em > strikethrough and returns ``None`` whenever the content
+cannot be written so that ``parse_inline`` gives it back.
 """
 
 from __future__ import annotations
@@ -42,6 +45,61 @@ def _escape_href(href: str) -> str:
 # --- parsing ----------------------------------------------------------------
 
 
+def _unescape(raw: str) -> str:
+    out: list[str] = []
+    pos = 0
+    while pos < len(raw):
+        if raw[pos] == "\\" and raw[pos + 1 : pos + 2] in _PUNCTUATION:
+            out.append(raw[pos + 1])
+            pos += 2
+        else:
+            out.append(raw[pos])
+            pos += 1
+    return "".join(out)
+
+
+def _link_targets(text: str) -> dict[int, int]:
+    """Map each unescaped ``(`` to its balanced ``)`` if no whitespace lies between.
+
+    Every target scan starts right after the ``(`` of a ``](``, which always
+    begins a fresh escape pair, so one left-to-right pass serves all of them.
+    """
+    targets: dict[int, int] = {}
+    opens: list[tuple[int, int]] = []  # (index, whitespace seen before it)
+    spaces = 0
+    pos = 0
+    while pos < len(text):
+        char = text[pos]
+        if char == "\\" and text[pos + 1 : pos + 2] in _PUNCTUATION:
+            pos += 2
+            continue
+        if char.isspace():
+            spaces += 1
+        elif char == "(":
+            opens.append((pos, spaces))
+        elif char == ")" and opens:
+            start, seen = opens.pop()
+            if seen == spaces:
+                targets[start] = pos
+        pos += 1
+    return targets
+
+
+def _run_end(text: str, pos: int) -> int:
+    end = pos
+    while end < len(text) and text[end] == text[pos]:
+        end += 1
+    return end
+
+
+def _spaced(text: str, pos: int) -> bool:
+    return pos < 0 or pos >= len(text) or text[pos].isspace()
+
+
+def _literal_run(text: str, start: int, end: int) -> bool:
+    return _spaced(text, start - 1) and _spaced(text, end)
+
+
 @dataclass
 class _Token:
     kind: str  # "text" | "code" | "open" | "close"
@@ -55,11 +113,12 @@ class _Scanner:
         self.text = text
         self.pos = 0
         self.tokens: list[_Token] = []
-        self.stack: list[int] = []  # indices of open tokens
+        self.stack: list[int] = []  # indices of open tokens, innermost last
+        self.active: dict[str, int] = {}
         self.buffer: list[str] = []
-        # Once a link target finds no ")" before the end, no later one can:
-        # every scan starts right after "(" with the same escape alignment.
-        self.no_target_close = False
+        self.run_end = 0  # end of the delimiter run being consumed
+        self.lookahead: tuple[int, int] = (-1, 0)  # (run_end, next run length)
+        self.targets: dict[int, int] | None = None
 
     def run(self) -> list[_Token]:
         text = self.text
@@ -71,22 +130,18 @@ class _Scanner:
                 self._code()
             elif char == "*" or text.startswith("~~", self.pos):
                 self._delimiter()
-            elif char == "[" and not self._active("link"):
+            elif char == "[":
                 self._open("link", "[")
-            elif char == "]" and self._top() == "link":
+            elif char == "]" and self.active.get("link"):
                 self._close_link()
             else:
                 self._literal(char, 1)
         self._flush()
-        for index in self.stack:  # unclosed openers are literal text
-            self.tokens[index] = _Token("text", self.tokens[index].value)
+        self._demote(list(range(len(self.stack))))
         return self.tokens
 
     def _top(self) -> str:
         return self.tokens[self.stack[-1]].mark if self.stack else ""
-
-    def _active(self, mark: str) -> bool:
-        return any(self.tokens[index].mark == mark for index in self.stack)
 
     def _literal(self, chars: str, advance: int) -> None:
         self.buffer.append(chars)
@@ -101,13 +156,24 @@ class _Scanner:
         self._flush()
         self.stack.append(len(self.tokens))
         self.tokens.append(_Token("open", raw, mark))
+        self.active[mark] = self.active.get(mark, 0) + 1
         self.pos += len(raw)
 
     def _close(self, raw: str) -> None:
         self._flush()
         mark = self.tokens[self.stack.pop()].mark
+        self.active[mark] -= 1
         self.tokens.append(_Token("close", raw, mark))
         self.pos += len(raw)
+
+    def _demote(self, depths: list[int]) -> None:
+        """Turn the openers at these stack depths into literal text."""
+        # Deepest last: every pop then shifts only the few entries above it.
+        for depth in sorted(depths, reverse=True):
+            index = self.stack.pop(depth)
+            token = self.tokens[index]
+            self.active[token.mark] -= 1
+            self.tokens[index] = _Token("text", token.value)
 
     def _code(self) -> None:
         end = self.text.find("`", self.pos + 1)
@@ -119,50 +185,91 @@ class _Scanner:
         self.pos = end + 1
 
     def _delimiter(self) -> None:
+        text, pos = self.text, self.pos
+        if pos >= self.run_end:  # first character of a new run
+            self.run_end = _run_end(text, pos)
+            if _literal_run(text, pos, self.run_end):
+                self._literal(text[pos : self.run_end], self.run_end - pos)
+                return
         top = self._top()
-        if self.text[self.pos] == "~":
+        if text[pos] == "~":
             if top == "strikethrough":
                 self._close("~~")
-            elif not self._active("strikethrough"):
+            elif not self.active.get("strikethrough"):
                 self._open("strikethrough", "~~")
             else:
                 self._literal("~", 1)
             return
-        double = self.text.startswith("**", self.pos)
-        if top == "em":
+        remaining = self.run_end - pos
+        strong, em = self.active.get("strong"), self.active.get("em")
+        if top == "em" and remaining == 2 and not strong:
+            self._open("strong", "**")  # em wraps strong: *a **b** c*
+        elif top == "em":
             self._close("*")
-        elif top == "strong" and double:
+        elif top == "strong" and remaining >= 2:
             self._close("**")
-        elif double and not self._active("strong"):
+        elif remaining >= 3 and not strong and not em:
+            if self._next_run_length() == 2:  # ***a** b*: strong closes first
+                self._open("em", "*")
+                self._open("strong", "**")
+            else:
+                self._open("strong", "**")
+                self._open("em", "*")
+        elif remaining >= 2 and not strong:
             self._open("strong", "**")
-        elif not self._active("em"):
+        elif not em:
             self._open("em", "*")
         else:
             self._literal("*", 1)
 
-    def _close_link(self) -> None:
-        text = self.text
-        pos = self.pos + 1
-        if self.no_target_close or text[pos : pos + 1] != "(":
-            self._literal("]", 1)
-            return
-        href: list[str] = []
-        pos += 1
+    def _next_run_length(self) -> int:
+        """Length of the next non-literal ``*`` run after the current one."""
+        if self.lookahead[0] != self.run_end:
+            self.lookahead = (self.run_end, self._scan_next_run())
+        return self.lookahead[1]
+
+    def _scan_next_run(self) -> int:
+        text, pos = self.text, self.run_end
         while pos < len(text):
             char = text[pos]
             if char == "\\" and text[pos + 1 : pos + 2] in _PUNCTUATION:
-                href.append(text[pos + 1])
                 pos += 2
-            elif char == ")":
-                opener = self.tokens[self.stack[-1]]
-                opener.href = "".join(href)
-                self._close(text[self.pos : pos + 1])
-                return
+            elif char == "`":
+                end = text.find("`", pos + 1)
+                pos = end + 1 if end > pos + 1 else pos + 1
+            elif char == "*":
+                end = _run_end(text, pos)
+                if not _literal_run(text, pos, end):
+                    return end - pos
+                pos = end
             else:
-                href.append(char)
                 pos += 1
-        self.no_target_close = True
-        self._literal("]", 1)
+        return 0
+
+    def _close_link(self) -> None:
+        # At most three non-link marks can sit above the innermost "[".
+        depth = len(self.stack) - 1
+        while self.tokens[self.stack[depth]].mark != "link":
+            depth -= 1
+        start = self.pos + 1
+        end = None
+        if self.text[start : start + 1] == "(":
+            if self.targets is None:
+                self.targets = _link_targets(self.text)
+            end = self.targets.get(start)
+        if end is None:  # not a link: its "[" is literal text
+            self._demote([depth])
+            self._literal("]", 1)
+            return
+        # Marks opened inside the link text and still open there are literal.
+        self._demote(list(range(depth + 1, len(self.stack))))
+        self.tokens[self.stack[-1]].href = _unescape(self.text[start + 1 : end])
+        self._close(self.text[self.pos : end + 1])
+        # Links cannot nest: any enclosing "[" is literal text.
+        if self.active.get("link"):
+            self._demote(
+                [d for d, i in enumerate(self.stack) if self.tokens[i].mark == "link"]
+            )
 
 
 def _mark_for(token: _Token) -> Mark:
