@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, HTTPException, Path, Query, UploadFile
 
 from gateway_drafts._cursor import InvalidCursorError
+from gateway_drafts.converters.dialect.errors import DraftMarkdownError
 from gateway_drafts.image import ImagesService, data_uri
 from gateway_drafts.schemas import (
     AiDetectionResponse,
@@ -18,7 +19,7 @@ from gateway_drafts.schemas import (
     ScheduleDraftResponse,
     UpdateDraftRequest,
 )
-from gateway_drafts.service import DraftsService
+from gateway_drafts.service import DraftConflictError, DraftsService
 from gateway_drafts_rest.deps import get_drafts_service, get_images_service
 from gateway_rest_common.deps import get_credentials
 
@@ -68,8 +69,22 @@ async def update_draft(
     body: UpdateDraftRequest,
     service: Annotated[DraftsService, Depends(get_drafts_service)],
 ) -> DraftResponse:
-    """Update specific fields of a Substack post draft."""
-    draft = await service.update_draft(draft_id, body.provided_updates())
+    """Update specific fields of a Substack post draft.
+
+    Pass `expected_updated_at` (the `updated_at` from a prior read) to refuse the
+    update with 409 when the draft changed in the meantime. Malformed draft
+    Markdown is rejected with 400.
+    """
+    try:
+        draft = await service.update_draft(
+            draft_id,
+            body.provided_updates(),
+            expected_updated_at=body.expected_updated_at,
+        )
+    except DraftConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except DraftMarkdownError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return DraftResponse.from_substack(draft)
 
 
@@ -97,11 +112,14 @@ async def create_draft(
     service: Annotated[DraftsService, Depends(get_drafts_service)],
 ) -> CreateDraftResponse:
     """Create a new post draft on Substack."""
-    draft = await service.create_draft(
-        title=body.title,
-        subtitle=body.subtitle,
-        body=body.body,
-    )
+    try:
+        draft = await service.create_draft(
+            title=body.title,
+            subtitle=body.subtitle,
+            body=body.body,
+        )
+    except DraftMarkdownError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return CreateDraftResponse.from_substack(draft)
 
 

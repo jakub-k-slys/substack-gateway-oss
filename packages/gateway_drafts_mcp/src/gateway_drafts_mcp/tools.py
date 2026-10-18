@@ -3,6 +3,9 @@ from __future__ import annotations
 import base64
 from typing import Any
 
+from fastmcp.exceptions import ToolError
+
+from gateway_drafts.converters.dialect.errors import DraftMarkdownError
 from gateway_drafts.image import ImagesService, data_uri
 from gateway_drafts.schemas import (
     AiDetectionResponse,
@@ -12,7 +15,7 @@ from gateway_drafts.schemas import (
     PrepublishResponse,
     ScheduleDraftResponse,
 )
-from gateway_drafts.service import DraftsService
+from gateway_drafts.service import DraftConflictError, DraftsService
 from gateway_mcp_common.clients import _authenticated_clients
 
 
@@ -44,12 +47,15 @@ async def create_draft(
     subtitle: str | None = None,
     body: str | None = None,
 ) -> dict[str, Any]:
-    async with _authenticated_clients(token) as (publication, substack):
-        draft = await DraftsService(publication, substack).create_draft(
-            title=title,
-            subtitle=subtitle,
-            body=body,
-        )
+    try:
+        async with _authenticated_clients(token) as (publication, substack):
+            draft = await DraftsService(publication, substack).create_draft(
+                title=title,
+                subtitle=subtitle,
+                body=body,
+            )
+    except (DraftConflictError, DraftMarkdownError) as exc:
+        raise ToolError(str(exc)) from exc
     return CreateDraftResponse.from_substack(draft).model_dump()
 
 
@@ -59,6 +65,7 @@ async def update_draft(
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
+    expected_updated_at: str | None = None,
 ) -> dict[str, Any]:
     updates: dict[str, str | None] = {}
     if title is not None:
@@ -67,10 +74,13 @@ async def update_draft(
         updates["subtitle"] = subtitle
     if body is not None:
         updates["body"] = body
-    async with _authenticated_clients(token) as (publication, substack):
-        draft = await DraftsService(publication, substack).update_draft(
-            draft_id, updates
-        )
+    try:
+        async with _authenticated_clients(token) as (publication, substack):
+            draft = await DraftsService(publication, substack).update_draft(
+                draft_id, updates, expected_updated_at=expected_updated_at
+            )
+    except (DraftConflictError, DraftMarkdownError) as exc:
+        raise ToolError(str(exc)) from exc
     return DraftResponse.from_substack(draft).model_dump()
 
 

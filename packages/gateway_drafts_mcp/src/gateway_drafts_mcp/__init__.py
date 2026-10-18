@@ -50,7 +50,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /post_management/drafts"},
     )(list_drafts)
     mcp.tool(
-        description="Fetch a Substack post draft by ID. The body is returned as Markdown. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Fetch a Substack post draft by ID. The body is returned as Markdown, along with `updated_at` (pass it back as `expected_updated_at` on update_draft to detect concurrent edits). The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get Draft",
@@ -86,7 +86,7 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "POST /api/v1/image"},
     )(upload_image)
     mcp.tool(
-        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. Pass `expected_updated_at` (the `updated_at` returned by get_draft or a previous update) to refuse the update if the draft was edited since you read it. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Update Draft",

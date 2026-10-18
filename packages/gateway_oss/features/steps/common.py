@@ -200,3 +200,11 @@ def step_first_item_field_int(context, field, value):
     assert actual == value, (
         f'Expected first item "{field}" to be {value}, got {actual!r}'
     )
+
+
+@then('the response field "{field}" contains "{value}"')
+def step_field_contains(context, field, value):
+    body = context.response.json()
+    assert value in str(body[field]), (
+        f'Expected field "{field}" to contain "{value}", got {body[field]!r}'
+    )

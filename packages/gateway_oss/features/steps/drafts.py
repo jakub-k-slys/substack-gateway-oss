@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
+from behave import given, then
 from common import SUBSTACK_BASE, load_sample, pub_url
 
 
@@ -104,6 +104,13 @@ def step_list_drafts_returns_status(context, status):
     )
 
 
+@given("the Substack user-settings endpoint returns the sample response")
+def step_user_settings_returns_sample(context):
+    context.respx_mock.get(_user_settings_url()).mock(
+        return_value=httpx.Response(200, json=_USER_SETTINGS_RESPONSE)
+    )
+
+
 @given("the Substack create-draft endpoint returns the sample response")
 def step_create_draft_returns_sample(context):
     context.respx_mock.get(_user_settings_url()).mock(
@@ -122,3 +129,23 @@ def step_create_draft_returns_status(context, status):
     context.respx_mock.post(_create_draft_url(context)).mock(
         return_value=httpx.Response(status)
     )
+
+
+def _upstream_calls(context, method: str, url: str) -> list:
+    return [
+        call
+        for call in context.respx_mock.calls
+        if call.request.method == method and str(call.request.url) == url
+    ]
+
+
+@then("no Substack PUT request was sent")
+def step_no_substack_put(context):
+    puts = [c for c in context.respx_mock.calls if c.request.method == "PUT"]
+    assert not puts, f"Expected no upstream PUT, got {len(puts)}"
+
+
+@then("no Substack POST request was sent to the drafts endpoint")
+def step_no_substack_draft_post(context):
+    posts = _upstream_calls(context, "POST", _create_draft_url(context))
+    assert not posts, f"Expected no upstream draft POST, got {len(posts)}"

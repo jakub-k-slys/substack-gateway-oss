@@ -23,7 +23,13 @@ from gateway_comments_mcp.tools import (
     unlike_post_comment,
 )
 from gateway_core.credentials import MissingCredentialsError
-from gateway_drafts_mcp.tools import create_draft, delete_draft, get_draft, list_drafts
+from gateway_drafts_mcp.tools import (
+    create_draft,
+    delete_draft,
+    get_draft,
+    list_drafts,
+    update_draft,
+)
 from gateway_following_mcp.tools import get_my_following
 from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
 from gateway_notes_mcp.tools import (
@@ -145,6 +151,34 @@ def step_call_get_draft(context, draft_id):
 @when('I call the MCP tool create_draft with title "{title}"')
 def step_call_create_draft(context, title):
     _call(context, create_draft(title=title, token=context.mcp_token))
+
+
+@when(
+    "I call the MCP tool update_draft with draft_id {draft_id:d}, "
+    'title "{title}" and expected_updated_at "{expected}"'
+)
+def step_call_update_draft(context, draft_id, title, expected):
+    _call(
+        context,
+        update_draft(
+            draft_id=draft_id,
+            title=title,
+            expected_updated_at=expected,
+            token=context.mcp_token,
+        ),
+    )
+
+
+@when("I call the MCP tool create_draft with a broken substack-node fence body")
+def step_call_create_draft_broken_fence(context):
+    _call(
+        context,
+        create_draft(
+            title="Test Draft",
+            body="```substack-node\n{oops\n```",
+            token=context.mcp_token,
+        ),
+    )
 
 
 @when("I call the MCP tool delete_draft with draft_id {draft_id:d}")
@@ -350,6 +384,19 @@ def step_mcp_result_string(context, value):
 def step_mcp_raises_value_error(context):
     assert isinstance(context.mcp_error, ValueError), (
         f"Expected ValueError, got {type(context.mcp_error).__name__}: {context.mcp_error}"
+    )
+
+
+@then('the MCP call fails with a tool error containing "{text}"')
+def step_mcp_tool_error_contains(context, text):
+    from fastmcp.exceptions import ToolError
+
+    assert isinstance(context.mcp_error, ToolError), (
+        f"Expected ToolError, got {type(context.mcp_error).__name__}: "
+        f"{context.mcp_error}"
+    )
+    assert text in str(context.mcp_error), (
+        f'Expected tool error to contain "{text}", got "{context.mcp_error}"'
     )
 
 

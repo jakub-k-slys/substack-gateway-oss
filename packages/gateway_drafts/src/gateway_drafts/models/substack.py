@@ -37,6 +37,7 @@ class SubstackDraft(BaseModel):
     draft_title: str | None = None
     draft_subtitle: str | None = None
     draft_body: str | None = None
+    draft_updated_at: str | None = None
 
 
 class SubstackUpdateDraftPayload(BaseModel):

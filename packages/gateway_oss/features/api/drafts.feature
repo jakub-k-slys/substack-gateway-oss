@@ -44,6 +44,14 @@ Feature: Draft endpoints
     Then the response status code is 201
     And the response field "id" is not null
 
+  Scenario: Create a draft with a broken substack-node fence returns 400
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack user-settings endpoint returns the sample response
+    When I send POST /api/v1/drafts with JSON body {"title": "Test Draft", "body": "```substack-node\n{oops\n```"}
+    Then the response status code is 400
+    And the response field "detail" contains "line 1"
+    And no Substack POST request was sent to the drafts endpoint
+
   Scenario: Substack API error returns 502
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack create-draft endpoint returns status 503
@@ -83,6 +91,30 @@ Feature: Draft endpoints
     And the Substack update-draft endpoint returns status 503 for draft 189535264
     When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "test1"}
     Then the response status code is 502
+
+  Scenario: Stale expected_updated_at is rejected with 409 and nothing is written
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns the sample response for draft 189535264
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "late edit", "expected_updated_at": "2026-01-01T00:00:00.000Z"}
+    Then the response status code is 409
+    And the response field "detail" contains "changed since it was read"
+    And no Substack PUT request was sent
+
+  Scenario: Matching expected_updated_at lets the update through
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns the sample response for draft 189535264
+    And the Substack update-draft endpoint returns the sample response for draft 189535264
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"title": "test1", "expected_updated_at": "2026-03-01T09:53:35.569Z"}
+    Then the response status code is 200
+    And the response field "title" is "test1"
+    And the response field "updated_at" is "2026-03-01T09:53:35.569Z"
+
+  Scenario: Update with a broken substack-node fence returns 400 naming the line
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    When I send PUT /api/v1/drafts/189535264 with JSON body {"body": "```substack-node\n{oops\n```"}
+    Then the response status code is 400
+    And the response field "detail" contains "line 1"
+    And no Substack PUT request was sent
 
   # ------------------------------------------------------------------
   # GET /drafts/{draft_id}
