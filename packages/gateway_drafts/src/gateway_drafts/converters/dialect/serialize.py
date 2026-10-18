@@ -11,9 +11,11 @@ against block interactions the per-block check cannot see.
 Legacy shape: drafts written by older gateway versions store ``paragraph`` and
 ``heading`` nodes without ``attrs`` (or without ``textAlign``). Substack treats
 a missing ``textAlign`` as the default ``None``, so the content is normalised
-first (that one default filled in, nothing else) and every comparison and
-fence works on the normalised nodes: ``parse_blocks(serialize_doc(doc))``
-equals ``doc["content"]`` with those defaults filled in.
+first (that one default filled in, at the top level and inside quotes,
+callouts and lists only; any other node is kept exactly as stored) and every
+comparison and fence works on the normalised nodes:
+``parse_blocks(serialize_doc(doc))`` equals ``doc["content"]`` with those
+defaults filled in.
 
 Alignment: the most frequent paragraph ``textAlign`` (ties → none) becomes the
 ``::defaults{align=X}`` line; consecutive blocks whose paragraphs and headings
@@ -23,6 +25,7 @@ all share another alignment are wrapped in one ``:::align{X}`` container.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from collections import Counter
 from collections.abc import Callable, Iterator
@@ -42,6 +45,8 @@ from gateway_drafts.converters.dialect.fences import HSPACE
 from gateway_drafts.converters.dialect.inline import serialize_inline
 
 Node = dict[str, Any]
+
+_log = logging.getLogger(__name__)
 
 _ALIGN_NAMES = {value: name for name, value in ALIGN_VALUES.items()}
 _BUTTON_HREFS = {url: name for name, url in BUTTON_URLS.items()}
@@ -65,30 +70,54 @@ def serialize_doc(doc: dict[str, Any]) -> str:
         markdown = _Serializer(content).run()
         if _identical(parse_blocks(markdown), content):
             return markdown
-    except Exception:  # any failure degrades to verbatim fences
-        pass
+        # Never log the content: drafts are private.
+        _log.warning(
+            "draft serializer: whole-document check failed for %d blocks; "
+            "writing every block as a substack-node fence",
+            len(content),
+        )
+    except Exception as exc:  # any failure degrades to verbatim fences
+        _log.warning(
+            "draft serializer failed (%s); writing every block as a "
+            "substack-node fence",
+            type(exc).__name__,
+        )
     return "\n\n".join(_fence(node) for node in content)
 
 
 _TEXT_ALIGNED = frozenset({"paragraph", "heading"})
+# Containers the dialect writes itself; any other node (unknown or written as
+# a fence) is left exactly as stored, children included.
+_ALIGN_CONTAINERS = frozenset(
+    {
+        "blockquote",
+        "pullquote",
+        "calloutBlock",
+        "bullet_list",
+        "ordered_list",
+        "list_item",
+    }
+)
 
 
 def _with_text_align(node: Any) -> Any:
     """``node`` with ``textAlign: None`` added to every paragraph and heading
-    below it (itself included) that lacks it; a new tree, input untouched."""
+    that lacks it, itself included, descending only through known containers.
+    The input is never mutated; unchanged subtrees are shared."""
     if not isinstance(node, dict):
         return node
-    out = dict(node)
-    if out.get("type") in _TEXT_ALIGNED:
-        attrs = out.get("attrs")
+    kind = node.get("type")
+    if kind in _TEXT_ALIGNED:
+        attrs = node.get("attrs")
         if attrs is None:
-            out["attrs"] = {"textAlign": None}
-        elif isinstance(attrs, dict) and "textAlign" not in attrs:
-            out["attrs"] = {**attrs, "textAlign": None}
-    children = out.get("content")
-    if isinstance(children, list):
-        out["content"] = [_with_text_align(child) for child in children]
-    return out
+            return {**node, "attrs": {"textAlign": None}}
+        if isinstance(attrs, dict) and "textAlign" not in attrs:
+            return {**node, "attrs": {**attrs, "textAlign": None}}
+        return node
+    children = node.get("content")
+    if kind in _ALIGN_CONTAINERS and isinstance(children, list):
+        return {**node, "content": [_with_text_align(child) for child in children]}
+    return node
 
 
 class _Serializer:

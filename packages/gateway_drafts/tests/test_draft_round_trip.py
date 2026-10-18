@@ -47,6 +47,18 @@ def test_markdown_is_idempotent(name: str) -> None:
     assert md1 == md2
 
 
+# How many top-level blocks each fixture writes as ```substack-node fences.
+# Pinned so a serializer change that silently degrades readable blocks to
+# fences (still lossless, but no longer editable) fails here.
+FENCE_COUNTS = {"web_editor_draft.json": 4, "gateway_draft.json": 1}
+
+
+@pytest.mark.parametrize("name", NAMES)
+def test_fence_count_is_pinned(name: str) -> None:
+    markdown = draft_body_to_markdown((FIXTURES / name).read_text(encoding="utf-8"))
+    assert markdown.count("```substack-node\n") == FENCE_COUNTS[name]
+
+
 def _with_text_align(node: Any) -> Any:
     """Fill the default ``textAlign`` on legacy paragraphs and headings."""
     if isinstance(node, list):

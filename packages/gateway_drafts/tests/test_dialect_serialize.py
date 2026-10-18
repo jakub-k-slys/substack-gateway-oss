@@ -693,3 +693,75 @@ def test_explicit_text_align_is_not_normalised_away():
     # Only a missing textAlign is treated as the default; a present one is kept.
     md = _roundtrip(_p("right", "right"), _p("plain"))
     assert ":::align{right}" in md
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        # An unknown container: its paragraphs are not ours to normalise.
+        {
+            "type": "someFutureBlock",
+            "content": [{"type": "paragraph", "content": [_t("inside")]}],
+        },
+        # A known leaf that is written verbatim keeps its children untouched.
+        {
+            "type": "footnote",
+            "attrs": {"number": 1},
+            "content": [{"type": "paragraph", "content": [_t("note")]}],
+        },
+    ],
+)
+def test_legacy_paragraphs_inside_unknown_nodes_are_not_normalised(node):
+    doc = {"type": "doc", "content": [_p("Before."), node]}
+    assert parse_blocks(serialize_doc(doc)) == doc["content"]
+
+
+def test_legacy_paragraphs_inside_known_containers_are_normalised():
+    legacy = {"type": "paragraph", "content": [_t("x")]}
+    aligned = {"type": "paragraph", "attrs": {"textAlign": None}, "content": [_t("x")]}
+    doc = {
+        "type": "doc",
+        "content": [
+            {"type": "blockquote", "content": [legacy]},
+            {
+                "type": "bullet_list",
+                "content": [{"type": "list_item", "content": [legacy]}],
+            },
+        ],
+    }
+    assert parse_blocks(serialize_doc(doc)) == [
+        {"type": "blockquote", "content": [aligned]},
+        {
+            "type": "bullet_list",
+            "content": [{"type": "list_item", "content": [aligned]}],
+        },
+    ]
+
+
+def test_whole_document_guard_logs_a_warning_without_content(monkeypatch, caplog):
+    from gateway_drafts.converters.dialect import serialize
+
+    secret = "a private sentence"
+    monkeypatch.setattr(serialize._Serializer, "run", lambda self: "not the same")
+    doc = {"type": "doc", "content": [_p(secret)]}
+    with caplog.at_level("WARNING", logger=serialize.__name__):
+        markdown = serialize_doc(doc)
+    assert markdown.startswith("```substack-node\n")
+    assert parse_blocks(markdown) == doc["content"]
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert secret not in caplog.text
+
+
+def test_serializer_failure_logs_a_warning_and_degrades_to_fences(monkeypatch, caplog):
+    from gateway_drafts.converters.dialect import serialize
+
+    def boom(self):
+        raise RuntimeError("bug")
+
+    monkeypatch.setattr(serialize._Serializer, "run", boom)
+    doc = {"type": "doc", "content": [_p("x")]}
+    with caplog.at_level("WARNING", logger=serialize.__name__):
+        markdown = serialize_doc(doc)
+    assert parse_blocks(markdown) == doc["content"]
+    assert [r.levelname for r in caplog.records] == ["WARNING"]
