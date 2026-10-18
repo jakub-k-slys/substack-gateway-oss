@@ -164,3 +164,28 @@ Feature: Draft endpoints
     And the Substack delete-draft endpoint returns status 401 for draft 189535264
     When I send DELETE /api/v1/drafts/189535264
     Then the response status code is 401
+
+  # ------------------------------------------------------------------
+  # Lossless Markdown round-trip and write-time watermarking
+  # ------------------------------------------------------------------
+
+  Scenario: A draft made in the web editor round-trips through Markdown unchanged
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns the rich sample for draft 189535264
+    And the Substack update-draft endpoint returns the sample response for draft 189535264
+    When I send GET /api/v1/drafts/189535264
+    Then the response status code is 200
+    And the response field "updated_at" is "2026-03-02T10:15:30.123Z"
+    When I send PUT /api/v1/drafts/189535264 with the body and updated_at from the previous response
+    Then the response status code is 200
+    And the upstream draft PUT body equals the rich sample draft_body
+
+  Scenario: Creating a draft with a {watermark} image watermarks it at write time
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack create-draft endpoint returns the sample response
+    And the Substack watermark endpoint returns "https://substack-post-media.s3.amazonaws.com/public/images/w_1536x1024.png"
+    When I send POST /api/v1/drafts with JSON body {"title": "Test Draft", "body": "![H](https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png){watermark}"}
+    Then the response status code is 201
+    And the upstream watermark request has offsetX 1433 offsetY 6 width 93
+    And the upstream watermark request is for image "https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png" with opacity 65
+    And the created draft has one image with src "https://substack-post-media.s3.amazonaws.com/public/images/w_1536x1024.png" and srcNoWatermark "https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png"

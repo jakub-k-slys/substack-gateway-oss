@@ -48,3 +48,21 @@ Feature: MCP draft tools
     And the Substack user-settings endpoint returns the sample response
     When I call the MCP tool create_draft with a broken substack-node fence body
     Then the MCP call fails with a tool error containing "line 1"
+
+  Scenario: A draft made in the web editor round-trips through get_draft and update_draft unchanged
+    Given a valid MCP token and publication URL "https://example.substack.com"
+    And the Substack get-draft endpoint returns the rich sample for draft 189535264
+    And the Substack update-draft endpoint returns the sample response for draft 189535264
+    When I call the MCP tool get_draft then update_draft with draft_id 189535264
+    Then the MCP result field "updated_at" is "2026-03-01T09:53:35.569Z"
+    And the upstream draft PUT body equals the rich sample draft_body
+
+  Scenario: create_draft with a {watermark} image watermarks it at write time
+    Given a valid MCP token and publication URL "https://example.substack.com"
+    And the Substack create-draft endpoint returns the sample response
+    And the Substack watermark endpoint returns "https://substack-post-media.s3.amazonaws.com/public/images/w_1536x1024.png"
+    When I call the MCP tool create_draft with body "![H](https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png){watermark}"
+    Then the MCP result field "id" is not null
+    And the upstream watermark request has offsetX 1433 offsetY 6 width 93
+    And the upstream watermark request is for image "https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png" with opacity 65
+    And the created draft has one image with src "https://substack-post-media.s3.amazonaws.com/public/images/w_1536x1024.png" and srcNoWatermark "https://substack-post-media.s3.amazonaws.com/public/images/o_1536x1024.png"
