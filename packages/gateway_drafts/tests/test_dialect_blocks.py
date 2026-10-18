@@ -698,7 +698,12 @@ def test_deeply_nested_quotes_raise_instead_of_overflowing_the_stack():
 
 
 @pytest.mark.parametrize(
-    "body", ["[" * 100_000, '{"type": "x", "n": ' + "9" * 5000 + "}"]
+    "body",
+    [
+        "[" * 100_000,
+        '{"type": "x", "n": ' + "9" * 5000 + "}",
+        '{"type": "x", "n": ' + "[" * 100_000 + "]" * 100_000 + "}",
+    ],
 )
 def test_unreadable_substack_node_json_is_a_markdown_error(body):
     with pytest.raises(DraftMarkdownError) as exc:

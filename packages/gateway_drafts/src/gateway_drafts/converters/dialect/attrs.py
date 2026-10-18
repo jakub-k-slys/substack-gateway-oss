@@ -16,6 +16,40 @@ from typing import Any
 
 from gateway_drafts.converters.dialect.errors import DraftMarkdownError
 
+# Real draft documents nest a few dozen levels at most. The explicit bound keeps
+# deeply nested input an error on every Python version: older ``json`` modules
+# raise RecursionError on it, newer ones parse it and leave the overflow to
+# whatever walks the result later.
+MAX_JSON_DEPTH = 200
+
+
+def loads_bounded_json(text: str) -> Any:
+    """``json.loads`` that refuses arrays/objects nested deeper than MAX_JSON_DEPTH.
+
+    Raises ``ValueError`` (not ``JSONDecodeError``) when the bound is exceeded.
+    """
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in "[{":
+            depth += 1
+            if depth > MAX_JSON_DEPTH:
+                raise ValueError(f"JSON nested deeper than {MAX_JSON_DEPTH} levels")
+        elif char in "]}":
+            depth -= 1
+    return json.loads(text)
+
+
 _IMAGE2_NONE_KEYS = (
     "srcNoWatermark",
     "fullscreen",
@@ -129,7 +163,7 @@ def _parse_value(text: str, pos: int, key: str) -> tuple[Any, int]:
     if quote == '"':
         return inner, end
     try:
-        return json.loads(inner), end
+        return loads_bounded_json(inner), end
     except json.JSONDecodeError as exc:
         raise DraftMarkdownError(
             f"attribute block: invalid JSON for '{key}': {exc.msg}"

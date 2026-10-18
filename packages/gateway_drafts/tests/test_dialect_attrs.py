@@ -205,3 +205,15 @@ def test_error_without_line() -> None:
     assert err.message == "bad" and err.line is None
     assert isinstance(err, ValueError)
     assert DraftMarkdownError("x", line=3).line == 3
+
+
+def test_json_nesting_bound_is_independent_of_the_python_version() -> None:
+    from gateway_drafts.converters.dialect.attrs import MAX_JSON_DEPTH
+
+    ok = "[" * MAX_JSON_DEPTH + "]" * MAX_JSON_DEPTH
+    assert parse_attr_block("n='" + ok + "'")["n"] is not None
+    too_deep = "[" * (MAX_JSON_DEPTH + 1) + "]" * (MAX_JSON_DEPTH + 1)
+    with pytest.raises(DraftMarkdownError, match="nested deeper"):
+        parse_attr_block("n='" + too_deep + "'")
+    # brackets inside JSON strings do not count towards the depth
+    assert parse_attr_block("n='" + '["' + "[" * 500 + '"]' + "'") == {"n": ["[" * 500]}

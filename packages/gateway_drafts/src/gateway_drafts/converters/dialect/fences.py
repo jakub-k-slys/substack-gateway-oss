@@ -19,7 +19,11 @@ import string
 from dataclasses import dataclass, field
 from typing import Any
 
-from gateway_drafts.converters.dialect.attrs import fill_defaults, parse_attr_block
+from gateway_drafts.converters.dialect.attrs import (
+    fill_defaults,
+    loads_bounded_json,
+    parse_attr_block,
+)
 from gateway_drafts.converters.dialect.errors import DraftMarkdownError
 
 Node = dict[str, Any]
@@ -145,7 +149,7 @@ def latex_block(expression: str, attrs: dict[str, Any]) -> Node:
 
 def _verbatim(text: str, line: int) -> Node:
     try:
-        node = json.loads(text)
+        node = loads_bounded_json(text)
     except json.JSONDecodeError as exc:
         raise DraftMarkdownError(
             f"substack-node fence holds invalid JSON ({exc.msg} at fence body "
