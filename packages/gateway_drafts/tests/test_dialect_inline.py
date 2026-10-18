@@ -347,3 +347,10 @@ def test_many_open_brackets_then_closing_brackets_parse_in_linear_time() -> None
 def test_long_asterisk_run_before_long_text_parses_in_linear_time() -> None:
     raw = "*" * 30000 + "a" * 30000 + "*"
     assert "".join(node["text"] for node in parse_inline(raw)).count("a") == 30000
+
+
+def test_long_run_of_unclosed_link_openers_is_one_text_node():
+    # Every "[" is demoted to text, so 400k pieces merge into one node; the
+    # merge joins the pieces once instead of re-copying the growing string.
+    text = "[a" * 200_000
+    assert parse_inline(text) == [{"type": "text", "text": text}]

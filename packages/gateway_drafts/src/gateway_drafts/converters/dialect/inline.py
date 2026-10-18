@@ -278,32 +278,39 @@ def _mark_for(token: _Token) -> Mark:
     return {"type": token.mark}
 
 
-def _append(nodes: list[Node], text: str, marks: list[Mark]) -> None:
+# A run of adjacent text with the same marks: (ordered marks, text parts).
+_Run = tuple[list[Mark], list[str]]
+
+
+def _append(runs: list[_Run], text: str, marks: list[Mark]) -> None:
     if not text:
         return
     ordered = sorted(marks, key=lambda mark: _RANK[mark["type"]])
-    if nodes and nodes[-1].get("marks", []) == ordered:
-        nodes[-1]["text"] += text
+    if runs and runs[-1][0] == ordered:
+        runs[-1][1].append(text)  # joined once at the end, never re-copied
         return
-    node: Node = {"type": "text", "text": text}
-    if ordered:
-        node["marks"] = ordered
-    nodes.append(node)
+    runs.append((ordered, [text]))
 
 
 def parse_inline(text: str) -> list[Node]:
     """Parse inline dialect Markdown into merged ProseMirror text nodes."""
-    nodes: list[Node] = []
+    runs: list[_Run] = []
     active: list[Mark] = []
     for token in _Scanner(text).run():
         if token.kind == "text":
-            _append(nodes, token.value, active)
+            _append(runs, token.value, active)
         elif token.kind == "code":
-            _append(nodes, token.value, [*active, {"type": "code"}])
+            _append(runs, token.value, [*active, {"type": "code"}])
         elif token.kind == "open":
             active.append(_mark_for(token))
         else:
             active.pop()
+    nodes: list[Node] = []
+    for marks, parts in runs:
+        node: Node = {"type": "text", "text": "".join(parts)}
+        if marks:
+            node["marks"] = marks
+        nodes.append(node)
     return nodes
 
 
