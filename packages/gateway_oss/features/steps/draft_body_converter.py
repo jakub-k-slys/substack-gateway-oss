@@ -334,3 +334,20 @@ def step_markdown_result(context, expected):
     assert context.reverse_result == expected, (
         f"Expected {expected!r}, got {context.reverse_result!r}"
     )
+
+
+@then("the markdown result is:")
+def step_markdown_result_docstring(context):
+    expected = textwrap.dedent(context.text).strip()
+    assert context.reverse_result == expected, (
+        f"Expected {expected!r}, got {context.reverse_result!r}"
+    )
+
+
+@then("draft node {idx:d} has attrs {attrs_json}")
+def step_draft_node_attrs(context, idx, attrs_json):
+    node = _node(context, idx)
+    expected = json.loads(attrs_json)
+    assert node.get("attrs") == expected, (
+        f"Expected attrs {expected!r}, got {node.get('attrs')!r}"
+    )

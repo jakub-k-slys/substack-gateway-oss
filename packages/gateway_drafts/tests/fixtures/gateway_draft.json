@@ -1,0 +1,376 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 1,
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Field notes from the harbour 🔁"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": "justify"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "The ferry was late again, so we wrote this on the pier with "
+        },
+        {
+          "type": "text",
+          "text": "cold hands",
+          "marks": [
+            {
+              "type": "strong"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " and "
+        },
+        {
+          "type": "text",
+          "text": "warm tea",
+          "marks": [
+            {
+              "type": "em"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": "justify"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Some prose keeps dialect tokens as text: a --- b, ::button[not a button]{href=share}, and ::: too."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2,
+        "textAlign": "center"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Tonight's schedule"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": "center"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Doors open at seven. ⚓"
+        }
+      ]
+    },
+    {
+      "type": "captionedImage",
+      "content": [
+        {
+          "type": "image2",
+          "attrs": {
+            "srcNoWatermark": null,
+            "fullscreen": false,
+            "imageSize": "large",
+            "height": null,
+            "width": null,
+            "resizeWidth": 1200,
+            "bytes": null,
+            "alt": "A rope coiled on the deck",
+            "title": null,
+            "type": null,
+            "href": null,
+            "internalRedirect": null,
+            "align": "center",
+            "belowTheFold": false,
+            "topImage": false,
+            "isProcessing": false,
+            "offset": false,
+            "src": "https://substack-post-media.s3.amazonaws.com/public/images/0b0b0b0b-1111-4222-8333-444455556666_1200x800.png"
+          }
+        }
+      ]
+    },
+    {
+      "type": "captionedImage",
+      "content": [
+        {
+          "type": "image2",
+          "attrs": {
+            "srcNoWatermark": null,
+            "fullscreen": null,
+            "imageSize": null,
+            "height": null,
+            "width": null,
+            "resizeWidth": null,
+            "bytes": null,
+            "alt": null,
+            "title": null,
+            "type": null,
+            "href": null,
+            "internalRedirect": null,
+            "align": null,
+            "belowTheFold": false,
+            "topImage": false,
+            "isProcessing": false,
+            "offset": false,
+            "src": "https://substack-post-media.s3.amazonaws.com/public/images/0c0c0c0c-1111-4222-8333-444455556666_640x480.png"
+          }
+        }
+      ]
+    },
+    {
+      "type": "horizontal_rule"
+    },
+    {
+      "type": "button",
+      "attrs": {
+        "action": null,
+        "class": null,
+        "url": "%%checkout_url%%",
+        "text": "Subscribe 📬"
+      }
+    },
+    {
+      "type": "button",
+      "attrs": {
+        "action": null,
+        "class": null,
+        "url": "%%half_magic_comments_url%%",
+        "text": "Join the chat 💬"
+      }
+    },
+    {
+      "type": "calloutBlock",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "justify"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Remember: the tide waits for no one."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "pullquote",
+      "attrs": {
+        "align": null,
+        "color": null
+      },
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "justify"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Weather is a schedule written in pencil."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "justify"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Logbook, day three: fog, then sun, then fog."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "bullet_list",
+      "content": [
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": "justify"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "rope"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": "justify"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "lantern"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": "justify"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "a spare "
+                },
+                {
+                  "type": "text",
+                  "text": "anchor",
+                  "marks": [
+                    {
+                      "type": "strong"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ordered_list",
+      "attrs": {
+        "start": 1,
+        "type": null,
+        "order": 1
+      },
+      "content": [
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": "justify"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "cast off"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": "justify"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "hold the line"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "latex_block",
+      "attrs": {
+        "persistentExpression": "v = \\frac{d}{t}",
+        "id": "ASDFGHJKLZ"
+      }
+    },
+    {
+      "type": "highlighted_code_block",
+      "attrs": {
+        "language": "bash",
+        "nodeId": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "echo \"all hands\""
+        }
+      ]
+    },
+    {
+      "type": "digestPostEmbed",
+      "attrs": {
+        "id": 170000077,
+        "title": "Storm season recap",
+        "canonical_url": "https://example-harbor.substack.com/p/storm-season-recap",
+        "nodeId": "9e8d7c6b-5a49-4382-a716-151413121110",
+        "isEditorNode": true
+      }
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": "right"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "— the harbour crew"
+        }
+      ]
+    }
+  ]
+}

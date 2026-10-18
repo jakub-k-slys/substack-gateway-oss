@@ -20,3 +20,17 @@ def test_body_is_json_dump_of_doc() -> None:
     assert markdown_to_draft_body(markdown) == json.dumps(
         markdown_to_draft_doc(markdown), ensure_ascii=False
     )
+
+
+def test_literal_backslash_n_in_single_line_input_stays_text() -> None:
+    # The old converter expanded a literal "\n" in single-line input into a
+    # line break. That rewrote text the serializer writes on one line (e.g. a
+    # paragraph mentioning "\n"), so the façade now passes input through as is.
+    doc = markdown_to_draft_doc("first\\nsecond")
+    assert doc["content"] == [
+        {
+            "type": "paragraph",
+            "attrs": {"textAlign": None},
+            "content": [{"type": "text", "text": "first\\nsecond"}],
+        }
+    ]

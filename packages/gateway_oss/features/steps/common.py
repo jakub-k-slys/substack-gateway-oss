@@ -118,6 +118,14 @@ def step_field_string(context, field, value):
     )
 
 
+@then('the response field "{field}" is the text:')
+def step_field_text(context, field):
+    body = context.response.json()
+    assert body[field] == context.text, (
+        f'Expected field "{field}" to be {context.text!r}, got {body[field]!r}'
+    )
+
+
 @then('the response field "{field}" is {value:d}')
 def step_response_field_equals_int(context, field, value):
     body = context.response.json()

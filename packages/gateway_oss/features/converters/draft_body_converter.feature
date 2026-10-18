@@ -340,18 +340,52 @@ Feature: Markdown to Substack draft body converter
   Scenario: Reverse converter on a raw draft body JSON string
     When I reverse-convert the draft body JSON:
       """
-      {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"test3"}]}]}
+      {"type":"doc","content":[{"type":"paragraph","attrs":{"textAlign":null},"content":[{"type":"text","text":"test3"}]}]}
       """
     Then the markdown result is "test3"
 
-  Scenario: Whitespace inside marks is moved outside delimiters to prevent bleeding
+  Scenario: A paragraph without attrs is kept verbatim as a substack-node fence
     When I reverse-convert the draft body JSON:
       """
-      {"type":"doc","content":[{"type":"paragraph","content":[
+      {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"test3"}]}]}
+      """
+    Then the markdown result is:
+      """
+      ```substack-node
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "test3"
+          }
+        ]
+      }
+      ```
+      """
+
+  Scenario: Whitespace inside marks stays inside the delimiters so the text round-trips exactly
+    When I reverse-convert the draft body JSON:
+      """
+      {"type":"doc","content":[{"type":"paragraph","attrs":{"textAlign":null},"content":[
         {"type":"text","text":"Hello! "},
         {"type":"text","marks":[{"type":"strong"}],"text":"This is BOLD. "},
         {"type":"text","marks":[{"type":"em"}],"text":"This is italic. "},
         {"type":"text","marks":[{"type":"strong"},{"type":"em"}],"text":"This is BOLD and italic."}
       ]}]}
       """
-    Then the markdown result is "Hello! **This is BOLD.** *This is italic.* ***This is BOLD and italic.***"
+    Then the markdown result is "Hello! **This is BOLD. ***This is italic. ****This is BOLD and italic.***"
+
+  # ------------------------------------------------------------------
+  # Node shapes the rich dialect produces
+  # ------------------------------------------------------------------
+
+  Scenario: Paragraphs and headings carry a textAlign attribute
+    When I convert draft markdown:
+      """
+      # Title
+
+      Body text.
+      """
+    Then draft node 1 has attrs {"level": 1, "textAlign": null}
+    And draft node 2 has attrs {"textAlign": null}

@@ -28,24 +28,23 @@ def test_plain_code_fence_is_unaffected() -> None:
 
 
 def test_datawrapper_node_round_trips_to_fence() -> None:
-    body = json.dumps(
-        {
-            "type": "doc",
-            "content": [
-                {
-                    "type": "datawrapper",
-                    "attrs": {
-                        "url": "https://datawrapper.dwcdn.net/boimj/2/",
-                        "thumbnail_url": "https://s3/x.png",
-                        "thumbnail_url_full": "https://s3/x-full.png",
-                        "height": 400,
-                        "title": "T",
-                        "description": "",
-                    },
-                }
-            ],
-        }
+    # A stored datawrapper node carries thumbnails and metadata the
+    # ```datawrapper fence cannot express, so it is written verbatim as a
+    # substack-node fence and parses back to the very same node.
+    node = {
+        "type": "datawrapper",
+        "attrs": {
+            "url": "https://datawrapper.dwcdn.net/boimj/2/",
+            "thumbnail_url": "https://s3/x.png",
+            "thumbnail_url_full": "https://s3/x-full.png",
+            "height": 400,
+            "title": "T",
+            "description": "",
+        },
+    }
+    body = json.dumps({"type": "doc", "content": [node]})
+    markdown = draft_body_to_markdown(body)
+    assert markdown == (
+        "```substack-node\n" + json.dumps(node, indent=2, ensure_ascii=False) + "\n```"
     )
-    assert draft_body_to_markdown(body) == (
-        "```datawrapper\nhttps://datawrapper.dwcdn.net/boimj/2/\n```"
-    )
+    assert _nodes(markdown) == [node]
