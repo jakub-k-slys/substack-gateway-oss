@@ -2,7 +2,7 @@
 
 The REST API is mounted under `/api/v1` and assembled from `gateway_oss`'s health
 routes plus each domain's `_rest` capability (see `CLAUDE.md` for the trio
-layout). It totals 45 endpoints across 33 paths.
+layout). It totals 51 endpoints across 39 paths.
 
 ## Authentication
 
@@ -225,14 +225,20 @@ Trailing-30-day publication views and their delta versus the prior period.
 
 ### `GET /api/v1/stats/arr`
 
-Daily annual recurring revenue as a timeseries. Each point carries the parsed
-`arr` number and `arr_display`, the amount exactly as Substack sent it. Query
-parameter: `from` (ISO timestamp, defaults to the last 7 days).
+Daily annualized recurring revenue as a timeseries. Each point carries the
+parsed `arr` number and `arr_display`, the amount exactly as Substack sent it.
+Query parameter: `from` (ISO timestamp, defaults to the last 7 days). If a
+cache extension is installed, only the tail beyond the last stored day is
+re-fetched from Substack on subsequent calls; OSS ships no such cache, so every
+call fetches the full window.
 
 ### `GET /api/v1/stats/emails`
 
 Daily email subscriber counts as a timeseries. Query parameter: `from` (ISO
-timestamp, defaults to the last 7 days).
+timestamp, defaults to the last 7 days). If a cache extension is installed,
+only the tail beyond the last stored day is re-fetched from Substack on
+subsequent calls; OSS ships no such cache, so every call fetches the full
+window.
 
 ### `GET /api/v1/stats/dashboard`
 

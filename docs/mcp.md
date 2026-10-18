@@ -2,7 +2,7 @@
 
 The MCP server is mounted at `/mcp` and served over streamable HTTP
 (stateless). It is assembled from each domain's `_mcp` capability (see
-`CLAUDE.md` for the trio layout) and currently exposes 43 tools.
+`CLAUDE.md` for the trio layout) and currently exposes 49 tools.
 
 ## Credentials and the `token` argument
 
@@ -131,10 +131,14 @@ is in [Draft Markdown dialect](drafts-markdown.md).
   Substack on later calls; OSS ships no such cache.
 - `get_30d_views(token=None)` — trailing-30-day publication views and their
   delta.
-- `get_arr_timeseries(token=None, from_date=None)` — daily annualised recurring
-  revenue; each point keeps the raw money string next to the parsed number.
+- `get_arr_timeseries(token=None, from_date=None)` — daily annualized recurring
+  revenue; each point keeps the raw money string next to the parsed number. If
+  a cache extension is installed, only the tail beyond the last stored day is
+  re-fetched from Substack on later calls; OSS ships no such cache.
 - `get_email_timeseries(token=None, from_date=None)` — daily email subscriber
-  counts.
+  counts. If a cache extension is installed, only the tail beyond the last
+  stored day is re-fetched from Substack on later calls; OSS ships no such
+  cache.
 - `get_dashboard_summary(token=None)` — the publish dashboard's headline
   numbers.
 - `get_dashboard_period(token=None, range_days=365)` — dashboard summary over

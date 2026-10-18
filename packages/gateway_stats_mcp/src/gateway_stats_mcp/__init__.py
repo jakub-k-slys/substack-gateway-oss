@@ -76,7 +76,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_30d_views)
     mcp.tool(
-        description="Fetch the publication's daily annualised recurring revenue (ARR) timeseries for the trailing 7 days by default; each point keeps the raw money string next to the parsed number. Optionally pass `from_date` (ISO) to bound the window. Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Fetch the publication's daily annualized recurring revenue (ARR) timeseries for the trailing 7 days by default; each point keeps the raw money string next to the parsed number. Optionally pass `from_date` (ISO) to bound the window. If a cache extension is installed, repeat calls fetch only the days newer than what is already stored; without one, every call fetches the full window from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get ARR Timeseries",
@@ -91,7 +91,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(get_arr_timeseries)
     mcp.tool(
-        description="Fetch the publication's daily email subscriber count timeseries for the trailing 7 days by default. Optionally pass `from_date` (ISO) to bound the window. Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Fetch the publication's daily email subscriber count timeseries for the trailing 7 days by default. Optionally pass `from_date` (ISO) to bound the window. If a cache extension is installed, repeat calls fetch only the days newer than what is already stored; without one, every call fetches the full window from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"stats", "read"},
         annotations=ToolAnnotations(
             title="Get Email Timeseries",

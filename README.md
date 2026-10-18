@@ -93,7 +93,7 @@ curl \
   http://127.0.0.1:5001/api/v1/me
 ```
 
-The REST API is mounted under `/api/v1` and includes 45 endpoints across
+The REST API is mounted under `/api/v1` and includes 51 endpoints across
 health, profiles, posts, notes, comments, drafts, publication/post
 analytics, following, and `me` — see the full
 [API reference](docs/api-reference.md).
@@ -127,7 +127,7 @@ real values to the repository.
 ## MCP
 
 The MCP server is mounted at `/mcp` and served over streamable HTTP. It
-exposes 43 tools across the same domains as the REST API — see the full
+exposes 49 tools across the same domains as the REST API — see the full
 [MCP reference](docs/mcp.md).
 
 Every tool takes an optional `token` argument carrying the same
