@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from pydantic import BaseModel, Field, RootModel
@@ -36,6 +37,83 @@ class SubscriberTimeseriesResponse(BaseModel):
     @classmethod
     def from_substack(cls, rows: list[list]) -> SubscriberTimeseriesResponse:
         return cls(items=[SubscriberPoint.from_row(r) for r in rows])
+
+
+_MONEY_PLAIN = re.compile(r"\d+(\.\d+)?")
+_MONEY_GROUPED = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
+
+
+def parse_money(value: object) -> float | None:
+    """Parse a Substack money cell (``"$1,262.40"``) into a float.
+
+    Currency symbols are discarded, never interpreted. Ambiguous or
+    locale-formatted strings (``"€1.234,56"``, ``"1,5"``) yield ``None``.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+    if not isinstance(value, str):
+        return None
+    negative = "-" in value
+    digits = re.sub(r"[^\d.,]", "", value)
+    if _MONEY_PLAIN.fullmatch(digits):
+        number = float(digits)
+    elif _MONEY_GROUPED.fullmatch(digits):
+        number = float(digits.replace(",", ""))
+    else:
+        return None
+    return -number if negative else number
+
+
+class ArrPoint(BaseModel):
+    """One day on the annualized-recurring-revenue timeseries.
+
+    Substack returns rows positionally as ``[Date, ARR]`` where ARR is a
+    formatted money string. The raw string is kept next to the parsed number.
+    """
+
+    date: str
+    arr: float | None = None
+    arr_display: str | None = None
+
+    @classmethod
+    def from_row(cls, row: list) -> ArrPoint:
+        cells = list(row) + [None] * (2 - len(row))
+        cell = cells[1]
+        return cls(
+            date=cells[0],
+            arr=parse_money(cell),
+            arr_display=None if cell is None else str(cell),
+        )
+
+
+class ArrTimeseriesResponse(BaseModel):
+    items: list[ArrPoint]
+
+    @classmethod
+    def from_substack(cls, rows: list[list]) -> ArrTimeseriesResponse:
+        return cls(items=[ArrPoint.from_row(r) for r in rows])
+
+
+class EmailPoint(BaseModel):
+    """One day on the emails-sent timeseries: ``[Date, Emails]``."""
+
+    date: str
+    emails: int | None = None
+
+    @classmethod
+    def from_row(cls, row: list) -> EmailPoint:
+        cells = list(row) + [None] * (2 - len(row))
+        return cls(date=cells[0], emails=cells[1])
+
+
+class EmailTimeseriesResponse(BaseModel):
+    items: list[EmailPoint]
+
+    @classmethod
+    def from_substack(cls, rows: list[list]) -> EmailTimeseriesResponse:
+        return cls(items=[EmailPoint.from_row(r) for r in rows])
 
 
 class ThirtyDayViewsResponse(BaseModel):
