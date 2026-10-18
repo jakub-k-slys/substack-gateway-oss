@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -41,22 +42,28 @@ class SubscriberTimeseriesResponse(BaseModel):
 
 _MONEY_PLAIN = re.compile(r"\d+(\.\d+)?")
 _MONEY_GROUPED = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
+# [-] [symbol of 0-3 chars] [-] number, with optional whitespace between parts.
+_MONEY_SHAPE = re.compile(r"\s*(-?)\s*[^\d\s.,\-]{0,3}\s*(-?)\s*([\d.,]+)\s*")
 
 
 def parse_money(value: object) -> float | None:
     """Parse a Substack money cell (``"$1,262.40"``) into a float.
 
     Currency symbols are discarded, never interpreted. Ambiguous or
-    locale-formatted strings (``"€1.234,56"``, ``"1,5"``) yield ``None``.
+    locale-formatted or otherwise unrecognised strings (``"€1.234,56"``,
+    ``"1.5M"``, ``"12 USD"``) yield ``None`` rather than a guessed number.
     """
     if isinstance(value, bool):
         return None
     if isinstance(value, int | float):
-        return float(value)
+        return float(value) if math.isfinite(value) else None
     if not isinstance(value, str):
         return None
-    negative = "-" in value
-    digits = re.sub(r"[^\d.,]", "", value)
+    shape = _MONEY_SHAPE.fullmatch(value)
+    if shape is None:
+        return None
+    negative = bool(shape.group(1) or shape.group(2))
+    digits = shape.group(3)
     if _MONEY_PLAIN.fullmatch(digits):
         number = float(digits)
     elif _MONEY_GROUPED.fullmatch(digits):

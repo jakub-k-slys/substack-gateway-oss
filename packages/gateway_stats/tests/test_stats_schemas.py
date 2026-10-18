@@ -27,6 +27,18 @@ from gateway_stats.schemas import (
         ("€1.234,56", None),
         ("1,5", None),
         ("$1,23", None),
+        ("$1.2K", None),
+        ("1.5M", None),
+        ("1e5", None),
+        ("Q3 2025", None),
+        ("5-3", None),
+        ("2025-10", None),
+        ("12 USD", None),
+        ("US$12", 12.0),
+        ("-$1,262.40", -1262.40),
+        ("$-5", -5.0),
+        (float("nan"), None),
+        (float("inf"), None),
     ],
 )
 def test_parse_money(raw: object, expected: float | None) -> None:
@@ -51,6 +63,12 @@ def test_arr_timeseries_from_substack() -> None:
 
 def test_arr_point_numeric_cell_keeps_display_as_string() -> None:
     assert ArrPoint.from_row(["2025/10/18", 258.19]).arr_display == "258.19"
+
+
+def test_arr_point_short_row() -> None:
+    point = ArrPoint.from_row(["2025/10/18"])
+    assert point.arr is None
+    assert point.arr_display is None
 
 
 def test_email_timeseries_from_substack_short_row() -> None:
