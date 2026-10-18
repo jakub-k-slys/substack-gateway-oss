@@ -1,6 +1,6 @@
 [project]
 name = "gateway_comments_mcp"
-version = "5.0.0"
+version = "5.1.0"
 requires-python = ">=3.11"
 dependencies = ["gateway_core", "gateway_mcp_common", "gateway_comments", "fastmcp>=4.1.0"]
 
