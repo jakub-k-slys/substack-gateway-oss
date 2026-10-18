@@ -261,13 +261,57 @@ def step_update_draft_with_fetched(context):
     )
 
 
+@when(
+    "I update the test draft again with the previous body and the returned updated_at"
+)
+def step_update_draft_chained(context):
+    # Chained edit: the updated_at comes from the previous PUT's response, not
+    # from a fresh GET, so Substack must report the stamp it actually stored.
+    updated = context.response.json()
+    assert updated.get("updated_at"), f"Update response has no updated_at: {updated}"
+    context.response = context.client.put(
+        f"/api/v1/drafts/{context.draft_id}",
+        json={
+            "body": context.previous_body,
+            "expected_updated_at": updated["updated_at"],
+        },
+        headers=context.headers,
+    )
+
+
+_RICH_IMAGE = re.compile(r"^!\[E2E image\]\((\S+)\)\{(.*)\}$", re.MULTILINE)
+
+
 @then("the fetched body keeps the rich dialect elements")
 def step_body_keeps_rich_elements(context):
     body = context.response.json()["body"]
-    for needle in (":::align{center}", ":::callout", "original="):
+    assert body.startswith("::defaults{align=justify}\n"), (
+        f"Expected the justify default as the first line of:\n{body}"
+    )
+    for needle in (
+        ":::align{center}",
+        ":::align{left}",
+        ":::callout",
+        "::button[Subscribe now]{href=subscribe}",
+        "::button[Share this post]{href=share}",
+        "::button[Leave a comment]{href=comment}",
+    ):
         assert needle in body, f"Expected {needle!r} in fetched body:\n{body}"
     assert body.count("::button[") == 3, f"Expected 3 buttons in:\n{body}"
     assert "\n---\n" in body, f"Expected a horizontal rule in:\n{body}"
+    image = _RICH_IMAGE.search(body)
+    assert image, f"Expected the E2E image line in:\n{body}"
+    src, attrs = image.groups()
+    assert "size=large" in attrs, f"Expected size=large on the image: {attrs}"
+    # The watermark instruction was carried out: the stored picture is a new
+    # (watermarked) URL and original= points back at the uploaded image.
+    assert "original=" in attrs, f"Expected original= on the image: {attrs}"
+    assert context.image_url in attrs, (
+        f"Expected original= to name the uploaded image {context.image_url!r}: {attrs}"
+    )
+    assert src != context.image_url, (
+        f"Expected a watermarked image URL, got the original back: {src}"
+    )
 
 
 @then("the fetched body equals the previously fetched body")

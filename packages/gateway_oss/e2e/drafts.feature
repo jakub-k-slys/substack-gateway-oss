@@ -56,9 +56,12 @@ Feature: Drafts endpoints
     # 4) Write the fetched body back with its updated_at, then fetch again
     When I update the test draft with the fetched body and updated_at
     Then the response status is 200
+    # 5) Chain a second update on the updated_at the first PUT returned
+    When I update the test draft again with the previous body and the returned updated_at
+    Then the response status is 200
     When I fetch the test draft
     Then the response status is 200
     And the fetched body equals the previously fetched body
-    # 5) Delete the draft
+    # 6) Delete the draft
     When I delete the test draft
     Then the response status is 204
