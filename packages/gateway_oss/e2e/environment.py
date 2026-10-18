@@ -17,6 +17,8 @@ def before_scenario(context, scenario):
     context.response = None
     context.mcp_response = None
     context.mcp_payload = None
+    context.draft_id = None
+    context.draft_deleted = False
 
     if not configured_base_url:
         try:
@@ -28,4 +30,12 @@ def before_scenario(context, scenario):
 
 
 def after_scenario(context, scenario):
+    # Best-effort cleanup so a failing scenario does not leave a draft behind.
+    if context.draft_id and not context.draft_deleted:
+        try:
+            context.client.delete(
+                f"/api/v1/drafts/{context.draft_id}", headers=context.headers
+            )
+        except httpx.HTTPError:
+            pass
     context.client.close()

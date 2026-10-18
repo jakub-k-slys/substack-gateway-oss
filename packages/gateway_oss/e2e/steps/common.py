@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import struct
+import zlib
 from urllib.parse import urlparse
 
 from behave import given, then, when
@@ -152,6 +155,127 @@ def step_delete_draft(context):
     context.response = context.client.delete(
         f"/api/v1/drafts/{context.draft_id}",
         headers=context.headers,
+    )
+    if context.response.status_code in (204, 404):
+        context.draft_deleted = True
+
+
+# --- Rich draft round-trip ---------------------------------------------------
+
+_HOSTED_SIZE_SUFFIX = re.compile(r"_\d+x\d+\.[A-Za-z0-9]+(?:$|[?#])")
+
+# One of every dialect element the round-trip must preserve. `{image_url}` is
+# filled in with the Substack-hosted image uploaded earlier in the scenario.
+RICH_DIALECT_BODY = """\
+::defaults{{align=justify}}
+
+# E2E rich draft
+
+A justified paragraph that follows the default alignment of the whole draft.
+
+:::align{{center}}
+A centered paragraph.
+:::
+
+:::align{{left}}
+A left-aligned paragraph.
+:::
+
+![E2E image]({image_url}){{size=large watermark}}
+
+::button[Subscribe now]{{href=subscribe}}
+
+::button[Share this post]{{href=share}}
+
+::button[Leave a comment]{{href=comment}}
+
+---
+
+:::callout
+A callout with **bold** text.
+:::
+"""
+
+
+def _solid_png(width: int, height: int, rgb: tuple[int, int, int]) -> bytes:
+    """Build a solid-colour RGB PNG with the standard library only."""
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        body = kind + data
+        return (
+            struct.pack(">I", len(data))
+            + body
+            + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+        )
+
+    row = b"\x00" + bytes(rgb) * width  # filter byte 0 (None) + pixels
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(row * height))
+        + chunk(b"IEND", b"")
+    )
+
+
+@given("a Substack-hosted test image is uploaded")
+def step_upload_test_image(context):
+    context.response = context.client.post(
+        "/api/v1/images",
+        files={
+            "file": ("e2e-image.png", _solid_png(200, 100, (30, 90, 160)), "image/png")
+        },
+        headers=context.headers,
+    )
+    assert context.response.status_code == 201, (
+        f"Image upload failed: {context.response.status_code}: {context.response.text}"
+    )
+    url = context.response.json().get("url", "")
+    assert _HOSTED_SIZE_SUFFIX.search(url), (
+        f"Uploaded image URL {url!r} has no _<width>x<height> suffix, so "
+        "{watermark} cannot size it; this is a finding about Substack's image "
+        "URL form, not a test fault."
+    )
+    context.image_url = url
+
+
+@when('I create a draft with title "{title}" and the rich dialect body')
+def step_create_rich_draft(context, title):
+    body = RICH_DIALECT_BODY.format(image_url=context.image_url)
+    context.response = context.client.post(
+        "/api/v1/drafts",
+        json={"title": title, "body": body},
+        headers=context.headers,
+    )
+
+
+@when("I update the test draft with the fetched body and updated_at")
+def step_update_draft_with_fetched(context):
+    fetched = context.response.json()
+    assert fetched.get("body"), f"Fetched draft has no body: {fetched}"
+    assert fetched.get("updated_at"), f"Fetched draft has no updated_at: {fetched}"
+    context.previous_body = fetched["body"]
+    context.response = context.client.put(
+        f"/api/v1/drafts/{context.draft_id}",
+        json={"body": fetched["body"], "expected_updated_at": fetched["updated_at"]},
+        headers=context.headers,
+    )
+
+
+@then("the fetched body keeps the rich dialect elements")
+def step_body_keeps_rich_elements(context):
+    body = context.response.json()["body"]
+    for needle in (":::align{center}", ":::callout", "original="):
+        assert needle in body, f"Expected {needle!r} in fetched body:\n{body}"
+    assert body.count("::button[") == 3, f"Expected 3 buttons in:\n{body}"
+    assert "\n---\n" in body, f"Expected a horizontal rule in:\n{body}"
+
+
+@then("the fetched body equals the previously fetched body")
+def step_body_equals_previous(context):
+    body = context.response.json()["body"]
+    assert body == context.previous_body, (
+        "Round-trip changed the body.\n--- first fetch ---\n"
+        f"{context.previous_body}\n--- second fetch ---\n{body}"
     )
 
 
