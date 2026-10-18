@@ -80,19 +80,31 @@ class _Serializer:
                 continue
             for node in nodes:
                 kind = _merge_kind(node)
+                if kind is not None and kind == previous:
+                    blocks.append(self._separated(node))
+                    previous = None
+                    continue
                 markdown = _block(node, self.default, in_align=False)
-                merges = kind is not None and kind == previous
-                if (
-                    markdown is not None
-                    and not merges
-                    and self._check(markdown, [node])
-                ):
+                if markdown is not None and self._check(markdown, [node]):
                     blocks.append(markdown)
                     previous = kind
                 else:
                     blocks.append(_fence(node))
                     previous = None
         return "\n\n".join(blocks)
+
+    def _separated(self, node: Node) -> str:
+        """``node`` in its own ``:::align`` container, so it cannot merge with
+        the same-kind block before it; a fence when that does not round-trip."""
+        align = _uniform_align(node)
+        markdown = None
+        if align is not _INVALID:
+            markdown = _block(node, self.default, in_align=True)
+        if markdown is not None:
+            wrapped = _container(align, [markdown])
+            if self._check(wrapped, [node]):
+                return wrapped
+        return _fence(node)
 
     def _group(self, align: str | None, nodes: list[Node]) -> list[str]:
         """One ``:::align`` container per run of nodes that serialize together."""
@@ -166,6 +178,19 @@ def _default_align(content: list[Any]) -> str | None:
     return value if value is not _INVALID else None
 
 
+def _uniform_align(node: Any) -> Any:
+    """The one alignment of every paragraph and heading in ``node`` (None when
+    there are none), or ``_INVALID`` when they differ."""
+    aligns = {
+        _align_of(item)
+        for item in _walk(node)
+        if item.get("type") in ("paragraph", "heading")
+    }
+    if len(aligns) > 1:
+        return _INVALID
+    return next(iter(aligns), None)
+
+
 def _placement(node: Any, default: str | None) -> Any:
     """``_OUTSIDE`` or the alignment of the ``:::align`` container ``node`` needs."""
     paragraphs: set[Any] = set()
@@ -177,11 +202,10 @@ def _placement(node: Any, default: str | None) -> Any:
             headings.add(_align_of(item))
     if paragraphs <= {default} and headings <= {None}:
         return _OUTSIDE
-    together = paragraphs | headings
-    if len(together) != 1 or node.get("type") == "calloutBlock":
+    align = _uniform_align(node)
+    if align is _INVALID or node.get("type") == "calloutBlock":
         return _OUTSIDE  # containers group inside; anything else falls back
-    align = next(iter(together))
-    return _OUTSIDE if align is _INVALID else align
+    return align
 
 
 def _units(
@@ -225,24 +249,38 @@ def _block(node: Any, default: str | None, in_align: bool) -> str | None:
 
 
 def _children(nodes: Any, default: str | None, in_align: bool) -> str | None:
-    """Blocks inside a quote or callout, joined by blank lines."""
+    """Blocks inside a quote or callout, joined by blank lines.
+
+    A block that would merge with the same-kind block before it starts a new
+    ``:::align`` container (its own alignment, or the group's)."""
     if not isinstance(nodes, list):
         return None
-    parts: list[str] = []
-    previous: str | None = None
+    segments: list[tuple[Any, list[str]]] = []  # (alignment or _OUTSIDE, blocks)
     for align, members in _units(nodes, default, grouping=not in_align):
-        inside = align is not _OUTSIDE
-        inner: list[str] = []
+        segments.append((align, []))
+        previous: str | None = None
         for node in members:
             kind = _merge_kind(node)
-            markdown = _block(node, default, in_align or inside)
-            if markdown is None or (kind and kind == previous):
+            target = align
+            if kind is not None and kind == previous:
+                if align is _OUTSIDE:
+                    target = _INVALID if in_align else _uniform_align(node)
+                    if target is _INVALID:
+                        return None  # :::align cannot nest
+                segments.append((target, []))
+            markdown = _block(node, default, in_align or target is not _OUTSIDE)
+            if markdown is None:
                 return None
-            inner.append(markdown)
+            segments[-1][1].append(markdown)
             previous = kind
-        parts.extend([_container(align, inner)] if inside else inner)
-        if inside:
-            previous = None
+            if target is not align:  # a lone separator container: resume outside
+                segments.append((_OUTSIDE, []))
+                previous = None
+    parts = [
+        "\n\n".join(blocks) if align is _OUTSIDE else _container(align, blocks)
+        for align, blocks in segments
+        if blocks
+    ]
     return "\n\n".join(parts)
 
 

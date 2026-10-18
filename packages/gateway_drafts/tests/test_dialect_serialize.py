@@ -231,11 +231,12 @@ def test_failing_group_member_falls_back_alone():
 
 def test_two_adjacent_blockquotes_do_not_merge():
     md = _roundtrip(_quote(_p("a")), _quote(_p("b")))
-    assert md.count(_FENCE) == 1
+    assert md == "> a\n\n:::align{default}\n> b\n:::"
 
 
 def test_two_adjacent_pullquotes_do_not_merge():
-    _roundtrip(_pullquote(_p("a")), _pullquote(_p("b")))
+    md = _roundtrip(_pullquote(_p("a")), _pullquote(_p("b")))
+    assert md == "|> a\n\n:::align{default}\n|> b\n:::"
 
 
 def test_blockquote_then_pullquote_stay_readable():
@@ -244,14 +245,30 @@ def test_blockquote_then_pullquote_stay_readable():
 
 
 @pytest.mark.parametrize(
-    "first,second",
+    "first,second,expected",
     [
-        (_bullets("a"), _bullets("b")),
-        (_ordered("a"), _ordered("b")),
+        (_bullets("a"), _bullets("b"), "- a\n\n:::align{default}\n- b\n:::"),
+        (_ordered("a"), _ordered("b"), "1. a\n\n:::align{default}\n1. b\n:::"),
     ],
 )
-def test_two_adjacent_lists_of_one_kind_do_not_merge(first, second):
-    md = _roundtrip(first, second)
+def test_two_adjacent_lists_of_one_kind_do_not_merge(first, second, expected):
+    assert _roundtrip(first, second) == expected
+
+
+def test_three_adjacent_blockquotes_alternate_with_a_separator():
+    md = _roundtrip(_quote(_p("a")), _quote(_p("b")), _quote(_p("c")))
+    assert md == "> a\n\n:::align{default}\n> b\n:::\n\n> c"
+
+
+def test_separator_uses_the_quote_alignment_under_a_default():
+    md = _roundtrip(_quote(_p("a", "justify")), _quote(_p("b", "justify")))
+    assert md == ("::defaults{align=justify}\n\n> a\n\n:::align{justify}\n> b\n:::")
+
+
+def test_adjacent_quote_with_mixed_alignment_falls_back():
+    # No single :::align value fits a quote with mixed alignments.
+    second = _quote(_p("b"), _p("c", "center"))
+    md = _roundtrip(_p("x"), _p("y"), _quote(_p("a")), second)
     assert md.count(_FENCE) == 1
 
 
@@ -262,8 +279,31 @@ def test_adjacent_quotes_inside_an_align_group_do_not_merge():
     assert md.count(":::align{center}") == 2
 
 
-def test_adjacent_quotes_inside_a_callout_round_trip():
-    _roundtrip({"type": "calloutBlock", "content": [_quote(_p("a")), _quote(_p("b"))]})
+def test_adjacent_quotes_inside_a_callout_stay_readable():
+    md = _roundtrip(
+        {"type": "calloutBlock", "content": [_quote(_p("a")), _quote(_p("b"))]}
+    )
+    assert md == ":::callout\n> a\n\n:::align{default}\n> b\n:::\n:::"
+
+
+def test_adjacent_lists_inside_a_callout_stay_readable():
+    md = _roundtrip(
+        {"type": "calloutBlock", "content": [_bullets("a"), _bullets("b"), _p("c")]}
+    )
+    assert md == ":::callout\n- a\n\n:::align{default}\n- b\n:::\n\nc\n:::"
+
+
+def test_adjacent_quotes_inside_a_quote_stay_readable():
+    md = _roundtrip(_quote(_quote(_p("a")), _quote(_p("b"))))
+    assert md == "> > a\n>\n> :::align{default}\n> > b\n> :::"
+
+
+def test_adjacent_quotes_inside_an_aligned_quote_fall_back():
+    # Inside :::align the separator container cannot nest, so the block falls back.
+    unaligned = [_p(text) for text in ("x", "y", "z", "w", "v")]
+    inner = _quote(_quote(_p("a", "center")), _quote(_p("b", "center")))
+    md = _roundtrip(*unaligned, inner)
+    assert md.count(_FENCE) == 1
 
 
 # --- block kinds ----------------------------------------------------------------
