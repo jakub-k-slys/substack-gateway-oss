@@ -81,7 +81,7 @@ class StatsService:
         return await self._timeseries("subscribers", from_=from_)
 
     async def arr_timeseries(self, from_: str | None = None) -> list[Row]:
-        """Daily annualised recurring revenue (raw money strings, e.g. "$258.19").
+        """Daily annualized recurring revenue (raw money strings, e.g. "$258.19").
 
         Returns data rows sorted by date. Only the tail beyond the cached
         watermark is fetched from Substack on each call.

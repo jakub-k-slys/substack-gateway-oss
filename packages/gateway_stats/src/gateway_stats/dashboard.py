@@ -38,18 +38,23 @@ _RECOMMENDATION_PATHS = {
 }
 
 
-def _slim_pub(row: dict[str, Any]) -> dict[str, Any] | None:
-    pub = row.get("target_pub")
-    if not isinstance(pub, dict):
-        pub = row.get("source_pub")
-    if not isinstance(pub, dict):
-        return None
-    return {k: pub[k] for k in _PUB_KEYS if k in pub}
+def _slim_pub(row: dict[str, Any], direction: str) -> dict[str, Any] | None:
+    # The counterpart is the target publication for outgoing rows and the
+    # source publication for incoming rows; the other key is this publication.
+    if direction == RecommendationDirection.INCOMING:
+        keys = ("source_pub", "target_pub")
+    else:
+        keys = ("target_pub", "source_pub")
+    for key in keys:
+        pub = row.get(key)
+        if isinstance(pub, dict):
+            return {k: pub[k] for k in _PUB_KEYS if k in pub}
+    return None
 
 
-def _slim_row(row: dict[str, Any]) -> dict[str, Any]:
+def _slim_row(row: dict[str, Any], direction: str) -> dict[str, Any]:
     slim = {k: row[k] for k in _ROW_KEYS if k in row}
-    slim["pub"] = _slim_pub(row)
+    slim["pub"] = _slim_pub(row, direction)
     return slim
 
 
@@ -112,8 +117,9 @@ class DashboardService:
                 _RECOMMENDATION_PATHS[direction],
                 params={"offset": offset, "limit": limit},
             )
-            rows = r.json().get("rows") or []
-            return {"rows": [_slim_row(row) for row in rows]}
+            payload = r.json()
+            rows = payload.get("rows") if isinstance(payload, dict) else None
+            return {"rows": [_slim_row(row, direction) for row in rows or []]}
 
         return await cached_snapshot(
             self._cache,

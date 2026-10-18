@@ -38,6 +38,7 @@ _FromParam = Annotated[
     str | None,
     Query(
         alias="from",
+        pattern=r"^\d{4}-\d{2}-\d{2}",
         description="ISO lower bound for the returned window "
         "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 7 days.",
     ),
@@ -52,14 +53,7 @@ _FromParam = Annotated[
 )
 async def subscriber_timeseries(
     service: Annotated[StatsService, Depends(get_stats_service)],
-    from_: Annotated[
-        str | None,
-        Query(
-            alias="from",
-            description="ISO lower bound for the returned window "
-            "(e.g. 2025-07-09T00:00:00Z). Defaults to the last 7 days.",
-        ),
-    ] = None,
+    from_: _FromParam = None,
 ) -> SubscriberTimeseriesResponse:
     """Daily subscriber counts (paid / comps / free trials / total).
 
@@ -99,11 +93,12 @@ async def arr_timeseries(
     service: Annotated[StatsService, Depends(get_stats_service)],
     from_: _FromParam = None,
 ) -> ArrTimeseriesResponse:
-    """Daily annual recurring revenue (ARR) as a timeseries.
+    """Daily annualized recurring revenue (ARR) as a timeseries.
 
     Each point carries the parsed amount and the display string exactly as
-    Substack sent it. Without a cache extension installed, every call reaches
-    the Substack API directly.
+    Substack sent it. If a cache extension is installed, only the tail beyond
+    the last stored day is fetched from Substack on subsequent calls; without
+    one, every call fetches the full window.
     """
     rows = await service.arr_timeseries(from_=from_)
     return ArrTimeseriesResponse.from_substack(rows)
@@ -121,8 +116,9 @@ async def email_timeseries(
 ) -> EmailTimeseriesResponse:
     """Daily email subscriber counts as a timeseries.
 
-    Without a cache extension installed, every call reaches the Substack API
-    directly.
+    If a cache extension is installed, only the tail beyond the last stored
+    day is fetched from Substack on subsequent calls; without one, every call
+    fetches the full window.
     """
     rows = await service.email_timeseries(from_=from_)
     return EmailTimeseriesResponse.from_substack(rows)

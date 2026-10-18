@@ -43,7 +43,10 @@ class SubscriberTimeseriesResponse(BaseModel):
 _MONEY_PLAIN = re.compile(r"\d+(\.\d+)?")
 _MONEY_GROUPED = re.compile(r"\d{1,3}(,\d{3})+(\.\d+)?")
 # [-] [symbol of 0-3 chars] [-] number, with optional whitespace between parts.
-_MONEY_SHAPE = re.compile(r"\s*(-?)\s*[^\d\s.,\-]{0,3}\s*(-?)\s*([\d.,]+)\s*")
+# The Unicode minus (U+2212) counts as "-" in both sign positions.
+_MONEY_SHAPE = re.compile(
+    r"\s*([-\u2212]?)\s*[^\d\s.,\-\u2212]{0,3}\s*([-\u2212]?)\s*([\d.,]+)\s*"
+)
 
 
 def parse_money(value: object) -> float | None:
@@ -74,7 +77,7 @@ def parse_money(value: object) -> float | None:
 
 
 class ArrPoint(BaseModel):
-    """One day on the annualized-recurring-revenue timeseries.
+    """One day on the annualized recurring revenue timeseries.
 
     Substack returns rows positionally as ``[Date, ARR]`` where ARR is a
     formatted money string. The raw string is kept next to the parsed number.
@@ -104,7 +107,7 @@ class ArrTimeseriesResponse(BaseModel):
 
 
 class EmailPoint(BaseModel):
-    """One day on the emails-sent timeseries: ``[Date, Emails]``."""
+    """One day on the email-subscriber count timeseries: ``[Date, Emails]``."""
 
     date: str
     emails: int | None = None
@@ -323,8 +326,14 @@ class RecommendationStat(BaseModel):
 
     @classmethod
     def from_substack(cls, row: dict, direction: str) -> RecommendationStat:
+        # Counterpart first: target_pub when outgoing, source_pub when incoming.
+        counterpart = (
+            ("source_pub", "target_pub")
+            if direction == "incoming"
+            else ("target_pub", "source_pub")
+        )
         pub: dict = {}
-        for key in ("pub", "target_pub", "source_pub"):
+        for key in ("pub", *counterpart):
             if isinstance(row.get(key), dict):
                 pub = row[key]
                 break

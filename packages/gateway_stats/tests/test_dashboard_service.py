@@ -160,3 +160,47 @@ async def test_recommendations_rows_null_or_missing(payload: dict[str, Any]):
 async def test_recommendations_rejects_unknown_direction():
     with pytest.raises(ValueError):
         await _service(_FakePub({})).recommendations("sideways")
+
+
+_OWN_PUB = {"id": 1, "name": "Own Digest", "subdomain": "owndigest"}
+_OTHER_PUB = {"id": 2002, "name": "Other Letter", "subdomain": "otherletter"}
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ("direction", "expected_id"),
+    [("outgoing", 2002), ("incoming", 2002)],
+)
+async def test_recommendations_row_with_both_pubs_picks_counterpart(
+    direction: str, expected_id: int
+):
+    # Outgoing: target_pub is the counterpart. Incoming: source_pub is.
+    row = (
+        {"target_pub": _OTHER_PUB, "source_pub": _OWN_PUB}
+        if direction == "outgoing"
+        else {"target_pub": _OWN_PUB, "source_pub": _OTHER_PUB}
+    )
+
+    data = await _service(_FakePub({"rows": [row]})).recommendations(direction)
+
+    assert data["rows"][0]["pub"]["id"] == expected_id
+
+
+@pytest.mark.anyio
+async def test_recommendations_falls_back_to_other_pub_key():
+    outgoing = await _service(
+        _FakePub({"rows": [{"target_pub": None, "source_pub": _OTHER_PUB}]})
+    ).recommendations("outgoing")
+    incoming = await _service(
+        _FakePub({"rows": [{"source_pub": None, "target_pub": _OTHER_PUB}]})
+    ).recommendations("incoming")
+
+    assert outgoing["rows"][0]["pub"]["id"] == 2002
+    assert incoming["rows"][0]["pub"]["id"] == 2002
+
+
+@pytest.mark.anyio
+async def test_recommendations_non_dict_payload():
+    data = await _service(_FakePub([{"rows": [1]}])).recommendations("outgoing")
+
+    assert data == {"rows": []}

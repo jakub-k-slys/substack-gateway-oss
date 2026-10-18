@@ -43,6 +43,9 @@ from gateway_stats.schemas import (
         ("US$12", 12.0),
         ("-$1,262.40", -1262.40),
         ("$-5", -5.0),
+        ("\u22125", -5.0),
+        ("\u2212$5.00", -5.0),
+        ("$\u22125", -5.0),
         (float("nan"), None),
         (float("inf"), None),
     ],
@@ -258,6 +261,32 @@ def test_recommendation_stat_raw_target_pub() -> None:
     )
     assert stat.publication.id == 5
     assert stat.publication.name == "Made Up Notes"
+
+
+@pytest.mark.parametrize(
+    ("direction", "row"),
+    [
+        ("outgoing", {"target_pub": {"id": 2002}, "source_pub": {"id": 1}}),
+        ("incoming", {"target_pub": {"id": 1}, "source_pub": {"id": 2002}}),
+    ],
+)
+def test_recommendation_stat_raw_row_with_both_pubs_picks_counterpart(
+    direction: str, row: dict
+) -> None:
+    stat = RecommendationStat.from_substack(row, direction)
+    assert stat.publication.id == 2002
+
+
+def test_recommendation_stat_pub_key_wins_over_raw_keys() -> None:
+    stat = RecommendationStat.from_substack(
+        {
+            "pub": {"id": 7},
+            "target_pub": {"id": 1},
+            "source_pub": {"id": 2},
+        },
+        "incoming",
+    )
+    assert stat.publication.id == 7
 
 
 def test_recommendation_stat_null_pub_falls_back_to_row_id() -> None:

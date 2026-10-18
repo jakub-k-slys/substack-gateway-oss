@@ -66,6 +66,11 @@ Feature: Publication stats endpoints
     When I send GET /api/v1/stats/arr
     Then the response status code is 502
 
+  Scenario: ARR timeseries rejects a malformed from parameter
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    When I send GET /api/v1/stats/arr?from=garbage
+    Then the response status code is 422
+
   # ------------------------------------------------------------------
   # GET /stats/emails
   # ------------------------------------------------------------------
