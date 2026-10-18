@@ -1,6 +1,6 @@
 [project]
 name = "gateway_core"
-version = "4.0.1"
+version = "5.0.0"
 requires-python = ">=3.11"
 dependencies = [
   "httpx>=0.28.0",
