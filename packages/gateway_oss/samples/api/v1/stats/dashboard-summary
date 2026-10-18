@@ -1,0 +1,18 @@
+{
+  "appSubscribers": 12,
+  "appSubscribersLast30Days": 3,
+  "subscribers": 420,
+  "subscribersLast30Days": 25,
+  "totalEmail": 415,
+  "totalEmailLast30Days": 20,
+  "arr": 1262.4,
+  "arrDelta": 54.1,
+  "views": 4200,
+  "viewsDelta": 315,
+  "openRate": 0.48,
+  "openRateDiff": 0.02,
+  "pledgesAmount": 120,
+  "numPledges": 4,
+  "pledgeCurrency": "usd",
+  "isBestseller": false
+}

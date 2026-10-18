@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "publication_id": 1,
+      "target_publication_id": 1001,
+      "xp_signups": 17,
+      "xp_signups_last_30_days": 2,
+      "xp_paid_subs": 1,
+      "is_mutual": true,
+      "is_active": true,
+      "created_at": "2025-01-02T10:00:00.000Z",
+      "first_activity_at": "2025-01-03T10:00:00.000Z",
+      "data_updated_at": "2025-10-18T00:00:00.000Z",
+      "target_pub": {
+        "id": 1001,
+        "name": "Example Weekly",
+        "subdomain": "exampleweekly",
+        "custom_domain": null,
+        "logo_url": "https://example.com/logo.png",
+        "hero_text": "A long fictional blurb",
+        "theme": {
+          "background_pop_color": "#ff0000"
+        }
+      }
+    },
+    {
+      "publication_id": 1,
+      "target_publication_id": 1002,
+      "xp_signups": 3,
+      "xp_signups_last_30_days": 0,
+      "xp_paid_subs": 0,
+      "is_mutual": false,
+      "is_active": true,
+      "created_at": "2025-02-02T10:00:00.000Z",
+      "first_activity_at": null,
+      "data_updated_at": "2025-10-18T00:00:00.000Z",
+      "target_pub": {
+        "id": 1002,
+        "name": "Sample Digest",
+        "subdomain": "sampledigest",
+        "custom_domain": "digest.example.com",
+        "logo_url": null
+      }
+    }
+  ]
+}
