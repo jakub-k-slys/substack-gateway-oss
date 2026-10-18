@@ -299,10 +299,12 @@ class _Parser:
 
     def _container(self, number: int, stripped: str) -> bool:
         match = _CONTAINER.match(stripped)
-        if match is None or match.group(2)[:1] not in ("", "{"):
+        if match is None:
             return False
-        self._flush()
         kind, rest = match.group(1), match.group(2)
+        if rest[:1] not in ("", "{"):
+            raise _malformed(f":::{kind}", number)
+        self._flush()
         if kind == "callout":
             if rest:
                 raise DraftMarkdownError(":::callout takes no attributes", line=number)
@@ -343,8 +345,10 @@ class _Parser:
 
     def _directive(self, number: int, stripped: str, first: bool) -> Node | bool:
         match = _DIRECTIVE.match(stripped)
-        if match is None or match.group(2)[:1] not in ("", "[", "{"):
+        if match is None:
             return False
+        if match.group(2)[:1] not in ("", "[", "{"):
+            raise _malformed(f"::{match.group(1)}", number)
         if match.group(1) == "button":
             return _button(match.group(2), number)
         top_level = not self.ctx.in_quote and len(self.frames) == 1
@@ -354,6 +358,23 @@ class _Parser:
             )
         self.default_align = _defaults_align(match.group(2), number)
         return True
+
+
+_FORMS = {
+    "::button": "::button[Text]{href=URL}",
+    "::defaults": "::defaults{align=X}",
+    ":::align": ":::align{X}",
+    ":::callout": ":::callout",
+}
+
+
+def _malformed(name: str, number: int) -> DraftMarkdownError:
+    return DraftMarkdownError(
+        f"malformed {name} line: write it as {_FORMS[name]} with no space before "
+        f"{{ or [ and nothing after it (start the line with a backslash, "
+        f"\\{name}, for literal text)",
+        line=number,
+    )
 
 
 def _defaults_align(rest: str, number: int) -> str | None:

@@ -89,6 +89,12 @@ def open_fence(stripped: str, line: int) -> Fence | None:
                 )
             return Fence(lang, line, {})
         return Fence("code", line, {"language": lang or None, **attrs})
+    if stripped.startswith("```"):
+        raise DraftMarkdownError(
+            "malformed fence opener: write ```lang or ```lang {key=value} with "
+            "nothing else on the line (start it with \\``` for literal text)",
+            line=line,
+        )
     if match := _LATEX_OPEN.match(stripped):
         return Fence("latex", line, attrs_at(match.group(1), line))
     return None
@@ -130,4 +136,25 @@ def _verbatim(text: str, line: int) -> Node:
         raise DraftMarkdownError(
             'substack-node fence must hold one JSON object with a "type"', line=line
         )
+    if internal := _internal_type(node):
+        raise DraftMarkdownError(
+            f"substack-node fence holds the internal node type {internal!r}; "
+            'node types starting with "_" are not allowed',
+            line=line,
+        )
     return node
+
+
+def _internal_type(node: Any) -> str | None:
+    """The first node ``type`` starting with ``_`` anywhere in ``node``, if any."""
+    stack = [node]  # iterative: the JSON may be nested close to the stack limit
+    while stack:
+        item = stack.pop()
+        if isinstance(item, dict):
+            kind = item.get("type")
+            if isinstance(kind, str) and kind.startswith("_"):
+                return kind
+            stack.extend(item.values())
+        elif isinstance(item, list):
+            stack.extend(item)
+    return None

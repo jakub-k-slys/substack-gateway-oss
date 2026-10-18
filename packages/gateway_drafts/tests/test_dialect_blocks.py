@@ -594,7 +594,6 @@ def test_escaped_block_syntax_is_paragraph_text(md):
         "::note this",
         ":::note",
         "$$ is money",
-        "```js title",
     ],
 )
 def test_lookalike_lines_are_paragraph_text(md):
@@ -688,3 +687,46 @@ def test_unreadable_substack_node_json_is_a_markdown_error(body):
     with pytest.raises(DraftMarkdownError) as exc:
         parse_blocks("A\n\n```substack-node\n" + body + "\n```")
     assert exc.value.line == 3
+
+
+@pytest.mark.parametrize(
+    "bad, what",
+    [
+        ("::defaults {align=justify}", "::defaults"),
+        (":::align {center}\nA\n:::", ":::align"),
+        ("```python extra\nx = 1\n```", "fence"),
+        ("::button [Go]{href=share}", "::button"),
+        ("::button is great", "::button"),
+        (":::callout please\nA\n:::", ":::callout"),
+        (":::align\tcenter\nA\n:::", ":::align"),
+        ("```js title", "fence"),
+    ],
+)
+def test_malformed_directive_or_fence_opener_errors_on_its_own_line(bad, what):
+    with pytest.raises(DraftMarkdownError, match="malformed") as exc:
+        parse_blocks(bad)
+    assert exc.value.line == 1
+    assert what in exc.value.message
+
+
+@pytest.mark.parametrize(
+    "node",
+    [
+        {"type": "_unresolved_image", "attrs": {}},
+        {
+            "type": "blockquote",
+            "content": [{"type": "paragraph", "content": [{"type": "_unresolved_x"}]}],
+        },
+    ],
+)
+def test_substack_node_rejects_internal_placeholder_types(node):
+    md = "A\n\n```substack-node\n" + json.dumps(node, indent=2) + "\n```"
+    with pytest.raises(DraftMarkdownError, match="_unresolved") as exc:
+        parse_blocks(md)
+    assert exc.value.line == 3
+
+
+def test_substack_node_allows_underscores_elsewhere():
+    node = {"type": "x_y", "attrs": {"_private": {"type": 1}, "t": "_a"}}
+    md = "```substack-node\n" + json.dumps(node) + "\n```"
+    assert parse_blocks(md) == [node]
