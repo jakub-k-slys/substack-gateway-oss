@@ -291,8 +291,10 @@ async def test_resolver_watermarks_the_upload_of_an_external_image() -> None:
     assert attrs["srcNoWatermark"] == uploaded
     assert (attrs["width"], attrs["height"], attrs["bytes"]) == (2387, 203, 72180)
     assert attrs["type"] == "image/png"
-    # dimensions come from the upload result: 2387 wide, 203 tall
-    size, offset = 239, 10
+    # dimensions come from the upload result: 2387 wide, 203 tall. 10 % of the
+    # width (239) is taller than the image, so the square is clamped to the
+    # height (203) and the bottom offset to 0 instead of going negative.
+    size, offset = 203, 10
     assert pub.calls == [
         {"path": "image", "json": {"image": "https://example.com/cat.png"}},
         {
@@ -300,7 +302,7 @@ async def test_resolver_watermarks_the_upload_of_an_external_image() -> None:
             "json": {
                 "image": uploaded,
                 "offsetX": offset + 4,
-                "offsetY": 203 - size - offset,
+                "offsetY": 0,
                 "width": size,
                 "height": size,
                 "opacity": 30,
