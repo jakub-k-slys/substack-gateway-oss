@@ -45,6 +45,8 @@ def test_datawrapper_node_round_trips_to_fence() -> None:
     body = json.dumps({"type": "doc", "content": [node]})
     markdown = draft_body_to_markdown(body)
     assert markdown == (
-        "```substack-node\n" + json.dumps(node, indent=2, ensure_ascii=False) + "\n```"
+        "```substack-node\n"
+        + json.dumps(node, indent=2, ensure_ascii=False)
+        + "\n```\n"
     )
     assert _nodes(markdown) == [node]

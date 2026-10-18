@@ -344,24 +344,22 @@ Feature: Markdown to Substack draft body converter
       """
     Then the markdown result is "test3"
 
-  Scenario: A paragraph without attrs is kept verbatim as a substack-node fence
+  Scenario: Legacy paragraphs and headings without attrs read back without fences
     When I reverse-convert the draft body JSON:
       """
-      {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"test3"}]}]}
+      {"type":"doc","content":[
+        {"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Title"}]},
+        {"type":"paragraph","content":[{"type":"text","text":"test3"}]},
+        {"type":"bullet_list","content":[{"type":"list_item","content":[{"type":"paragraph","content":[{"type":"text","text":"item"}]}]}]}
+      ]}
       """
     Then the markdown result is:
       """
-      ```substack-node
-      {
-        "type": "paragraph",
-        "content": [
-          {
-            "type": "text",
-            "text": "test3"
-          }
-        ]
-      }
-      ```
+      ## Title
+
+      test3
+
+      - item
       """
 
   Scenario: Whitespace inside marks stays inside the delimiters so the text round-trips exactly

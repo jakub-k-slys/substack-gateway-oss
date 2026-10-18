@@ -618,3 +618,78 @@ def test_deeply_nested_quotes_fall_back_without_raising():
         node = _quote(node)
     md = serialize_doc(_doc(node))
     assert md.startswith(_FENCE)
+
+
+# --- legacy paragraphs and headings without textAlign -------------------------
+
+
+def _legacy_p(text: str, **extra: Any) -> dict[str, Any]:
+    return {"type": "paragraph", **extra, "content": [_t(text)]}
+
+
+def _legacy_doc() -> dict[str, Any]:
+    item = {"type": "list_item", "content": [_legacy_p("in a list")]}
+    return _doc(
+        {"type": "heading", "attrs": {"level": 2}, "content": [_t("Legacy")]},
+        _legacy_p("no attrs at all"),
+        _legacy_p("null attrs", attrs=None),
+        _legacy_p("empty attrs", attrs={}),
+        {"type": "bullet_list", "content": [item, item]},
+        {
+            "type": "ordered_list",
+            "attrs": fill_defaults("ordered_list", {}),
+            "content": [item],
+        },
+        {"type": "blockquote", "content": [_legacy_p("in a quote")]},
+        {
+            "type": "pullquote",
+            "attrs": fill_defaults("pullquote", {}),
+            "content": [_legacy_p("in a pullquote")],
+        },
+        {"type": "calloutBlock", "content": [_legacy_p("in a callout")]},
+    )
+
+
+def _filled(node: Any) -> Any:
+    """``node`` with ``textAlign: None`` on every paragraph and heading."""
+    if isinstance(node, list):
+        return [_filled(item) for item in node]
+    if not isinstance(node, dict):
+        return node
+    out = {key: _filled(value) for key, value in node.items()}
+    if out.get("type") in ("paragraph", "heading"):
+        out["attrs"] = {**(out.get("attrs") or {}), "textAlign": None}
+    return out
+
+
+def test_legacy_doc_serializes_without_fences():
+    md = serialize_doc(_legacy_doc())
+    assert _FENCE not in md
+    assert md.startswith(
+        "## Legacy\n\nno attrs at all\n\nnull attrs\n\nempty attrs\n\n"
+    )
+
+
+def test_legacy_doc_parses_back_with_default_text_align_filled_in():
+    doc = _legacy_doc()
+    assert parse_blocks(serialize_doc(doc)) == _filled(doc)["content"]
+
+
+def test_legacy_normalisation_leaves_the_input_untouched():
+    doc = _legacy_doc()
+    before = json.dumps(doc)
+    serialize_doc(doc)
+    assert json.dumps(doc) == before
+
+
+def test_legacy_heading_without_level_is_still_a_fence():
+    heading = {"type": "heading", "content": [_t("No level")]}
+    md = serialize_doc(_doc(heading))
+    assert md.startswith(_FENCE)
+    assert parse_blocks(md) == [_filled(heading)]
+
+
+def test_explicit_text_align_is_not_normalised_away():
+    # Only a missing textAlign is treated as the default; a present one is kept.
+    md = _roundtrip(_p("right", "right"), _p("plain"))
+    assert ":::align{right}" in md

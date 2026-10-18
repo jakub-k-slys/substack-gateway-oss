@@ -50,13 +50,13 @@ def test_data_uri_image_is_parsed_whole() -> None:
 def test_captioned_image_node_round_trips() -> None:
     body = json.dumps(doc_with_image(src=_HOSTED, alt="A cat", width=10, height=10))
     markdown = draft_body_to_markdown(body)
-    assert markdown == f"![A cat]({_HOSTED}){{height=10 width=10}}"
+    assert markdown == f"![A cat]({_HOSTED}){{height=10 width=10}}\n"
     assert json.loads(markdown_to_draft_body(markdown)) == json.loads(body)
 
 
 def test_captioned_image_with_null_alt_round_trips() -> None:
     body = json.dumps(doc_with_image(src=_HOSTED, alt=None))
-    assert draft_body_to_markdown(body) == f"![]({_HOSTED})"
+    assert draft_body_to_markdown(body) == f"![]({_HOSTED})\n"
 
 
 def test_image_markdown_cannot_reproduce_falls_back_to_a_verbatim_fence() -> None:

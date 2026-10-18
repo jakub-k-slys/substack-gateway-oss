@@ -118,11 +118,11 @@ def step_field_string(context, field, value):
     )
 
 
-@then('the response field "{field}" is the text:')
-def step_field_text(context, field):
+@then('the response field "{field}" is "{value}" followed by a newline')
+def step_field_string_newline(context, field, value):
     body = context.response.json()
-    assert body[field] == context.text, (
-        f'Expected field "{field}" to be {context.text!r}, got {body[field]!r}'
+    assert body[field] == value + "\n", (
+        f'Expected field "{field}" to be {value + chr(10)!r}, got {body[field]!r}'
     )
 
 

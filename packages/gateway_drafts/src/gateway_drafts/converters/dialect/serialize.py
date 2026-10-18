@@ -8,6 +8,13 @@ the block with a fence, so ``parse_blocks(serialize_doc(doc))`` gives back
 ``doc["content"]`` by construction. A final whole-document check guards
 against block interactions the per-block check cannot see.
 
+Legacy shape: drafts written by older gateway versions store ``paragraph`` and
+``heading`` nodes without ``attrs`` (or without ``textAlign``). Substack treats
+a missing ``textAlign`` as the default ``None``, so the content is normalised
+first (that one default filled in, nothing else) and every comparison and
+fence works on the normalised nodes: ``parse_blocks(serialize_doc(doc))``
+equals ``doc["content"]`` with those defaults filled in.
+
 Alignment: the most frequent paragraph ``textAlign`` (ties → none) becomes the
 ``::defaults{align=X}`` line; consecutive blocks whose paragraphs and headings
 all share another alignment are wrapped in one ``:::align{X}`` container.
@@ -54,12 +61,34 @@ def serialize_doc(doc: dict[str, Any]) -> str:
     if not isinstance(content, list) or not content:
         return ""
     try:
+        content = [_with_text_align(node) for node in content]
         markdown = _Serializer(content).run()
         if _identical(parse_blocks(markdown), content):
             return markdown
     except Exception:  # any failure degrades to verbatim fences
         pass
     return "\n\n".join(_fence(node) for node in content)
+
+
+_TEXT_ALIGNED = frozenset({"paragraph", "heading"})
+
+
+def _with_text_align(node: Any) -> Any:
+    """``node`` with ``textAlign: None`` added to every paragraph and heading
+    below it (itself included) that lacks it; a new tree, input untouched."""
+    if not isinstance(node, dict):
+        return node
+    out = dict(node)
+    if out.get("type") in _TEXT_ALIGNED:
+        attrs = out.get("attrs")
+        if attrs is None:
+            out["attrs"] = {"textAlign": None}
+        elif isinstance(attrs, dict) and "textAlign" not in attrs:
+            out["attrs"] = {**attrs, "textAlign": None}
+    children = out.get("content")
+    if isinstance(children, list):
+        out["content"] = [_with_text_align(child) for child in children]
+    return out
 
 
 class _Serializer:

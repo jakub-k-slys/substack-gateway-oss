@@ -95,22 +95,9 @@ Feature: Draft endpoints
     Then the response status code is 200
     And the response field "title" is "test1"
     And the response field "subtitle" is "test2"
-    # The sample body was written by an older gateway: its paragraph has no
-    # attrs, so the dialect cannot reproduce it and keeps it verbatim.
-    And the response field "body" is the text:
-      """
-      ```substack-node
-      {
-        "type": "paragraph",
-        "content": [
-          {
-            "type": "text",
-            "text": "test3"
-          }
-        ]
-      }
-      ```
-      """
+    # The sample body was written by an older gateway (its paragraph has no
+    # attrs); it still reads back as plain Markdown, not a substack-node fence.
+    And the response field "body" is "test3" followed by a newline
 
   Scenario: Get draft Substack API error returns 502
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
