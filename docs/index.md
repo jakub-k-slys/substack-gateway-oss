@@ -26,6 +26,7 @@ Both interfaces share the same service layer and Substack clients, so the HTTP a
 - [Authentication](authentication.md)
 - [API Reference](api-reference.md)
 - [MCP](mcp.md)
+- [Draft Markdown dialect](drafts-markdown.md)
 - [Development](development.md)
 
 ## Repository

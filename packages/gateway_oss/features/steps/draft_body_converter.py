@@ -312,13 +312,14 @@ def step_draft_para_node_multi_mark(context, para, node_idx, marks_str, text):
 
 @then('the draft body round-trips to markdown "{expected}"')
 def step_round_trip_inline(context, expected):
+    # draft_body_to_markdown output always ends with one newline.
     result = draft_body_to_markdown(context.draft_body_str)
-    assert result == expected, f"Expected {expected!r}, got {result!r}"
+    assert result == expected + "\n", f"Expected {expected!r}, got {result!r}"
 
 
 @then("the draft body round-trips to markdown:")
 def step_round_trip_docstring(context):
-    expected = textwrap.dedent(context.text).strip()
+    expected = textwrap.dedent(context.text).strip() + "\n"
     result = draft_body_to_markdown(context.draft_body_str)
     assert result == expected, f"Expected {expected!r}, got {result!r}"
 
@@ -331,6 +332,24 @@ def step_reverse_convert_docstring(context):
 
 @then('the markdown result is "{expected}"')
 def step_markdown_result(context, expected):
+    expected += "\n"  # draft_body_to_markdown output ends with one newline
     assert context.reverse_result == expected, (
         f"Expected {expected!r}, got {context.reverse_result!r}"
+    )
+
+
+@then("the markdown result is:")
+def step_markdown_result_docstring(context):
+    expected = textwrap.dedent(context.text).strip() + "\n"
+    assert context.reverse_result == expected, (
+        f"Expected {expected!r}, got {context.reverse_result!r}"
+    )
+
+
+@then("draft node {idx:d} has attrs {attrs_json}")
+def step_draft_node_attrs(context, idx, attrs_json):
+    node = _node(context, idx)
+    expected = json.loads(attrs_json)
+    assert node.get("attrs") == expected, (
+        f"Expected attrs {expected!r}, got {node.get('attrs')!r}"
     )

@@ -43,6 +43,18 @@ _UPDATE_FIELD_MAP = {
 }
 
 
+class DraftConflictError(RuntimeError):
+    """The draft changed upstream since the caller last read it."""
+
+    def __init__(self, draft_id: int, current: str | None) -> None:
+        self.draft_id = draft_id
+        self.current = current
+        super().__init__(
+            f"Draft {draft_id} changed since it was read (now {current}); "
+            "fetch it again before updating."
+        )
+
+
 class DraftsService:
     def __init__(self, pub: PublicationClient, sub: SubstackClient) -> None:
         self._pub = pub
@@ -91,10 +103,22 @@ class DraftsService:
         return SubstackDraft.model_validate(r.json())
 
     async def update_draft(
-        self, draft_id: int, updates: dict[str, str | None]
+        self,
+        draft_id: int,
+        updates: dict[str, str | None],
+        expected_updated_at: str | None = None,
     ) -> SubstackDraft:
-        """PUT /drafts/{draft_id} — update only the provided fields."""
+        """PUT /drafts/{draft_id} — update only the provided fields.
+
+        When `expected_updated_at` is set, the draft is fetched first and the
+        update is refused with `DraftConflictError` (no PUT sent) unless its
+        `draft_updated_at` equals the expected value exactly.
+        """
         _log.debug("Updating draft id=%d fields=%s", draft_id, list(updates))
+        if expected_updated_at is not None:
+            current = (await self.get_draft(draft_id)).draft_updated_at
+            if current != expected_updated_at:
+                raise DraftConflictError(draft_id, current)
         payload_kwargs: dict[str, str | None] = {}
         for name, value in updates.items():
             if name == "body" and value is not None:

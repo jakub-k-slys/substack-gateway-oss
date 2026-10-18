@@ -160,12 +160,21 @@ cursor.
 
 ### `GET /api/v1/drafts/{draft_id}`
 
-Fetches a single draft by ID.
+Fetches a single draft by ID. Returns `title`, `subtitle`, `body` and
+`updated_at`. `body` is dialect Markdown that reproduces the stored draft
+losslessly (see [Draft Markdown dialect](drafts-markdown.md)); pass `updated_at`
+back as `expected_updated_at` on `PUT` to detect concurrent edits.
 
 ### `PUT /api/v1/drafts/{draft_id}`
 
 Updates specific fields of a draft. Body: any of `title`, `subtitle`, `body`
-— only the fields actually set in the request are applied.
+— only the fields actually set in the request are applied — and the optional
+`expected_updated_at`, the `updated_at` from a previous read. When it is given
+and the draft's current `updated_at` differs, the update is refused with `409
+Conflict` and nothing is written; fetch the draft again and retry. `body` is
+dialect Markdown; malformed dialect is rejected with `400` (the `detail` names
+the line, e.g. `line 4: unclosed :::callout container ...`). The response is the
+updated draft, including its new `updated_at`.
 
 ### `DELETE /api/v1/drafts/{draft_id}`
 
@@ -173,8 +182,9 @@ Deletes a draft. Returns `204 No Content`.
 
 ### `POST /api/v1/drafts`
 
-Creates a new draft. Body: `title`, `subtitle`, `body` (all optional).
-Returns `201 Created`.
+Creates a new draft. Body: `title`, `subtitle`, `body` (all optional; `body`
+is dialect Markdown, see [Draft Markdown dialect](drafts-markdown.md)). Returns
+`201 Created`, or `400` for malformed dialect.
 
 ### `GET /api/v1/drafts/{draft_id}/ai-detection`
 

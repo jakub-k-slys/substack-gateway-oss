@@ -57,10 +57,21 @@ class UpdateDraftRequest(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     body: str | None = None
+    expected_updated_at: str | None = Field(
+        default=None,
+        description=(
+            "The `updated_at` value returned when the draft was last read. When "
+            "set, the update is rejected with 409 if the draft has changed since."
+        ),
+    )
 
     def provided_updates(self) -> dict[str, str | None]:
         """The subset of {title, subtitle, body} the caller actually set."""
-        return {name: getattr(self, name) for name in self.model_fields_set}
+        return {
+            name: getattr(self, name)
+            for name in self.model_fields_set
+            if name in ("title", "subtitle", "body")
+        }
 
 
 class CreateDraftResponse(BaseModel):
@@ -76,6 +87,7 @@ class DraftResponse(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     body: str | None = None
+    updated_at: str | None = None
 
     @classmethod
     def from_substack(cls, draft: SubstackDraft) -> DraftResponse:
@@ -83,6 +95,7 @@ class DraftResponse(BaseModel):
             title=draft.draft_title,
             subtitle=draft.draft_subtitle,
             body=draft_body_to_markdown(draft.draft_body) if draft.draft_body else None,
+            updated_at=draft.draft_updated_at,
         )
 
 

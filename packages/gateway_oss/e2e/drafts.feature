@@ -40,3 +40,28 @@ Feature: Drafts endpoints
     And the response has field "fraction_ai"
     When I delete the test draft
     Then the response status is 204
+
+  Scenario: Rich draft survives a round-trip
+    Given valid credentials
+    # 1) Upload a small image so the watermark has a hosted image of known size
+    And a Substack-hosted test image is uploaded
+    # 2) Create a draft that uses every dialect element
+    When I create a draft with title "e2e rich draft" and the rich dialect body
+    Then the response status is 201
+    Given the created draft ID is saved
+    # 3) Fetch it and check the rich elements survived the write
+    When I fetch the test draft
+    Then the response status is 200
+    And the fetched body keeps the rich dialect elements
+    # 4) Write the fetched body back with its updated_at, then fetch again
+    When I update the test draft with the fetched body and updated_at
+    Then the response status is 200
+    # 5) Chain a second update on the updated_at the first PUT returned
+    When I update the test draft again with the previous body and the returned updated_at
+    Then the response status is 200
+    When I fetch the test draft
+    Then the response status is 200
+    And the fetched body equals the previously fetched body
+    # 6) Delete the draft
+    When I delete the test draft
+    Then the response status is 204

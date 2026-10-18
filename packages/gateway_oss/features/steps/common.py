@@ -118,6 +118,14 @@ def step_field_string(context, field, value):
     )
 
 
+@then('the response field "{field}" is "{value}" followed by a newline')
+def step_field_string_newline(context, field, value):
+    body = context.response.json()
+    assert body[field] == value + "\n", (
+        f'Expected field "{field}" to be {value + chr(10)!r}, got {body[field]!r}'
+    )
+
+
 @then('the response field "{field}" is {value:d}')
 def step_response_field_equals_int(context, field, value):
     body = context.response.json()
@@ -191,4 +199,12 @@ def step_first_item_field_int(context, field, value):
     actual = items[0][field]
     assert actual == value, (
         f'Expected first item "{field}" to be {value}, got {actual!r}'
+    )
+
+
+@then('the response field "{field}" contains "{value}"')
+def step_field_contains(context, field, value):
+    body = context.response.json()
+    assert value in str(body[field]), (
+        f'Expected field "{field}" to contain "{value}", got {body[field]!r}'
     )

@@ -1,36 +1,20 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from gateway_core.client.publication import PublicationClient
+from gateway_drafts.converters.dialect.attrs import fill_defaults
+from gateway_drafts.converters.dialect.blocks import is_substack_hosted
+from gateway_drafts.converters.dialect.errors import DraftMarkdownError
+from gateway_drafts.converters.dialect.fences import normalize_datawrapper_url
 from gateway_drafts.image import ImagesService
+from gateway_drafts.watermark import (
+    WatermarkService,
+    WatermarkSpec,
+    image_dimensions_from_url,
+)
 
 _PLACEHOLDER_PREFIX = "_unresolved_"
-
-_DATAWRAPPER_ID = re.compile(
-    r"datawrapper\.de/_/([A-Za-z0-9]+)|dwcdn\.net/([A-Za-z0-9]+)"
-)
-
-# Images already re-hosted on Substack's own S3/CDN (e.g. uploaded earlier via
-# the upload_image primitive). Re-posting a Substack-owned URL to the image
-# endpoint returns a payload without the ``bytes`` field and keeps the same
-# asset, so we build the node directly instead of re-uploading.
-_SUBSTACK_HOSTED = re.compile(
-    r"https?://[^/]*(?:substack-post-media\.s3|substackcdn\.com)", re.IGNORECASE
-)
-
-
-def _is_substack_hosted(src: str) -> bool:
-    return _SUBSTACK_HOSTED.match(src) is not None
-
-
-def _normalize_datawrapper_url(url: str) -> str:
-    match = _DATAWRAPPER_ID.search(url)
-    if match is None:
-        raise ValueError(f"Not a Datawrapper chart URL: {url!r}")
-    chart_id = match.group(1) or match.group(2)
-    return f"https://www.datawrapper.de/_/{chart_id}/"
 
 
 class UnresolvedNodeError(RuntimeError):
@@ -67,7 +51,9 @@ async def _resolve_node(node: Any, pub: PublicationClient) -> Any:
 async def _resolve_datawrapper(
     node: dict[str, Any], pub: PublicationClient
 ) -> dict[str, Any]:
-    resolve_url = _normalize_datawrapper_url(node["attrs"]["url"])
+    # The parser already validated the URL at its line; this is the backstop
+    # for a placeholder built some other way (still a DraftMarkdownError).
+    resolve_url = normalize_datawrapper_url(node["attrs"]["url"])
     response = await pub.get("datawrapper-embed", params={"url": resolve_url})
     data = response.json()
     return {
@@ -88,57 +74,47 @@ async def _resolve_image(
 ) -> dict[str, Any]:
     attrs = node["attrs"]
     src = attrs["src"]
-    alt = attrs.get("alt") or None
-    if _is_substack_hosted(src):
-        # Already on Substack's S3/CDN — use the URL as-is, no re-upload.
-        return _captioned_image(src, alt)
-    result = await ImagesService(pub).upload(src)
-    return _captioned_image(
-        result.url,
-        alt,
-        width=result.width,
-        height=result.height,
-        bytes_=result.bytes,
-        content_type=result.content_type,
-    )
+    image_attrs = dict(attrs.get("image_attrs") or {})
+    explicit_original = image_attrs.pop("srcNoWatermark", None)
+    watermark = attrs.get("watermark")
 
-
-def _captioned_image(
-    src: str,
-    alt: str | None,
-    *,
-    width: int | None = None,
-    height: int | None = None,
-    bytes_: int | None = None,
-    content_type: str | None = None,
-) -> dict[str, Any]:
+    final: dict[str, Any] = {"alt": attrs.get("alt") or None}
+    final_src = src
+    upload_size: tuple[int, int] | None = None
+    if not is_substack_hosted(src):
+        result = await ImagesService(pub).upload(src)
+        final_src = result.url
+        upload_size = (result.width, result.height)
+        final.update(
+            width=result.width,
+            height=result.height,
+            bytes=result.bytes,
+            type=result.content_type,
+        )
+    if watermark is not None:
+        # The overlay always goes on the pristine image, never a prior result.
+        original = explicit_original or final_src
+        size = (
+            upload_size
+            or image_dimensions_from_url(original)
+            or image_dimensions_from_url(final_src)
+        )
+        if size is None:
+            raise DraftMarkdownError(f"cannot watermark {src}: image size unknown")
+        spec = WatermarkSpec(
+            scale=watermark["scale"],
+            position=watermark["position"],
+            opacity=watermark["opacity"],
+        )
+        final_src = await WatermarkService(pub).apply(original, *size, spec)
+        final["srcNoWatermark"] = original
+    elif explicit_original is not None:
+        final["srcNoWatermark"] = explicit_original
+    final.update(image_attrs)
+    final["src"] = final_src
     return {
         "type": "captionedImage",
-        "content": [
-            {
-                "type": "image2",
-                "attrs": {
-                    "src": src,
-                    "srcNoWatermark": None,
-                    "fullscreen": None,
-                    "imageSize": None,
-                    "height": height,
-                    "width": width,
-                    "resizeWidth": None,
-                    "bytes": bytes_,
-                    "alt": alt,
-                    "title": None,
-                    "type": content_type,
-                    "href": None,
-                    "belowTheFold": False,
-                    "topImage": False,
-                    "internalRedirect": None,
-                    "isProcessing": False,
-                    "align": None,
-                    "offset": False,
-                },
-            }
-        ],
+        "content": [{"type": "image2", "attrs": fill_defaults("image2", final)}],
     }
 
 

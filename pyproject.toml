@@ -99,7 +99,7 @@ addopts = "--import-mode=importlib"
 exclude = ["packages/gateway_oss/features/", "packages/gateway_oss/e2e/"]
 
 [tool.ty.environment]
-extra-paths = ["packages/gateway_stats/tests"]
+extra-paths = ["packages/gateway_stats/tests", "packages/gateway_drafts/tests"]
 
 
 [tool.semantic_release]

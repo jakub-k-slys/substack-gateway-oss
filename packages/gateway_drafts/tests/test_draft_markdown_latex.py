@@ -74,11 +74,17 @@ class TestLatexAmongOtherBlocks:
 
 
 class TestLatexRoundTrip:
-    def test_latex_block_renders_back_to_display_math(self) -> None:
+    def test_latex_block_renders_back_to_display_math_with_its_id(self) -> None:
         body = markdown_to_draft_body("$$E = mc^2$$")
-        assert draft_body_to_markdown(body) == "$$\nE = mc^2\n$$"
+        latex_id = json.loads(body)["content"][0]["attrs"]["id"]
+        assert draft_body_to_markdown(body) == f"$$ {{id={latex_id}}}\nE = mc^2\n$$\n"
 
-    def test_round_trip_preserves_multiline_expression(self) -> None:
-        original = "$$\na + b\nc + d\n$$"
+    def test_round_trip_preserves_multiline_expression_and_id(self) -> None:
+        original = "$$ {id=ABCDEFGHIJ}\na + b\nc + d\n$$\n"
         body = markdown_to_draft_body(original)
         assert draft_body_to_markdown(body) == original
+
+    def test_id_survives_a_second_round_trip(self) -> None:
+        body = markdown_to_draft_body("$$x$$")
+        again = markdown_to_draft_body(draft_body_to_markdown(body))
+        assert json.loads(again) == json.loads(body)
