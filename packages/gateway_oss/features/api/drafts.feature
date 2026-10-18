@@ -52,6 +52,14 @@ Feature: Draft endpoints
     And the response field "detail" contains "line 1"
     And no Substack POST request was sent to the drafts endpoint
 
+  Scenario: Create a draft with a bad Datawrapper URL returns 400 naming the line
+    Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
+    And the Substack user-settings endpoint returns the sample response
+    When I send POST /api/v1/drafts with JSON body {"title": "Test Draft", "body": "Intro.\n\n```datawrapper\nhttps://app.datawrapper.de/chart/AbC12/visualize\n```"}
+    Then the response status code is 400
+    And the response field "detail" contains "line 3"
+    And no Substack POST request was sent to the drafts endpoint
+
   Scenario: Substack API error returns 502
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"
     And the Substack create-draft endpoint returns status 503

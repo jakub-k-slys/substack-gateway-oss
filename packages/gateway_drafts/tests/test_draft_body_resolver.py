@@ -379,3 +379,22 @@ async def test_unknown_size_raises_before_watermark_call() -> None:
     assert excinfo.value.message == f"cannot watermark {src}: image size unknown"
     assert excinfo.value.line is None
     assert pub.calls == []
+
+
+@pytest.mark.anyio
+async def test_bad_datawrapper_placeholder_is_a_markdown_error() -> None:
+    # Backstop: a placeholder that bypassed the parser still fails as a
+    # DraftMarkdownError (REST 400 / MCP tool error), never a 500.
+    doc = {
+        "type": "doc",
+        "content": [
+            {
+                "type": "_unresolved_datawrapper",
+                "attrs": {"url": "https://app.datawrapper.de/chart/AbC12/visualize"},
+            }
+        ],
+    }
+    pub = _EmbedPub(_EMBED)
+    with pytest.raises(DraftMarkdownError):
+        await resolve_draft_body(doc, cast(PublicationClient, pub))
+    assert pub.calls == []

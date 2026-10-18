@@ -281,10 +281,12 @@ https://www.datawrapper.de/_/aBcDe/
 ```
 ````
 
-The body is the chart's URL (`datawrapper.de/_/<id>` or `dwcdn.net/<id>`). This
-is an *instruction*: Substack's embed endpoint is asked for the chart's metadata
-while the draft is written. A chart already in a draft comes back from
-`get_draft` as a `substack-node` block, not as a `datawrapper` fence.
+The body is one published chart URL (`datawrapper.de/_/<id>` or `dwcdn.net/<id>`);
+an empty body, several URLs or any other URL (such as the `app.datawrapper.de`
+editor link) is an error naming the fence's line. This is an *instruction*:
+Substack's embed endpoint is asked for the chart's metadata while the draft is
+written. A chart already in a draft comes back from `get_draft` as a
+`substack-node` block, not as a `datawrapper` fence.
 
 ## Verbatim nodes (`substack-node`)
 
@@ -364,7 +366,7 @@ container is an error as well (write `\:::` for literal text).
 
 | Situation | REST | MCP |
 |---|---|---|
-| Malformed dialect (unclosed `:::align` / `:::callout` or fence, `::defaults` not the first block, a malformed directive or attribute, an invalid `substack-node` fence, a watermark on an image of unknown size) | `400`, `detail` starts with `line N:` for syntax errors | tool error with the same message |
+| Malformed dialect (unclosed `:::align` / `:::callout` or fence, `::defaults` not the first block, a malformed directive or attribute, an invalid `substack-node` fence, a `datawrapper` fence without one published chart URL, a watermark on an image of unknown size) | `400`, `detail` starts with `line N:` for syntax errors | tool error with the same message |
 | `expected_updated_at` differs from the draft's current `updated_at` | `409`; nothing is written | tool error saying the draft changed since it was read and must be fetched again; nothing is written |
 
 Syntax errors name the 1-based line of the input, so an agent can fix the exact

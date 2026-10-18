@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from gateway_core.client.publication import PublicationClient
 from gateway_drafts.converters.dialect.attrs import fill_defaults
 from gateway_drafts.converters.dialect.blocks import is_substack_hosted
 from gateway_drafts.converters.dialect.errors import DraftMarkdownError
+from gateway_drafts.converters.dialect.fences import normalize_datawrapper_url
 from gateway_drafts.image import ImagesService
 from gateway_drafts.watermark import (
     WatermarkService,
@@ -15,18 +15,6 @@ from gateway_drafts.watermark import (
 )
 
 _PLACEHOLDER_PREFIX = "_unresolved_"
-
-_DATAWRAPPER_ID = re.compile(
-    r"datawrapper\.de/_/([A-Za-z0-9]+)|dwcdn\.net/([A-Za-z0-9]+)"
-)
-
-
-def _normalize_datawrapper_url(url: str) -> str:
-    match = _DATAWRAPPER_ID.search(url)
-    if match is None:
-        raise ValueError(f"Not a Datawrapper chart URL: {url!r}")
-    chart_id = match.group(1) or match.group(2)
-    return f"https://www.datawrapper.de/_/{chart_id}/"
 
 
 class UnresolvedNodeError(RuntimeError):
@@ -63,7 +51,9 @@ async def _resolve_node(node: Any, pub: PublicationClient) -> Any:
 async def _resolve_datawrapper(
     node: dict[str, Any], pub: PublicationClient
 ) -> dict[str, Any]:
-    resolve_url = _normalize_datawrapper_url(node["attrs"]["url"])
+    # The parser already validated the URL at its line; this is the backstop
+    # for a placeholder built some other way (still a DraftMarkdownError).
+    resolve_url = normalize_datawrapper_url(node["attrs"]["url"])
     response = await pub.get("datawrapper-embed", params={"url": resolve_url})
     data = response.json()
     return {

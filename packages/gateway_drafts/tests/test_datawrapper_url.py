@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from gateway_drafts.converters.draft_body_resolver import _normalize_datawrapper_url
+from gateway_drafts.converters.dialect.errors import DraftMarkdownError
+from gateway_drafts.converters.dialect.fences import normalize_datawrapper_url
 
 RESOLVE = "https://www.datawrapper.de/_/boimj/"
 
@@ -17,9 +18,9 @@ RESOLVE = "https://www.datawrapper.de/_/boimj/"
     ],
 )
 def test_known_forms_normalize_to_resolve_url(url: str) -> None:
-    assert _normalize_datawrapper_url(url) == RESOLVE
+    assert normalize_datawrapper_url(url) == RESOLVE
 
 
 def test_unparseable_url_raises() -> None:
-    with pytest.raises(ValueError):
-        _normalize_datawrapper_url("https://example.com/not-a-chart")
+    with pytest.raises(DraftMarkdownError):
+        normalize_datawrapper_url("https://example.com/not-a-chart")

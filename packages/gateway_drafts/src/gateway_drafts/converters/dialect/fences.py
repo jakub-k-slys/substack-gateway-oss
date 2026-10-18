@@ -30,6 +30,28 @@ _LATEX_ONE_LINE = re.compile(r"^\$\$(.+?)\$\$$")
 HSPACE = " \t"  # the only whitespace the dialect strips around syntax
 _VERBATIM = "substack-node"
 _DATAWRAPPER = "datawrapper"
+_DATAWRAPPER_ID = re.compile(
+    r"datawrapper\.de/_/([A-Za-z0-9]+)|dwcdn\.net/([A-Za-z0-9]+)"
+)
+
+
+def normalize_datawrapper_url(url: str, line: int | None = None) -> str:
+    """The resolve URL (``https://www.datawrapper.de/_/<id>/``) for a chart URL.
+
+    Raises ``DraftMarkdownError`` (at ``line``, when known) for anything that is
+    not a single published Datawrapper chart URL.
+    """
+    single_url = len(url.split()) == 1  # not empty, not several URLs
+    match = _DATAWRAPPER_ID.search(url) if single_url else None
+    if match is None:
+        raise DraftMarkdownError(
+            f"not a Datawrapper chart URL: {url!r}; a ```datawrapper fence holds "
+            "one published chart URL, https://www.datawrapper.de/_/<id>/ or "
+            "https://datawrapper.dwcdn.net/<id>/",
+            line=line,
+        )
+    chart_id = match.group(1) or match.group(2)
+    return f"https://www.datawrapper.de/_/{chart_id}/"
 
 
 def attrs_at(text: str | None, line: int) -> dict[str, Any]:
@@ -58,6 +80,8 @@ class Fence:
             return latex_block(text, self.attrs)
         if self.kind == _DATAWRAPPER:
             url = text.strip()
+            # Validate here, where the fence's line is known.
+            normalize_datawrapper_url(url, self.line)
             return {"type": "_unresolved_datawrapper", "attrs": {"url": url}}
         if self.kind == _VERBATIM:
             return _verbatim(text, self.line)

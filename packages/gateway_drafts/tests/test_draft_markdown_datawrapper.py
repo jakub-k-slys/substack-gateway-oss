@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
+from gateway_drafts.converters.dialect.errors import DraftMarkdownError
 from gateway_drafts.converters.markdown import (
     draft_body_to_markdown,
     markdown_to_draft_body,
@@ -50,3 +53,26 @@ def test_datawrapper_node_round_trips_to_fence() -> None:
         + "\n```\n"
     )
     assert _nodes(markdown) == [node]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "https://app.datawrapper.de/chart/AbC12/visualize",
+        "https://example.com/not-a-chart",
+        "",
+        "https://www.datawrapper.de/_/boimj/ https://www.datawrapper.de/_/other/",
+    ],
+)
+def test_bad_datawrapper_fence_is_a_markdown_error_at_its_line(body: str) -> None:
+    lines = ["Intro.", "", "```datawrapper", *([body] if body else []), "```"]
+    markdown = "\n".join(lines)
+    with pytest.raises(DraftMarkdownError) as exc:
+        markdown_to_draft_body(markdown)
+    assert exc.value.line == 3
+    assert "Datawrapper" in exc.value.message
+
+
+def test_whitespace_around_datawrapper_url_is_ignored() -> None:
+    nodes = _nodes("```datawrapper\n  https://datawrapper.dwcdn.net/boimj/2/  \n\n```")
+    assert nodes[0]["attrs"]["url"] == "https://datawrapper.dwcdn.net/boimj/2/"
