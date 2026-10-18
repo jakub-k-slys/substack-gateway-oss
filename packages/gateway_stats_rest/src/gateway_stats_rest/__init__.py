@@ -5,6 +5,12 @@ from gateway_core.capabilities import RestCapability
 _FEATURES = (
     "api:stats:subscribers",
     "api:stats:traffic:30d-views",
+    "api:stats:arr",
+    "api:stats:emails",
+    "api:stats:dashboard",
+    "api:stats:dashboard:period",
+    "api:stats:recommendations",
+    "api:stats:post-counts",
     "api:posts:stats:engagement",
     "api:posts:stats:traffic",
     "api:posts:stats:recipients",

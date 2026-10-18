@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "publication_id": 2001,
+      "target_publication_id": 1,
+      "xp_signups": 9,
+      "xp_signups_last_30_days": 1,
+      "xp_paid_subs": 0,
+      "is_mutual": false,
+      "is_active": true,
+      "created_at": "2025-03-02T10:00:00.000Z",
+      "first_activity_at": "2025-03-04T10:00:00.000Z",
+      "data_updated_at": "2025-10-18T00:00:00.000Z",
+      "source_pub": {
+        "id": 2001,
+        "name": "Fictional Notes",
+        "subdomain": "fictionalnotes",
+        "custom_domain": null,
+        "logo_url": null
+      }
+    }
+  ]
+}

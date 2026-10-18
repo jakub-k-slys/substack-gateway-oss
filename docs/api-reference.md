@@ -2,7 +2,7 @@
 
 The REST API is mounted under `/api/v1` and assembled from `gateway_oss`'s health
 routes plus each domain's `_rest` capability (see `CLAUDE.md` for the trio
-layout). It totals 45 endpoints across 33 paths.
+layout). It totals 51 endpoints across 39 paths.
 
 ## Authentication
 
@@ -209,7 +209,7 @@ Cancels a draft's scheduled release. Returns `204 No Content`.
 Uploads an image file (multipart `file`) to Substack and returns its hosted
 URL and dimensions. Returns `201 Created`.
 
-## Stats (2)
+## Stats (8)
 
 ### `GET /api/v1/stats/subscribers`
 
@@ -222,6 +222,46 @@ cache, so every call fetches the full window.
 ### `GET /api/v1/stats/30d-views`
 
 Trailing-30-day publication views and their delta versus the prior period.
+
+### `GET /api/v1/stats/arr`
+
+Daily annualized recurring revenue as a timeseries. Each point carries the
+parsed `arr` number and `arr_display`, the amount exactly as Substack sent it.
+Query parameter: `from` (ISO timestamp, defaults to the last 7 days). If a
+cache extension is installed, only the tail beyond the last stored day is
+re-fetched from Substack on subsequent calls; OSS ships no such cache, so every
+call fetches the full window.
+
+### `GET /api/v1/stats/emails`
+
+Daily email subscriber counts as a timeseries. Query parameter: `from` (ISO
+timestamp, defaults to the last 7 days). If a cache extension is installed,
+only the tail beyond the last stored day is re-fetched from Substack on
+subsequent calls; OSS ships no such cache, so every call fetches the full
+window.
+
+### `GET /api/v1/stats/dashboard`
+
+Headline dashboard numbers: subscribers, app subscribers, email totals, ARR,
+views, open rate, and pledges.
+
+### `GET /api/v1/stats/dashboard/period`
+
+Start and end values of total subscribers, paid subscribers, ARR, views, and
+pledged ARR over a trailing window. Query parameter: `range_days` (default
+`365`, min `1`, max `3650`).
+
+### `GET /api/v1/stats/recommendations/{direction}`
+
+Recommendation signup stats. `direction` is `outgoing` (publications this one
+recommends) or `incoming` (publications recommending this one); any other
+value returns `422`. Query parameters: `limit` (default `20`, max `100`),
+`offset` (default `0`). `next_offset` is `null` when the page is not full.
+
+### `GET /api/v1/stats/posts/counts`
+
+Post counts by state (published, drafts, scheduled), each with a flag
+indicating whether the count is capped by Substack.
 
 ## Post Stats (5)
 

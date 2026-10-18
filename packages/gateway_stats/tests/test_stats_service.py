@@ -8,7 +8,7 @@ from _fakes import FakeStatsCache
 from gateway_core.client.substack import SubstackClient
 from gateway_core.config import settings
 from gateway_stats.cache import StatsCache
-from gateway_stats.service import StatsService
+from gateway_stats.service import StatsService, _rows_by_date
 
 PUB = "https://example.substack.com"
 
@@ -211,3 +211,55 @@ async def test_widening_never_fetches_less_than_the_watermark_path_would(
         "the fetch must start at the watermark date (the earlier of the two), "
         "not at from_, or part of the maturing re-fetch window is silently lost"
     )
+
+
+@pytest.mark.anyio
+async def test_arr_timeseries_keeps_first_row_without_header():
+    pub = _FakePub([[["2025/10/18", "$258.19"], ["2025/10/19", "$260.00"]]])
+    rows = await _make_service(pub, FakeStatsCache()).arr_timeseries(
+        from_="2025-10-01T00:00:00Z"
+    )
+    assert [r[0] for r in rows] == ["2025/10/18", "2025/10/19"]
+    assert pub.calls == [
+        ("publication/stats/arr/timeseries", {"from": "2025-10-01T00:00:00Z"})
+    ]
+
+
+@pytest.mark.anyio
+async def test_email_timeseries_delta_fetch_uses_watermark_lag(monkeypatch):
+    monkeypatch.setattr(settings, "stats_timeseries_watermark_lag_days", 2)
+    cache = FakeStatsCache()
+    pub = _FakePub(
+        [
+            [["2025/10/19", 411], ["2025/10/20", 415]],
+            [["2025/10/20", 416], ["2025/10/21", 420]],
+        ]
+    )
+    service = _make_service(pub, cache)
+    await service.email_timeseries(from_="2025-10-01T00:00:00Z")
+    rows = await service.email_timeseries()
+    # watermark 2025/10/20 minus 2-day lag -> 2025-10-18
+    assert pub.calls[1] == (
+        "publication/stats/emails/timeseries",
+        {"from": "2025-10-18T00:00:00Z"},
+    )
+    assert rows == [["2025/10/19", 411], ["2025/10/20", 416], ["2025/10/21", 420]]
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("payload", [[], [["Date", "ARR"]], {"rows": []}, None])
+async def test_arr_timeseries_empty_or_header_only_payload(payload):
+    rows = await _make_service(_FakePub([payload]), FakeStatsCache()).arr_timeseries()
+    assert rows == []
+
+
+def test_rows_by_date_skips_non_date_rows():
+    payload = [
+        ["Date", "Paid"],
+        ["2025/07/10", 1],
+        [],
+        ["total", 3],
+        "junk",
+        ["2025-07-11", 2],
+    ]
+    assert _rows_by_date(payload) == {"2025/07/10": ["2025/07/10", 1]}

@@ -1,19 +1,26 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import UTC, date, datetime, timedelta
 
 from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
 from gateway_core.config import settings
 from gateway_stats.cache import Row, StatsCache
+from gateway_stats.snapshot import cached_snapshot
 
 _log = logging.getLogger(__name__)
 
 # Substack timeseries endpoints, keyed by the series name we cache under.
 _TIMESERIES_ENDPOINTS: dict[str, str] = {
     "subscribers": "publication/stats/subscribers/timeseries",
+    "arr": "publication/stats/arr/timeseries",
+    "emails": "publication/stats/emails/timeseries",
 }
+
+# Substack date buckets look like "2025/07/10".
+_DATE_BUCKET = re.compile(r"\d{4}/\d{2}/\d{2}")
 
 # Kept deliberately short: without a cache installed this window is refetched on
 # every call, and `from_` is available per call for anything wider.
@@ -73,6 +80,22 @@ class StatsService:
         """
         return await self._timeseries("subscribers", from_=from_)
 
+    async def arr_timeseries(self, from_: str | None = None) -> list[Row]:
+        """Daily annualized recurring revenue (raw money strings, e.g. "$258.19").
+
+        Returns data rows sorted by date. Only the tail beyond the cached
+        watermark is fetched from Substack on each call.
+        """
+        return await self._timeseries("arr", from_=from_)
+
+    async def email_timeseries(self, from_: str | None = None) -> list[Row]:
+        """Daily email subscriber counts.
+
+        Returns data rows sorted by date. Only the tail beyond the cached
+        watermark is fetched from Substack on each call.
+        """
+        return await self._timeseries("emails", from_=from_)
+
     async def _timeseries(self, series: str, from_: str | None) -> list[Row]:
         path = _TIMESERIES_ENDPOINTS[series]
         cached = await self._cache.read_timeseries(self._pub_url, series)
@@ -120,27 +143,32 @@ class StatsService:
         Without a cache extension installed, every call reaches Substack
         directly.
         """
-        cached = await self._cache.get_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS)
-        if cached is not None:
-            _log.debug("30d views served from snapshot cache")
-            return cached
 
-        r = await self._pub.get("publication/stats/publication_traffic/30d_views")
-        data = r.json()
-        await self._cache.set_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS, data)
-        return data
+        async def fetch() -> dict[str, int]:
+            r = await self._pub.get("publication/stats/publication_traffic/30d_views")
+            return r.json()
+
+        return await cached_snapshot(
+            self._cache, self._pub_url, _SNAPSHOT_30D_VIEWS, fetch
+        )
 
 
 def _rows_by_date(payload: object) -> dict[str, Row]:
-    """Turn Substack's [header, *rows] timeseries payload into date→row.
+    """Turn a Substack timeseries payload into date→row.
 
-    The first element is a header row of column labels; only rows whose first
-    cell is a date bucket string are kept.
+    No header row is assumed: some series ship one and some do not, so the
+    whole payload is scanned and only rows whose first cell is a
+    ``YYYY/MM/DD`` date bucket are kept. Header, blank and junk rows drop out.
     """
-    if not isinstance(payload, list) or len(payload) < 2:
+    if not isinstance(payload, list):
         return {}
     result: dict[str, Row] = {}
-    for row in payload[1:]:
-        if isinstance(row, list) and row and isinstance(row[0], str):
+    for row in payload:
+        if (
+            isinstance(row, list)
+            and row
+            and isinstance(row[0], str)
+            and _DATE_BUCKET.fullmatch(row[0])
+        ):
             result[row[0]] = row
     return result

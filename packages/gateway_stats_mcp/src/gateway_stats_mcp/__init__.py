@@ -12,6 +12,12 @@ if TYPE_CHECKING:
 _FEATURES = (
     "mcp:stats:subscribers",
     "mcp:stats:traffic:30d-views",
+    "mcp:stats:arr",
+    "mcp:stats:emails",
+    "mcp:stats:dashboard",
+    "mcp:stats:dashboard:period",
+    "mcp:stats:recommendations",
+    "mcp:stats:post-counts",
     "mcp:posts:stats:engagement",
     "mcp:posts:stats:traffic",
     "mcp:posts:stats:recipients",
@@ -23,11 +29,17 @@ _FEATURES = (
 def _register(mcp: FastMCP) -> None:
     from gateway_stats_mcp.tools import (
         get_30d_views,
+        get_arr_timeseries,
+        get_dashboard_period,
+        get_dashboard_summary,
+        get_email_timeseries,
+        get_post_counts,
         get_post_discussion,
         get_post_engagement,
         get_post_growth,
         get_post_recipients,
         get_post_traffic,
+        get_recommendation_stats,
         get_subscriber_timeseries,
     )
 
@@ -63,6 +75,96 @@ def _register(mcp: FastMCP) -> None:
             ),
         },
     )(get_30d_views)
+    mcp.tool(
+        description="Fetch the publication's daily annualized recurring revenue (ARR) timeseries for the trailing 7 days by default; each point keeps the raw money string next to the parsed number. Optionally pass `from_date` (ISO) to bound the window. If a cache extension is installed, repeat calls fetch only the days newer than what is already stored; without one, every call fetches the full window from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get ARR Timeseries",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /publication/stats/arr/timeseries",
+        },
+    )(get_arr_timeseries)
+    mcp.tool(
+        description="Fetch the publication's daily email subscriber count timeseries for the trailing 7 days by default. Optionally pass `from_date` (ISO) to bound the window. If a cache extension is installed, repeat calls fetch only the days newer than what is already stored; without one, every call fetches the full window from Substack. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get Email Timeseries",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /publication/stats/emails/timeseries",
+        },
+    )(get_email_timeseries)
+    mcp.tool(
+        description="Fetch the publish dashboard's headline numbers for the publication (views, subscribers and related totals). Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get Dashboard Summary",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /publish-dashboard/summary",
+        },
+    )(get_dashboard_summary)
+    mcp.tool(
+        description="Fetch the publish dashboard summary over a trailing window: pass `range_days` (1-3650, default 365) to choose the number of days. Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get Dashboard Period",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /publish-dashboard/summary-v2",
+        },
+    )(get_dashboard_period)
+    mcp.tool(
+        description="Fetch recommendation stats for the publication: pass `direction` `outgoing` (publications this one recommends) or `incoming` (publications recommending this one), paginated via `offset` (default 0) and `limit` (1-100, default 20). Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get Recommendation Stats",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /recommendations/stats/{from|to}",
+        },
+    )(get_recommendation_stats)
+    mcp.tool(
+        description="Fetch the publication's post counts by state (published, drafts, scheduled and so on). Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        tags={"stats", "read"},
+        annotations=ToolAnnotations(
+            title="Get Post Counts",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
+        ),
+        meta={
+            "category": "stats",
+            "substack_endpoint": "GET /post_management/counts",
+        },
+    )(get_post_counts)
     mcp.tool(
         description="Fetch engagement for a published post: like count and likers, comment count and summary, and commenter count. Without a cache extension installed, every call reaches the Substack API directly. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"post-stats", "read"},

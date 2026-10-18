@@ -2,7 +2,7 @@
 
 The MCP server is mounted at `/mcp` and served over streamable HTTP
 (stateless). It is assembled from each domain's `_mcp` capability (see
-`CLAUDE.md` for the trio layout) and currently exposes 43 tools.
+`CLAUDE.md` for the trio layout) and currently exposes 49 tools.
 
 ## Credentials and the `token` argument
 
@@ -123,7 +123,7 @@ fences for anything else. Reading a draft and writing it back is lossless.
 Malformed dialect is rejected with a tool error naming the line. The full syntax
 is in [Draft Markdown dialect](drafts-markdown.md).
 
-## Stats (2)
+## Stats (8)
 
 - `get_subscriber_timeseries(token=None, from_date=None)` — daily subscriber
   counts (paid / comps / free trials / total). If a cache extension is
@@ -131,6 +131,22 @@ is in [Draft Markdown dialect](drafts-markdown.md).
   Substack on later calls; OSS ships no such cache.
 - `get_30d_views(token=None)` — trailing-30-day publication views and their
   delta.
+- `get_arr_timeseries(token=None, from_date=None)` — daily annualized recurring
+  revenue; each point keeps the raw money string next to the parsed number. If
+  a cache extension is installed, only the tail beyond the last stored day is
+  re-fetched from Substack on later calls; OSS ships no such cache.
+- `get_email_timeseries(token=None, from_date=None)` — daily email subscriber
+  counts. If a cache extension is installed, only the tail beyond the last
+  stored day is re-fetched from Substack on later calls; OSS ships no such
+  cache.
+- `get_dashboard_summary(token=None)` — the publish dashboard's headline
+  numbers.
+- `get_dashboard_period(token=None, range_days=365)` — dashboard summary over
+  the trailing `range_days` days (1–3650).
+- `get_recommendation_stats(direction, token=None, offset=0, limit=20)` —
+  recommendation stats, `outgoing` or `incoming`, paginated (`limit` 1–100).
+- `get_post_counts(token=None)` — post counts by state (published, drafts,
+  scheduled, ...).
 
 ## Post Stats (5)
 

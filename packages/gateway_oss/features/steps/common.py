@@ -18,6 +18,14 @@ def load_sample(path: str):
     return json.loads((SAMPLES_DIR / path).read_text())
 
 
+def walk_path(root, path: str):
+    """Follow a dotted path through nested dicts and lists (digits index lists)."""
+    node = root
+    for segment in path.split("."):
+        node = node[int(segment)] if isinstance(node, list) else node[segment]
+    return node
+
+
 def pub_url(context) -> str:
     return getattr(context, "publication_url", SUBSTACK_BASE).rstrip("/")
 
