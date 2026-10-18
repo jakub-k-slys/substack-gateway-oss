@@ -113,6 +113,28 @@ def test_malformed_blocks_raise(text: str) -> None:
         parse_attr_block(text)
 
 
+@pytest.mark.parametrize(
+    "text",
+    ["n=" + "9" * 5000, "n=-" + "9" * 5000, "n='" + "9" * 5000 + "'"],
+    ids=["unquoted", "negative", "json"],
+)
+def test_integer_too_long_to_convert_is_a_markdown_error(text: str) -> None:
+    # Python refuses int <-> str conversion past 4300 digits (ValueError).
+    with pytest.raises(DraftMarkdownError, match="'n'"):
+        parse_attr_block(text)
+
+
+def test_deeply_nested_json_value_is_a_markdown_error() -> None:
+    with pytest.raises(DraftMarkdownError, match="'n'"):
+        parse_attr_block("n='" + "[" * 100_000 + "]" * 100_000 + "'")
+
+
+def test_long_digit_string_is_quoted_when_formatted() -> None:
+    value = "9" * 5000
+    assert format_attr_block({"n": value}) == '{n="' + value + '"}'
+    assert parse_attr_block(format_attr_block({"n": value})[1:-1]) == {"n": value}
+
+
 def test_diff_and_fill_are_inverse() -> None:
     full = fill_defaults("image2", {"src": "s", "imageSize": "large"})
     assert full["belowTheFold"] is False and full["imageSize"] == "large"

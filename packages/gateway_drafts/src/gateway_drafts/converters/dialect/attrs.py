@@ -120,7 +120,7 @@ def _parse_value(text: str, pos: int, key: str) -> tuple[Any, int]:
         end = pos
         while end < len(text) and not text[end].isspace():
             end += 1
-        return _typed_literal(text[pos:end]), end
+        return _typed_literal(text[pos:end], key), end
     inner, end = _read_quoted(text, pos, key)
     if end < len(text) and not text[end].isspace():
         raise DraftMarkdownError(
@@ -133,6 +133,10 @@ def _parse_value(text: str, pos: int, key: str) -> tuple[Any, int]:
     except json.JSONDecodeError as exc:
         raise DraftMarkdownError(
             f"attribute block: invalid JSON for '{key}': {exc.msg}"
+        ) from exc
+    except (ValueError, RecursionError) as exc:  # e.g. too deep or huge numbers
+        raise DraftMarkdownError(
+            f"attribute block: JSON for '{key}' cannot be read: {exc}"
         ) from exc
 
 
@@ -160,16 +164,25 @@ def _read_quoted(text: str, pos: int, key: str) -> tuple[str, int]:
     raise DraftMarkdownError(f"attribute block: unterminated {quote} quote for '{key}'")
 
 
-def _typed_literal(raw: str) -> Any:
-    if raw == "true":
-        return True
-    if raw == "false":
-        return False
-    if raw == "null":
-        return None
+_KEYWORDS: dict[str, Any] = {"true": True, "false": False, "null": None}
+
+
+def _typed_literal(raw: str, key: str) -> Any:
+    if raw in _KEYWORDS:
+        return _KEYWORDS[raw]
     if _INT.fullmatch(raw):
-        return int(raw)
+        try:
+            return int(raw)
+        except ValueError as exc:  # past Python's int <-> str digit limit
+            raise DraftMarkdownError(
+                f"attribute block: integer value of '{key}' is too long ({exc})"
+            ) from exc
     return raw
+
+
+def _reads_as_literal(raw: str) -> bool:
+    """Whether unquoted ``raw`` would parse as something other than a string."""
+    return raw in _KEYWORDS or _INT.fullmatch(raw) is not None
 
 
 def format_attr_block(attrs: dict[str, Any]) -> str:
@@ -201,7 +214,7 @@ def _format_value(value: Any) -> str:
 def _format_string(value: str) -> str:
     if "\n" in value or "\r" in value:
         return _format_json(value)
-    if not value or _NEEDS_QUOTES.search(value) or _typed_literal(value) != value:
+    if not value or _NEEDS_QUOTES.search(value) or _reads_as_literal(value):
         escaped = value.replace("\\", "\\\\").replace('"', '\\"')
         return f'"{escaped}"'
     return value
