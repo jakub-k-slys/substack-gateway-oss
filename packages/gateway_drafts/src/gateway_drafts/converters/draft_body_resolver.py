@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from gateway_core.client.publication import PublicationClient
+from gateway_drafts.converters.dialect.blocks import is_substack_hosted
 from gateway_drafts.image import ImagesService
 
 _PLACEHOLDER_PREFIX = "_unresolved_"
@@ -11,18 +12,6 @@ _PLACEHOLDER_PREFIX = "_unresolved_"
 _DATAWRAPPER_ID = re.compile(
     r"datawrapper\.de/_/([A-Za-z0-9]+)|dwcdn\.net/([A-Za-z0-9]+)"
 )
-
-# Images already re-hosted on Substack's own S3/CDN (e.g. uploaded earlier via
-# the upload_image primitive). Re-posting a Substack-owned URL to the image
-# endpoint returns a payload without the ``bytes`` field and keeps the same
-# asset, so we build the node directly instead of re-uploading.
-_SUBSTACK_HOSTED = re.compile(
-    r"https?://[^/]*(?:substack-post-media\.s3|substackcdn\.com)", re.IGNORECASE
-)
-
-
-def _is_substack_hosted(src: str) -> bool:
-    return _SUBSTACK_HOSTED.match(src) is not None
 
 
 def _normalize_datawrapper_url(url: str) -> str:
@@ -89,7 +78,7 @@ async def _resolve_image(
     attrs = node["attrs"]
     src = attrs["src"]
     alt = attrs.get("alt") or None
-    if _is_substack_hosted(src):
+    if is_substack_hosted(src):
         # Already on Substack's S3/CDN — use the URL as-is, no re-upload.
         return _captioned_image(src, alt)
     result = await ImagesService(pub).upload(src)

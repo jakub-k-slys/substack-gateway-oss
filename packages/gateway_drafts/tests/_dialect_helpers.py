@@ -25,3 +25,8 @@ def _t(text: str, *marks: str, href: str | None = None) -> dict[str, Any]:
     if ms:
         node["marks"] = ms
     return node
+
+
+def _p(text: str, align: str | None = None) -> dict[str, Any]:
+    """Build a paragraph holding one plain text node, with ``textAlign``."""
+    return {"type": "paragraph", "attrs": {"textAlign": align}, "content": [_t(text)]}
