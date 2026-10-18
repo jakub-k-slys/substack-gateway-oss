@@ -188,6 +188,7 @@ Reference documentation lives in `docs/`:
 - [Authentication](docs/authentication.md)
 - [API reference](docs/api-reference.md)
 - [MCP documentation](docs/mcp.md)
+- [Draft Markdown dialect](docs/drafts-markdown.md)
 - [Development guide](docs/development.md)
 - [Contributing guide](CONTRIBUTING.md)
 

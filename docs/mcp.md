@@ -89,11 +89,16 @@ ones like `get_note`, `get_post`, and `get_post_comments`.
 
 - `list_drafts(token=None, next=None)` — list drafts newest first, in pages
   of 10; `next` is an opaque cursor from a previous call.
-- `get_draft(draft_id, token=None)` — fetch a draft by ID.
+- `get_draft(draft_id, token=None)` — fetch a draft by ID. The `body` is
+  returned as lossless dialect Markdown (see
+  [Draft Markdown dialect](drafts-markdown.md)) together with `updated_at`.
 - `create_draft(token=None, title=None, subtitle=None, body=None)` — create
-  a new draft.
-- `update_draft(draft_id, token=None, title=None, subtitle=None, body=None)`
-  — update only the fields actually passed.
+  a new draft; `body` is dialect Markdown.
+- `update_draft(draft_id, token=None, title=None, subtitle=None, body=None, expected_updated_at=None)`
+  — update only the fields actually passed. Pass the `updated_at` from
+  `get_draft` as `expected_updated_at` to refuse the update (tool error, nothing
+  written) if the draft changed since you read it. Returns the new
+  `updated_at`.
 - `delete_draft(draft_id, token=None)` — delete a draft.
 - `get_ai_detection(draft_id, token=None)` — run Substack's Pangram
   AI-writing detection on a draft.
@@ -106,6 +111,17 @@ ones like `get_note`, `get_post`, and `get_post_comments`.
 - `upload_image(image_base64, token=None, content_type="image/png")` —
   upload a base64-encoded image to Substack and return its hosted URL and
   dimensions.
+
+### Draft bodies
+
+Draft `body` values (the argument of `create_draft` / `update_draft`, and what
+`get_draft` returns) use a Markdown dialect with extensions for horizontal
+rules, `::button[...]{href=subscribe|share|comment}` buttons, image
+`{size=normal|large|full}` and `{watermark=N%}`, `::defaults{align=...}` and
+`:::align{...}` alignment, `:::callout` blocks, and verbatim `substack-node`
+fences for anything else. Reading a draft and writing it back is lossless.
+Malformed dialect is rejected with a tool error naming the line. The full syntax
+is in [Draft Markdown dialect](drafts-markdown.md).
 
 ## Stats (2)
 

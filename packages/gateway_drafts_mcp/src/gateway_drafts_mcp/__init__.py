@@ -22,6 +22,31 @@ _FEATURES = (
     "mcp:images:upload",
 )
 
+_TOKEN_SENTENCE = (
+    "The `token` argument is optional: pass base64-encoded Substack credentials, "
+    "or omit it if this deployment resolves credentials from the authenticated "
+    "session."
+)
+# Compact cheat sheet for the body dialect; the full reference is
+# docs/drafts-markdown.md. Keep it short: descriptions go to every MCP client.
+_DIALECT_CHEAT_SHEET = (
+    "Body dialect (Markdown plus): `---` rule; "
+    "`::button[Text]{href=subscribe|share|comment|URL}`; "
+    "`![alt](src){size=normal|large|full}` with `{watermark=N%}` to watermark "
+    "(external images are uploaded); `::defaults{align=left|center|right|justify}` "
+    "as the first line; `:::align{left|center|right|justify|default}` ... `:::` "
+    "and `:::callout` ... `:::` containers; `|>` pullquote; `$$` LaTeX. A "
+    "```substack-node fence is a verbatim node: move or delete it, never edit "
+    "its JSON. Malformed syntax is rejected with the line number; start a line "
+    "with `\\` to write dialect-looking text literally. Full syntax: "
+    "docs/drafts-markdown.md."
+)
+_CONCURRENCY_HINT = (
+    "Pass the `updated_at` from get_draft (or the previous update) as "
+    "`expected_updated_at` to refuse the update if the draft was edited since "
+    "you read it."
+)
+
 
 def _register(mcp: FastMCP) -> None:
     from gateway_drafts_mcp.tools import (
@@ -50,7 +75,13 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /post_management/drafts"},
     )(list_drafts)
     mcp.tool(
-        description="Fetch a Substack post draft by ID. The body is returned as Markdown, along with `updated_at` (pass it back as `expected_updated_at` on update_draft to detect concurrent edits). The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description=(
+            "Fetch a Substack post draft by ID. The body is returned as Markdown in the draft dialect, "
+            "together with `updated_at`. "
+            + _DIALECT_CHEAT_SHEET
+            + " Pass `updated_at` back as `expected_updated_at` on update_draft to detect concurrent edits. "
+            + _TOKEN_SENTENCE
+        ),
         tags={"drafts", "read"},
         annotations=ToolAnnotations(
             title="Get Draft",
@@ -62,7 +93,13 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "GET /drafts/{draft_id}"},
     )(get_draft)
     mcp.tool(
-        description="Create a new Substack post draft with optional title, subtitle, and body. The body accepts Markdown. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description=(
+            "Create a new Substack post draft with optional title, subtitle, and body. "
+            "The body accepts Markdown in the draft dialect. "
+            + _DIALECT_CHEAT_SHEET
+            + " "
+            + _TOKEN_SENTENCE
+        ),
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Create Draft",
@@ -86,7 +123,15 @@ def _register(mcp: FastMCP) -> None:
         meta={"category": "drafts", "substack_endpoint": "POST /api/v1/image"},
     )(upload_image)
     mcp.tool(
-        description="Update specific fields of a Substack post draft. Only provided fields are changed; omitted fields remain unchanged. Body accepts Markdown. Pass `expected_updated_at` (the `updated_at` returned by get_draft or a previous update) to refuse the update if the draft was edited since you read it. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description=(
+            "Update specific fields of a Substack post draft. Only provided fields are changed; "
+            "omitted fields remain unchanged. The body accepts Markdown in the draft dialect. "
+            + _DIALECT_CHEAT_SHEET
+            + " "
+            + _CONCURRENCY_HINT
+            + " "
+            + _TOKEN_SENTENCE
+        ),
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Update Draft",
