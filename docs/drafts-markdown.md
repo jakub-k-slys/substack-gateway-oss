@@ -132,12 +132,15 @@ An image is a line of its own:
 ![Alt text](https://example.com/photo.jpg){size=full watermark=8%}
 ```
 
-- **Source.** A URL on one of Substack's image hosts, `substack-post-media.s3.amazonaws.com`
-  or `substackcdn.com` (for example one returned by `upload_image`), is kept as it
-  is, with no request. The check is on the host: any other URL, including
-  `cdn.substack.com` and path-style S3 URLs such as
-  `s3.amazonaws.com/substack-post-media/...`, is treated as external, downloaded
-  and uploaded to Substack when the draft is written.
+- **Source.** An `http`/`https` URL whose host is one of Substack's image hosts
+  (for example one returned by `upload_image`) is kept as it is, with no request.
+  The URL's host must be exactly `substackcdn.com` or a subdomain of it, or
+  `substack-post-media.s3.amazonaws.com` / `substack-post-media.s3.<region>.amazonaws.com`;
+  a host that merely contains one of these names (`substackcdn.com.example.org`,
+  `notsubstackcdn.com`) or a URL that only mentions one in its path, query or user
+  info does not count. Any other URL, including `cdn.substack.com` and path-style
+  S3 URLs such as `s3.amazonaws.com/substack-post-media/...`, is treated as
+  external, downloaded and uploaded to Substack when the draft is written.
 - **`size=normal|large|full`.** Presets matching the web editor's image sizes
   (all three are centered and not fullscreen; `large` is 1200 px wide, `full` is
   full width). When an image's size attributes do not match a

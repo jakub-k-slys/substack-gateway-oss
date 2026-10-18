@@ -25,6 +25,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit
 
 from gateway_drafts.converters.dialect.attrs import fill_defaults
 from gateway_drafts.converters.dialect.errors import DraftMarkdownError
@@ -43,10 +44,12 @@ Line = tuple[int, str]
 # Images already re-hosted on Substack's own S3/CDN (e.g. uploaded earlier via
 # the upload_image primitive). Re-posting a Substack-owned URL to the image
 # endpoint returns a payload without the ``bytes`` field and keeps the same
-# asset, so such an image is built directly instead of re-uploaded.
-_SUBSTACK_HOSTED = re.compile(
-    r"https?://[^/]*(?:substack-post-media\.s3|substackcdn\.com)", re.IGNORECASE
-)
+# asset, so such an image is built directly instead of re-uploaded. The URL's
+# host is compared exactly (``urlsplit(...).hostname`` is already lower-case):
+# ``substackcdn.com`` or a subdomain of it, and the ``substack-post-media``
+# bucket's virtual-hosted S3 endpoint, with or without a region.
+_SUBSTACK_CDN = "substackcdn.com"
+_SUBSTACK_S3 = re.compile(r"substack-post-media\.s3(?:\.[a-z0-9-]+)?\.amazonaws\.com")
 
 _HEADING = re.compile(r"^(#{1,6})[ \t]+(.*)")
 _BULLET = re.compile(r"^[-*+][ \t]+(.*)")
@@ -83,7 +86,17 @@ MAX_QUOTE_DEPTH = 32
 
 
 def is_substack_hosted(src: str) -> bool:
-    return _SUBSTACK_HOSTED.match(src) is not None
+    """Whether ``src`` is an http(s) URL on one of Substack's own image hosts."""
+    try:
+        parts = urlsplit(src)
+    except ValueError:  # e.g. an unbalanced IPv6 bracket
+        return False
+    host = parts.hostname
+    if parts.scheme.lower() not in ("http", "https") or not host:
+        return False
+    if host == _SUBSTACK_CDN or host.endswith("." + _SUBSTACK_CDN):
+        return True
+    return _SUBSTACK_S3.fullmatch(host) is not None
 
 
 def parse_blocks(markdown: str) -> list[Node]:
