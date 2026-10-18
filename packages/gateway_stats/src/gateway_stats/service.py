@@ -8,6 +8,7 @@ from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
 from gateway_core.config import settings
 from gateway_stats.cache import Row, StatsCache
+from gateway_stats.snapshot import cached_snapshot
 
 _log = logging.getLogger(__name__)
 
@@ -142,15 +143,14 @@ class StatsService:
         Without a cache extension installed, every call reaches Substack
         directly.
         """
-        cached = await self._cache.get_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS)
-        if cached is not None:
-            _log.debug("30d views served from snapshot cache")
-            return cached
 
-        r = await self._pub.get("publication/stats/publication_traffic/30d_views")
-        data = r.json()
-        await self._cache.set_snapshot(self._pub_url, _SNAPSHOT_30D_VIEWS, data)
-        return data
+        async def fetch() -> dict[str, int]:
+            r = await self._pub.get("publication/stats/publication_traffic/30d_views")
+            return r.json()
+
+        return await cached_snapshot(
+            self._cache, self._pub_url, _SNAPSHOT_30D_VIEWS, fetch
+        )
 
 
 def _rows_by_date(payload: object) -> dict[str, Row]:

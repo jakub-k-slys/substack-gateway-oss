@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from gateway_core.client.publication import PublicationClient
 from gateway_core.client.substack import SubstackClient
 from gateway_stats.cache import StatsCache
-
-_log = logging.getLogger(__name__)
+from gateway_stats.snapshot import cached_snapshot
 
 _DETAIL = "post_management/detail"
 
@@ -37,14 +35,11 @@ class PostStatsService:
     async def _snapshot(
         self, key: str, path: str, params: dict[str, Any] | None = None
     ) -> dict[str, Any]:
-        cached = await self._cache.get_snapshot(self._pub_url, key)
-        if cached is not None:
-            _log.debug("post-stats %s served from snapshot cache", key)
-            return cached
-        r = await self._pub.get(path, params=params)
-        data = r.json()
-        await self._cache.set_snapshot(self._pub_url, key, data)
-        return data
+        async def fetch() -> dict[str, Any]:
+            r = await self._pub.get(path, params=params)
+            return r.json()
+
+        return await cached_snapshot(self._cache, self._pub_url, key, fetch)
 
     async def engagement(self, post_id: int) -> dict[str, Any]:
         """Likes, comment summary, and commenters for a post."""
