@@ -70,8 +70,9 @@ atomic lock against an edit that lands between the two requests.
 - `#` to `######` followed by a space is a heading.
 - `-`, `*` or `+` followed by a space is a bullet list item; `1.` (any number,
   followed by a space) is an ordered list item, renumbered from 1. A list item is
-  one paragraph. Nested lists are not part of the dialect (a draft that contains
-  one comes back as a [`substack-node`](#verbatim-nodes-substack-node) block).
+  one paragraph. Nested lists are not part of the dialect: an indented line
+  (`  - sub`) does not nest, it becomes paragraph text. A draft that contains a
+  nested list comes back as a [`substack-node`](#verbatim-nodes-substack-node) block.
 - `> text` is a blockquote and `|> text` is a pullquote. The body after the
   marker is parsed as Markdown again, so quotes can hold several paragraphs
   (separated by a bare `>` line) and lists.
@@ -131,15 +132,18 @@ An image is a line of its own:
 ![Alt text](https://example.com/photo.jpg){size=full watermark=8%}
 ```
 
-- **Source.** A URL that is not on Substack is downloaded and uploaded to
-  Substack when the draft is written. A URL that is already on Substack (an
-  `s3.amazonaws.com/substack-post-media...` or `substackcdn.com` address, for
-  example one returned by `upload_image`) is kept as it is, with no request.
+- **Source.** A URL on one of Substack's image hosts, `substack-post-media.s3.amazonaws.com`
+  or `substackcdn.com` (for example one returned by `upload_image`), is kept as it
+  is, with no request. The check is on the host: any other URL, including
+  `cdn.substack.com` and path-style S3 URLs such as
+  `s3.amazonaws.com/substack-post-media/...`, is treated as external, downloaded
+  and uploaded to Substack when the draft is written.
 - **`size=normal|large|full`.** Presets matching the web editor's image sizes
   (all three are centered and not fullscreen; `large` is 1200 px wide, `full` is
   full width). When an image's size attributes do not match a
   preset exactly, `get_draft` writes the raw attributes instead
-  (`{imageSize=... resizeWidth=...}`); keep them as they are.
+  (`{imageSize=... resizeWidth=... align=... fullscreen=...}`, whichever differ
+  from the defaults); keep them as they are.
 - **Other attributes.** Any further `{key=value}` in the block is stored on the
   image as written (for example `href=...` to make it a link). Values are typed:
   whole numbers, `true`, `false` and `null` are not strings; quote anything else
