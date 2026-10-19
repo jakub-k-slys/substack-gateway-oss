@@ -174,3 +174,105 @@ async def test_rate_limiter_delays_subsequent_calls() -> None:
     elapsed = time.monotonic() - start
 
     assert elapsed >= 0.9
+
+
+# --- Write requests: retry only when Substack cannot have processed them ----
+
+
+def _install_fake(
+    monkeypatch: pytest.MonkeyPatch, outcomes: list[httpx.Response | Exception]
+) -> list[str]:
+    """Replay `outcomes` (a response, or an exception to raise) and record methods."""
+    calls: list[str] = []
+
+    async def fake_request(
+        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
+    ) -> httpx.Response:
+        calls.append(method)
+        outcome = outcomes.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    async def fake_sleep(delay: float) -> None:
+        return None
+
+    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
+    monkeypatch.setattr(base, "_sleep", fake_sleep)
+    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
+    return calls
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("method", ["post", "put", "delete"])
+@pytest.mark.parametrize("status", [408, 500, 502, 503, 504])
+async def test_write_is_not_retried_on_ambiguous_status(
+    monkeypatch: pytest.MonkeyPatch, method: str, status: int
+) -> None:
+    calls = _install_fake(monkeypatch, [httpx.Response(status, json={})])
+
+    async with _TestClient("sid", "connect") as client:
+        with pytest.raises(SubstackAPIError):
+            await getattr(client, method)("messages/dm/x")
+
+    assert calls == [method.upper()]
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    "error",
+    [httpx.ReadTimeout("timed out"), httpx.ReadError("reset"), httpx.WriteTimeout("t")],
+)
+async def test_write_is_not_retried_after_the_request_may_have_been_sent(
+    monkeypatch: pytest.MonkeyPatch, error: Exception
+) -> None:
+    calls = _install_fake(monkeypatch, [error])
+
+    async with _TestClient("sid", "connect") as client:
+        with pytest.raises(SubstackAPIError, match="Network error"):
+            await client.post("messages/dm/x", json={"body": "hi"})
+
+    assert calls == ["POST"]
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    "first",
+    [
+        httpx.ConnectError("refused"),
+        httpx.ConnectTimeout("connect timed out"),
+        httpx.PoolTimeout("pool exhausted"),
+        httpx.Response(429, json={}),
+        httpx.Response(425, json={}),
+    ],
+)
+async def test_write_is_retried_when_substack_cannot_have_processed_it(
+    monkeypatch: pytest.MonkeyPatch, first: httpx.Response | Exception
+) -> None:
+    calls = _install_fake(monkeypatch, [first, httpx.Response(200, json={"ok": True})])
+
+    async with _TestClient("sid", "connect") as client:
+        response = await client.post("messages/dm/x", json={"body": "hi"})
+
+    assert response.status_code == 200
+    assert calls == ["POST", "POST"]
+
+
+@pytest.mark.anyio
+async def test_read_is_still_retried_on_ambiguous_failures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = _install_fake(
+        monkeypatch,
+        [
+            httpx.Response(504, json={}),
+            httpx.ReadTimeout("timed out"),
+            httpx.Response(200, json={"ok": True}),
+        ],
+    )
+
+    async with _TestClient("sid", "connect") as client:
+        response = await client.get("posts")
+
+    assert response.status_code == 200
+    assert calls == ["GET", "GET", "GET"]

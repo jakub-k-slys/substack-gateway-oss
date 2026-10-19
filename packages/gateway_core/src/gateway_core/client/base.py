@@ -29,6 +29,15 @@ _TIMEOUT = httpx.Timeout(
     connect=settings.substack_connect_timeout_sec,
 )
 _RETRYABLE_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
+# Methods safe to resend after any failure. A write (POST/PUT/DELETE) that failed
+# ambiguously — a 5xx, a 408, or a dropped connection after the request went out —
+# may already have been applied by Substack, so resending it could duplicate it
+# (a second note, comment or message). Writes are retried only when Substack cannot
+# have processed them: the connection was never established, or Substack
+# rejected the request up front (429 / 425).
+_SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+_WRITE_RETRYABLE_STATUS_CODES = frozenset({425, 429})
+_NOT_SENT_ERRORS = (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
 
 
 class RetryableSubstackError(Exception):
@@ -95,6 +104,20 @@ def _should_retry_exception(exc: BaseException) -> bool:
     if isinstance(exc, RetryableSubstackError):
         return exc.response.status_code in _RETRYABLE_STATUS_CODES
     return False
+
+
+def _should_retry_write(exc: BaseException) -> bool:
+    if isinstance(exc, RetryableTransportError):
+        return isinstance(exc.cause, _NOT_SENT_ERRORS)
+    if isinstance(exc, RetryableSubstackError):
+        return exc.response.status_code in _WRITE_RETRYABLE_STATUS_CODES
+    return False
+
+
+def _retry_predicate(method: str) -> Callable[[BaseException], bool]:
+    if method.upper() in _SAFE_METHODS:
+        return _should_retry_exception
+    return _should_retry_write
 
 
 def _build_before_attempt(
@@ -167,7 +190,7 @@ def _with_substack_retries(func: Callable[..., Any]) -> Callable[..., Any]:
                 min=settings.substack_retry_min_wait_sec,
                 max=settings.substack_retry_max_wait_sec,
             ),
-            retry=retry_if_exception(_should_retry_exception),
+            retry=retry_if_exception(_retry_predicate(method)),
             before=_build_before_attempt(self._rid, method, url),
             before_sleep=_build_before_sleep(self._rid, method, url),
             sleep=_sleep,
