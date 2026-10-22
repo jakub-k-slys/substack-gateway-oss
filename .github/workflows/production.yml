@@ -36,7 +36,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version-file: "pyproject.toml"
+          python-version: "3.14" # newest CPython lacks wheels (watchfiles/PyO3); pin until they ship
 
       - name: Set up Node
         uses: actions/setup-node@v6
