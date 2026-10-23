@@ -20,7 +20,10 @@ from tenacity import (
 from tenacity.wait import wait_exponential
 
 from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
-from gateway_core.client.transport import get_transport_factory
+from gateway_core.client.transport import (
+    default_transport_factory,
+    get_transport_factory,
+)
 from gateway_core.config import settings
 
 _log = logging.getLogger(__name__)
@@ -231,11 +234,21 @@ class SubstackHTTPBase:
         self._rid = f"[{request_id}] " if request_id else ""
 
     async def __aenter__(self) -> Self:
-        self._http = httpx.AsyncClient(
-            cookies=self._cookies,
-            timeout=_TIMEOUT,
-            transport=get_transport_factory()(_get_limits()),
-        )
+        factory = get_transport_factory()
+        if factory is default_transport_factory:
+            # Stock path: let httpx build its own transport so environment
+            # proxies (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY, NO_PROXY) keep working.
+            self._http = httpx.AsyncClient(
+                cookies=self._cookies, timeout=_TIMEOUT, limits=_get_limits()
+            )
+        else:
+            # Limits go to the transport because httpx ignores `limits=` when a
+            # transport is given.
+            self._http = httpx.AsyncClient(
+                cookies=self._cookies,
+                timeout=_TIMEOUT,
+                transport=factory(_get_limits()),
+            )
         return self
 
     async def __aexit__(self, *args: object) -> None:

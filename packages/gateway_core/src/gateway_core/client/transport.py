@@ -9,6 +9,9 @@ TransportFactory = Callable[[httpx.Limits], httpx.AsyncBaseTransport]
 
 The factory receives the connection limits the gateway would apply and returns
 the transport to use, so an extension can wrap or replace the default one.
+
+An installed transport takes over connection handling, including proxies,
+because httpx disables environment proxies when a transport is supplied.
 """
 
 
@@ -21,7 +24,11 @@ _factory: TransportFactory = default_transport_factory
 
 
 def set_transport_factory(factory: TransportFactory | None) -> None:
-    """Install the process-wide transport factory. Pass ``None`` for the default."""
+    """Install the process-wide transport factory. Pass ``None`` for the default.
+
+    An installed transport takes over connection handling, including proxies,
+    because httpx disables environment proxies when a transport is supplied.
+    """
     global _factory
     _factory = default_transport_factory if factory is None else factory
 

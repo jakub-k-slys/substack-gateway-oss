@@ -61,3 +61,20 @@ def test_reset_restores_default() -> None:
     set_transport_factory(None)
 
     assert get_transport_factory() is default_transport_factory
+
+
+@pytest.mark.anyio
+async def test_default_path_honours_env_proxies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for name in ("ALL_PROXY", "HTTP_PROXY", "NO_PROXY", "all_proxy", "http_proxy"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("HTTPS_PROXY", "http://proxy.invalid:3128")
+
+    async with SubstackClient("a", "b") as client:
+        assert client._http is not None
+        # httpx mounts one transport per proxied URL pattern when it reads the
+        # environment; with an explicit transport it mounts none.
+        patterns = [pattern.pattern for pattern in client._http._mounts]
+
+    assert any(pattern.startswith("https") for pattern in patterns)
