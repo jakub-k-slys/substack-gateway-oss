@@ -535,7 +535,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -552,7 +552,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -571,7 +571,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -592,7 +592,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "httpx" },
@@ -606,12 +606,12 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.14.1" },
-    { name = "pydantic-settings", specifier = ">=2.15.0" },
+    { name = "pydantic-settings", specifier = ">=2.16.1" },
 ]
 
 [[package]]
 name = "gateway-drafts"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_drafts" }
 dependencies = [
     { name = "gateway-core" },
@@ -626,7 +626,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_drafts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -645,7 +645,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_drafts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -666,7 +666,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -681,7 +681,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -700,7 +700,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -719,7 +719,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "fastmcp" },
@@ -734,7 +734,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -757,7 +757,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -780,7 +780,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -795,7 +795,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -814,7 +814,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -833,7 +833,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "fastapi" },
@@ -904,13 +904,13 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.14.1" },
-    { name = "pydantic-settings", specifier = ">=2.15.0" },
+    { name = "pydantic-settings", specifier = ">=2.16.1" },
     { name = "uvloop", specifier = ">=0.23.0" },
 ]
 
 [[package]]
 name = "gateway-posts"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -925,7 +925,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -944,7 +944,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -963,7 +963,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "gateway-core" },
@@ -978,7 +978,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1001,7 +1001,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1024,7 +1024,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1039,7 +1039,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_stats" }
 dependencies = [
     { name = "gateway-core" },
@@ -1054,7 +1054,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-mcp"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_stats_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1073,7 +1073,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-rest"
-version = "5.1.1"
+version = "6.0.0"
 source = { editable = "packages/gateway_stats_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1683,16 +1683,17 @@ wheels = [
 
 [[package]]
 name = "pydantic-settings"
-version = "2.15.0"
+version = "2.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/68/ca/31c57507b13119d7d3cfa1576dad2911a4861e3be07b579395f4e9d393f9/pydantic_settings-2.15.0.tar.gz", hash = "sha256:694b793e84f766ba76a90ebdefc01d0a9a045dab0382bee70393da93712ad117", size = 261253, upload-time = "2026-08-07T09:24:57.419Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/05/ca/7817b4bf0c4b15c6a6ab8cdf4cb96c268335a8ca2f525de93b6ebe4c7d28/pydantic_settings-2.16.1.tar.gz", hash = "sha256:aff602a1886338c2df3d1e958e2193a8dc33cec75b91f202e83fd98484b4b0da", size = 303436, upload-time = "2026-10-20T11:37:19.024Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/a4/2bffa9f8e804325a09867f0e9d30795c80ea9f8d62560bd1b6ad6220eb2f/pydantic_settings-2.15.0-py3-none-any.whl", hash = "sha256:0ba092c291c94baceb5eff768aa0d56400a457585bc0175925a5a5510303da42", size = 69413, upload-time = "2026-08-07T09:24:55.839Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/74/fdf926afe145d8629c4b2ff57f4ea1d64ed7abc4d84d97463b2517a2547e/pydantic_settings-2.16.1-py3-none-any.whl", hash = "sha256:30f5313340da4e8f1b440d1910b92a5bc3ccbb6b4ba70ec2b8395bc921f418f5", size = 80771, upload-time = "2026-10-20T11:37:17.298Z" },
 ]
 
 [[package]]
