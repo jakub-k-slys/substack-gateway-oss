@@ -88,6 +88,7 @@ def test_extension_factory_is_installed(monkeypatch) -> None:
 
 def test_no_extension_keeps_default(monkeypatch) -> None:
     monkeypatch.setattr(runtime, "load_extensions", lambda: [])
+    set_transport_factory(_other_factory)
 
     result = get_runtime()
 

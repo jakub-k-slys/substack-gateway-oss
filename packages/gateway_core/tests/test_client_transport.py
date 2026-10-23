@@ -25,12 +25,14 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-def test_default_factory_is_http_transport_with_limits() -> None:
+@pytest.mark.anyio
+async def test_default_factory_is_http_transport() -> None:
     limits = httpx.Limits(max_connections=3, max_keepalive_connections=1)
 
     transport = get_transport_factory()(limits)
 
     assert isinstance(transport, httpx.AsyncHTTPTransport)
+    await transport.aclose()
 
 
 @pytest.mark.anyio
@@ -50,6 +52,36 @@ async def test_installed_factory_receives_limits_and_serves_requests() -> None:
 
     assert response.json() == {"ok": True}
     assert received == [_get_limits()]
+
+
+@pytest.mark.anyio
+async def test_factory_called_once_per_client_and_transport_closed() -> None:
+    class _RecordingTransport(httpx.MockTransport):
+        def __init__(self) -> None:
+            super().__init__(lambda request: httpx.Response(200))
+            self.closed = False
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    built: list[_RecordingTransport] = []
+
+    def factory(limits: httpx.Limits) -> httpx.AsyncBaseTransport:
+        transport = _RecordingTransport()
+        built.append(transport)
+        return transport
+
+    set_transport_factory(factory)
+
+    for expected in (1, 2):
+        async with SubstackClient("a", "b"):
+            assert len(built) == expected
+            assert not built[-1].closed
+        assert built[-1].closed
+
+    assert len(built) == 2
+    assert built[0] is not built[1]
+    assert all(transport.closed for transport in built)
 
 
 def test_reset_restores_default() -> None:
