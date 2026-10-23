@@ -20,6 +20,7 @@ from tenacity import (
 from tenacity.wait import wait_exponential
 
 from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway_core.client.transport import get_transport_factory
 from gateway_core.config import settings
 
 _log = logging.getLogger(__name__)
@@ -231,7 +232,9 @@ class SubstackHTTPBase:
 
     async def __aenter__(self) -> Self:
         self._http = httpx.AsyncClient(
-            cookies=self._cookies, timeout=_TIMEOUT, limits=_get_limits()
+            cookies=self._cookies,
+            timeout=_TIMEOUT,
+            transport=get_transport_factory()(_get_limits()),
         )
         return self
 
