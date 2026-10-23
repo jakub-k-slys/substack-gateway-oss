@@ -6,7 +6,7 @@ dependencies = [
   "gateway_core",
   "gateway_drafts",
   "gateway_rest_common",
-  "fastapi>=0.143.0",
+  "fastapi>=0.155.0",
   "python-multipart>=0.0.32",
 ]
 

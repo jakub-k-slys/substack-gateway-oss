@@ -452,7 +452,7 @@ wheels = [
 
 [[package]]
 name = "fastapi"
-version = "0.143.0"
+version = "0.155.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
@@ -462,9 +462,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/d7/6a8753ab6c1d432dc53703c3e1b92974a94531b7d047c32bbaae461ea844/fastapi-0.143.0.tar.gz", hash = "sha256:1acffe48206a80917cf7dac21992b5c44b25384e8902bf745c1fd9dabcf6c51f", size = 468391, upload-time = "2026-10-08T12:29:46.54Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/71/19e43e47822e27837ffbb910512e13c288fea8fc272ee284c36d196bfee7/fastapi-0.155.0.tar.gz", hash = "sha256:4be61b531db8173c535a93d0464b10b34a8f9825be2cec946d23991c1b059e4e", size = 492207, upload-time = "2026-10-20T16:47:12.218Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/f4/27e386913417ad32aae42bba48b0c0cce40e9ff2fba1a871ca2702c37324/fastapi-0.143.0-py3-none-any.whl", hash = "sha256:3e9395fd35276425b61b516a31fdd7c77fe2af83e41b4da22e30696fb1304c5d", size = 144665, upload-time = "2026-10-08T12:29:44.853Z" },
+    { url = "https://files.pythonhosted.org/packages/34/79/09cf6021296c4bad6541ff951cfefe8de9682c6c2025efa5adbb2d596d94/fastapi-0.155.0-py3-none-any.whl", hash = "sha256:c5780556ff1b209cabbc63d045af56ea49cd79583d5bc078e4bf97a0df32fc2d", size = 146658, upload-time = "2026-10-20T16:47:10.248Z" },
 ]
 
 [[package]]
@@ -583,7 +583,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
@@ -657,7 +657,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-drafts", editable = "packages/gateway_drafts" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
@@ -711,7 +711,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-following", editable = "packages/gateway_following" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
@@ -770,7 +770,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
     { name = "gateway-posts", editable = "packages/gateway_posts" },
@@ -825,7 +825,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
@@ -873,7 +873,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "fastmcp", specifier = ">=4.1.0" },
     { name = "gateway-comments", editable = "packages/gateway_comments" },
     { name = "gateway-comments-mcp", editable = "packages/gateway_comments_mcp" },
@@ -955,7 +955,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-posts", editable = "packages/gateway_posts" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
@@ -1014,7 +1014,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-notes", editable = "packages/gateway_notes" },
     { name = "gateway-posts", editable = "packages/gateway_posts" },
@@ -1033,7 +1033,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
 ]
 
@@ -1084,7 +1084,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-rest-common", editable = "packages/gateway_rest_common" },
     { name = "gateway-stats", editable = "packages/gateway_stats" },
@@ -2113,7 +2113,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.143.0" },
+    { name = "fastapi", specifier = ">=0.155.0" },
     { name = "fastmcp", specifier = ">=4.1.0" },
     { name = "gateway-core", editable = "packages/gateway_core" },
     { name = "gateway-oss", editable = "packages/gateway_oss" },
