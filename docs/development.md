@@ -96,7 +96,11 @@ Extensions can contribute:
   credentials
 - an HTTP transport factory, for supplying the `httpx` transport that Substack
   requests go through (only one may be active at a time); an installed
-  transport takes over connection handling, including proxies
+  transport takes over connection handling, including proxies. The factory
+  is called once per client (each `async with` of a Substack client) and must
+  return a new transport every time, which the client closes when it exits.
+  Long-lived shared state, such as pools or rate limiters, must live outside
+  the returned transport, and the transport's `aclose()` must not tear it down
 - a cache (OSS ships no caching of its own — see `gateway_stats.cache` for
   the one cache-shaped extension point that exists today)
 
@@ -129,3 +133,14 @@ backward compatibility. Settings include:
 `SUBSTACK_GATEWAY_REDIS_URL` is not read by anything in this codebase —
 caching was removed as a built-in feature in 4.0.0. An extension may install
 its own cache and its own configuration for it.
+
+Since 6.0.0 the gateway sends each Substack request once, with no retries and
+no rate limiting. A Substack 429 is passed through as a REST 429; other
+upstream failures surface as 502. The former
+`SUBSTACK_GATEWAY_SUBSTACK_RETRY_ATTEMPTS`,
+`SUBSTACK_GATEWAY_SUBSTACK_RETRY_MIN_WAIT_SEC`,
+`SUBSTACK_GATEWAY_SUBSTACK_RETRY_MAX_WAIT_SEC` and
+`SUBSTACK_GATEWAY_SUBSTACK_REQUESTS_PER_SECOND` are ignored if still set. Put
+retries and rate limiting in the calling client, or in an extension's HTTP
+transport factory. `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` are honoured
+unless an extension installs a transport.
