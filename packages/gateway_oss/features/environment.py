@@ -12,35 +12,22 @@ from gateway_oss import create_app
 
 app = create_app()
 
-_BEHAVE_SUBSTACK_REQUESTS_PER_SECOND = 100.0
 _BEHAVE_SUBSTACK_MAX_CONNECTIONS = 100
 _BEHAVE_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS = 100
-_BEHAVE_SUBSTACK_RETRY_ATTEMPTS = 1
-_BEHAVE_SUBSTACK_RETRY_WAIT_SEC = 1.0
 
 
 def before_all(context):
     from gateway_oss.config import settings
 
-    context._original_substack_requests_per_second = (
-        settings.substack_requests_per_second
-    )
     context._original_substack_max_connections = settings.substack_max_connections
     context._original_substack_max_keepalive_connections = (
         settings.substack_max_keepalive_connections
     )
-    context._original_substack_retry_attempts = settings.substack_retry_attempts
-    context._original_substack_retry_min_wait_sec = settings.substack_retry_min_wait_sec
-    context._original_substack_retry_max_wait_sec = settings.substack_retry_max_wait_sec
 
-    settings.substack_requests_per_second = _BEHAVE_SUBSTACK_REQUESTS_PER_SECOND
     settings.substack_max_connections = _BEHAVE_SUBSTACK_MAX_CONNECTIONS
     settings.substack_max_keepalive_connections = (
         _BEHAVE_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS
     )
-    settings.substack_retry_attempts = _BEHAVE_SUBSTACK_RETRY_ATTEMPTS
-    settings.substack_retry_min_wait_sec = _BEHAVE_SUBSTACK_RETRY_WAIT_SEC
-    settings.substack_retry_max_wait_sec = _BEHAVE_SUBSTACK_RETRY_WAIT_SEC
 
 
 def before_scenario(context, scenario):
@@ -78,13 +65,7 @@ def after_scenario(context, scenario):
 def after_all(context):
     from gateway_oss.config import settings
 
-    settings.substack_requests_per_second = (
-        context._original_substack_requests_per_second
-    )
     settings.substack_max_connections = context._original_substack_max_connections
     settings.substack_max_keepalive_connections = (
         context._original_substack_max_keepalive_connections
     )
-    settings.substack_retry_attempts = context._original_substack_retry_attempts
-    settings.substack_retry_min_wait_sec = context._original_substack_retry_min_wait_sec
-    settings.substack_retry_max_wait_sec = context._original_substack_retry_max_wait_sec

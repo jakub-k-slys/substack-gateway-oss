@@ -115,18 +115,8 @@ backward compatibility. Settings include:
 - `SUBSTACK_GATEWAY_SUBSTACK_BASE_URL`
 - `SUBSTACK_GATEWAY_SUBSTACK_TIMEOUT_SEC`
 - `SUBSTACK_GATEWAY_SUBSTACK_CONNECT_TIMEOUT_SEC`
-- `SUBSTACK_GATEWAY_SUBSTACK_REQUESTS_PER_SECOND`
 - `SUBSTACK_GATEWAY_SUBSTACK_MAX_CONNECTIONS`
 - `SUBSTACK_GATEWAY_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS`
-- `SUBSTACK_GATEWAY_SUBSTACK_RETRY_ATTEMPTS`
-- `SUBSTACK_GATEWAY_SUBSTACK_RETRY_MIN_WAIT_SEC`
-- `SUBSTACK_GATEWAY_SUBSTACK_RETRY_MAX_WAIT_SEC`
-
-  Reads (`GET`) are retried on 408 / 425 / 429 / 5xx and on network errors.
-  Writes (`POST` / `PUT` / `DELETE`) are retried only when Substack cannot
-  have processed them: a 429 or 425, or a connection that was never
-  established. A write that times out or gets a 5xx is not resent, because
-  it may already have been applied and resending would duplicate it.
 - `SUBSTACK_GATEWAY_ADMIN_TOKEN` (no default) — gates administrative
   surfaces an extension may expose. Nothing in this repository reads it,
   so leaving it unset costs a plain gateway nothing; an extension that
