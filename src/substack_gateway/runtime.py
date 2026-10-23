@@ -6,6 +6,7 @@ from functools import lru_cache
 from typing import Any, TypeVar
 
 from gateway_core.caching import ValueCache, set_value_cache
+from gateway_core.client.transport import TransportFactory, set_transport_factory
 from gateway_core.credentials import CredentialResolver, set_credential_resolver
 from gateway_oss.config import settings
 from gateway_oss.extensions.base import (
@@ -27,6 +28,7 @@ class GatewayRuntime:
     lifespan_hooks: list[LifespanHook]
     mcp_auth_provider: Any | None
     credential_resolver: CredentialResolver | None
+    transport_factory: TransportFactory | None
     value_cache: ValueCache | None
     stats_cache: StatsCache | None
     module_infos: list[ModuleInfo]
@@ -79,6 +81,14 @@ def get_runtime() -> GatewayRuntime:
         ],
     )
     set_credential_resolver(credential_resolver)
+    transport_factory = _single_provider(
+        "HTTP transport factory",
+        [
+            _call_optional_hook(extension, "get_http_transport_factory", context)
+            for extension in extensions
+        ],
+    )
+    set_transport_factory(transport_factory)
     value_cache = _single_provider(
         "value cache",
         [
@@ -106,6 +116,7 @@ def get_runtime() -> GatewayRuntime:
         lifespan_hooks=lifespan_hooks,
         mcp_auth_provider=mcp_auth_provider,
         credential_resolver=credential_resolver,
+        transport_factory=transport_factory,
         value_cache=value_cache,
         stats_cache=stats_cache,
         module_infos=module_infos,

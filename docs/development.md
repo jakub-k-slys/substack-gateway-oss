@@ -94,6 +94,9 @@ Extensions can contribute:
 - an MCP auth provider (only one may be active at a time)
 - a credential resolver, for mapping an authenticated MCP caller to Substack
   credentials
+- an HTTP transport factory, for supplying the `httpx` transport that Substack
+  requests go through (only one may be active at a time); an installed
+  transport takes over connection handling, including proxies
 - a cache (OSS ships no caching of its own — see `gateway_stats.cache` for
   the one cache-shaped extension point that exists today)
 
