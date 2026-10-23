@@ -5,7 +5,7 @@ requires-python = ">=3.11"
 dependencies = [
   "httpx>=0.28.0",
   "pydantic>=2.14.1",
-  "pydantic-settings>=2.15.0",
+  "pydantic-settings>=2.16.1",
   "markdownify>=1.2.3",
 ]
 
