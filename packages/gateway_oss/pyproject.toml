@@ -3,7 +3,7 @@ name = "gateway_oss"
 version = "6.0.0"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi>=0.143.0",
+  "fastapi>=0.155.0",
   "httpx>=0.28.0",
   "pydantic>=2.14.1",
   "pydantic-settings>=2.15.0",
