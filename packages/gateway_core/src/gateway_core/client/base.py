@@ -1,25 +1,16 @@
 from __future__ import annotations
 
-import asyncio
-import functools
-import inspect
 import logging
-import math
 import time
-from collections.abc import Callable
 from typing import Any, Self
 
 import httpx
-from pyrate_limiter import Duration, Limiter, Rate
-from tenacity import (
-    RetryCallState,
-    retry,
-    retry_if_exception,
-    stop_after_attempt,
-)
-from tenacity.wait import wait_exponential
 
 from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
+from gateway_core.client.transport import (
+    default_transport_factory,
+    get_transport_factory,
+)
 from gateway_core.config import settings
 
 _log = logging.getLogger(__name__)
@@ -28,34 +19,6 @@ _TIMEOUT = httpx.Timeout(
     timeout=settings.substack_timeout_sec,
     connect=settings.substack_connect_timeout_sec,
 )
-_RETRYABLE_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
-# Methods safe to resend after any failure. A write (POST/PUT/DELETE) that failed
-# ambiguously — a 5xx, a 408, or a dropped connection after the request went out —
-# may already have been applied by Substack, so resending it could duplicate it
-# (a second note, comment or message). Writes are retried only when Substack cannot
-# have processed them: the connection was never established, or Substack
-# rejected the request up front (429 / 425).
-_SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
-_WRITE_RETRYABLE_STATUS_CODES = frozenset({425, 429})
-_NOT_SENT_ERRORS = (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
-
-
-class RetryableSubstackError(Exception):
-    def __init__(self, response: httpx.Response, elapsed: float) -> None:
-        self.response = response
-        self.elapsed = elapsed
-        super().__init__(f"Retryable HTTP status {response.status_code}")
-
-
-class RetryableTransportError(Exception):
-    def __init__(self, cause: httpx.TransportError, elapsed: float) -> None:
-        self.cause = cause
-        self.elapsed = elapsed
-        super().__init__(str(cause))
-
-
-async def _sleep(seconds: float) -> None:
-    await asyncio.sleep(seconds)
 
 
 def _build_limits() -> httpx.Limits:
@@ -79,141 +42,6 @@ def _get_limits() -> httpx.Limits:
     return _LIMITS
 
 
-def _build_rate_limiter() -> Limiter:
-    per_second = max(1, math.ceil(settings.substack_requests_per_second))
-    return Limiter(Rate(per_second, Duration.SECOND))
-
-
-_RATE_LIMITER = _build_rate_limiter()
-
-
-def _get_rate_limiter() -> Limiter:
-    global _RATE_LIMITER
-    expected_rate = max(1, math.ceil(settings.substack_requests_per_second))
-    bucket = getattr(getattr(_RATE_LIMITER, "bucket_factory", None), "bucket", None)
-    rates = getattr(bucket, "rates", None)
-    current_rate = rates[0].limit if rates else None
-    if current_rate != expected_rate:
-        _RATE_LIMITER = _build_rate_limiter()
-    return _RATE_LIMITER
-
-
-def _should_retry_exception(exc: BaseException) -> bool:
-    if isinstance(exc, RetryableTransportError):
-        return True
-    if isinstance(exc, RetryableSubstackError):
-        return exc.response.status_code in _RETRYABLE_STATUS_CODES
-    return False
-
-
-def _should_retry_write(exc: BaseException) -> bool:
-    if isinstance(exc, RetryableTransportError):
-        return isinstance(exc.cause, _NOT_SENT_ERRORS)
-    if isinstance(exc, RetryableSubstackError):
-        return exc.response.status_code in _WRITE_RETRYABLE_STATUS_CODES
-    return False
-
-
-def _retry_predicate(method: str) -> Callable[[BaseException], bool]:
-    if method.upper() in _SAFE_METHODS:
-        return _should_retry_exception
-    return _should_retry_write
-
-
-def _build_before_attempt(
-    request_id: str, method: str, url: str
-) -> Callable[[RetryCallState], None]:
-    def _before_attempt(retry_state: RetryCallState) -> None:
-        _log.debug(
-            "%s→ %s %s (attempt %d/%d)",
-            request_id,
-            method,
-            url,
-            retry_state.attempt_number,
-            settings.substack_retry_attempts,
-        )
-
-    return _before_attempt
-
-
-def _build_before_sleep(
-    request_id: str, method: str, url: str
-) -> Callable[[RetryCallState], None]:
-    def _before_sleep(retry_state: RetryCallState) -> None:
-        exc = retry_state.outcome.exception() if retry_state.outcome else None
-        next_action = retry_state.next_action
-        delay = next_action.sleep if next_action is not None else 0.0
-        if isinstance(exc, RetryableTransportError):
-            _log.warning(
-                "%sSubstack network error: %s %s — %s (%.3fs), retrying in %.3fs",
-                request_id,
-                method,
-                url,
-                exc.cause,
-                exc.elapsed,
-                delay,
-            )
-        elif isinstance(exc, RetryableSubstackError):
-            _log.warning(
-                "%s← %s %s → %d (%.3fs), retrying in %.3fs",
-                request_id,
-                method,
-                url,
-                exc.response.status_code,
-                exc.elapsed,
-                delay,
-            )
-
-    return _before_sleep
-
-
-def _with_rate_limit(func: Callable[..., Any]) -> Callable[..., Any]:
-    @functools.wraps(func)
-    async def _wrapped(*args: Any, **kwargs: Any) -> Any:
-        decorated = _get_rate_limiter().as_decorator(name="substack_api")(func)
-        result = decorated(*args, **kwargs)
-        if inspect.isawaitable(result):
-            return await result
-        return result
-
-    return _wrapped
-
-
-def _with_substack_retries(func: Callable[..., Any]) -> Callable[..., Any]:
-    @functools.wraps(func)
-    async def _wrapped(
-        self: SubstackHTTPBase, method: str, url: str, **kwargs: Any
-    ) -> Any:
-        decorated = retry(
-            stop=stop_after_attempt(settings.substack_retry_attempts),
-            wait=wait_exponential(
-                min=settings.substack_retry_min_wait_sec,
-                max=settings.substack_retry_max_wait_sec,
-            ),
-            retry=retry_if_exception(_retry_predicate(method)),
-            before=_build_before_attempt(self._rid, method, url),
-            before_sleep=_build_before_sleep(self._rid, method, url),
-            sleep=_sleep,
-            reraise=True,
-        )(func)
-        try:
-            return await decorated(self, method, url, **kwargs)
-        except RetryableTransportError as exc:
-            _log.warning(
-                "%sSubstack network error: %s %s — %s (%.3fs)",
-                self._rid,
-                method,
-                url,
-                exc.cause,
-                exc.elapsed,
-            )
-            raise SubstackAPIError(502, f"Network error: {exc.cause}") from exc.cause
-        except RetryableSubstackError as exc:
-            self._raise_api_error(method, url, exc.response, exc.elapsed)
-
-    return _wrapped
-
-
 class SubstackHTTPBase:
     """Raw HTTP layer shared by PublicationClient and SubstackClient."""
 
@@ -230,9 +58,21 @@ class SubstackHTTPBase:
         self._rid = f"[{request_id}] " if request_id else ""
 
     async def __aenter__(self) -> Self:
-        self._http = httpx.AsyncClient(
-            cookies=self._cookies, timeout=_TIMEOUT, limits=_get_limits()
-        )
+        factory = get_transport_factory()
+        if factory is default_transport_factory:
+            # Stock path: let httpx build its own transport so environment
+            # proxies (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY, NO_PROXY) keep working.
+            self._http = httpx.AsyncClient(
+                cookies=self._cookies, timeout=_TIMEOUT, limits=_get_limits()
+            )
+        else:
+            # Limits go to the transport because httpx ignores `limits=` when a
+            # transport is given.
+            self._http = httpx.AsyncClient(
+                cookies=self._cookies,
+                timeout=_TIMEOUT,
+                transport=factory(_get_limits()),
+            )
         return self
 
     async def __aexit__(self, *args: object) -> None:
@@ -255,8 +95,6 @@ class SubstackHTTPBase:
     async def delete(self, path: str, **kwargs: Any) -> httpx.Response:
         return await self._request("DELETE", self._url(path), **kwargs)
 
-    @_with_substack_retries
-    @_with_rate_limit
     async def _send_request(
         self, method: str, url: str, **kwargs: Any
     ) -> httpx.Response:
@@ -268,7 +106,15 @@ class SubstackHTTPBase:
             response = await self._http.request(method, url, **kwargs)
         except httpx.TransportError as exc:
             elapsed = time.monotonic() - start
-            raise RetryableTransportError(exc, elapsed) from exc
+            _log.warning(
+                "%sSubstack network error: %s %s — %s (%.3fs)",
+                self._rid,
+                method,
+                url,
+                exc,
+                elapsed,
+            )
+            raise SubstackAPIError(502, f"Network error: {exc}") from exc
 
         elapsed = time.monotonic() - start
         if response.status_code == 401:
@@ -291,8 +137,6 @@ class SubstackHTTPBase:
             raise SubstackAuthError(
                 403, "Forbidden: insufficient permissions for this resource"
             )
-        if response.status_code in _RETRYABLE_STATUS_CODES:
-            raise RetryableSubstackError(response, elapsed)
         if not response.is_success:
             self._raise_api_error(method, url, response, elapsed)
         _log.debug(

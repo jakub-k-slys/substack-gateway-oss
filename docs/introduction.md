@@ -53,5 +53,5 @@ credentials at all.
 
 OSS performs no caching of its own — that was removed in 4.0.0. The
 extension system lets a downstream deployment register additional routes,
-MCP tools, an MCP auth provider, a credential resolver, lifespan hooks, or a
-cache, without modifying the core gateway packages.
+MCP tools, an MCP auth provider, a credential resolver, an HTTP transport
+factory, lifespan hooks, or a cache, without modifying the core gateway packages.

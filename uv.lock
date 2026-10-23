@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
@@ -535,7 +535,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -552,7 +552,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -571,7 +571,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -592,15 +592,13 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "httpx" },
     { name = "markdownify" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
-    { name = "pyrate-limiter" },
-    { name = "tenacity" },
 ]
 
 [package.metadata]
@@ -609,13 +607,11 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.14.1" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.5.0" },
-    { name = "tenacity", specifier = ">=9.2.1" },
 ]
 
 [[package]]
 name = "gateway-drafts"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_drafts" }
 dependencies = [
     { name = "gateway-core" },
@@ -630,7 +626,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_drafts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -649,7 +645,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_drafts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -670,7 +666,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -685,7 +681,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -704,7 +700,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -723,7 +719,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "fastmcp" },
@@ -738,7 +734,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -761,7 +757,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -784,7 +780,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -799,7 +795,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -818,7 +814,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -837,7 +833,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "fastapi" },
@@ -872,8 +868,6 @@ dependencies = [
     { name = "markdownify" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
-    { name = "pyrate-limiter" },
-    { name = "tenacity" },
     { name = "uvloop" },
 ]
 
@@ -911,14 +905,12 @@ requires-dist = [
     { name = "markdownify", specifier = ">=1.2.3" },
     { name = "pydantic", specifier = ">=2.14.1" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
-    { name = "pyrate-limiter", specifier = ">=4.5.0" },
-    { name = "tenacity", specifier = ">=9.2.1" },
     { name = "uvloop", specifier = ">=0.23.0" },
 ]
 
 [[package]]
 name = "gateway-posts"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -933,7 +925,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -952,7 +944,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -971,7 +963,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "gateway-core" },
@@ -986,7 +978,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1009,7 +1001,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1032,7 +1024,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1047,7 +1039,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_stats" }
 dependencies = [
     { name = "gateway-core" },
@@ -1062,7 +1054,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-mcp"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_stats_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1081,7 +1073,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-rest"
-version = "4.0.1"
+version = "5.1.1"
 source = { editable = "packages/gateway_stats_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1736,15 +1728,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pyrate-limiter"
-version = "4.5.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/62/43/48693393af06b9fffbaea6bb8fe03be3c3f17be5d1423dab347d1aad1dde/pyrate_limiter-4.5.0.tar.gz", hash = "sha256:098345fff3a52b84dee9bcf6973f184c8b3ef8d34e1f4f781ac0773e3984598b", size = 123240, upload-time = "2026-08-30T10:35:39.272Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/dc/02f88649feeabf4282c8c194a6f6060ca858041bab1204365b5d8ef8a95e/pyrate_limiter-4.5.0-py3-none-any.whl", hash = "sha256:e7320a715adf404cb7b2f399e05ceb59cae165275b21f7708eb1b9fd9608e91c", size = 57188, upload-time = "2026-08-30T10:35:38.069Z" },
-]
-
-[[package]]
 name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2146,15 +2129,6 @@ dev = [
     { name = "respx", specifier = ">=0.23.1" },
     { name = "ruff", specifier = ">=0.17.0" },
     { name = "ty", specifier = ">=0.0.80" },
-]
-
-[[package]]
-name = "tenacity"
-version = "9.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/82/9e/497c1c8ebe5a5b5d1d4a7511aea22c0bb1a97e3170d98abdef0e1b34265a/tenacity-9.2.1.tar.gz", hash = "sha256:a606b5c808d0cded4a359d5b9932d867ff2a6a6b64d37350260fd01bbdf83839", size = 58261, upload-time = "2026-10-07T12:13:01.633Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/26/1ff2b0721ac66a3ec5b1402b333110b352ab0a8724052ac279a7b82d40c4/tenacity-9.2.1-py3-none-any.whl", hash = "sha256:9e56f17539296baab7beabb08b92f6ee3d7be92d8be72d763360677c2ad6580e", size = 32310, upload-time = "2026-10-07T12:13:00.102Z" },
 ]
 
 [[package]]

@@ -1,37 +1,19 @@
 from __future__ import annotations
 
-import time
+import logging
 
 import httpx
 import pytest
+import respx
 
-from gateway_core.client import base
 from gateway_core.client.base import SubstackHTTPBase
 from gateway_core.client.exceptions import SubstackAPIError, SubstackAuthError
-from gateway_core.config import settings
+
+_BASE = "https://example.com/api/v1"
 
 
 class _TestClient(SubstackHTTPBase):
-    _base = "https://example.com/api/v1"
-
-
-class _NoopRateLimiter:
-    def try_acquire(
-        self, name: str = "substack_api", weight: int = 1, blocking: bool = True
-    ) -> bool:
-        return True
-
-    def as_decorator(self, *, name: str = "substack_api", weight: int = 1):
-        def _decorate(func):
-            async def _wrapped(*args, **kwargs):
-                acquired = self.try_acquire(name=name, weight=weight, blocking=True)
-                if hasattr(acquired, "__await__"):
-                    await acquired
-                return await func(*args, **kwargs)
-
-            return _wrapped
-
-        return _decorate
+    _base = _BASE
 
 
 @pytest.fixture
@@ -39,240 +21,108 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-@pytest.fixture(autouse=True)
-def _reset_settings(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(settings, "substack_requests_per_second", 1000.0)
-    monkeypatch.setattr(settings, "substack_retry_attempts", 3)
-    monkeypatch.setattr(settings, "substack_retry_min_wait_sec", 1.0)
-    monkeypatch.setattr(settings, "substack_retry_max_wait_sec", 60.0)
-    monkeypatch.setattr(
-        base,
-        "_RATE_LIMITER",
-        base._build_rate_limiter(),
-    )
+@pytest.mark.anyio
+@pytest.mark.parametrize("status", [408, 425, 429, 500, 502, 503, 504])
+async def test_single_request_on_status(status: int) -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        route = mock.get(f"{_BASE}/posts").respond(status, json={"message": "nope"})
+
+        async with _TestClient("sid", "connect") as client:
+            with pytest.raises(SubstackAPIError) as excinfo:
+                await client.get("posts")
+
+    assert route.call_count == 1
+    assert excinfo.value.status_code == status
 
 
 @pytest.mark.anyio
-async def test_request_retries_retryable_status_then_succeeds(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    responses = [
-        httpx.Response(503, json={"message": "busy"}),
-        httpx.Response(200, json={"ok": True}),
-    ]
-    sleeps: list[float] = []
+async def test_single_request_on_connect_error() -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        route = mock.get(f"{_BASE}/posts").mock(
+            side_effect=httpx.ConnectError("refused")
+        )
 
-    async def fake_request(
-        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
-    ) -> httpx.Response:
-        return responses.pop(0)
+        async with _TestClient("sid", "connect") as client:
+            with pytest.raises(SubstackAPIError, match="Network error") as excinfo:
+                await client.get("posts")
 
-    async def fake_sleep(delay: float) -> None:
-        sleeps.append(delay)
-
-    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base, "_sleep", fake_sleep)
-    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
-
-    async with _TestClient("sid", "connect") as client:
-        response = await client.get("posts")
-
-    assert response.status_code == 200
-    assert sleeps == [1.0]
+    assert route.call_count == 1
+    assert excinfo.value.status_code == 502
 
 
 @pytest.mark.anyio
-async def test_request_retries_transport_error_then_succeeds(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    attempts = 0
-    sleeps: list[float] = []
+async def test_post_single_request_on_429() -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        route = mock.post(f"{_BASE}/notes").respond(429, json={})
 
-    async def fake_request(
-        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
-    ) -> httpx.Response:
-        nonlocal attempts
-        attempts += 1
-        if attempts == 1:
-            raise httpx.ReadTimeout("timed out")
-        return httpx.Response(200, json={"ok": True})
+        async with _TestClient("sid", "connect") as client:
+            with pytest.raises(SubstackAPIError) as excinfo:
+                await client.post("notes", json={"body": "hi"})
 
-    async def fake_sleep(delay: float) -> None:
-        sleeps.append(delay)
-
-    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base, "_sleep", fake_sleep)
-    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
-
-    async with _TestClient("sid", "connect") as client:
-        response = await client.get("posts")
-
-    assert response.status_code == 200
-    assert attempts == 2
-    assert sleeps == [1.0]
-
-
-@pytest.mark.anyio
-async def test_request_does_not_retry_auth_errors(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    attempts = 0
-
-    async def fake_request(
-        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
-    ) -> httpx.Response:
-        nonlocal attempts
-        attempts += 1
-        return httpx.Response(401, json={"message": "unauthorized"})
-
-    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
-
-    async with _TestClient("sid", "connect") as client:
-        with pytest.raises(SubstackAuthError, match="Invalid or expired"):
-            await client.get("posts")
-
-    assert attempts == 1
-
-
-@pytest.mark.anyio
-async def test_request_raises_after_retry_budget_exhausted(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    sleeps: list[float] = []
-
-    async def fake_request(
-        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
-    ) -> httpx.Response:
-        return httpx.Response(503, json={"message": "still busy"})
-
-    async def fake_sleep(delay: float) -> None:
-        sleeps.append(delay)
-
-    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base, "_sleep", fake_sleep)
-    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
-
-    async with _TestClient("sid", "connect") as client:
-        with pytest.raises(SubstackAPIError, match="Substack returned 503: still busy"):
-            await client.get("posts")
-
-    assert sleeps == [1.0, 2.0]
-
-
-@pytest.mark.anyio
-async def test_rate_limiter_delays_subsequent_calls() -> None:
-    limiter = base.Limiter(base.Rate(1, base.Duration.SECOND))
-
-    start = time.monotonic()
-    acquired = limiter.try_acquire("substack_api", blocking=True)
-    if hasattr(acquired, "__await__"):
-        await acquired
-    acquired = limiter.try_acquire("substack_api", blocking=True)
-    if hasattr(acquired, "__await__"):
-        await acquired
-    elapsed = time.monotonic() - start
-
-    assert elapsed >= 0.9
-
-
-# --- Write requests: retry only when Substack cannot have processed them ----
-
-
-def _install_fake(
-    monkeypatch: pytest.MonkeyPatch, outcomes: list[httpx.Response | Exception]
-) -> list[str]:
-    """Replay `outcomes` (a response, or an exception to raise) and record methods."""
-    calls: list[str] = []
-
-    async def fake_request(
-        self: httpx.AsyncClient, method: str, url: str, **kwargs: object
-    ) -> httpx.Response:
-        calls.append(method)
-        outcome = outcomes.pop(0)
-        if isinstance(outcome, Exception):
-            raise outcome
-        return outcome
-
-    async def fake_sleep(delay: float) -> None:
-        return None
-
-    monkeypatch.setattr(httpx.AsyncClient, "request", fake_request)
-    monkeypatch.setattr(base, "_sleep", fake_sleep)
-    monkeypatch.setattr(base, "_get_rate_limiter", lambda: _NoopRateLimiter())
-    return calls
-
-
-@pytest.mark.anyio
-@pytest.mark.parametrize("method", ["post", "put", "delete"])
-@pytest.mark.parametrize("status", [408, 500, 502, 503, 504])
-async def test_write_is_not_retried_on_ambiguous_status(
-    monkeypatch: pytest.MonkeyPatch, method: str, status: int
-) -> None:
-    calls = _install_fake(monkeypatch, [httpx.Response(status, json={})])
-
-    async with _TestClient("sid", "connect") as client:
-        with pytest.raises(SubstackAPIError):
-            await getattr(client, method)("messages/dm/x")
-
-    assert calls == [method.upper()]
+    assert route.call_count == 1
+    assert excinfo.value.status_code == 429
 
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
-    "error",
-    [httpx.ReadTimeout("timed out"), httpx.ReadError("reset"), httpx.WriteTimeout("t")],
-)
-async def test_write_is_not_retried_after_the_request_may_have_been_sent(
-    monkeypatch: pytest.MonkeyPatch, error: Exception
-) -> None:
-    calls = _install_fake(monkeypatch, [error])
-
-    async with _TestClient("sid", "connect") as client:
-        with pytest.raises(SubstackAPIError, match="Network error"):
-            await client.post("messages/dm/x", json={"body": "hi"})
-
-    assert calls == ["POST"]
-
-
-@pytest.mark.anyio
-@pytest.mark.parametrize(
-    "first",
+    ("status", "message"),
     [
-        httpx.ConnectError("refused"),
-        httpx.ConnectTimeout("connect timed out"),
-        httpx.PoolTimeout("pool exhausted"),
-        httpx.Response(429, json={}),
-        httpx.Response(425, json={}),
+        (401, "Invalid or expired Substack session token"),
+        (403, "Forbidden: insufficient permissions for this resource"),
     ],
 )
-async def test_write_is_retried_when_substack_cannot_have_processed_it(
-    monkeypatch: pytest.MonkeyPatch, first: httpx.Response | Exception
-) -> None:
-    calls = _install_fake(monkeypatch, [first, httpx.Response(200, json={"ok": True})])
+async def test_401_403_auth_error(status: int, message: str) -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        route = mock.get(f"{_BASE}/posts").respond(status, json={"message": "no"})
 
-    async with _TestClient("sid", "connect") as client:
-        response = await client.post("messages/dm/x", json={"body": "hi"})
+        async with _TestClient("sid", "connect") as client:
+            with pytest.raises(SubstackAuthError) as excinfo:
+                await client.get("posts")
 
-    assert response.status_code == 200
-    assert calls == ["POST", "POST"]
+    assert route.call_count == 1
+    assert excinfo.value.status_code == status
+    assert message in str(excinfo.value)
 
 
 @pytest.mark.anyio
-async def test_read_is_still_retried_on_ambiguous_failures(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    calls = _install_fake(
-        monkeypatch,
-        [
-            httpx.Response(504, json={}),
-            httpx.ReadTimeout("timed out"),
-            httpx.Response(200, json={"ok": True}),
-        ],
-    )
+async def test_404_api_error_detail_from_body() -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        mock.get(f"{_BASE}/posts/1").respond(404, json={"error": "Post not found"})
 
-    async with _TestClient("sid", "connect") as client:
-        response = await client.get("posts")
+        async with _TestClient("sid", "connect") as client:
+            with pytest.raises(
+                SubstackAPIError, match="Substack returned 404: Post not found"
+            ) as excinfo:
+                await client.get("posts/1")
 
-    assert response.status_code == 200
-    assert calls == ["GET", "GET", "GET"]
+    assert excinfo.value.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_success_returns_response() -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        route = mock.get(f"{_BASE}/posts").respond(200, json={"ok": True})
+
+        async with _TestClient("sid", "connect") as client:
+            response = await client.get("posts")
+
+    assert route.call_count == 1
+    assert response.json() == {"ok": True}
+
+
+@pytest.mark.anyio
+async def test_network_error_is_logged_once(caplog: pytest.LogCaptureFixture) -> None:
+    with respx.mock(assert_all_mocked=True) as mock:
+        mock.get(f"{_BASE}/posts").mock(side_effect=httpx.ReadTimeout("timed out"))
+
+        with caplog.at_level(logging.WARNING, logger="gateway_core.client.base"):
+            async with _TestClient("sid", "connect", request_id="rid") as client:
+                with pytest.raises(SubstackAPIError, match="Network error: timed out"):
+                    await client.get("posts")
+
+    messages = [
+        r.getMessage() for r in caplog.records if r.name == "gateway_core.client.base"
+    ]
+    assert len(messages) == 1
+    assert messages[0].startswith("[rid] Substack network error: GET ")
+    assert "timed out" in messages[0]

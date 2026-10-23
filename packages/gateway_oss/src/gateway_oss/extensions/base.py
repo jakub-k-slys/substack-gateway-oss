@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 from starlette.applications import Starlette
 
 from gateway_core.caching import ValueCache
+from gateway_core.client.transport import TransportFactory
 from gateway_core.credentials import CredentialResolver
 from gateway_oss.config import Settings
 from gateway_stats.cache import StatsCache
@@ -54,6 +55,15 @@ class GatewayExtension(Protocol):
         self, context: GatewayExtensionContext
     ) -> CredentialResolver | None:
         """Return a resolver for MCP callers that omit the token, if any."""
+        return None
+
+    def get_http_transport_factory(
+        self, context: GatewayExtensionContext
+    ) -> TransportFactory | None:
+        """Return the factory for the transport Substack requests go through, if any.
+
+        An installed transport takes over connection handling, including proxies.
+        """
         return None
 
     def get_value_cache(self, context: GatewayExtensionContext) -> ValueCache | None:
