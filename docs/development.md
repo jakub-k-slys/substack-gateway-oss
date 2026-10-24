@@ -26,7 +26,7 @@ Functionality lives under `packages/`:
 Tests live per-package:
 
 - `packages/<pkg>/tests/`: pytest unit tests.
-- `packages/gateway_oss/features/`: BDD (behave) integration tests that spin
+- `packages/gateway_oss/features/`: BDD (pytest-bdd) integration tests that spin
   up the full Starlette app via `TestClient` with `respx` for HTTP mocking.
   Step definitions live in `features/steps/`; fixture data lives in
   `packages/gateway_oss/samples/`.
@@ -77,10 +77,17 @@ Or all of them at once:
 uv run pytest
 ```
 
-BDD tests:
+BDD tests (also part of `uv run pytest`):
 
 ```bash
-uv run behave packages/gateway_oss/features/
+uv run pytest packages/gateway_oss/features/
+```
+
+Live E2E tests against a deployed gateway (`SUBSTACK_GATEWAY_BASE_URL`) or a
+local one on port `5001`; skipped when neither is reachable:
+
+```bash
+uv run pytest packages/gateway_oss/e2e/
 ```
 
 ## Extension System

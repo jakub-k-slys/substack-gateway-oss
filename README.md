@@ -175,7 +175,6 @@ uv run ruff format --check .
 uv run ty check .
 uv build --all-packages
 uv run pytest
-uv run behave packages/gateway_oss/features/
 ```
 
 ## Documentation

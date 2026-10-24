@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
-from common import (
+from pytest_bdd import given, parsers
+
+from .common import (
     load_sample,
     pub_url,
     public_profile_url,
@@ -15,7 +16,11 @@ def _profile_notes_url(context, profile_id: int) -> str:
     return f"{pub_url(context)}{_PROFILE_NOTES_PATH.format(profile_id=profile_id)}"
 
 
-@given('the Substack public profile endpoint for "{slug}" returns status {status:d}')
+@given(
+    parsers.parse(
+        'the Substack public profile endpoint for "{slug}" returns status {status:d}'
+    )
+)
 def step_public_profile_returns_status(context, slug, status):
     context.respx_mock.get(public_profile_url(slug)).mock(
         return_value=httpx.Response(status)
@@ -23,7 +28,9 @@ def step_public_profile_returns_status(context, slug, status):
 
 
 @given(
-    'the Substack public profile endpoint for "{slug}" returns a response with no id field'
+    parsers.parse(
+        'the Substack public profile endpoint for "{slug}" returns a response with no id field'
+    )
 )
 def step_public_profile_returns_no_id(context, slug):
     context.respx_mock.get(public_profile_url(slug)).mock(
@@ -32,7 +39,9 @@ def step_public_profile_returns_no_id(context, slug):
 
 
 @given(
-    'the Substack public profile endpoint for "{slug}" returns a response with a non-integer id'
+    parsers.parse(
+        'the Substack public profile endpoint for "{slug}" returns a response with a non-integer id'
+    )
 )
 def step_public_profile_returns_bad_id(context, slug):
     context.respx_mock.get(public_profile_url(slug)).mock(
@@ -43,7 +52,9 @@ def step_public_profile_returns_bad_id(context, slug):
 
 
 @given(
-    "the Substack profile notes endpoint returns the sample response for user {profile_id:d}"
+    parsers.parse(
+        "the Substack profile notes endpoint returns the sample response for user {profile_id:d}"
+    )
 )
 def step_profile_notes_returns_sample(context, profile_id):
     context.respx_mock.get(_profile_notes_url(context, profile_id)).mock(
@@ -55,7 +66,9 @@ def step_profile_notes_returns_sample(context, profile_id):
 
 
 @given(
-    "the Substack profile notes endpoint for user {profile_id:d} returns status {status:d}"
+    parsers.parse(
+        "the Substack profile notes endpoint for user {profile_id:d} returns status {status:d}"
+    )
 )
 def step_profile_notes_returns_status(context, profile_id, status):
     context.respx_mock.get(_profile_notes_url(context, profile_id)).mock(

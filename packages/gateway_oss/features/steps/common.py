@@ -4,7 +4,7 @@ import base64
 import json
 import pathlib
 
-from behave import given, then, when
+from pytest_bdd import given, parsers, then, when
 
 # Shared constants used across step files
 SUBSTACK_BASE = "https://substack.com"
@@ -42,7 +42,9 @@ def public_profile_url(slug: str) -> str:
     return f"{SUBSTACK_BASE}{_PUBLIC_PROFILE_PATH.format(slug=slug)}"
 
 
-@given('a valid gateway token "{token}" and publication URL "{pub_url_}"')
+@given(
+    parsers.parse('a valid gateway token "{token}" and publication URL "{pub_url_}"')
+)
 def step_valid_auth(context, token, pub_url_):
     credentials = {
         "publication_url": pub_url_,
@@ -53,13 +55,19 @@ def step_valid_auth(context, token, pub_url_):
     context.headers = {"x-gateway-token": _encode_credentials(credentials)}
 
 
-@given('a malformed x-gateway-token header and publication URL "{pub_url_}"')
+@given(
+    parsers.parse('a malformed x-gateway-token header and publication URL "{pub_url_}"')
+)
 def step_malformed_auth(context, pub_url_):
     context.publication_url = pub_url_
     context.headers = {"x-gateway-token": "not-valid-base64!!!"}
 
 
-@given('a gateway token with extra whitespace and publication URL "{pub_url_}"')
+@given(
+    parsers.parse(
+        'a gateway token with extra whitespace and publication URL "{pub_url_}"'
+    )
+)
 def step_whitespace_token(context, pub_url_):
     credentials = {
         "publication_url": pub_url_,
@@ -70,31 +78,31 @@ def step_whitespace_token(context, pub_url_):
     context.headers = {"x-gateway-token": f"  {_encode_credentials(credentials)}   "}
 
 
-@when("I send GET {path}")
+@when(parsers.parse("I send GET {path}"))
 def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
 
 
-@when("I send PUT {path} with JSON body {body}")
+@when(parsers.parse("I send PUT {path} with JSON body {body}"))
 def step_put_json(context, path, body):
     context.response = context.client.put(
         path, json=json.loads(body), headers=context.headers
     )
 
 
-@when("I send POST {path} with JSON body {body}")
+@when(parsers.parse("I send POST {path} with JSON body {body}"))
 def step_post_json(context, path, body):
     context.response = context.client.post(
         path, json=json.loads(body), headers=context.headers
     )
 
 
-@when("I send DELETE {path}")
+@when(parsers.parse("I send DELETE {path}"))
 def step_delete(context, path):
     context.response = context.client.delete(path, headers=context.headers)
 
 
-@then("the response status code is {status:d}")
+@then(parsers.parse("the response status code is {status:d}"))
 def step_status_code(context, status):
     actual = context.response.status_code
     assert actual == status, (
@@ -102,7 +110,7 @@ def step_status_code(context, status):
     )
 
 
-@then('the response field "{field}" is true')
+@then(parsers.parse('the response field "{field}" is true'))
 def step_field_true(context, field):
     body = context.response.json()
     assert body[field] is True, (
@@ -110,7 +118,7 @@ def step_field_true(context, field):
     )
 
 
-@then('the response field "{field}" is false')
+@then(parsers.parse('the response field "{field}" is false'))
 def step_field_false(context, field):
     body = context.response.json()
     assert body[field] is False, (
@@ -118,7 +126,7 @@ def step_field_false(context, field):
     )
 
 
-@then('the response field "{field}" is "{value}"')
+@then(parsers.parse('the response field "{field}" is "{value}"'))
 def step_field_string(context, field, value):
     body = context.response.json()
     assert body[field] == value, (
@@ -126,7 +134,7 @@ def step_field_string(context, field, value):
     )
 
 
-@then('the response field "{field}" is "{value}" followed by a newline')
+@then(parsers.parse('the response field "{field}" is "{value}" followed by a newline'))
 def step_field_string_newline(context, field, value):
     body = context.response.json()
     assert body[field] == value + "\n", (
@@ -134,19 +142,19 @@ def step_field_string_newline(context, field, value):
     )
 
 
-@then('the response field "{field}" is {value:d}')
+@then(parsers.parse('the response field "{field}" is {value:d}'))
 def step_response_field_equals_int(context, field, value):
     body = context.response.json()
     assert body.get(field) == value, f"{field}={body.get(field)!r} != {value}"
 
 
-@then('the response field "{field}" is not null')
+@then(parsers.parse('the response field "{field}" is not null'))
 def step_field_not_null(context, field):
     body = context.response.json()
     assert body[field] is not None, f'Expected field "{field}" to be non-null, got null'
 
 
-@then('the response field "{field}" is absent')
+@then(parsers.parse('the response field "{field}" is absent'))
 def step_field_absent(context, field):
     body = context.response.json()
     assert field not in body, (
@@ -154,26 +162,26 @@ def step_field_absent(context, field):
     )
 
 
-@then('the response list "{field}" has {count:d} item')
+@then(parsers.parse('the response list "{field}" has {count:d} item'))
 def step_list_count_singular(context, field, count):
     body = context.response.json()
     actual = len(body[field])
     assert actual == count, f'Expected "{field}" to have {count} item(s), got {actual}'
 
 
-@then('the response list "{field}" has {count:d} items')
+@then(parsers.parse('the response list "{field}" has {count:d} items'))
 def step_list_count_plural(context, field, count):
     step_list_count_singular(context, field, count)
 
 
-@then('the response list "{field}" contains "{value}"')
+@then(parsers.parse('the response list "{field}" contains "{value}"'))
 def step_list_contains_string(context, field, value):
     body = context.response.json()
     items = body[field]
     assert value in items, f'Expected "{field}" to contain "{value}", got {items!r}'
 
 
-@then('the response nested field "{parent}.{child}" is "{value}"')
+@then(parsers.parse('the response nested field "{parent}.{child}" is "{value}"'))
 def step_nested_field_string(context, parent, child, value):
     body = context.response.json()
     actual = body[parent][child]
@@ -182,13 +190,13 @@ def step_nested_field_string(context, parent, child, value):
     )
 
 
-@then('the response header "{name}" is "{value}"')
+@then(parsers.parse('the response header "{name}" is "{value}"'))
 def step_response_header_equals(context, name, value):
     actual = context.response.headers.get(name)
     assert actual == value, f'Expected header "{name}" to be "{value}", got "{actual}"'
 
 
-@then('the first item field "{field}" is "{value}"')
+@then(parsers.parse('the first item field "{field}" is "{value}"'))
 def step_first_item_field(context, field, value):
     body = context.response.json()
     items = body.get("items", [])
@@ -199,7 +207,7 @@ def step_first_item_field(context, field, value):
     )
 
 
-@then('the first item field "{field}" is {value:d}')
+@then(parsers.parse('the first item field "{field}" is {value:d}'))
 def step_first_item_field_int(context, field, value):
     body = context.response.json()
     items = body.get("items", [])
@@ -210,7 +218,7 @@ def step_first_item_field_int(context, field, value):
     )
 
 
-@then('the response field "{field}" contains "{value}"')
+@then(parsers.parse('the response field "{field}" contains "{value}"'))
 def step_field_contains(context, field, value):
     body = context.response.json()
     assert value in str(body[field]), (

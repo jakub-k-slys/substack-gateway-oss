@@ -32,8 +32,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages --dev
 
-      - name: Run E2E tests (behave)
-        run: uv run behave packages/gateway_oss/e2e/ --junit --junit-directory e2e-reports/
+      - name: Run E2E tests (pytest-bdd)
+        run: uv run pytest packages/gateway_oss/e2e/ -rs --junit-xml=e2e-reports/results.xml
         env:
           SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_GATEWAY_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_TOKEN }}
@@ -61,31 +61,35 @@ jobs:
           lines = ["## E2E Test Results\n"]
           total = {"tests": 0, "failed": 0, "skipped": 0}
 
+          # pytest writes one suite; group its scenarios back by feature using the
+          # "feature"/"scenario" properties the e2e conftest records.
+          features = {}
           for path in sorted(glob.glob("e2e-reports/*.xml")):
-              suite = ET.parse(path).getroot()
-              if suite.tag != "testsuite":
-                  suite = suite.find("testsuite")
-              tests = int(suite.get("tests", 0))
-              failed = int(suite.get("failures", 0)) + int(suite.get("errors", 0))
-              skipped = int(suite.get("skipped", 0))
-              name = suite.get("name", os.path.basename(path))
+              for tc in ET.parse(path).getroot().iter("testcase"):
+                  props = {p.get("name"): p.get("value") for p in tc.iter("property")}
+                  feature = props.get("feature", tc.get("classname", "Unknown feature"))
+                  scenario = props.get("scenario", tc.get("name", "Unknown scenario"))
+                  if tc.find("failure") is not None or tc.find("error") is not None:
+                      status = "failed"
+                  elif tc.find("skipped") is not None:
+                      status = "skipped"
+                  else:
+                      status = "passed"
+                  features.setdefault(feature, []).append((scenario, status))
+
+          labels = {"failed": "❌ Failed", "skipped": "⏭️ Skipped", "passed": "✅ Passed"}
+          for name, scenarios in features.items():
+              failed = sum(status == "failed" for _, status in scenarios)
               icon = "✅" if failed == 0 else "❌"
               lines.append(f"### {icon} {name}\n")
               lines.append("| Scenario | Status |")
               lines.append("|----------|--------|")
-              for tc in suite.findall("testcase"):
-                  scenario = tc.get("name", "Unknown scenario")
-                  if tc.find("failure") is not None or tc.find("error") is not None:
-                      status = "❌ Failed"
-                  elif tc.find("skipped") is not None:
-                      status = "⏭️ Skipped"
-                  else:
-                      status = "✅ Passed"
-                  lines.append(f"| {scenario} | {status} |")
+              for scenario, status in scenarios:
+                  lines.append(f"| {scenario} | {labels[status]} |")
               lines.append("")
-              total["tests"] += tests
+              total["tests"] += len(scenarios)
               total["failed"] += failed
-              total["skipped"] += skipped
+              total["skipped"] += sum(status == "skipped" for _, status in scenarios)
 
           passed = total["tests"] - total["failed"] - total["skipped"]
           overall = "✅" if total["failed"] == 0 else "❌"
@@ -116,29 +120,33 @@ jobs:
           total = {"tests": 0, "failed": 0, "skipped": 0}
           sections = []
 
+          # pytest writes one suite; group its scenarios back by feature using the
+          # "feature"/"scenario" properties the e2e conftest records.
+          features = {}
           for path in sorted(glob.glob("e2e-reports/*.xml")):
-              suite = ET.parse(path).getroot()
-              if suite.tag != "testsuite":
-                  suite = suite.find("testsuite")
-              tests = int(suite.get("tests", 0))
-              failed = int(suite.get("failures", 0)) + int(suite.get("errors", 0))
-              skipped = int(suite.get("skipped", 0))
-              name = suite.get("name", os.path.basename(path))
+              for tc in ET.parse(path).getroot().iter("testcase"):
+                  props = {p.get("name"): p.get("value") for p in tc.iter("property")}
+                  feature = props.get("feature", tc.get("classname", "Unknown feature"))
+                  scenario = props.get("scenario", tc.get("name", "Unknown scenario"))
+                  if tc.find("failure") is not None or tc.find("error") is not None:
+                      status = "failed"
+                  elif tc.find("skipped") is not None:
+                      status = "skipped"
+                  else:
+                      status = "passed"
+                  features.setdefault(feature, []).append((scenario, status))
+
+          icons = {"failed": "❌", "skipped": "⏭", "passed": "✅"}
+          for name, scenarios in features.items():
+              failed = sum(status == "failed" for _, status in scenarios)
               icon = "✅" if failed == 0 else "❌"
               scenario_lines = [f"{icon} *{escape(name)}*"]
-              for tc in suite.findall("testcase"):
-                  scenario = tc.get("name", "Unknown scenario")
-                  if tc.find("failure") is not None or tc.find("error") is not None:
-                      scenario_icon = "❌"
-                  elif tc.find("skipped") is not None:
-                      scenario_icon = "⏭"
-                  else:
-                      scenario_icon = "✅"
-                  scenario_lines.append(f"  {scenario_icon} {escape(scenario)}")
+              for scenario, status in scenarios:
+                  scenario_lines.append(f"  {icons[status]} {escape(scenario)}")
               sections.append("\n".join(scenario_lines))
-              total["tests"] += tests
+              total["tests"] += len(scenarios)
               total["failed"] += failed
-              total["skipped"] += skipped
+              total["skipped"] += sum(status == "skipped" for _, status in scenarios)
 
           passed = total["tests"] - total["failed"] - total["skipped"]
           overall = "✅ All passed" if total["failed"] == 0 else f"❌ {total['failed']} failed"

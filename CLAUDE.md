@@ -29,11 +29,14 @@ uv run pytest packages/gateway_stats/tests/
 # Run a single test file
 uv run pytest packages/gateway_oss/tests/test_markdown.py
 
-# BDD integration tests (behave)
-uv run behave packages/gateway_oss/features/
+# BDD integration tests (pytest-bdd; also part of plain `uv run pytest`)
+uv run pytest packages/gateway_oss/features/
 
-# Run a single feature file
-uv run behave packages/gateway_oss/features/api/notes.feature
+# Run matching BDD scenarios by name
+uv run pytest packages/gateway_oss/features/ -k "draft"
+
+# Live E2E tests (pytest-bdd) against SUBSTACK_GATEWAY_BASE_URL or a local gateway on :5001
+uv run pytest packages/gateway_oss/e2e/
 
 # Build all workspace packages (shell + gateway_core + every domain trio)
 uv build --all-packages
@@ -44,8 +47,7 @@ When introducing changes, validate them before finishing the task. Prefer target
 - `uv run ruff format --check .`
 - `uv run ty check .`
 - `uv build --all-packages`
-- `uv run pytest`
-- `uv run behave packages/gateway_oss/features/`
+- `uv run pytest` (includes the BDD scenarios in `packages/gateway_oss/features/`)
 
 Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
 
@@ -59,7 +61,7 @@ Starlette app; functionality is provided by per-domain packages under
 `packages/`.
 
 ```
-pyproject.toml            # shell "substack-gateway": workspace root, console scripts, shared ruff/ty/behave/pytest config
+pyproject.toml            # shell "substack-gateway": workspace root, console scripts, shared ruff/ty/pytest config
 src/substack_gateway/     # app composition: app_factory.py, api_app.py, mcp_app.py, registry.py, ext_loader.py, runtime.py
 packages/
 ├── gateway_core/         # shared foundation: auth, HTTP clients, config, capabilities, converters, models
@@ -163,6 +165,7 @@ Publication analytics fetching (`gateway_stats`) is controlled by one setting:
 ### Tests
 
 - **pytest** — unit tests live under each package's `tests/` (e.g. `packages/gateway_oss/tests/`, `packages/gateway_drafts/tests/`, `packages/gateway_stats/tests/`).
-- **behave** (`packages/gateway_oss/features/`) — BDD integration tests that spin up the full Starlette app via `TestClient` with `respx` for HTTP mocking. Step definitions live in `packages/gateway_oss/features/steps/`; shared helpers and fixture setup are in `features/steps/common.py` and `features/environment.py`.
+- **pytest-bdd** (`packages/gateway_oss/features/`) — BDD integration tests that spin up the full Starlette app via `TestClient` with `respx` for HTTP mocking. `features/test_features.py` binds every `.feature` file; step definitions live in `packages/gateway_oss/features/steps/`, shared helpers in `features/steps/common.py`, and the per-scenario `context` fixture (plus the step imports pytest-bdd needs to see them) in `features/conftest.py`. They run as part of plain `uv run pytest`.
+- **pytest-bdd E2E** (`packages/gateway_oss/e2e/`) — live scenarios against a deployed gateway (`SUBSTACK_GATEWAY_BASE_URL`) or a local one on port `5001`, skipped when neither is reachable. Not in `testpaths`, so plain `uv run pytest` never runs them; run `uv run pytest packages/gateway_oss/e2e/`. `e2e/conftest.py` holds the `context` fixture and `_PacedTransport`, which paces requests across the whole run and retries idempotent requests on Substack 429s.
 
-Behave tests load fixture data from a `samples/` directory (`packages/gateway_oss/samples/`, resolved as `parents[2]` of `features/steps/`).
+BDD tests load fixture data from a `samples/` directory (`packages/gateway_oss/samples/`, resolved as `parents[2]` of `features/steps/`).

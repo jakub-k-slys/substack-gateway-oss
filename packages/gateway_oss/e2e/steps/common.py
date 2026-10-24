@@ -7,13 +7,14 @@ import struct
 import zlib
 from urllib.parse import urlparse
 
-from behave import given, then, when
+import pytest
+from pytest_bdd import given, parsers, then, when
 
 
 def _required_env(context, name: str) -> str:
     value = os.environ.get(name, "").strip()
     if not value:
-        context.scenario.skip(f"{name} not configured")
+        pytest.skip(f"{name} not configured")
     return value
 
 
@@ -24,7 +25,7 @@ def step_valid_credentials(context):
         or os.environ.get("SUBSTACK_TOKEN", "").strip()
     )
     if not token:
-        context.scenario.skip("SUBSTACK_GATEWAY_TOKEN or SUBSTACK_TOKEN not configured")
+        pytest.skip("SUBSTACK_GATEWAY_TOKEN or SUBSTACK_TOKEN not configured")
     context.headers["x-gateway-token"] = token
 
 
@@ -33,7 +34,7 @@ def step_valid_publication_url(context):
     pub_url = _required_env(context, "SUBSTACK_PUBLICATION_URL")
     parsed = urlparse(pub_url)
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        context.scenario.skip(
+        pytest.skip(
             "SUBSTACK_PUBLICATION_URL not configured or not a valid HTTP/HTTPS URL"
         )
 
@@ -53,7 +54,7 @@ def step_post_id(context):
     context.post_id = _required_env(context, "E2E_POST_ID")
 
 
-@when("I GET {path}")
+@when(parsers.parse("I GET {path}"))
 def step_get(context, path):
     context.response = context.client.get(path, headers=context.headers)
 
@@ -90,7 +91,7 @@ def step_get_note(context):
     )
 
 
-@when('I create a note with content "{content}"')
+@when(parsers.parse('I create a note with content "{content}"'))
 def step_create_note(context, content):
     context.response = context.client.post(
         "/api/v1/notes",
@@ -117,7 +118,7 @@ def step_delete_note(context):
 # --- Draft lifecycle ---------------------------------------------------
 
 
-@when('I create a draft with title "{title}" and body "{body}"')
+@when(parsers.parse('I create a draft with title "{title}" and body "{body}"'))
 def step_create_draft(context, title, body):
     context.response = context.client.post(
         "/api/v1/drafts",
@@ -141,7 +142,7 @@ def step_fetch_draft(context):
     )
 
 
-@when('I update the test draft with title "{title}"')
+@when(parsers.parse('I update the test draft with title "{title}"'))
 def step_update_draft(context, title):
     context.response = context.client.put(
         f"/api/v1/drafts/{context.draft_id}",
@@ -238,7 +239,7 @@ def step_upload_test_image(context):
     context.image_url = url
 
 
-@when('I create a draft with title "{title}" and the rich dialect body')
+@when(parsers.parse('I create a draft with title "{title}" and the rich dialect body'))
 def step_create_rich_draft(context, title):
     body = RICH_DIALECT_BODY.format(image_url=context.image_url)
     context.response = context.client.post(
@@ -358,7 +359,7 @@ def step_get_post_comments(context):
 # --- Post comment lifecycle -------------------------------------------------
 
 
-@when('I create a post comment with body "{body}"')
+@when(parsers.parse('I create a post comment with body "{body}"'))
 def step_create_post_comment(context, body):
     context.response = context.client.post(
         f"/api/v1/posts/{context.post_id}/comments",
@@ -377,7 +378,7 @@ def step_save_reply_post_comment(context):
     context.reply_post_comment_id = str(context.response.json()["id"])
 
 
-@when('I reply to the top post comment with body "{body}"')
+@when(parsers.parse('I reply to the top post comment with body "{body}"'))
 def step_reply_to_top(context, body):
     context.response = context.client.post(
         f"/api/v1/comments/{context.top_post_comment_id}/comments",
@@ -386,7 +387,7 @@ def step_reply_to_top(context, body):
     )
 
 
-@when('I reply to post comment "{comment_id}" with body "{body}"')
+@when(parsers.parse('I reply to post comment "{comment_id}" with body "{body}"'))
 def step_reply_to_explicit(context, comment_id, body):
     context.response = context.client.post(
         f"/api/v1/comments/{comment_id}/comments",
@@ -451,14 +452,14 @@ def step_delete_top_post_comment(context):
     )
 
 
-@then("the response status is {status:d}")
+@then(parsers.parse("the response status is {status:d}"))
 def step_status(context, status):
     assert context.response.status_code == status, (
         f"Expected {status}, got {context.response.status_code}: {context.response.text}"
     )
 
 
-@then('the response has field "{field}"')
+@then(parsers.parse('the response has field "{field}"'))
 def step_has_field(context, field):
     data = context.response.json()
     assert field in data, (
@@ -472,21 +473,21 @@ def step_is_list(context):
     assert isinstance(data, list), f"Expected a list, got: {type(data).__name__}"
 
 
-@then('the response field "{field}" is a list')
+@then(parsers.parse('the response field "{field}" is a list'))
 def step_field_is_list(context, field):
     data = context.response.json()
     assert field in data, f"Expected field '{field}' in response"
     assert isinstance(data[field], list), f"Expected '{field}' to be a list"
 
 
-@then('the response field "{field}" is "{value}"')
+@then(parsers.parse('the response field "{field}" is "{value}"'))
 def step_field_equals(context, field, value):
     data = context.response.json()
     actual = data.get(field)
     assert actual == value, f"Expected '{field}' to be '{value}', got '{actual}'"
 
 
-@then('the response nested field "{field}" is a list')
+@then(parsers.parse('the response nested field "{field}" is a list'))
 def step_nested_field_is_list(context, field):
     data = context.response.json()
     value = data
@@ -495,7 +496,7 @@ def step_nested_field_is_list(context, field):
     assert isinstance(value, list), f"Expected '{field}' to be a list"
 
 
-@then('the response nested field "{field}" is not null')
+@then(parsers.parse('the response nested field "{field}" is not null'))
 def step_nested_field_not_null(context, field):
     data = context.response.json()
     value = data

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import textwrap
 
-from behave import then, when
+from pytest_bdd import parsers, then, when
 
 from gateway_oss.converters.markdown import markdown_to_note_payload
 
 
-@when('I convert the markdown "{markdown}"')
+@when(parsers.parse('I convert the markdown "{markdown}"'))
 def step_convert_inline(context, markdown):
     context.convert_error = None
     try:
@@ -18,10 +18,10 @@ def step_convert_inline(context, markdown):
 
 
 @when("I convert the markdown:")
-def step_convert_docstring(context):
+def step_convert_docstring(context, docstring):
     context.convert_error = None
-    # Behave puts the docstring in context.text; dedent to remove feature indentation.
-    markdown = textwrap.dedent(context.text).strip()
+    # Dedent to remove any feature-file indentation left in the docstring.
+    markdown = textwrap.dedent(docstring).strip()
     try:
         context.payload = markdown_to_note_payload(markdown)
     except ValueError as exc:
@@ -78,27 +78,27 @@ def step_convert_empty(context):
 # ------------------------------------------------------------------
 
 
-@then('the note payload tabId is "{value}"')
+@then(parsers.parse('the note payload tabId is "{value}"'))
 def step_tab_id(context, value):
     assert context.payload["tabId"] == value, context.payload["tabId"]
 
 
-@then('the note payload surface is "{value}"')
+@then(parsers.parse('the note payload surface is "{value}"'))
 def step_surface(context, value):
     assert context.payload["surface"] == value, context.payload["surface"]
 
 
-@then('the note payload replyMinimumRole is "{value}"')
+@then(parsers.parse('the note payload replyMinimumRole is "{value}"'))
 def step_reply_role(context, value):
     assert context.payload["replyMinimumRole"] == value
 
 
-@then('the note payload bodyJson type is "{value}"')
+@then(parsers.parse('the note payload bodyJson type is "{value}"'))
 def step_body_type(context, value):
     assert context.payload["bodyJson"]["type"] == value
 
 
-@then('the note payload bodyJson schemaVersion is "{value}"')
+@then(parsers.parse('the note payload bodyJson schemaVersion is "{value}"'))
 def step_body_schema(context, value):
     assert context.payload["bodyJson"]["attrs"]["schemaVersion"] == value
 
@@ -125,18 +125,18 @@ def _node(context, para_idx: int, node_idx: int) -> dict:
     return nodes[node_idx - 1]
 
 
-@then("the note payload has {count:d} paragraph")
+@then(parsers.parse("the note payload has {count:d} paragraph"))
 def step_paragraph_count_singular(context, count):
     step_paragraph_count_plural(context, count)
 
 
-@then("the note payload has {count:d} paragraphs")
+@then(parsers.parse("the note payload has {count:d} paragraphs"))
 def step_paragraph_count_plural(context, count):
     actual = len(_paragraphs(context))
     assert actual == count, f"Expected {count} paragraph(s), got {actual}"
 
 
-@then('paragraph {para:d} has {count:d} text node with text "{text}"')
+@then(parsers.parse('paragraph {para:d} has {count:d} text node with text "{text}"'))
 def step_single_node_plain(context, para, count, text):
     paragraphs = _paragraphs(context)
     nodes = paragraphs[para - 1]["content"]
@@ -145,7 +145,9 @@ def step_single_node_plain(context, para, count, text):
     assert "marks" not in nodes[0], f"Expected no marks, got {nodes[0].get('marks')}"
 
 
-@then('paragraph {para:d} has {count:d} text node with bold text "{text}"')
+@then(
+    parsers.parse('paragraph {para:d} has {count:d} text node with bold text "{text}"')
+)
 def step_single_node_bold(context, para, count, text):
     paragraphs = _paragraphs(context)
     nodes = paragraphs[para - 1]["content"]
@@ -155,7 +157,11 @@ def step_single_node_bold(context, para, count, text):
     assert marks == [{"type": "bold"}], f"Expected bold marks, got {marks}"
 
 
-@then('paragraph {para:d} has 1 text node with bold and italic text "{text}"')
+@then(
+    parsers.parse(
+        'paragraph {para:d} has 1 text node with bold and italic text "{text}"'
+    )
+)
 def step_single_node_bold_italic(context, para, text):
     paragraphs = _paragraphs(context)
     nodes = paragraphs[para - 1]["content"]
@@ -167,21 +173,21 @@ def step_single_node_bold_italic(context, para, text):
     )
 
 
-@then('paragraph {para:d} text node {node:d} is plain "{text}"')
+@then(parsers.parse('paragraph {para:d} text node {node:d} is plain "{text}"'))
 def step_node_plain(context, para, node, text):
     n = _node(context, para, node)
     assert n["text"] == text, f"Expected {text!r}, got {n['text']!r}"
     assert "marks" not in n, f"Expected no marks, got {n.get('marks')}"
 
 
-@then('paragraph {para:d} text node {node:d} is bold "{text}"')
+@then(parsers.parse('paragraph {para:d} text node {node:d} is bold "{text}"'))
 def step_node_bold(context, para, node, text):
     n = _node(context, para, node)
     assert n["text"] == text, f"Expected {text!r}, got {n['text']!r}"
     assert n.get("marks") == [{"type": "bold"}], f"Expected bold, got {n.get('marks')}"
 
 
-@then('paragraph {para:d} text node {node:d} is italic "{text}"')
+@then(parsers.parse('paragraph {para:d} text node {node:d} is italic "{text}"'))
 def step_node_italic(context, para, node, text):
     n = _node(context, para, node)
     assert n["text"] == text, f"Expected {text!r}, got {n['text']!r}"
@@ -190,7 +196,7 @@ def step_node_italic(context, para, node, text):
     )
 
 
-@then("paragraph {para:d} has 1 text node containing a newline")
+@then(parsers.parse("paragraph {para:d} has 1 text node containing a newline"))
 def step_single_node_has_newline(context, para):
     paragraphs = _paragraphs(context)
     nodes = paragraphs[para - 1]["content"]
@@ -200,7 +206,7 @@ def step_single_node_has_newline(context, para):
     )
 
 
-@then('paragraph {para:d} text node {node:d} is code "{text}"')
+@then(parsers.parse('paragraph {para:d} text node {node:d} is code "{text}"'))
 def step_node_code(context, para, node, text):
     n = _node(context, para, node)
     assert n["text"] == text, f"Expected {text!r}, got {n['text']!r}"
@@ -212,7 +218,7 @@ def step_node_code(context, para, node, text):
 # ------------------------------------------------------------------
 
 
-@then('a ValueError is raised with message "{message}"')
+@then(parsers.parse('a ValueError is raised with message "{message}"'))
 def step_error_raised(context, message):
     assert context.convert_error is not None, (
         "Expected a ValueError but none was raised"

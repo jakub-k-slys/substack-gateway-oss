@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given, when
-from common import pub_url
+from pytest_bdd import given, parsers, when
+
+from .common import pub_url
 
 
 def _post_comment_url(context, post_id):
@@ -25,7 +26,11 @@ def _reaction_url(context, comment_id):
     return f"{pub_url(context)}/api/v1/comment/{comment_id}/reaction"
 
 
-@given("the Substack post comment endpoint for post {post_id:d} returns id {new_id:d}")
+@given(
+    parsers.parse(
+        "the Substack post comment endpoint for post {post_id:d} returns id {new_id:d}"
+    )
+)
 def step_create_comment_ok(context, post_id, new_id):
     context.respx_mock.post(_post_comment_url(context, post_id)).mock(
         return_value=httpx.Response(200, json={"id": new_id, "body": "hello"})
@@ -33,8 +38,10 @@ def step_create_comment_ok(context, post_id, new_id):
 
 
 @given(
-    "the Substack reader comment endpoint for id {comment_id:d} "
-    "resolves to post {post_id:d}"
+    parsers.parse(
+        "the Substack reader comment endpoint for id {comment_id:d} "
+        "resolves to post {post_id:d}"
+    )
 )
 def step_reader_resolves_post(context, comment_id, post_id):
     context.respx_mock.get(_reader_comment_url(context, comment_id)).mock(
@@ -64,7 +71,11 @@ def step_reader_resolves_post(context, comment_id, post_id):
     )
 
 
-@given("the Substack comment reply endpoint for post {post_id:d} returns id {new_id:d}")
+@given(
+    parsers.parse(
+        "the Substack comment reply endpoint for post {post_id:d} returns id {new_id:d}"
+    )
+)
 def step_reply_ok(context, post_id, new_id):
     context.respx_mock.post(_post_comment_url(context, post_id)).mock(
         return_value=httpx.Response(200, json={"id": new_id, "body": "re"})
@@ -72,7 +83,9 @@ def step_reply_ok(context, post_id, new_id):
 
 
 @given(
-    "the Substack comment replies endpoint for id {comment_id:d} returns two replies"
+    parsers.parse(
+        "the Substack comment replies endpoint for id {comment_id:d} returns two replies"
+    )
 )
 def step_replies_ok(context, comment_id):
     context.respx_mock.get(_reader_replies_url(context, comment_id)).mock(
@@ -89,7 +102,9 @@ def step_replies_ok(context, comment_id):
 
 
 @given(
-    "the Substack delete comment endpoint for id {comment_id:d} returns status {status:d}"
+    parsers.parse(
+        "the Substack delete comment endpoint for id {comment_id:d} returns status {status:d}"
+    )
 )
 def step_delete_ok(context, comment_id, status):
     context.respx_mock.delete(_comment_url(context, comment_id)).mock(
@@ -97,20 +112,29 @@ def step_delete_ok(context, comment_id, status):
     )
 
 
-@given("the Substack comment reaction endpoint for id {comment_id:d} accepts a like")
+@given(
+    parsers.parse(
+        "the Substack comment reaction endpoint for id {comment_id:d} accepts a like"
+    )
+)
 def step_like_ok(context, comment_id):
     context.respx_mock.post(_reaction_url(context, comment_id)).mock(
         return_value=httpx.Response(200, json={"ok": True})
     )
 
 
-@given("the Substack comment reaction endpoint for id {comment_id:d} accepts an unlike")
+@given(
+    parsers.parse(
+        "the Substack comment reaction endpoint for id {comment_id:d} accepts an unlike"
+    )
+)
 def step_unlike_ok(context, comment_id):
     context.respx_mock.delete(_reaction_url(context, comment_id)).mock(
         return_value=httpx.Response(200, json={"ok": True})
     )
 
 
-@when("I send POST {path}")
+# A path has no spaces, so this does not swallow "... with JSON body {body}".
+@when(parsers.re(r"I send POST (?P<path>\S+)"))
 def step_post_no_body(context, path):
     context.response = context.client.post(path, headers=context.headers)

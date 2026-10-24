@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 
-from behave import then, when
+from pytest_bdd import parsers, then, when
 
 
 def _e2e_token() -> str:
@@ -169,7 +169,7 @@ def step_mcp_initialize_succeeds(context):
     )
 
 
-@then('the MCP tool list includes "{tool_name}"')
+@then(parsers.parse('the MCP tool list includes "{tool_name}"'))
 def step_mcp_tool_list_includes(context, tool_name):
     assert context.mcp_response.status_code == 200, (
         f"Expected 200, got {context.mcp_response.status_code}: {context.mcp_response.text}"
