@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
-from common import load_sample, pub_url
+from pytest_bdd import given, parsers
+
+from .common import load_sample, pub_url
 
 
 def _reader_comment_url(context, comment_id: int) -> str:
@@ -10,7 +11,9 @@ def _reader_comment_url(context, comment_id: int) -> str:
 
 
 @given(
-    "the Substack reader comment endpoint returns the sample response for id {comment_id:d}"
+    parsers.parse(
+        "the Substack reader comment endpoint returns the sample response for id {comment_id:d}"
+    )
 )
 def step_reader_comment_returns_sample(context, comment_id):
     context.respx_mock.get(_reader_comment_url(context, comment_id)).mock(
@@ -21,7 +24,9 @@ def step_reader_comment_returns_sample(context, comment_id):
 
 
 @given(
-    "the Substack reader comment endpoint for id {comment_id:d} returns status {status:d}"
+    parsers.parse(
+        "the Substack reader comment endpoint for id {comment_id:d} returns status {status:d}"
+    )
 )
 def step_reader_comment_returns_status(context, comment_id, status):
     context.respx_mock.get(_reader_comment_url(context, comment_id)).mock(

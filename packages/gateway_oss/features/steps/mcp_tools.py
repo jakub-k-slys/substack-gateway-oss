@@ -1,7 +1,7 @@
-"""Behave step definitions for OSS and PRO MCP tool testing.
+"""pytest-bdd step definitions for MCP tool testing.
 
-Public OSS tools run without credentials. PRO-only personal/write tools still
-use the authenticated helper path.
+Public tools run without credentials. Personal/write tools use the
+authenticated helper path.
 """
 
 from __future__ import annotations
@@ -10,8 +10,7 @@ import asyncio
 import base64
 import json
 
-from behave import given, then, when
-from common import walk_path
+from pytest_bdd import given, parsers, then, when
 
 from gateway_comments_mcp.tools import (
     create_post_comment,
@@ -60,12 +59,14 @@ from gateway_stats_mcp.tools import (
     get_subscriber_timeseries,
 )
 
+from .common import walk_path
+
 # ------------------------------------------------------------------
 # Given — authentication
 # ------------------------------------------------------------------
 
 
-@given('a valid MCP token and publication URL "{pub_url_}"')
+@given(parsers.parse('a valid MCP token and publication URL "{pub_url_}"'))
 def step_valid_mcp_token(context, pub_url_):
     credentials = {
         "publication_url": pub_url_,
@@ -78,7 +79,7 @@ def step_valid_mcp_token(context, pub_url_):
     context.publication_url = pub_url_
 
 
-@given('an invalid MCP token and publication URL "{pub_url_}"')
+@given(parsers.parse('an invalid MCP token and publication URL "{pub_url_}"'))
 def step_invalid_mcp_token(context, pub_url_):
     context.mcp_token = "not-valid-base64!!!"
     context.mcp_pub_url = pub_url_
@@ -100,37 +101,41 @@ def _call(context, coro):
         context.mcp_error = exc
 
 
-@when("I call the MCP tool get_note with note_id {note_id:d}")
+@when(parsers.parse("I call the MCP tool get_note with note_id {note_id:d}"))
 def step_call_get_note(context, note_id):
     _call(context, get_note(note_id=note_id, token=context.mcp_token))
 
 
-@when('I call the MCP tool create_note with content "{content}"')
+@when(parsers.parse('I call the MCP tool create_note with content "{content}"'))
 def step_call_create_note(context, content):
     _call(context, create_note(content=content, token=context.mcp_token))
 
 
-@when("I call the MCP tool delete_note with note_id {note_id:d}")
+@when(parsers.parse("I call the MCP tool delete_note with note_id {note_id:d}"))
 def step_call_delete_note(context, note_id):
     _call(context, delete_note(note_id=note_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool like_note with note_id {note_id:d}")
+@when(parsers.parse("I call the MCP tool like_note with note_id {note_id:d}"))
 def step_call_like_note(context, note_id):
     _call(context, like_note(note_id=note_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool unlike_note with note_id {note_id:d}")
+@when(parsers.parse("I call the MCP tool unlike_note with note_id {note_id:d}"))
 def step_call_unlike_note(context, note_id):
     _call(context, unlike_note(note_id=note_id, token=context.mcp_token))
 
 
-@when('I call the MCP tool reply_to_note with note_id {note_id:d} and body "{body}"')
+@when(
+    parsers.parse(
+        'I call the MCP tool reply_to_note with note_id {note_id:d} and body "{body}"'
+    )
+)
 def step_call_reply_to_note(context, note_id, body):
     _call(context, reply_to_note(note_id=note_id, body=body, token=context.mcp_token))
 
 
-@when("I call the MCP tool list_note_replies with note_id {note_id:d}")
+@when(parsers.parse("I call the MCP tool list_note_replies with note_id {note_id:d}"))
 def step_call_list_note_replies(context, note_id):
     _call(context, list_note_replies(note_id=note_id, token=context.mcp_token))
 
@@ -150,19 +155,21 @@ def step_call_list_drafts(context):
     _call(context, list_drafts(token=context.mcp_token))
 
 
-@when("I call the MCP tool get_draft with draft_id {draft_id:d}")
+@when(parsers.parse("I call the MCP tool get_draft with draft_id {draft_id:d}"))
 def step_call_get_draft(context, draft_id):
     _call(context, get_draft(draft_id=draft_id, token=context.mcp_token))
 
 
-@when('I call the MCP tool create_draft with title "{title}"')
+@when(parsers.parse('I call the MCP tool create_draft with title "{title}"'))
 def step_call_create_draft(context, title):
     _call(context, create_draft(title=title, token=context.mcp_token))
 
 
 @when(
-    "I call the MCP tool update_draft with draft_id {draft_id:d}, "
-    'title "{title}" and expected_updated_at "{expected}"'
+    parsers.parse(
+        "I call the MCP tool update_draft with draft_id {draft_id:d}, "
+        'title "{title}" and expected_updated_at "{expected}"'
+    )
 )
 def step_call_update_draft(context, draft_id, title, expected):
     _call(
@@ -188,7 +195,7 @@ def step_call_create_draft_broken_fence(context):
     )
 
 
-@when("I call the MCP tool delete_draft with draft_id {draft_id:d}")
+@when(parsers.parse("I call the MCP tool delete_draft with draft_id {draft_id:d}"))
 def step_call_delete_draft(context, draft_id):
     _call(context, delete_draft(draft_id=draft_id, token=context.mcp_token))
 
@@ -213,12 +220,12 @@ def step_call_get_my_posts(context):
     _call(context, get_my_posts(token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post with post_id {post_id:d}"))
 def step_call_get_post(context, post_id):
     _call(context, get_post(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_comments with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_comments with post_id {post_id:d}"))
 def step_call_get_post_comments(context, post_id):
     _call(context, get_post_comments(post_id=post_id, token=context.mcp_token))
 
@@ -228,17 +235,17 @@ def step_call_get_my_following(context):
     _call(context, get_my_following(token=context.mcp_token))
 
 
-@when("I call the MCP tool like_post with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool like_post with post_id {post_id:d}"))
 def step_call_like_post(context, post_id):
     _call(context, like_post(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool unlike_post with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool unlike_post with post_id {post_id:d}"))
 def step_call_unlike_post(context, post_id):
     _call(context, unlike_post(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool restack_post with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool restack_post with post_id {post_id:d}"))
 def step_call_restack_post(context, post_id):
     _call(context, restack_post(post_id=post_id, token=context.mcp_token))
 
@@ -249,7 +256,9 @@ def step_call_restack_post(context, post_id):
 
 
 @when(
-    'I call the MCP tool create_post_comment with post_id {post_id:d} and body "{body}"'
+    parsers.parse(
+        'I call the MCP tool create_post_comment with post_id {post_id:d} and body "{body}"'
+    )
 )
 def step_call_create_post_comment(context, post_id, body):
     _call(
@@ -259,8 +268,10 @@ def step_call_create_post_comment(context, post_id, body):
 
 
 @when(
-    "I call the MCP tool reply_to_post_comment with comment_id {comment_id:d} "
-    'and body "{body}"'
+    parsers.parse(
+        "I call the MCP tool reply_to_post_comment with comment_id {comment_id:d} "
+        'and body "{body}"'
+    )
 )
 def step_call_reply_to_post_comment(context, comment_id, body):
     _call(
@@ -271,17 +282,27 @@ def step_call_reply_to_post_comment(context, comment_id, body):
     )
 
 
-@when("I call the MCP tool get_post_comment with comment_id {comment_id:d}")
+@when(
+    parsers.parse("I call the MCP tool get_post_comment with comment_id {comment_id:d}")
+)
 def step_call_get_post_comment(context, comment_id):
     _call(context, get_post_comment(comment_id=comment_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool delete_post_comment with comment_id {comment_id:d}")
+@when(
+    parsers.parse(
+        "I call the MCP tool delete_post_comment with comment_id {comment_id:d}"
+    )
+)
 def step_call_delete_post_comment(context, comment_id):
     _call(context, delete_post_comment(comment_id=comment_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool list_post_comment_replies with comment_id {comment_id:d}")
+@when(
+    parsers.parse(
+        "I call the MCP tool list_post_comment_replies with comment_id {comment_id:d}"
+    )
+)
 def step_call_list_post_comment_replies(context, comment_id):
     _call(
         context,
@@ -289,12 +310,20 @@ def step_call_list_post_comment_replies(context, comment_id):
     )
 
 
-@when("I call the MCP tool like_post_comment with comment_id {comment_id:d}")
+@when(
+    parsers.parse(
+        "I call the MCP tool like_post_comment with comment_id {comment_id:d}"
+    )
+)
 def step_call_like_post_comment(context, comment_id):
     _call(context, like_post_comment(comment_id=comment_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool unlike_post_comment with comment_id {comment_id:d}")
+@when(
+    parsers.parse(
+        "I call the MCP tool unlike_post_comment with comment_id {comment_id:d}"
+    )
+)
 def step_call_unlike_post_comment(context, comment_id):
     _call(context, unlike_post_comment(comment_id=comment_id, token=context.mcp_token))
 
@@ -329,7 +358,11 @@ def step_call_get_dashboard_summary(context):
     _call(context, get_dashboard_summary(token=context.mcp_token))
 
 
-@when("I call the MCP tool get_dashboard_period with range_days {range_days:d}")
+@when(
+    parsers.parse(
+        "I call the MCP tool get_dashboard_period with range_days {range_days:d}"
+    )
+)
 def step_call_get_dashboard_period(context, range_days):
     _call(
         context,
@@ -337,7 +370,11 @@ def step_call_get_dashboard_period(context, range_days):
     )
 
 
-@when('I call the MCP tool get_recommendation_stats with direction "{direction}"')
+@when(
+    parsers.parse(
+        'I call the MCP tool get_recommendation_stats with direction "{direction}"'
+    )
+)
 def step_call_get_recommendation_stats(context, direction):
     _call(
         context,
@@ -350,27 +387,27 @@ def step_call_get_post_counts(context):
     _call(context, get_post_counts(token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_engagement with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_engagement with post_id {post_id:d}"))
 def step_call_get_post_engagement(context, post_id):
     _call(context, get_post_engagement(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_traffic with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_traffic with post_id {post_id:d}"))
 def step_call_get_post_traffic(context, post_id):
     _call(context, get_post_traffic(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_recipients with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_recipients with post_id {post_id:d}"))
 def step_call_get_post_recipients(context, post_id):
     _call(context, get_post_recipients(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_growth with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_growth with post_id {post_id:d}"))
 def step_call_get_post_growth(context, post_id):
     _call(context, get_post_growth(post_id=post_id, token=context.mcp_token))
 
 
-@when("I call the MCP tool get_post_discussion with post_id {post_id:d}")
+@when(parsers.parse("I call the MCP tool get_post_discussion with post_id {post_id:d}"))
 def step_call_get_post_discussion(context, post_id):
     _call(context, get_post_discussion(post_id=post_id, token=context.mcp_token))
 
@@ -380,17 +417,17 @@ def step_call_get_post_discussion(context, post_id):
 # ------------------------------------------------------------------
 
 
-@when('I call the MCP tool get_profile with slug "{slug}"')
+@when(parsers.parse('I call the MCP tool get_profile with slug "{slug}"'))
 def step_call_get_profile(context, slug):
     _call(context, get_profile(slug=slug))
 
 
-@when('I call the MCP tool get_profile_posts with slug "{slug}"')
+@when(parsers.parse('I call the MCP tool get_profile_posts with slug "{slug}"'))
 def step_call_get_profile_posts(context, slug):
     _call(context, get_profile_posts(slug=slug))
 
 
-@when('I call the MCP tool get_profile_notes with slug "{slug}"')
+@when(parsers.parse('I call the MCP tool get_profile_notes with slug "{slug}"'))
 def step_call_get_profile_notes(context, slug):
     _call(context, get_profile_notes(slug=slug))
 
@@ -400,7 +437,7 @@ def step_call_get_profile_notes(context, slug):
 # ------------------------------------------------------------------
 
 
-@then('the MCP result field "{field}" is not null')
+@then(parsers.parse('the MCP result field "{field}" is not null'))
 def step_mcp_field_not_null(context, field):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     assert context.mcp_result[field] is not None, (
@@ -408,14 +445,14 @@ def step_mcp_field_not_null(context, field):
     )
 
 
-@then('the MCP result field "{field}" is "{value}"')
+@then(parsers.parse('the MCP result field "{field}" is "{value}"'))
 def step_mcp_field_string(context, field, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     actual = context.mcp_result[field]
     assert str(actual) == value, f'Expected "{field}" to be "{value}", got "{actual}"'
 
 
-@then('the MCP result path "{path}" equals JSON {value}')
+@then(parsers.parse('the MCP result path "{path}" equals JSON {value}'))
 def step_mcp_path_equals_json(context, path, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     node = walk_path(context.mcp_result, path)
@@ -423,7 +460,7 @@ def step_mcp_path_equals_json(context, path, value):
     assert node == expected, f"Expected {path} to equal {expected!r}, got {node!r}"
 
 
-@then('the MCP result is "{value}"')
+@then(parsers.parse('the MCP result is "{value}"'))
 def step_mcp_result_string(context, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     assert context.mcp_result == value, (
@@ -438,7 +475,7 @@ def step_mcp_raises_value_error(context):
     )
 
 
-@then('the MCP call fails with a tool error containing "{text}"')
+@then(parsers.parse('the MCP call fails with a tool error containing "{text}"'))
 def step_mcp_tool_error_contains(context, text):
     from fastmcp.exceptions import ToolError
 
@@ -460,7 +497,7 @@ def step_mcp_missing_credentials(context):
     assert "token" in str(context.mcp_error)
 
 
-@then('the MCP result list "{field}" has {count:d} items')
+@then(parsers.parse('the MCP result list "{field}" has {count:d} items'))
 def step_mcp_list_count(context, field, count):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     actual = context.mcp_result[field]
@@ -468,7 +505,7 @@ def step_mcp_list_count(context, field, count):
     assert len(actual) == count, f"Expected {count} items, got {len(actual)}"
 
 
-@then('the first MCP item in "{field}" has "{key}" equal to {value:d}')
+@then(parsers.parse('the first MCP item in "{field}" has "{key}" equal to {value:d}'))
 def step_mcp_first_item_int(context, field, key, value):
     assert context.mcp_error is None, f"MCP tool raised: {context.mcp_error}"
     items = context.mcp_result[field]

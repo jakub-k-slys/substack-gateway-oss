@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import textwrap
 
-from behave import then, when
+from pytest_bdd import parsers, then, when
 
 from gateway_drafts.converters.markdown import (
     draft_body_to_markdown,
@@ -11,7 +11,7 @@ from gateway_drafts.converters.markdown import (
 )
 
 
-@when('I convert draft markdown "{markdown}"')
+@when(parsers.parse('I convert draft markdown "{markdown}"'))
 def step_convert_draft_inline(context, markdown):
     body_str = markdown_to_draft_body(markdown)
     context.draft_body_str = body_str
@@ -22,8 +22,8 @@ def step_convert_draft_inline(context, markdown):
 
 
 @when("I convert draft markdown:")
-def step_convert_draft_docstring(context):
-    markdown = textwrap.dedent(context.text).strip()
+def step_convert_draft_docstring(context, docstring):
+    markdown = textwrap.dedent(docstring).strip()
     body_str = markdown_to_draft_body(markdown)
     context.draft_body_str = body_str
     context.draft_doc = json.loads(body_str)
@@ -70,7 +70,7 @@ def step_draft_body_is_json(context):
     json.loads(context.draft_body_str)  # raises if invalid JSON
 
 
-@then('the draft doc type is "{doc_type}"')
+@then(parsers.parse('the draft doc type is "{doc_type}"'))
 def step_draft_doc_type(context, doc_type):
     assert context.draft_doc["type"] == doc_type, (
         f"Expected type {doc_type!r}, got {context.draft_doc['type']!r}"
@@ -85,12 +85,12 @@ def step_draft_doc_no_schema_version(context):
     )
 
 
-@then("the draft doc has {count:d} node")
+@then(parsers.parse("the draft doc has {count:d} node"))
 def step_draft_node_count_singular(context, count):
     step_draft_node_count_plural(context, count)
 
 
-@then("the draft doc has {count:d} nodes")
+@then(parsers.parse("the draft doc has {count:d} nodes"))
 def step_draft_node_count_plural(context, count):
     actual = len(_nodes(context))
     assert actual == count, f"Expected {count} node(s), got {actual}: {_nodes(context)}"
@@ -101,13 +101,15 @@ def step_draft_node_count_plural(context, count):
 # ------------------------------------------------------------------
 
 
-@then("draft node {idx:d} is a paragraph")
+@then(parsers.parse("draft node {idx:d} is a paragraph"))
 def step_draft_node_is_paragraph(context, idx):
     node = _node(context, idx)
     assert node["type"] == "paragraph", f"Expected paragraph, got {node['type']}"
 
 
-@then('draft node {idx:d} is a paragraph with {count:d} text node "{text}"')
+@then(
+    parsers.parse('draft node {idx:d} is a paragraph with {count:d} text node "{text}"')
+)
 def step_draft_node_is_paragraph_with_text(context, idx, count, text):
     node = _node(context, idx)
     assert node["type"] == "paragraph", f"Expected paragraph, got {node['type']}"
@@ -116,7 +118,11 @@ def step_draft_node_is_paragraph_with_text(context, idx, count, text):
     assert content[0]["text"] == text, f"Expected {text!r}, got {content[0]['text']!r}"
 
 
-@then('draft node {idx:d} is a heading with level {level:d} and text "{text}"')
+@then(
+    parsers.parse(
+        'draft node {idx:d} is a heading with level {level:d} and text "{text}"'
+    )
+)
 def step_draft_node_is_heading(context, idx, level, text):
     node = _node(context, idx)
     assert node["type"] == "heading", f"Expected heading, got {node['type']}"
@@ -126,7 +132,11 @@ def step_draft_node_is_heading(context, idx, level, text):
     assert actual_text == text, f"Expected {text!r}, got {actual_text!r}"
 
 
-@then('draft node {idx:d} is a highlighted_code_block with language "{lang}"')
+@then(
+    parsers.parse(
+        'draft node {idx:d} is a highlighted_code_block with language "{lang}"'
+    )
+)
 def step_draft_node_is_code_block_with_lang(context, idx, lang):
     node = _node(context, idx)
     assert node["type"] == "highlighted_code_block", (
@@ -137,7 +147,9 @@ def step_draft_node_is_code_block_with_lang(context, idx, lang):
     context.current_code_block = node
 
 
-@then("draft node {idx:d} is a highlighted_code_block with null language")
+@then(
+    parsers.parse("draft node {idx:d} is a highlighted_code_block with null language")
+)
 def step_draft_node_is_code_block_null_lang(context, idx):
     node = _node(context, idx)
     assert node["type"] == "highlighted_code_block", (
@@ -148,7 +160,7 @@ def step_draft_node_is_code_block_null_lang(context, idx):
     context.current_code_block = node
 
 
-@then('draft code block text contains "{text}"')
+@then(parsers.parse('draft code block text contains "{text}"'))
 def step_draft_code_block_text_contains(context, text):
     node = context.current_code_block
     assert node is not None, (
@@ -160,12 +172,12 @@ def step_draft_code_block_text_contains(context, text):
     )
 
 
-@then("draft node {idx:d} is a blockquote with {count:d} inner node")
+@then(parsers.parse("draft node {idx:d} is a blockquote with {count:d} inner node"))
 def step_draft_node_is_blockquote_singular(context, idx, count):
     step_draft_node_is_blockquote_plural(context, idx, count)
 
 
-@then("draft node {idx:d} is a blockquote with {count:d} inner nodes")
+@then(parsers.parse("draft node {idx:d} is a blockquote with {count:d} inner nodes"))
 def step_draft_node_is_blockquote_plural(context, idx, count):
     node = _node(context, idx)
     assert node["type"] == "blockquote", f"Expected blockquote, got {node['type']}"
@@ -174,7 +186,11 @@ def step_draft_node_is_blockquote_plural(context, idx, count):
     context.current_quote_node = node
 
 
-@then('draft blockquote inner node {idx:d} is a paragraph with text "{text}"')
+@then(
+    parsers.parse(
+        'draft blockquote inner node {idx:d} is a paragraph with text "{text}"'
+    )
+)
 def step_draft_blockquote_inner_node(context, idx, text):
     node = context.current_quote_node
     assert node is not None, "No current quote node — use a blockquote step first"
@@ -186,12 +202,12 @@ def step_draft_blockquote_inner_node(context, idx, text):
     assert actual == text, f"Expected {text!r}, got {actual!r}"
 
 
-@then("draft node {idx:d} is a pullquote with {count:d} inner node")
+@then(parsers.parse("draft node {idx:d} is a pullquote with {count:d} inner node"))
 def step_draft_node_is_pullquote_singular(context, idx, count):
     step_draft_node_is_pullquote_plural(context, idx, count)
 
 
-@then("draft node {idx:d} is a pullquote with {count:d} inner nodes")
+@then(parsers.parse("draft node {idx:d} is a pullquote with {count:d} inner nodes"))
 def step_draft_node_is_pullquote_plural(context, idx, count):
     node = _node(context, idx)
     assert node["type"] == "pullquote", f"Expected pullquote, got {node['type']}"
@@ -200,7 +216,11 @@ def step_draft_node_is_pullquote_plural(context, idx, count):
     context.current_quote_node = node
 
 
-@then('draft pullquote inner node {idx:d} is a paragraph with text "{text}"')
+@then(
+    parsers.parse(
+        'draft pullquote inner node {idx:d} is a paragraph with text "{text}"'
+    )
+)
 def step_draft_pullquote_inner_node(context, idx, text):
     node = context.current_quote_node
     assert node is not None, "No current quote node — use a pullquote step first"
@@ -213,7 +233,9 @@ def step_draft_pullquote_inner_node(context, idx, text):
 
 
 @then(
-    'draft paragraph {para:d} text node {node_idx:d} is a link with text "{text}" and href "{href}"'
+    parsers.parse(
+        'draft paragraph {para:d} text node {node_idx:d} is a link with text "{text}" and href "{href}"'
+    )
 )
 def step_draft_para_node_link(context, para, node_idx, text, href):
     n = _para_node(context, para, node_idx)
@@ -227,7 +249,7 @@ def step_draft_para_node_link(context, para, node_idx, text, href):
     assert actual_href == href, f"Expected href {href!r}, got {actual_href!r}"
 
 
-@then("draft node {idx:d} is a bullet_list with {count:d} items")
+@then(parsers.parse("draft node {idx:d} is a bullet_list with {count:d} items"))
 def step_draft_node_is_bullet_list(context, idx, count):
     node = _node(context, idx)
     assert node["type"] == "bullet_list", f"Expected bullet_list, got {node['type']}"
@@ -236,7 +258,7 @@ def step_draft_node_is_bullet_list(context, idx, count):
     context.current_list_node = node
 
 
-@then("draft node {idx:d} is an ordered_list with {count:d} items")
+@then(parsers.parse("draft node {idx:d} is an ordered_list with {count:d} items"))
 def step_draft_node_is_ordered_list(context, idx, count):
     node = _node(context, idx)
     assert node["type"] == "ordered_list", f"Expected ordered_list, got {node['type']}"
@@ -250,7 +272,7 @@ def step_draft_node_is_ordered_list(context, idx, count):
 # ------------------------------------------------------------------
 
 
-@then("draft ordered_list start attr is {start:d}")
+@then(parsers.parse("draft ordered_list start attr is {start:d}"))
 def step_draft_ordered_list_start(context, start):
     node = context.current_list_node
     assert node is not None, "No current list node — use a list-type step first"
@@ -258,7 +280,7 @@ def step_draft_ordered_list_start(context, start):
     assert actual == start, f"Expected start={start}, got {actual}"
 
 
-@then('draft list item {idx:d} text is "{text}"')
+@then(parsers.parse('draft list item {idx:d} text is "{text}"'))
 def step_draft_list_item_text(context, idx, text):
     node = context.current_list_node
     assert node is not None, "No current list node — use a list-type step first"
@@ -277,7 +299,9 @@ def step_draft_list_item_text(context, idx, text):
 # ------------------------------------------------------------------
 
 
-@then('draft paragraph {para:d} text node {node_idx:d} is plain "{text}"')
+@then(
+    parsers.parse('draft paragraph {para:d} text node {node_idx:d} is plain "{text}"')
+)
 def step_draft_para_node_plain(context, para, node_idx, text):
     n = _para_node(context, para, node_idx)
     assert n["text"] == text, f"Expected {text!r}, got {n['text']!r}"
@@ -285,7 +309,9 @@ def step_draft_para_node_plain(context, para, node_idx, text):
 
 
 @then(
-    'draft paragraph {para:d} text node {node_idx:d} has mark "{mark}" and text "{text}"'
+    parsers.parse(
+        'draft paragraph {para:d} text node {node_idx:d} has mark "{mark}" and text "{text}"'
+    )
 )
 def step_draft_para_node_single_mark(context, para, node_idx, mark, text):
     n = _para_node(context, para, node_idx)
@@ -295,7 +321,9 @@ def step_draft_para_node_single_mark(context, para, node_idx, mark, text):
 
 
 @then(
-    'draft paragraph {para:d} text node {node_idx:d} has marks "{marks_str}" and text "{text}"'
+    parsers.parse(
+        'draft paragraph {para:d} text node {node_idx:d} has marks "{marks_str}" and text "{text}"'
+    )
 )
 def step_draft_para_node_multi_mark(context, para, node_idx, marks_str, text):
     n = _para_node(context, para, node_idx)
@@ -310,7 +338,7 @@ def step_draft_para_node_multi_mark(context, para, node_idx, marks_str, text):
 # ------------------------------------------------------------------
 
 
-@then('the draft body round-trips to markdown "{expected}"')
+@then(parsers.parse('the draft body round-trips to markdown "{expected}"'))
 def step_round_trip_inline(context, expected):
     # draft_body_to_markdown output always ends with one newline.
     result = draft_body_to_markdown(context.draft_body_str)
@@ -318,19 +346,19 @@ def step_round_trip_inline(context, expected):
 
 
 @then("the draft body round-trips to markdown:")
-def step_round_trip_docstring(context):
-    expected = textwrap.dedent(context.text).strip() + "\n"
+def step_round_trip_docstring(context, docstring):
+    expected = textwrap.dedent(docstring).strip() + "\n"
     result = draft_body_to_markdown(context.draft_body_str)
     assert result == expected, f"Expected {expected!r}, got {result!r}"
 
 
 @when("I reverse-convert the draft body JSON:")
-def step_reverse_convert_docstring(context):
-    body_json = textwrap.dedent(context.text).strip()
+def step_reverse_convert_docstring(context, docstring):
+    body_json = textwrap.dedent(docstring).strip()
     context.reverse_result = draft_body_to_markdown(body_json)
 
 
-@then('the markdown result is "{expected}"')
+@then(parsers.parse('the markdown result is "{expected}"'))
 def step_markdown_result(context, expected):
     expected += "\n"  # draft_body_to_markdown output ends with one newline
     assert context.reverse_result == expected, (
@@ -339,14 +367,14 @@ def step_markdown_result(context, expected):
 
 
 @then("the markdown result is:")
-def step_markdown_result_docstring(context):
-    expected = textwrap.dedent(context.text).strip() + "\n"
+def step_markdown_result_docstring(context, docstring):
+    expected = textwrap.dedent(docstring).strip() + "\n"
     assert context.reverse_result == expected, (
         f"Expected {expected!r}, got {context.reverse_result!r}"
     )
 
 
-@then("draft node {idx:d} has attrs {attrs_json}")
+@then(parsers.parse("draft node {idx:d} has attrs {attrs_json}"))
 def step_draft_node_attrs(context, idx, attrs_json):
     node = _node(context, idx)
     expected = json.loads(attrs_json)

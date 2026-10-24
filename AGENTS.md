@@ -11,17 +11,18 @@ Quality checks:
 - `uv run ruff format --check .` verifies formatting.
 - `uv run ty check .` runs static type checks.
 - `uv build --all-packages` verifies every package builds.
-- `uv run pytest` runs unit tests across every package, including `packages/gateway_drafts/tests/` and `packages/gateway_stats/tests/`.
-- `uv run behave packages/gateway_oss/features/` runs BDD and integration scenarios.
+- `uv run pytest` runs unit tests across every package, including `packages/gateway_drafts/tests/` and `packages/gateway_stats/tests/`, plus the pytest-bdd integration scenarios in `packages/gateway_oss/features/`.
+- `uv run pytest packages/gateway_oss/features/` runs only the BDD integration scenarios.
+- `uv run pytest packages/gateway_oss/e2e/` runs the live E2E scenarios against `SUBSTACK_GATEWAY_BASE_URL` (or a local gateway on port `5001`); they are skipped when neither is reachable and are not part of plain `uv run pytest`.
 
-When introducing changes, run the relevant validation before finishing the task. Prefer targeted checks for the touched area first, but the default OSS validation bar is lint, format, type-check, build, pytest, and behave.
+When introducing changes, run the relevant validation before finishing the task. Prefer targeted checks for the touched area first, but the default OSS validation bar is lint, format, type-check, build, and pytest (which includes the BDD scenarios).
 Before committing or pushing, always run the relevant lint, format, type-check, and test commands for the touched area. Do not skip validation just because the change looks small.
 
 ## Coding Style & Naming Conventions
 Target Python `3.10+` and keep code compatible with the `src/` layout. Ruff enforces 4-space indentation, double quotes, import sorting, and an 88-character line length. Prefer explicit module names like `posts.py`, `profiles.py`, and `markdown.py`; use `snake_case` for functions, variables, and files, and `PascalCase` for Pydantic models and other classes. Keep route handlers thin and move reusable logic into `services/` or `client/`.
 
 ## Testing Guidelines
-Place fast unit tests in `tests/test_*.py`. Add behavior coverage in `features/**/*.feature` when changing API contracts, MCP tools, or converter behavior, and keep step implementations in `features/steps/` focused on reusable actions. Run `ruff check`, `ruff format --check`, `ty check`, `uv build`, `pytest`, and `behave` before opening a PR.
+Place fast unit tests in `tests/test_*.py`. Add behavior coverage in `features/**/*.feature` when changing API contracts, MCP tools, or converter behavior, and keep step implementations in `features/steps/` focused on reusable actions. Run `ruff check`, `ruff format --check`, `ty check`, `uv build`, and `pytest` before opening a PR.
 
 ## Commit & Pull Request Guidelines
 Follow Conventional Commits. Recent history uses prefixes such as `ci:`, and release automation depends on semantic commit messages. Keep commits scoped and imperative, for example `feat: add profile notes pagination`. PR titles must also follow Conventional Commits. Include a short description, linked issue if applicable, config or env changes, and example requests/responses when API behavior changes.

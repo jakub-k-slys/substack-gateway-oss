@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
-from common import SUBSTACK_BASE, load_sample, pub_url
+from pytest_bdd import given, parsers
+
+from .common import SUBSTACK_BASE, load_sample, pub_url
 
 _CREATE_NOTE_URL = f"{SUBSTACK_BASE}/api/v1/comment/feed/"
 _CREATE_ATTACHMENT_URL = f"{SUBSTACK_BASE}/api/v1/comment/attachment/"
@@ -22,7 +23,7 @@ def step_create_note_returns_sample(context):
     )
 
 
-@given("the Substack create-note endpoint returns status {status:d}")
+@given(parsers.parse("the Substack create-note endpoint returns status {status:d}"))
 def step_create_note_returns_status(context, status):
     context.respx_mock.post(_CREATE_NOTE_URL).mock(return_value=httpx.Response(status))
 
@@ -36,7 +37,9 @@ def step_create_attachment_returns_sample(context):
     )
 
 
-@given("the Substack create-attachment endpoint returns status {status:d}")
+@given(
+    parsers.parse("the Substack create-attachment endpoint returns status {status:d}")
+)
 def step_create_attachment_returns_status(context, status):
     context.respx_mock.post(_CREATE_ATTACHMENT_URL).mock(
         return_value=httpx.Response(status)
@@ -44,7 +47,9 @@ def step_create_attachment_returns_status(context, status):
 
 
 @given(
-    "the Substack delete-note endpoint returns status {status:d} for note {note_id:d}"
+    parsers.parse(
+        "the Substack delete-note endpoint returns status {status:d} for note {note_id:d}"
+    )
 )
 def step_delete_note_returns_status(context, status, note_id):
     context.respx_mock.delete(_delete_note_url(context, note_id)).mock(

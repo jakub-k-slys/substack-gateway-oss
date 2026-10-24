@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given, when
-from common import SUBSTACK_BASE
+from pytest_bdd import given, parsers, when
+
+from .common import SUBSTACK_BASE
 
 
 def _reaction_url(note_id: int) -> str:
@@ -17,7 +18,11 @@ def _replies_url(note_id: int) -> str:
     return f"{SUBSTACK_BASE}/api/v1/reader/comment/{note_id}/replies"
 
 
-@given("the Substack like-note endpoint returns status {status:d} for note {note_id:d}")
+@given(
+    parsers.parse(
+        "the Substack like-note endpoint returns status {status:d} for note {note_id:d}"
+    )
+)
 def step_like_note_status(context, status, note_id):
     context.respx_mock.post(_reaction_url(note_id)).mock(
         return_value=httpx.Response(status)
@@ -25,7 +30,9 @@ def step_like_note_status(context, status, note_id):
 
 
 @given(
-    "the Substack unlike-note endpoint returns status {status:d} for note {note_id:d}"
+    parsers.parse(
+        "the Substack unlike-note endpoint returns status {status:d} for note {note_id:d}"
+    )
 )
 def step_unlike_note_status(context, status, note_id):
     context.respx_mock.delete(_reaction_url(note_id)).mock(
@@ -33,7 +40,7 @@ def step_unlike_note_status(context, status, note_id):
     )
 
 
-@given("the Substack note-reply endpoint returns id {reply_id:d}")
+@given(parsers.parse("the Substack note-reply endpoint returns id {reply_id:d}"))
 def step_note_reply_returns_id(context, reply_id):
     context.respx_mock.post(_reply_feed_url()).mock(
         return_value=httpx.Response(
@@ -42,7 +49,11 @@ def step_note_reply_returns_id(context, reply_id):
     )
 
 
-@given("the Substack note-replies endpoint returns two replies for note {note_id:d}")
+@given(
+    parsers.parse(
+        "the Substack note-replies endpoint returns two replies for note {note_id:d}"
+    )
+)
 def step_note_replies_returns_two(context, note_id):
     context.respx_mock.get(_replies_url(note_id)).mock(
         return_value=httpx.Response(
@@ -57,6 +68,7 @@ def step_note_replies_returns_two(context, note_id):
     )
 
 
-@when("I send PUT {path}")
+# A path has no spaces, so this does not swallow longer "I send PUT" steps.
+@when(parsers.re(r"I send PUT (?P<path>\S+)"))
 def step_send_put_no_body(context, path):
     context.response = context.client.put(path, headers=context.headers)

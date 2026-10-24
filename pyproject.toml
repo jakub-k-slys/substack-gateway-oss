@@ -72,16 +72,11 @@ quote-style = "double"
 indent-style = "space"
 
 
-[tool.behave]
-paths = ["packages/gateway_oss/features/"]
-show_timings = true
-summary = true
-default_format = "pretty"
-
 [tool.pytest.ini_options]
 testpaths = [
   "tests",
   "packages/gateway_oss/tests",
+  "packages/gateway_oss/features",
   "packages/gateway_core/tests",
   "packages/gateway_comments/tests",
   "packages/gateway_following/tests",
@@ -94,9 +89,6 @@ testpaths = [
 ]
 addopts = "--import-mode=importlib"
 
-
-[tool.ty.src]
-exclude = ["packages/gateway_oss/features/", "packages/gateway_oss/e2e/"]
 
 [tool.ty.environment]
 extra-paths = ["packages/gateway_stats/tests", "packages/gateway_drafts/tests"]
@@ -142,8 +134,8 @@ tag_format = "{version}"
 dev = [
   "ruff>=0.17.1",
   "ty>=0.0.80",
-  "behave>=1.2.6",
   "respx>=0.23.1",
   "httpx>=0.28.0",
   "pytest>=9.1.1",
+  "pytest-bdd>=9.0.0",
 ]

@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 
 import httpx
-from behave import given, then
-from common import load_sample, pub_url, walk_path
+from pytest_bdd import given, parsers, then
+
+from .common import load_sample, pub_url, walk_path
 
 
 def _subscribers_url(context) -> str:
@@ -24,7 +25,11 @@ def step_subscribers_sample(context):
     )
 
 
-@given("the Substack subscriber-timeseries endpoint returns status {status:d}")
+@given(
+    parsers.parse(
+        "the Substack subscriber-timeseries endpoint returns status {status:d}"
+    )
+)
 def step_subscribers_status(context, status):
     context.respx_mock.get(_subscribers_url(context)).mock(
         return_value=httpx.Response(status)
@@ -38,7 +43,7 @@ def step_views_sample(context):
     )
 
 
-@given("the Substack 30d-views endpoint returns status {status:d}")
+@given(parsers.parse("the Substack 30d-views endpoint returns status {status:d}"))
 def step_views_status(context, status):
     context.respx_mock.get(_views_url(context)).mock(
         return_value=httpx.Response(status)
@@ -65,7 +70,9 @@ def _stats_endpoint(context, name: str) -> tuple[str, str]:
     return f"{pub_url(context)}/api/v1/{path}", f"api/v1/stats/{sample}"
 
 
-@given('the Substack stats "{name}" endpoint returns the sample response')
+@given(
+    parsers.parse('the Substack stats "{name}" endpoint returns the sample response')
+)
 def step_stats_sample(context, name):
     url, sample = _stats_endpoint(context, name)
     context.respx_mock.get(url).mock(
@@ -73,13 +80,13 @@ def step_stats_sample(context, name):
     )
 
 
-@given('the Substack stats "{name}" endpoint returns status {status:d}')
+@given(parsers.parse('the Substack stats "{name}" endpoint returns status {status:d}'))
 def step_stats_status(context, name, status):
     url, _ = _stats_endpoint(context, name)
     context.respx_mock.get(url).mock(return_value=httpx.Response(status))
 
 
-@then('the response path "{path}" equals JSON {value}')
+@then(parsers.parse('the response path "{path}" equals JSON {value}'))
 def step_path_equals_json(context, path, value):
     node = walk_path(context.response.json(), path)
     expected = json.loads(value)

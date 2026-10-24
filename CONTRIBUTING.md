@@ -56,7 +56,7 @@ Tests and supporting material live in:
 
 - `tests/`: unit tests
 - `features/`: BDD scenarios
-- `features/steps/`: Behave step definitions
+- `features/steps/`: pytest-bdd step definitions
 - `samples/`: example requests and fixtures
 - `docs/`: project documentation
 
@@ -81,8 +81,7 @@ uv run ruff check .
 uv run ruff format --check .
 uv run ty check .
 uv build
-uv run pytest tests/
-uv run behave features/
+uv run pytest
 ```
 
 If your change is narrowly scoped, start with targeted checks, but do not skip

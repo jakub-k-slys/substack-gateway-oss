@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import os
 import time
+from types import SimpleNamespace
 
 import httpx
+import pytest
+
+from .steps.common import *  # noqa: F403
+from .steps.mcp import *  # noqa: F403
 
 # Substack throttles bursts: run back to back, the suite's last scenarios get
 # 429s. The gateway passes those through, so the suite paces itself instead.
@@ -63,11 +68,13 @@ class _PacedTransport(httpx.BaseTransport):
         self._inner.close()
 
 
-def before_scenario(context, scenario):
+@pytest.fixture
+def context():
+    """Per-scenario state shared between steps."""
     configured_base_url = os.environ.get("SUBSTACK_GATEWAY_BASE_URL", "").strip()
     base_url = configured_base_url or "http://localhost:5001"
     timeout_sec = float(os.environ.get("SUBSTACK_GATEWAY_E2E_TIMEOUT_SEC", "120"))
-    context.client = httpx.Client(
+    client = httpx.Client(
         base_url=base_url,
         timeout=httpx.Timeout(timeout_sec),
         transport=_PacedTransport(
@@ -81,29 +88,31 @@ def before_scenario(context, scenario):
             ),
         ),
     )
-    context.headers: dict[str, str] = {}
-    context.response = None
-    context.mcp_response = None
-    context.mcp_payload = None
-    context.draft_id = None
-    context.draft_deleted = False
+    context = SimpleNamespace(
+        client=client,
+        headers={},
+        response=None,
+        mcp_response=None,
+        mcp_payload=None,
+        draft_id=None,
+        draft_deleted=False,
+    )
 
     if not configured_base_url:
         try:
-            context.client.get("/")
+            client.get("/")
         except httpx.HTTPError:
-            scenario.skip(
+            client.close()
+            pytest.skip(
                 "SUBSTACK_GATEWAY_BASE_URL not configured and local gateway is not running"
             )
 
+    yield context
 
-def after_scenario(context, scenario):
     # Best-effort cleanup so a failing scenario does not leave a draft behind.
     if context.draft_id and not context.draft_deleted:
         try:
-            context.client.delete(
-                f"/api/v1/drafts/{context.draft_id}", headers=context.headers
-            )
+            client.delete(f"/api/v1/drafts/{context.draft_id}", headers=context.headers)
         except httpx.HTTPError:
             pass
-    context.client.close()
+    client.close()

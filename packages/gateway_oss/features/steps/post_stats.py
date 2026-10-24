@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
-from common import load_sample, pub_url
+from pytest_bdd import given, parsers
+
+from .common import load_sample, pub_url
 
 
 def _detail_url(context, post_id: int, tab: str) -> str:
@@ -10,7 +11,9 @@ def _detail_url(context, post_id: int, tab: str) -> str:
 
 
 @given(
-    "the Substack post {tab} endpoint returns the sample response for post {post_id:d}"
+    parsers.parse(
+        "the Substack post {tab} endpoint returns the sample response for post {post_id:d}"
+    )
 )
 def step_post_stats_sample(context, tab, post_id):
     context.respx_mock.get(_detail_url(context, post_id, tab)).mock(
@@ -19,7 +22,9 @@ def step_post_stats_sample(context, tab, post_id):
 
 
 @given(
-    "the Substack post {tab} endpoint returns status {status:d} for post {post_id:d}"
+    parsers.parse(
+        "the Substack post {tab} endpoint returns status {status:d} for post {post_id:d}"
+    )
 )
 def step_post_stats_status(context, tab, status, post_id):
     context.respx_mock.get(_detail_url(context, post_id, tab)).mock(

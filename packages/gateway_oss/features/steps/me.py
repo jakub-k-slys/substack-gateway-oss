@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import httpx
-from behave import given
-from common import (
+from pytest_bdd import given, parsers
+
+from .common import (
     SUBSTACK_BASE,
     load_sample,
     pub_url,
@@ -43,7 +44,9 @@ def step_handles_returns_sample(context):
 
 
 @given(
-    'the Substack public profile endpoint returns the sample response for "{handle}"'
+    parsers.parse(
+        'the Substack public profile endpoint returns the sample response for "{handle}"'
+    )
 )
 def step_public_profile_returns_sample(context, handle):
     context.respx_mock.get(public_profile_url(handle)).mock(
@@ -60,7 +63,7 @@ def step_handles_returns_empty(context):
     )
 
 
-@given("the Substack handles endpoint returns status {status:d}")
+@given(parsers.parse("the Substack handles endpoint returns status {status:d}"))
 def step_handles_returns_status(context, status):
     context.respx_mock.get(_handle_options_url()).mock(
         return_value=httpx.Response(status)
@@ -74,21 +77,25 @@ def step_notes_returns_sample(context):
     )
 
 
-@given("the Substack notes endpoint returns status {status:d}")
+@given(parsers.parse("the Substack notes endpoint returns status {status:d}"))
 def step_notes_returns_status(context, status):
     context.respx_mock.get(_notes_url(context)).mock(
         return_value=httpx.Response(status)
     )
 
 
-@given("the Substack posts endpoint returns the sample response for user {user_id:d}")
+@given(
+    parsers.parse(
+        "the Substack posts endpoint returns the sample response for user {user_id:d}"
+    )
+)
 def step_posts_returns_sample(context, user_id):
     context.respx_mock.get(_profile_posts_url()).mock(
         return_value=httpx.Response(200, json=load_sample("api/v1/profile/posts"))
     )
 
 
-@given("the Substack user-settings endpoint returns user id {user_id:d}")
+@given(parsers.parse("the Substack user-settings endpoint returns user id {user_id:d}"))
 def step_user_setting_returns_user_id(context, user_id):
     context.respx_mock.get(user_setting_url()).mock(
         return_value=httpx.Response(
@@ -110,13 +117,15 @@ def step_user_setting_returns_user_id(context, user_id):
     )
 
 
-@given("the Substack user-settings endpoint returns status {status:d}")
+@given(parsers.parse("the Substack user-settings endpoint returns status {status:d}"))
 def step_user_setting_returns_status(context, status):
     context.respx_mock.get(user_setting_url()).mock(return_value=httpx.Response(status))
 
 
 @given(
-    "the Substack subscriber-lists endpoint returns the sample response for user {user_id:d}"
+    parsers.parse(
+        "the Substack subscriber-lists endpoint returns the sample response for user {user_id:d}"
+    )
 )
 def step_subscriber_lists_returns_sample(context, user_id):
     context.respx_mock.get(_subscriber_lists_url(context, user_id)).mock(
