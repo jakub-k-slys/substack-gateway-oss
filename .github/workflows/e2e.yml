@@ -33,7 +33,10 @@ jobs:
         run: uv sync --all-packages --dev
 
       - name: Run E2E tests (pytest-bdd)
-        run: uv run pytest packages/gateway_oss/e2e/ -rs --junit-xml=e2e-reports/results.xml --cucumberjson=e2e-reports/cucumber.json
+        # pytest-bdd's --cucumberjson does not create the directory itself.
+        run: |
+          mkdir -p e2e-reports
+          uv run pytest packages/gateway_oss/e2e/ -rs --junit-xml=e2e-reports/results.xml --cucumberjson=e2e-reports/cucumber.json
         env:
           SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_GATEWAY_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_TOKEN }}
