@@ -68,12 +68,6 @@ class _PacedTransport(httpx.BaseTransport):
         self._inner.close()
 
 
-def pytest_bdd_before_scenario(request, feature, scenario):
-    # The E2E workflow builds its step and Slack summaries from these.
-    request.node.user_properties.append(("feature", feature.name))
-    request.node.user_properties.append(("scenario", scenario.name))
-
-
 @pytest.fixture
 def context():
     """Per-scenario state shared between steps."""

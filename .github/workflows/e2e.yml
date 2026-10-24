@@ -33,7 +33,7 @@ jobs:
         run: uv sync --all-packages --dev
 
       - name: Run E2E tests (pytest-bdd)
-        run: uv run pytest packages/gateway_oss/e2e/ -rs --junit-xml=e2e-reports/results.xml
+        run: uv run pytest packages/gateway_oss/e2e/ -rs --junit-xml=e2e-reports/results.xml --cucumberjson=e2e-reports/cucumber.json
         env:
           SUBSTACK_GATEWAY_BASE_URL: ${{ secrets.SUBSTACK_GATEWAY_BASE_URL }}
           SUBSTACK_GATEWAY_TOKEN: ${{ secrets.SUBSTACK_GATEWAY_TOKEN }}
@@ -53,123 +53,14 @@ jobs:
 
       - name: Write test summary
         if: always()
-        run: |
-          python3 - <<'EOF'
-          import glob, os
-          from xml.etree import ElementTree as ET
-
-          lines = ["## E2E Test Results\n"]
-          total = {"tests": 0, "failed": 0, "skipped": 0}
-
-          # pytest writes one suite; group its scenarios back by feature using the
-          # "feature"/"scenario" properties the e2e conftest records.
-          features = {}
-          for path in sorted(glob.glob("e2e-reports/*.xml")):
-              for tc in ET.parse(path).getroot().iter("testcase"):
-                  props = {p.get("name"): p.get("value") for p in tc.iter("property")}
-                  feature = props.get("feature", tc.get("classname", "Unknown feature"))
-                  scenario = props.get("scenario", tc.get("name", "Unknown scenario"))
-                  if tc.find("failure") is not None or tc.find("error") is not None:
-                      status = "failed"
-                  elif tc.find("skipped") is not None:
-                      status = "skipped"
-                  else:
-                      status = "passed"
-                  features.setdefault(feature, []).append((scenario, status))
-
-          labels = {"failed": "❌ Failed", "skipped": "⏭️ Skipped", "passed": "✅ Passed"}
-          for name, scenarios in features.items():
-              failed = sum(status == "failed" for _, status in scenarios)
-              icon = "✅" if failed == 0 else "❌"
-              lines.append(f"### {icon} {name}\n")
-              lines.append("| Scenario | Status |")
-              lines.append("|----------|--------|")
-              for scenario, status in scenarios:
-                  lines.append(f"| {scenario} | {labels[status]} |")
-              lines.append("")
-              total["tests"] += len(scenarios)
-              total["failed"] += failed
-              total["skipped"] += sum(status == "skipped" for _, status in scenarios)
-
-          passed = total["tests"] - total["failed"] - total["skipped"]
-          overall = "✅" if total["failed"] == 0 else "❌"
-          lines.append("---\n")
-          lines.append(
-              f"**{overall} Total: {passed}/{total['tests']} passed, {total['failed']} failed, {total['skipped']} skipped**\n"
-          )
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-              f.write("\n".join(lines) + "\n")
-          EOF
+        run: python3 .github/scripts/e2e_report.py summary e2e-reports
 
       - name: Build Slack summary
         if: always()
         env:
           SLACK_PAYLOAD_PATH: ${{ runner.temp }}/slack-payload.json
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          python3 - <<'EOF'
-          import glob, json, os
-          from xml.etree import ElementTree as ET
-
-
-          def escape(value):
-              return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
-
-          total = {"tests": 0, "failed": 0, "skipped": 0}
-          sections = []
-
-          # pytest writes one suite; group its scenarios back by feature using the
-          # "feature"/"scenario" properties the e2e conftest records.
-          features = {}
-          for path in sorted(glob.glob("e2e-reports/*.xml")):
-              for tc in ET.parse(path).getroot().iter("testcase"):
-                  props = {p.get("name"): p.get("value") for p in tc.iter("property")}
-                  feature = props.get("feature", tc.get("classname", "Unknown feature"))
-                  scenario = props.get("scenario", tc.get("name", "Unknown scenario"))
-                  if tc.find("failure") is not None or tc.find("error") is not None:
-                      status = "failed"
-                  elif tc.find("skipped") is not None:
-                      status = "skipped"
-                  else:
-                      status = "passed"
-                  features.setdefault(feature, []).append((scenario, status))
-
-          icons = {"failed": "❌", "skipped": "⏭", "passed": "✅"}
-          for name, scenarios in features.items():
-              failed = sum(status == "failed" for _, status in scenarios)
-              icon = "✅" if failed == 0 else "❌"
-              scenario_lines = [f"{icon} *{escape(name)}*"]
-              for scenario, status in scenarios:
-                  scenario_lines.append(f"  {icons[status]} {escape(scenario)}")
-              sections.append("\n".join(scenario_lines))
-              total["tests"] += len(scenarios)
-              total["failed"] += failed
-              total["skipped"] += sum(status == "skipped" for _, status in scenarios)
-
-          passed = total["tests"] - total["failed"] - total["skipped"]
-          overall = "✅ All passed" if total["failed"] == 0 else f"❌ {total['failed']} failed"
-          run_url = os.environ["RUN_URL"]
-
-          lines = [
-              f"*substack-gateway-oss E2E Results - {overall}*",
-              f"Total: {passed}/{total['tests']} passed, {total['skipped']} skipped",
-              f"Trigger: {os.environ['GITHUB_EVENT_NAME']} · {os.environ['GITHUB_SHA'][:7]}",
-              "",
-              *sections,
-              "",
-              f"<{run_url}|View run>",
-          ]
-
-          payload = {
-              "text": "\n".join(lines),
-              "unfurl_links": False,
-              "unfurl_media": False,
-          }
-          with open(os.environ["SLACK_PAYLOAD_PATH"], "w") as f:
-              json.dump(payload, f, ensure_ascii=False)
-          EOF
+        run: python3 .github/scripts/e2e_report.py slack e2e-reports
 
       - name: Send Slack summary
         if: always()
