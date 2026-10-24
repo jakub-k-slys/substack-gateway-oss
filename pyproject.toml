@@ -133,7 +133,7 @@ tag_format = "{version}"
 [dependency-groups]
 dev = [
   "ruff>=0.17.1",
-  "ty>=0.0.80",
+  "ty>=0.0.90",
   "respx>=0.23.1",
   "httpx>=0.28.0",
   "pytest>=9.1.1",

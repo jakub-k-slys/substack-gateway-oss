@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import contextlib
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 
 from fastmcp.server.dependencies import get_access_token
 
@@ -30,13 +30,13 @@ def _anonymous_credentials() -> BearerCredentials:
 
 
 @contextlib.asynccontextmanager
-async def _public_substack_client() -> AsyncIterator[SubstackClient]:
+async def _public_substack_client() -> AsyncGenerator[SubstackClient, None]:
     async with make_substack_client(_anonymous_credentials()) as sub:
         yield sub
 
 
 @contextlib.asynccontextmanager
-async def _public_publication_client() -> AsyncIterator[PublicationClient]:
+async def _public_publication_client() -> AsyncGenerator[PublicationClient, None]:
     credentials = _anonymous_credentials()
     assert credentials.publication_url is not None
     async with make_publication_client(
@@ -66,7 +66,7 @@ async def resolve_credentials(token: str | None = None) -> BearerCredentials:
 @contextlib.asynccontextmanager
 async def clients_from(
     credentials: BearerCredentials,
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
+) -> AsyncGenerator[tuple[PublicationClient, SubstackClient], None]:
     """Yield clients built from credentials that are already resolved."""
     assert credentials.publication_url is not None
     async with (
@@ -81,7 +81,7 @@ async def clients_from(
 @contextlib.asynccontextmanager
 async def _authenticated_clients(
     token: str | None = None,
-) -> AsyncIterator[tuple[PublicationClient, SubstackClient]]:
+) -> AsyncGenerator[tuple[PublicationClient, SubstackClient], None]:
     credentials = await resolve_credentials(token)
     async with clients_from(credentials) as clients:
         yield clients

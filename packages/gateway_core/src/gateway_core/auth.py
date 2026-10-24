@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import contextlib
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, ValidationError
@@ -65,7 +65,7 @@ async def make_publication_client(
     credentials: BearerCredentials,
     publication_url: str,
     request_id: str | None = None,
-) -> AsyncIterator[PublicationClient]:
+) -> AsyncGenerator[PublicationClient, None]:
     """Yield an authenticated PublicationClient from already-decoded credentials."""
     assert credentials.substack_sid is not None
     assert credentials.connect_sid is not None
@@ -82,7 +82,7 @@ async def make_publication_client(
 async def make_substack_client(
     credentials: BearerCredentials,
     request_id: str | None = None,
-) -> AsyncIterator[SubstackClient]:
+) -> AsyncGenerator[SubstackClient, None]:
     """Yield an authenticated SubstackClient from already-decoded credentials."""
     assert credentials.substack_sid is not None
     assert credentials.connect_sid is not None
