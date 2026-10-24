@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import AsyncExitStack
 from typing import Any, cast
 
@@ -52,7 +52,7 @@ def _build_modules() -> list[ModuleInfo]:
 
 
 @contextlib.asynccontextmanager
-async def _lifespan(app: Any) -> AsyncIterator[None]:
+async def _lifespan(app: Any) -> AsyncGenerator[None, None]:
     runtime = get_runtime()
     async with AsyncExitStack() as stack:
         for hook in runtime.lifespan_hooks:

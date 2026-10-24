@@ -55,7 +55,10 @@ def test_protocol_default_returns_none() -> None:
         name = "bare"
 
     context = GatewayExtensionContext(settings=None)  # ty: ignore[invalid-argument-type]
-    assert _Bare().get_credential_resolver(context) is None
+    # The protocol's other members have no default, so a type checker sees
+    # _Bare as abstract; only the default under test is ever called.
+    bare = _Bare()  # ty: ignore[call-non-callable]
+    assert bare.get_credential_resolver(context) is None
 
 
 @pytest.fixture(autouse=True)
