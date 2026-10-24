@@ -1,8 +1,66 @@
 from __future__ import annotations
 
 import os
+import time
 
 import httpx
+
+# Substack throttles bursts: run back to back, the suite's last scenarios get
+# 429s. The gateway passes those through, so the suite paces itself instead.
+_RETRYABLE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+
+
+class _PacedTransport(httpx.BaseTransport):
+    """Space requests out and retry idempotent ones that Substack throttled."""
+
+    # Shared across scenarios: each scenario opens its own client, but the
+    # throttling budget belongs to the whole run.
+    _last_request_at = 0.0
+
+    def __init__(
+        self,
+        inner: httpx.BaseTransport,
+        *,
+        interval_sec: float,
+        retries: int,
+        backoff_sec: float,
+    ) -> None:
+        self._inner = inner
+        self._interval_sec = interval_sec
+        self._retries = retries
+        self._backoff_sec = backoff_sec
+
+    def _wait_for_slot(self) -> None:
+        cls = type(self)
+        delay = cls._last_request_at + self._interval_sec - time.monotonic()
+        if delay > 0:
+            time.sleep(delay)
+        cls._last_request_at = time.monotonic()
+
+    def _retry_delay(self, response: httpx.Response, attempt: int) -> float:
+        retry_after = response.headers.get("retry-after", "")
+        if retry_after.isdigit():
+            return float(retry_after)
+        return self._backoff_sec * 2**attempt
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        attempt = 0
+        while True:
+            self._wait_for_slot()
+            response = self._inner.handle_request(request)
+            if (
+                response.status_code != 429
+                or request.method not in _RETRYABLE_METHODS
+                or attempt >= self._retries
+            ):
+                return response
+            response.read()
+            response.close()
+            time.sleep(self._retry_delay(response, attempt))
+            attempt += 1
+
+    def close(self) -> None:
+        self._inner.close()
 
 
 def before_scenario(context, scenario):
@@ -12,6 +70,16 @@ def before_scenario(context, scenario):
     context.client = httpx.Client(
         base_url=base_url,
         timeout=httpx.Timeout(timeout_sec),
+        transport=_PacedTransport(
+            httpx.HTTPTransport(),
+            interval_sec=float(
+                os.environ.get("SUBSTACK_GATEWAY_E2E_REQUEST_INTERVAL_SEC", "1")
+            ),
+            retries=int(os.environ.get("SUBSTACK_GATEWAY_E2E_429_RETRIES", "4")),
+            backoff_sec=float(
+                os.environ.get("SUBSTACK_GATEWAY_E2E_429_BACKOFF_SEC", "5")
+            ),
+        ),
     )
     context.headers: dict[str, str] = {}
     context.response = None
