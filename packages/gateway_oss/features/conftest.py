@@ -30,10 +30,12 @@ _BDD_SUBSTACK_MAX_KEEPALIVE_CONNECTIONS = 100
 
 @pytest.fixture(scope="session")
 def app():
-    from gateway_oss import create_app
-
     with pytest.MonkeyPatch.context() as mp:
         mp.setenv("SUBSTACK_GATEWAY_DISABLE_ENTRYPOINT_EXTENSIONS", "1")
+        # Imported here: importing the app modules already builds the runtime,
+        # which loads the extensions, so the variable must be set by then.
+        from gateway_oss import create_app
+
         return create_app()
 
 
