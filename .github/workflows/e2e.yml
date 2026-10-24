@@ -98,16 +98,20 @@ jobs:
               f.write("\n".join(lines) + "\n")
           EOF
 
-      - name: Send Telegram summary
+      - name: Build Slack summary
         if: always()
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SLACK_PAYLOAD_PATH: ${{ runner.temp }}/slack-payload.json
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           python3 - <<'EOF'
-          import glob, json, os, urllib.request
+          import glob, json, os
           from xml.etree import ElementTree as ET
+
+
+          def escape(value):
+              return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
 
           total = {"tests": 0, "failed": 0, "skipped": 0}
           sections = []
@@ -121,7 +125,7 @@ jobs:
               skipped = int(suite.get("skipped", 0))
               name = suite.get("name", os.path.basename(path))
               icon = "✅" if failed == 0 else "❌"
-              scenario_lines = [f"{icon} <b>{name}</b>"]
+              scenario_lines = [f"{icon} *{escape(name)}*"]
               for tc in suite.findall("testcase"):
                   scenario = tc.get("name", "Unknown scenario")
                   if tc.find("failure") is not None or tc.find("error") is not None:
@@ -130,7 +134,7 @@ jobs:
                       scenario_icon = "⏭"
                   else:
                       scenario_icon = "✅"
-                  scenario_lines.append(f"  {scenario_icon} {scenario}")
+                  scenario_lines.append(f"  {scenario_icon} {escape(scenario)}")
               sections.append("\n".join(scenario_lines))
               total["tests"] += tests
               total["failed"] += failed
@@ -141,33 +145,29 @@ jobs:
           run_url = os.environ["RUN_URL"]
 
           lines = [
-              f"<b>substack-gateway-oss E2E Results - {overall}</b>",
+              f"*substack-gateway-oss E2E Results - {overall}*",
               f"Total: {passed}/{total['tests']} passed, {total['skipped']} skipped",
+              f"Trigger: {os.environ['GITHUB_EVENT_NAME']} · {os.environ['GITHUB_SHA'][:7]}",
               "",
               *sections,
               "",
-              f'<a href="{run_url}">View run</a>',
+              f"<{run_url}|View run>",
           ]
-          text = "\n".join(lines)
 
-          token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-          chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
-          if not token or not chat_id:
-              print("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set - skipping")
-          else:
-              payload = json.dumps(
-                  {
-                      "chat_id": chat_id,
-                      "text": text,
-                      "parse_mode": "HTML",
-                      "disable_web_page_preview": True,
-                  }
-              ).encode()
-              request = urllib.request.Request(
-                  f"https://api.telegram.org/bot{token}/sendMessage",
-                  data=payload,
-                  headers={"Content-Type": "application/json"},
-              )
-              with urllib.request.urlopen(request) as response:
-                  print("Telegram response:", response.status)
+          payload = {
+              "text": "\n".join(lines),
+              "unfurl_links": False,
+              "unfurl_media": False,
+          }
+          with open(os.environ["SLACK_PAYLOAD_PATH"], "w") as f:
+              json.dump(payload, f, ensure_ascii=False)
           EOF
+
+      - name: Send Slack summary
+        if: always()
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload-file-path: ${{ runner.temp }}/slack-payload.json
+          errors: true
