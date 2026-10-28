@@ -9,6 +9,7 @@ Feature: Profile endpoints
     Then the response status is 200
     And the response has field "id"
     And the response has field "name"
+    And the response has field "audience"
 
   Scenario: Get profile posts
     Given a valid publication URL

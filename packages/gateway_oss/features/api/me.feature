@@ -10,6 +10,7 @@ Feature: User profile endpoint
     When I send GET /api/v1/me
     Then the response status code is 200
     And the response field "handle" is "jakubslys"
+    And the response path "audience" equals JSON {"followers": 3838, "subscribers": 791, "subscribers_label": "791 subscribers", "free_subscribers_rough": 100, "free_subscribers_rough_label": "Hundreds", "recommendations": 37}
 
   Scenario: Empty handles list returns 502
     Given a valid gateway token "test-token" and publication URL "https://example.substack.com"

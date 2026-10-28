@@ -7,6 +7,7 @@ Feature: MCP profile tools
     Given the Substack public profile endpoint returns the sample response for "jakubslys"
     When I call the MCP tool get_profile with slug "jakubslys"
     Then the MCP result field "handle" is "jakubslys"
+    And the MCP result path "audience" equals JSON {"followers": 3838, "subscribers": 791, "subscribers_label": "791 subscribers", "free_subscribers_rough": 100, "free_subscribers_rough_label": "Hundreds", "recommendations": 37}
 
   Scenario: get_profile_posts returns posts page
     Given the Substack public profile endpoint returns the sample response for "jakubslys"

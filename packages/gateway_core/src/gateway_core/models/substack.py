@@ -1,6 +1,15 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Any
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidatorFunctionWrapHandler,
+    field_validator,
+)
 from pydantic.alias_generators import to_camel
 
 
@@ -17,6 +26,8 @@ class HandleOptionsResponse(BaseModel):
 
 
 class SubstackPublicProfile(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     id: int
     name: str
     handle: str
@@ -27,6 +38,38 @@ class SubstackPublicProfile(BaseModel):
     reader_installed_at: str | None = None
     tos_accepted_at: str | None = None
     profile_disabled: bool | None = None
+    # Audience counts. Substack omits some of them (e.g. when a publication hides
+    # its subscriber count), and an unexpected value must never fail the whole
+    # profile — the profile also backs slug → id resolution — so each one falls
+    # back to None instead of raising.
+    follower_count: int | None = Field(alias="followerCount", default=None)
+    subscriber_count_number: int | None = Field(
+        alias="subscriberCountNumber", default=None
+    )
+    subscriber_count_string: str | None = Field(
+        alias="subscriberCountString", default=None
+    )
+    rough_num_free_subscribers_int: int | None = None
+    rough_num_free_subscribers: str | None = None
+    primary_publication_recommendation_count: int | None = Field(
+        alias="primaryPublicationRecommendationCount", default=None
+    )
+
+    @field_validator(
+        "follower_count",
+        "subscriber_count_number",
+        "subscriber_count_string",
+        "rough_num_free_subscribers_int",
+        "rough_num_free_subscribers",
+        "primary_publication_recommendation_count",
+        mode="wrap",
+    )
+    @classmethod
+    def _none_if_invalid(cls, value: Any, handler: ValidatorFunctionWrapHandler) -> Any:
+        try:
+            return handler(value)
+        except ValidationError:
+            return None
 
 
 class SubstackPreviewPost(BaseModel):
