@@ -1,6 +1,6 @@
 [project]
 name = "gateway_comments_rest"
-version = "6.0.1"
+version = "6.1.0"
 requires-python = ">=3.11"
 dependencies = ["gateway_core", "gateway_rest_common", "gateway_comments", "gateway_notes", "fastapi>=0.162.0"]
 

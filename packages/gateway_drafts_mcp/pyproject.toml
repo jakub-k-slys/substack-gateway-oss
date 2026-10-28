@@ -1,6 +1,6 @@
 [project]
 name = "gateway_drafts_mcp"
-version = "6.0.1"
+version = "6.1.0"
 requires-python = ">=3.11"
 dependencies = ["gateway_core", "gateway_drafts", "gateway_mcp_common", "fastmcp>=4.1.3"]
 
