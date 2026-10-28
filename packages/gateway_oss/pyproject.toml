@@ -7,7 +7,7 @@ dependencies = [
   "httpx>=0.28.0",
   "pydantic>=2.14.1",
   "pydantic-settings>=2.16.1",
-  "fastmcp>=4.1.0",
+  "fastmcp>=4.1.2",
   "markdownify>=1.2.3",
   "uvloop>=0.23.0",
   "gateway_core",
