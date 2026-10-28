@@ -16,7 +16,7 @@ def _register(mcp: FastMCP) -> None:
     from gateway_me_mcp.tools import get_me, get_my_notes, get_my_posts
 
     mcp.tool(
-        description="Retrieve the authenticated user's own Substack public profile. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Retrieve the authenticated user's own Substack public profile, including its `audience` counts (followers, primary-publication subscribers, rough free-subscriber bucket, recommendations). The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"me", "profile", "read"},
         annotations=ToolAnnotations(
             title="Get My Profile",

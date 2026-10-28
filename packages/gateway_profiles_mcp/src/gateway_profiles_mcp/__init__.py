@@ -20,7 +20,7 @@ def _register(mcp: FastMCP) -> None:
     )
 
     mcp.tool(
-        description="Retrieve a public Substack profile by its handle/slug.",
+        description="Retrieve a public Substack profile by its handle/slug, including its `audience` counts (followers, primary-publication subscribers, rough free-subscriber bucket, recommendations); counts Substack does not expose are null.",
         tags={"profiles", "read"},
         annotations=ToolAnnotations(
             title="Get Profile",

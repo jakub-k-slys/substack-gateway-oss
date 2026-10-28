@@ -4,5 +4,13 @@
   "handle": "jakubslys",
   "photo_url": "https://substack.com/img/avatars/jakubslys.jpg",
   "bio": "Software engineer and writer.",
-  "profile_set_up_at": "2022-01-01T00:00:00.000Z"
+  "profile_set_up_at": "2022-01-01T00:00:00.000Z",
+  "rough_num_free_subscribers_int": 100,
+  "rough_num_free_subscribers": "Hundreds",
+  "subscriberCountString": "791 subscribers",
+  "subscriberCount": "791",
+  "subscriberCountNumber": 791,
+  "visibleSubscriptionsCount": 60,
+  "followerCount": 3838,
+  "primaryPublicationRecommendationCount": 37
 }
