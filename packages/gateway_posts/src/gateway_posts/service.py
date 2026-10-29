@@ -36,7 +36,9 @@ class PostsService:
             "limit": limit,
         }
         if cursor:
-            params["cursor"] = cursor
+            # profile/posts reads `next_cursor`; `cursor` is silently ignored
+            # and the first page comes back again.
+            params["next_cursor"] = cursor
         r = await self._sub.get("profile/posts", params=params)
         page = SubstackProfilePostsPage.model_validate(r.json())
         _log.debug(
