@@ -501,7 +501,7 @@ server = [
 
 [[package]]
 name = "gateway-comments"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_comments" }
 dependencies = [
     { name = "gateway-core" },
@@ -518,7 +518,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_comments_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -537,7 +537,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-comments-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_comments_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -558,7 +558,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-core"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_core" }
 dependencies = [
     { name = "httpx" },
@@ -577,7 +577,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_drafts" }
 dependencies = [
     { name = "gateway-core" },
@@ -592,7 +592,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_drafts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -611,7 +611,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-drafts-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_drafts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -632,7 +632,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_following" }
 dependencies = [
     { name = "gateway-core" },
@@ -647,7 +647,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_following_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -666,7 +666,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-following-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_following_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -685,7 +685,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-mcp-common"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_mcp_common" }
 dependencies = [
     { name = "fastmcp" },
@@ -700,7 +700,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_me_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -723,7 +723,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-me-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_me_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -746,7 +746,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_notes" }
 dependencies = [
     { name = "gateway-core" },
@@ -761,7 +761,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_notes_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -780,7 +780,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-notes-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_notes_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -799,7 +799,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-oss"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_oss" }
 dependencies = [
     { name = "fastapi" },
@@ -876,7 +876,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_posts" }
 dependencies = [
     { name = "gateway-core" },
@@ -891,7 +891,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_posts_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -910,7 +910,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-posts-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_posts_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -929,7 +929,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_profiles" }
 dependencies = [
     { name = "gateway-core" },
@@ -944,7 +944,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_profiles_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -967,7 +967,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-profiles-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_profiles_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -990,7 +990,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-rest-common"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_rest_common" }
 dependencies = [
     { name = "fastapi" },
@@ -1005,7 +1005,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_stats" }
 dependencies = [
     { name = "gateway-core" },
@@ -1020,7 +1020,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-mcp"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_stats_mcp" }
 dependencies = [
     { name = "fastmcp" },
@@ -1039,7 +1039,7 @@ requires-dist = [
 
 [[package]]
 name = "gateway-stats-rest"
-version = "6.0.1"
+version = "6.1.1"
 source = { editable = "packages/gateway_stats_rest" }
 dependencies = [
     { name = "fastapi" },
@@ -1848,7 +1848,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "9.1.1"
+version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -1857,9 +1857,9 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/42/bb4641652e58dedeac2ec51abc1f8cae4fee4ec63899a0999016229a0f2a/pytest-9.2.0.tar.gz", hash = "sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b", size = 1797555, upload-time = "2026-10-27T21:30:20.728Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c", size = 386536, upload-time = "2026-06-19T10:58:31.347Z" },
+    { url = "https://files.pythonhosted.org/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl", hash = "sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588", size = 411776, upload-time = "2026-10-27T21:30:19.131Z" },
 ]
 
 [[package]]
@@ -2261,7 +2261,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx", specifier = ">=0.28.0" },
-    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest", specifier = ">=9.2.0" },
     { name = "pytest-bdd", specifier = ">=9.0.0" },
     { name = "respx", specifier = ">=0.23.1" },
     { name = "ruff", specifier = ">=0.17.2" },
