@@ -137,5 +137,5 @@ dev = [
   "respx>=0.23.1",
   "httpx>=0.28.0",
   "pytest>=9.1.1",
-  "pytest-bdd>=9.0.0",
+  "pytest-bdd>=9.0.1",
 ]
