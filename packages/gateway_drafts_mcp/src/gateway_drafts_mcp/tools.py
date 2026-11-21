@@ -10,6 +10,7 @@ from gateway_drafts.image import ImagesService, data_uri
 from gateway_drafts.schemas import (
     AiDetectionResponse,
     CreateDraftResponse,
+    DraftAudience,
     DraftResponse,
     DraftsListResponse,
     PrepublishResponse,
@@ -46,6 +47,7 @@ async def create_draft(
     title: str | None = None,
     subtitle: str | None = None,
     body: str | None = None,
+    audience: DraftAudience = "everyone",
 ) -> dict[str, Any]:
     try:
         async with _authenticated_clients(token) as (publication, substack):
@@ -53,6 +55,7 @@ async def create_draft(
                 title=title,
                 subtitle=subtitle,
                 body=body,
+                audience=audience,
             )
     except (DraftConflictError, DraftMarkdownError) as exc:
         raise ToolError(str(exc)) from exc

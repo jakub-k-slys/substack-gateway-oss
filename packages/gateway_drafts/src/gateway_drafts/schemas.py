@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -47,10 +49,14 @@ class DraftsListResponse(BaseModel):
         )
 
 
+DraftAudience = Literal["everyone", "only_free", "only_paid", "founding"]
+
+
 class CreateDraftRequest(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     body: str | None = None
+    audience: DraftAudience = "everyone"
 
 
 class UpdateDraftRequest(BaseModel):

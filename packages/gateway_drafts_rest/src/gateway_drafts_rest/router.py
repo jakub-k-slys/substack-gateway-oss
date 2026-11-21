@@ -117,6 +117,7 @@ async def create_draft(
             title=body.title,
             subtitle=body.subtitle,
             body=body.body,
+            audience=body.audience,
         )
     except DraftMarkdownError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
