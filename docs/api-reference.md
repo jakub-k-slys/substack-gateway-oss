@@ -161,7 +161,9 @@ cursor.
 ### `GET /api/v1/drafts/{draft_id}`
 
 Fetches a single draft by ID. Returns `title`, `subtitle`, `body` and
-`updated_at`. `body` is dialect Markdown that reproduces the stored draft
+`updated_at`, plus its state: `audience`, `is_published`, `post_date` and
+`scheduled_releases` (each with `trigger_at`, `post_audience` and
+`email_audience`; empty when nothing is scheduled). `body` is dialect Markdown that reproduces the stored draft
 losslessly (see [Draft Markdown dialect](drafts-markdown.md)); pass `updated_at`
 back as `expected_updated_at` on `PUT` to detect concurrent edits.
 
@@ -198,7 +200,7 @@ Runs Substack's pre-publish validation on a draft.
 
 Schedules a draft for timed release. Body: `scheduled_at` (datetime,
 required), `post_audience` and `email_audience` (optional, default
-`"only_paid"`).
+`"everyone"`).
 
 ### `DELETE /api/v1/drafts/{draft_id}/schedule`
 

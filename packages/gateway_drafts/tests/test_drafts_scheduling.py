@@ -62,8 +62,8 @@ async def test_schedule_draft_posts_scheduled_release_payload() -> None:
         "drafts/208563951/scheduled_release",
         json={
             "trigger_at": "2026-09-16T18:24:00.000Z",
-            "post_audience": "only_paid",
-            "email_audience": "only_paid",
+            "post_audience": "everyone",
+            "email_audience": "everyone",
         },
     )
     assert release.trigger_at == "2026-09-16T18:24:00.000Z"

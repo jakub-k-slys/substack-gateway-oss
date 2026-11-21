@@ -142,6 +142,7 @@ class DraftsService:
         title: str | None = None,
         subtitle: str | None = None,
         body: str | None = None,
+        audience: str = "everyone",
     ) -> SubstackDraftCreated:
         """POST /drafts — create a new draft, resolving the caller's user ID first."""
         _log.debug("Creating draft title=%r", title)
@@ -151,6 +152,7 @@ class DraftsService:
             draft_subtitle=subtitle or "",
             draft_body=(await self._build_body(body)) if body else "",
             draft_bylines=[SubstackDraftByline(id=user_id)],
+            audience=audience,
         )
         r = await self._pub.post("drafts", json=payload.model_dump())
         draft = SubstackDraftCreated.model_validate(r.json())
@@ -173,8 +175,8 @@ class DraftsService:
         self,
         draft_id: int,
         scheduled_at: str | datetime,
-        post_audience: str = "only_paid",
-        email_audience: str = "only_paid",
+        post_audience: str = "everyone",
+        email_audience: str = "everyone",
     ) -> SubstackScheduledRelease:
         """POST /drafts/{draft_id}/scheduled_release — schedule timed release."""
         release = SubstackScheduledRelease(
