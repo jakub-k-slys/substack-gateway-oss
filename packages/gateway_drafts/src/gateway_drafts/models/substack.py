@@ -33,11 +33,21 @@ class SubstackDraftSummary(BaseModel):
     draft_updated_at: str | None = None
 
 
+class SubstackPostSchedule(BaseModel):
+    trigger_at: str
+    post_audience: str | None = None
+    email_audience: str | None = None
+
+
 class SubstackDraft(BaseModel):
     draft_title: str | None = None
     draft_subtitle: str | None = None
     draft_body: str | None = None
     draft_updated_at: str | None = None
+    audience: str | None = None
+    is_published: bool | None = None
+    post_date: str | None = None
+    postSchedules: list[SubstackPostSchedule] = Field(default_factory=list)
 
 
 class SubstackUpdateDraftPayload(BaseModel):
@@ -48,8 +58,8 @@ class SubstackUpdateDraftPayload(BaseModel):
 
 class SubstackScheduledRelease(BaseModel):
     trigger_at: str
-    post_audience: str = "only_paid"
-    email_audience: str = "only_paid"
+    post_audience: str = "everyone"
+    email_audience: str = "everyone"
 
 
 class SubstackPrepublish(BaseModel):

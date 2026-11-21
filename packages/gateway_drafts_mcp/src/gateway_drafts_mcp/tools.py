@@ -118,8 +118,8 @@ async def schedule_draft(
     draft_id: int,
     scheduled_at: str,
     token: str | None = None,
-    post_audience: str = "only_paid",
-    email_audience: str = "only_paid",
+    post_audience: str = "everyone",
+    email_audience: str = "everyone",
 ) -> dict[str, Any]:
     async with _authenticated_clients(token) as (publication, substack):
         release = await DraftsService(publication, substack).schedule_draft(

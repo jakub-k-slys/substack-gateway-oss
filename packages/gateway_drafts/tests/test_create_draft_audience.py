@@ -1,4 +1,7 @@
-import asyncio
+from __future__ import annotations
+
+from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 from pydantic import ValidationError
@@ -8,36 +11,27 @@ from gateway_drafts.service import DraftsService
 
 
 class _Resp:
-    def json(self):
+    def json(self) -> object:
         return {"id": 1, "uuid": "u"}
 
 
-class _Pub:
-    def __init__(self):
-        self.sent = None
-
-    async def post(self, path, json):
-        self.sent = json
-        return _Resp()
-
-
-class _Sub:
-    async def get_own_id(self):
-        return 7
+async def _create(**kw: Any) -> str:
+    pub = AsyncMock()
+    pub.post.return_value = _Resp()
+    sub = AsyncMock()
+    sub.get_own_id.return_value = 7
+    await DraftsService(pub, sub).create_draft(title="t", **kw)
+    return pub.post.await_args.kwargs["json"]["audience"]
 
 
-def _create(**kw):
-    pub = _Pub()
-    asyncio.run(DraftsService(pub, _Sub()).create_draft(title="t", **kw))
-    return pub.sent["audience"]
-
-
-def test_new_draft_defaults_to_everyone():
-    assert _create() == "everyone"
+@pytest.mark.anyio
+async def test_new_draft_defaults_to_everyone() -> None:
+    assert await _create() == "everyone"
     assert CreateDraftRequest().audience == "everyone"
 
 
-def test_audience_is_passed_through_and_validated():
-    assert _create(audience="only_paid") == "only_paid"
+@pytest.mark.anyio
+async def test_audience_is_passed_through_and_validated() -> None:
+    assert await _create(audience="only_paid") == "only_paid"
     with pytest.raises(ValidationError):
-        CreateDraftRequest(audience="nobody")
+        CreateDraftRequest.model_validate({"audience": "nobody"})

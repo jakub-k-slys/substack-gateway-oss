@@ -175,8 +175,8 @@ class DraftsService:
         self,
         draft_id: int,
         scheduled_at: str | datetime,
-        post_audience: str = "only_paid",
-        email_audience: str = "only_paid",
+        post_audience: str = "everyone",
+        email_audience: str = "everyone",
     ) -> SubstackScheduledRelease:
         """POST /drafts/{draft_id}/scheduled_release — schedule timed release."""
         release = SubstackScheduledRelease(
