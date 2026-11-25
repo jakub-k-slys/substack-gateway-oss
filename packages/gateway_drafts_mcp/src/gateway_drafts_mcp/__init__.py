@@ -187,7 +187,7 @@ def _register(mcp: FastMCP) -> None:
         },
     )(check_draft)
     mcp.tool(
-        description="Schedule a Substack draft for timed release. `scheduled_at` is an ISO-8601 timestamp (UTC recommended, e.g. 2026-09-16T18:24:00Z). `post_audience` and `email_audience` default to only_paid. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
+        description="Schedule a Substack draft for timed release. `scheduled_at` is an ISO-8601 timestamp (UTC recommended, e.g. 2026-09-16T18:24:00Z). `post_audience` and `email_audience` default to everyone. The `token` argument is optional: pass base64-encoded Substack credentials, or omit it if this deployment resolves credentials from the authenticated session.",
         tags={"drafts", "write"},
         annotations=ToolAnnotations(
             title="Schedule Draft",

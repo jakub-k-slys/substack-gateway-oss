@@ -117,6 +117,7 @@ async def create_draft(
             title=body.title,
             subtitle=body.subtitle,
             body=body.body,
+            audience=body.audience,
         )
     except DraftMarkdownError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -163,8 +164,8 @@ async def schedule_draft(
     release = await service.schedule_draft(
         draft_id,
         body.scheduled_at,
-        post_audience=body.post_audience or "only_paid",
-        email_audience=body.email_audience or "only_paid",
+        post_audience=body.post_audience or "everyone",
+        email_audience=body.email_audience or "everyone",
     )
     return ScheduleDraftResponse.from_substack(release)
 

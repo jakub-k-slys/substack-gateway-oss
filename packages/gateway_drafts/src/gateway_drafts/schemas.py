@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -47,10 +48,14 @@ class DraftsListResponse(BaseModel):
         )
 
 
+DraftAudience = Literal["everyone", "only_free", "only_paid", "founding"]
+
+
 class CreateDraftRequest(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     body: str | None = None
+    audience: DraftAudience = "everyone"
 
 
 class UpdateDraftRequest(BaseModel):
@@ -83,11 +88,21 @@ class CreateDraftResponse(BaseModel):
         return cls(id=draft.id, uuid=draft.uuid)
 
 
+class ScheduledReleaseState(BaseModel):
+    trigger_at: str
+    post_audience: str | None = None
+    email_audience: str | None = None
+
+
 class DraftResponse(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     body: str | None = None
     updated_at: str | None = None
+    audience: str | None = None
+    is_published: bool | None = None
+    post_date: str | None = None
+    scheduled_releases: list[ScheduledReleaseState] = Field(default_factory=list)
 
     @classmethod
     def from_substack(cls, draft: SubstackDraft) -> DraftResponse:
@@ -96,6 +111,12 @@ class DraftResponse(BaseModel):
             subtitle=draft.draft_subtitle,
             body=draft_body_to_markdown(draft.draft_body) if draft.draft_body else None,
             updated_at=draft.draft_updated_at,
+            audience=draft.audience,
+            is_published=draft.is_published,
+            post_date=draft.post_date,
+            scheduled_releases=[
+                ScheduledReleaseState(**s.model_dump()) for s in draft.postSchedules
+            ],
         )
 
 
