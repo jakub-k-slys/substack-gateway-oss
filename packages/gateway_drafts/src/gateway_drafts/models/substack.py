@@ -17,7 +17,7 @@ class SubstackDraftPayload(BaseModel):
     section_chosen: bool = False
     draft_section_id: int | None = None
     draft_bylines: list[SubstackDraftByline]
-    audience: str = "only_paid"
+    audience: str = "everyone"
     type: str = "newsletter"
 
 
