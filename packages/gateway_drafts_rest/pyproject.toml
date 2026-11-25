@@ -7,7 +7,7 @@ dependencies = [
   "gateway_drafts",
   "gateway_rest_common",
   "fastapi>=0.163.1",
-  "python-multipart>=0.0.33",
+  "python-multipart>=0.0.34",
 ]
 
 [project.entry-points."substack_gateway.capabilities"]
